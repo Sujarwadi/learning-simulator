@@ -8,7 +8,7 @@
 /* ================== KONFIGURASI BACKEND ==================
    Tempel URL Web App yang SAMA PERSIS dengan yang dipakai
    Learning Simulator (satu backend, satu database). */
-window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRjZ1nm8lP25LdvPwHciAaj_9SLWYqlCQXWbrPjw04adLVhroKXS/exec";
+window.BACKEND_URL = "";
 </script>
 <style>
 :root{
@@ -39,7 +39,7 @@ h2.sect::before{content:"";width:7px;height:7px;border-radius:50%;background:var
   box-shadow:var(--shadow);margin-bottom:16px}
 label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 5px}
 label:first-child{margin-top:0}
-input[type=text],input[type=password],input[type=number],select,textarea{
+input[type=text],input[type=password],input[type=number],input[type=file],select,textarea{
   width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
   color:var(--text);font-size:14.5px;font-family:inherit}
 textarea{resize:vertical;min-height:130px}
@@ -142,20 +142,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     <div class="body-wrap">
       <h2 class="sect">Generate Matriks Kompetensi dari Deskripsi Jabatan</h2>
       <div class="card">
-        <label>Nama Jabatan</label>
-        <input type="text" id="inp-jabatan" placeholder="Contoh: Salesperson">
-        <label>Tier Jabatan</label>
-        <select id="inp-jabatan-tier">
-          <option>Staff</option><option selected>Officer</option><option>Supervisor</option>
-          <option>Manager</option><option>Division Head</option>
-        </select>
-        <label>Tempel Teks Deskripsi Jabatan (JD)</label>
-        <textarea id="inp-jd" placeholder="Tempel isi deskripsi jabatan di sini..."></textarea>
-        <div class="hint">Langkah 1: AI menganalisis dan mengusulkan kerangka kompetensi lengkap (Core + 7 Tools, kamus 5 level, checklist, katalog training). <b>Belum tersimpan</b>, tinjau dulu hasilnya sebelum disimpan ke Matriks Kompetensi.</div>
+        <label>Unggah File JD (PDF)</label>
+        <input type="file" id="inp-jd-file" accept=".pdf,application/pdf">
+        <div class="hint">Jika JD Anda berformat Word, simpan dulu sebagai PDF (Word: File, Save As, pilih PDF), lalu unggah di sini. Atau lewati ini dan tempel teksnya di bawah.</div>
+        <label style="margin-top:16px">Atau Tempel Teks Deskripsi Jabatan</label>
+        <textarea id="inp-jd" placeholder="Tempel isi deskripsi jabatan di sini jika tidak mengunggah file..."></textarea>
+        <div class="hint">Nama jabatan dan tier hirarki <b>tidak perlu diisi manual</b>, AI membacanya sendiri dari dokumen atau teks yang diberikan.</div>
         <div class="err" id="err-matrix"></div>
         <div style="margin-top:16px"><button class="btn btn-red" id="btn-generate-matrix">1. Generate (Tinjau Dulu)</button></div>
       </div>
-      <div id="matrix-loading" style="display:none"><div class="loading"><div class="spinner"></div>AI sedang menganalisis deskripsi jabatan&hellip;</div></div>
+      <div id="matrix-loading" style="display:none"><div class="loading"><div class="spinner"></div>AI sedang membaca dan menganalisis deskripsi jabatan&hellip;</div></div>
       <div id="matrix-result"></div>
       <h2 class="sect">Ekspor ke Excel</h2>
       <div class="card">
@@ -293,19 +289,35 @@ $("btn-denied-back").onclick = ()=>{ $("inp-nik").value=""; $("inp-pin").value="
 $("btn-admin-logout").onclick = ()=>show("scr-login");
 $("btn-atasan-logout").onclick = ()=>show("scr-login");
 
-/* ---------- Wajah L&D: Tahap 1, Generate (Preview) ---------- */
+/* ---------- Wajah L&D: Tahap 1, Generate (Preview), otomatis deteksi jabatan+tier ---------- */
 let previewData = null;
+
+function bacaFileSebagaiBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result.split(",")[1]); // buang prefix "data:...;base64,"
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 $("btn-generate-matrix").onclick = async ()=>{
   clearErr("err-matrix");
-  const jabatan = $("inp-jabatan").value.trim(), teksJD = $("inp-jd").value.trim();
-  const jabatanTier = $("inp-jabatan-tier").value;
-  if(!jabatan||!teksJD){ showErr("err-matrix","Nama jabatan dan teks JD wajib diisi."); return; }
+  const file = $("inp-jd-file").files[0];
+  const teksJD = $("inp-jd").value.trim();
+  if(!file && !teksJD){ showErr("err-matrix","Unggah file JD (PDF) atau tempel teksnya, salah satu wajib diisi."); return; }
   $("btn-generate-matrix").disabled = true;
   $("matrix-loading").style.display = "block";
   $("matrix-result").innerHTML = "";
   try{
-    const r = await api("generateMatrix", { nik: state.nik, jabatan, jabatanTier, teksJD });
+    let payload = { nik: state.nik };
+    if(file){
+      payload.fileBase64 = await bacaFileSebagaiBase64(file);
+      payload.mimeType = file.type || "application/pdf";
+    } else {
+      payload.teksJD = teksJD;
+    }
+    const r = await api("generateMatrix", payload);
     previewData = r;
     renderMatrixPreview(r);
   }catch(e){ showErr("err-matrix", e.message); }
@@ -314,7 +326,10 @@ $("btn-generate-matrix").onclick = async ()=>{
 };
 
 function renderMatrixPreview(r){
-  let html = '<div class="card"><h2 class="sect">Pratinjau: '+r.jumlahKompetensi+' Kompetensi (Belum Tersimpan)</h2>';
+  let html = '<div class="card"><h2 class="sect">Terdeteksi Otomatis oleh AI</h2>'+
+    '<p style="margin:0 0 4px"><b>Jabatan:</b> '+esc(r.jabatan)+' &nbsp;&middot;&nbsp; <b>Tier:</b> '+esc(r.jabatanTier)+'</p>'+
+    '<div class="hint">Jika nama jabatan atau tier ini kurang tepat, batalkan dan perbaiki teks JD, lalu generate ulang. Ini bukan kolom yang bisa diedit langsung, karena harus konsisten dengan isi dokumen sumber.</div></div>';
+  html += '<div class="card"><h2 class="sect">Pratinjau: '+r.jumlahKompetensi+' Kompetensi (Belum Tersimpan)</h2>';
   if(r.sudahAda){
     html += '<div class="err show" style="margin-bottom:12px">Jabatan "'+esc(r.jabatan)+'" sudah punya Matriks Kompetensi sebelumnya. Menyimpan akan menimpa data lama (perlu konfirmasi).</div>';
   }
@@ -332,7 +347,7 @@ function renderMatrixPreview(r){
 
 async function simpanMatrix(overwrite){
   clearErr("err-simpan");
-  const jabatan = $("inp-jabatan").value.trim();
+  const jabatan = previewData.jabatan;
   const btnAwal = $("btn-simpan-matrix");
   if(btnAwal) btnAwal.disabled = true;
   try{
