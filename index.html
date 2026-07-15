@@ -2,1535 +2,602 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Learning Simulator | PT Bosowa Berlian Motor</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-:root{
-  --pri:#6366F1; --pri2:#A855F7; --cy:#22D3EE;
-  --bg:#0B0E1C;
-  --surface:rgba(24,28,50,.66); --surface2:rgba(40,46,80,.55); --line:rgba(148,163,255,.15);
-  --text:#EEF1FE; --muted:#A6AED6; --faint:#6E77A3;
-  --pass:#34D399; --warn:#FBBF24; --fail:#FB7185;
-  --red:#6366F1;
-  --radius:18px; --shadow:0 10px 34px rgba(4,7,24,.38);
-  --blob1:rgba(99,102,241,.34); --blob2:rgba(217,70,239,.20); --blob3:rgba(34,211,238,.15);
-  --tileA1:#F59E0B; --tileA2:#EF4444; --tileB1:#8B5CF6; --tileB2:#6366F1;
-}
-html[data-theme="light"]{
-  --bg:#F2F4FC;
-  --surface:rgba(255,255,255,.86); --surface2:rgba(232,236,252,.92); --line:rgba(83,94,160,.15);
-  --text:#181C33; --muted:#575F86; --faint:#9AA1C4;
-  --fail:#E11D48;
-  --shadow:0 8px 26px rgba(35,42,90,.10);
-  --blob1:rgba(99,102,241,.22); --blob2:rgba(217,70,239,.13); --blob3:rgba(34,211,238,.16);
-}
-body{background:
-  radial-gradient(760px 540px at 88% -12%, var(--blob1), transparent 62%),
-  radial-gradient(660px 480px at -14% 34%, var(--blob2), transparent 60%),
-  radial-gradient(720px 540px at 72% 118%, var(--blob3), transparent 60%),
-  var(--bg);
-  color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:15px;line-height:1.55;overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
-.screen{display:none;height:100dvh;flex-direction:column;width:100%;padding:0 clamp(18px,4vw,52px)}
-.screen.active{display:flex}
-.sbody{flex:1;overflow-y:auto;padding:2px 2px 22px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;width:100%;max-width:1180px;margin:0 auto}
-#scr-setup .sbody{max-width:640px}
-#scr-brief .sbody{max-width:780px}
-.sbody::-webkit-scrollbar{width:7px}
-.sbody::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
-.actions{flex-shrink:0;padding:12px 0 14px;border-top:1px solid var(--line)}
-.actions .stack{margin-top:0;max-width:560px;margin-left:auto;margin-right:auto}
-header.app{display:flex;align-items:center;gap:12px;padding:20px 0 15px;flex-shrink:0;padding-right:56px;position:relative;width:100%;max-width:1180px;margin:0 auto}
-.logo-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 8px 22px rgba(124,58,237,.4)}
-.logo-mark svg{width:22px;height:22px}
-.app-title{font-weight:800;font-size:20px;letter-spacing:2.5px}
-.app-sub{font-size:11px;color:var(--muted);letter-spacing:.4px;margin-top:1px}
-h2.sect{font-weight:700;font-size:11.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--faint);margin:26px 0 10px;display:flex;align-items:center;gap:8px}
-h2.sect::before{content:"";width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2))}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.card + .card{margin-top:10px}
-label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:12px 0 5px;letter-spacing:.3px}
-input[type=text],input[type=password],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;color:var(--text);font-size:15px;font-family:inherit}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);outline-offset:0;border-color:transparent}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.2px;transition:transform .15s,box-shadow .15s,opacity .15s}
-.btn:active{opacity:.8}
-.btn-red{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 8px 24px rgba(124,58,237,.35)}
-.btn-red:hover{transform:translateY(-1px);box-shadow:0 11px 28px rgba(124,58,237,.45)}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
-.btn-dark{background:var(--surface2);color:var(--text);border:1px solid var(--line)}
-.btn[disabled]{opacity:.4;pointer-events:none}
-.hint{font-size:12px;color:var(--faint);margin-top:6px}
-.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.4px}
-.badge-red{background:rgba(139,92,246,.18);color:#C4B5FD}
-.badge-green{background:rgba(52,211,153,.16);color:var(--pass)}
-.badge-grey{background:var(--surface2);color:var(--muted)}
-.badge-warn{background:rgba(251,191,36,.16);color:var(--warn)}
-/* ===== HERO BERANDA ===== */
-.hero{background:linear-gradient(135deg,rgba(99,102,241,.30),rgba(168,85,247,.22) 55%,rgba(34,211,238,.14)),var(--surface);position:relative;overflow:hidden}
-.hero::after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-70px;top:-90px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
-.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.hero-hi{font-size:12px;color:var(--muted);letter-spacing:.4px}
-.profile-name{font-weight:800;font-size:22px;margin-top:2px}
-.profile-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.btn-mini{width:auto;padding:8px 16px;font-size:12px}
-.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-.hstat{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:10px 12px;backdrop-filter:blur(8px)}
-html[data-theme="light"] .hstat{background:rgba(255,255,255,.6)}
-.hstat-num{font-weight:800;font-size:24px;background:linear-gradient(90deg,var(--pri),var(--pri2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hstat-label{font-size:10.5px;color:var(--muted);letter-spacing:.3px;margin-top:1px}
-/* ===== MODUL TILES ===== */
-.module{display:flex;gap:14px;align-items:center;cursor:pointer;transition:transform .18s,box-shadow .18s;position:relative;overflow:hidden}
-.module:hover{transform:translateY(-3px)}
-.mod-tile{border:none;color:#fff}
-.mod-tile.tile-a{background:linear-gradient(135deg,var(--tileA1),var(--tileA2));box-shadow:0 12px 30px rgba(239,68,68,.30)}
-.mod-tile.tile-b{background:linear-gradient(135deg,var(--tileB1),var(--tileB2));box-shadow:0 12px 30px rgba(99,102,241,.30)}
-.mod-tile::after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-60px;bottom:-90px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%)}
-.module .mod-icon{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0;background:rgba(255,255,255,.20);backdrop-filter:blur(6px)}
-.module:not(.mod-tile) .mod-icon{background:linear-gradient(135deg,var(--pass),#0d9488)}
-.module .mod-body{flex:1}
-.module .mod-title{font-weight:800;font-size:15.5px}
-.module .mod-desc{font-size:12px;margin-top:3px;line-height:1.5}
-.mod-tile .mod-desc{color:rgba(255,255,255,.85)}
-.module:not(.mod-tile) .mod-desc{color:var(--muted)}
-.mod-tile .badge{background:rgba(255,255,255,.24);color:#fff}
-.hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 8px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s;border-radius:12px;margin:0 -8px}
-.hist-item:hover{background:var(--surface2)}
-.hist-item:last-child{border-bottom:none}
-.hist-score{font-weight:800;font-size:22px;min-width:44px;text-align:right}
-.empty{color:var(--faint);font-size:13px;text-align:center;padding:14px 0}
-.brief-list{list-style:none}
-.brief-list li{display:flex;gap:10px;padding:7px 0;font-size:14px}
-.brief-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));margin-top:8px;flex-shrink:0}
-/* ===== SESI ===== */
-.sess-top{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;width:100%;max-width:920px;margin:0 auto}
-.chat{width:100%;max-width:920px;margin:0 auto;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px 0 16px;min-height:200px}
-.mic-zone{width:100%;max-width:920px;margin:0 auto;padding:14px 0 6px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:1px solid var(--line)}
-.timer{font-weight:800;font-size:21px;letter-spacing:1px;font-variant-numeric:tabular-nums}
-.bubble{max-width:86%;padding:11px 15px;border-radius:16px;font-size:14px;white-space:pre-wrap}
-.bubble.ai{background:var(--surface);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:5px;backdrop-filter:blur(12px)}
-.bubble.me{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;align-self:flex-end;border-bottom-right-radius:5px;box-shadow:0 6px 18px rgba(124,58,237,.28)}
-.bubble.sys{align-self:center;background:transparent;border:1px dashed var(--line);color:var(--warn);font-size:12px;max-width:100%;text-align:center}
-.bubble .who{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;opacity:.75;display:block;margin-bottom:3px}
-.interim{color:var(--faint);font-style:italic;font-size:13px;align-self:flex-end;padding:0 6px}
-.mic-btn{width:84px;height:84px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 12px 30px rgba(124,58,237,.4)}
-.mic-btn svg{width:33px;height:33px;fill:#fff}
-.mic-btn.listening{background:linear-gradient(135deg,var(--pass),var(--cy));box-shadow:0 12px 30px rgba(52,211,153,.4)}
-.mic-btn.listening::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid var(--pass);animation:pulse 1.2s infinite}
-.mic-btn.busy{background:var(--surface2);box-shadow:none;pointer-events:none}
-@keyframes pulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.25);opacity:0}}
-.mic-label{font-size:12px;color:var(--muted)}
-.sess-actions{display:flex;gap:8px;width:100%}
-.sess-actions .btn{padding:11px;font-size:13px}
-.text-fallback{display:none;width:100%;gap:8px}
-.text-fallback.show{display:flex}
-.text-fallback input{flex:1}
-.text-fallback .btn{width:auto;padding:11px 16px}
-/* ===== HASIL ===== */
-.score-hero{display:flex;flex-direction:column;align-items:center;padding:22px 0 8px}
-.gauge{position:relative;width:150px;height:150px;filter:drop-shadow(0 10px 24px rgba(124,58,237,.3))}
-.gauge svg{transform:rotate(-90deg)}
-.gauge .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.gauge .num{font-weight:800;font-size:44px;line-height:1;background:linear-gradient(90deg,var(--pri),var(--pri2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.gauge .of{font-size:11px;color:var(--muted)}
-#gauge-arc{transition:stroke-dashoffset .95s cubic-bezier(.2,.8,.2,1)}
-.level-line{margin-top:10px;font-size:14px;font-weight:700}
-.param{padding:12px 0;border-bottom:1px solid var(--line)}
-.param:last-child{border-bottom:none}
-.param-head{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
-.param-bar{height:7px;background:var(--surface2);border-radius:4px;margin:8px 0 6px;overflow:hidden}
-.param-fill{height:100%;border-radius:4px;transform-origin:left;animation:growX .65s cubic-bezier(.2,.8,.2,1) both}
-.param-note{font-size:12.5px;color:var(--muted)}
-.rec-item{padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
-.rec-item:last-child{border-bottom:none}
-.rec-item .rec-ref{font-size:11.5px;color:var(--warn);font-weight:700;margin-top:2px}
-.radar-wrap{display:flex;justify-content:center;padding:6px 0}
-.strength-item{padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;display:flex;gap:9px}
-.strength-item:last-child{border-bottom:none}
-.strength-item::before{content:"";width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--pass),var(--cy));margin-top:6px;flex-shrink:0}
-.loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 0;color:var(--muted);font-size:14px}
-.spinner{width:38px;height:38px;border:3px solid var(--line);border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.stack{display:flex;flex-direction:column;gap:10px;margin-top:18px}
-.err{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.4);color:#FDA4AF;border-radius:12px;padding:10px 12px;font-size:13px;margin-top:10px;display:none}
-.err.show{display:block}
-/* ===== PERKEMBANGAN ===== */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}
-.kpi .kpi-num{font-weight:800;font-size:30px;line-height:1.15;background:linear-gradient(90deg,var(--pri),var(--pri2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.kpi .kpi-label{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.3px}
-.trend-wrap{display:flex;align-items:flex-end;gap:5px;height:90px;padding:6px 0}
-.trend-bar{flex:1;border-radius:5px 5px 0 0;min-height:4px;position:relative;transform-origin:bottom;animation:growY .5s cubic-bezier(.2,.8,.2,1) both}
-.trend-bar .tb-val{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9.5px;color:var(--muted)}
-.pbar-row{padding:9px 0}
-.pbar-head{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700}
-.pbar-track{height:7px;background:var(--surface2);border-radius:4px;margin-top:6px;position:relative;overflow:visible}
-.pbar-fill{height:100%;border-radius:4px;transform-origin:left;animation:growX .65s cubic-bezier(.2,.8,.2,1) both}
-.pbar-gate{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--warn);left:60%}
-.sel-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chk-row{display:flex;align-items:center;gap:9px;margin-top:13px;font-size:13.5px}
-.chk-row input{width:17px;height:17px;accent-color:var(--pri)}
-.credit{flex-shrink:0;font-size:10.5px;color:var(--faint);text-align:center;padding:14px 0 6px;letter-spacing:.4px;line-height:1.6}
-.theme-toggle{position:fixed;top:14px;right:14px;z-index:60;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
-.theme-toggle svg{width:19px;height:19px;fill:currentColor}
-/* ===== GRID DESKTOP & MOTION ===== */
-.grid2{display:grid;grid-template-columns:1fr;gap:0 26px;align-items:start}
-@media(min-width:980px){
-  .grid2{grid-template-columns:1fr 1fr}
-  .grid2.g-result{grid-template-columns:400px 1fr}
-  .kpi-grid{grid-template-columns:repeat(4,1fr)}
-  .app-title{font-size:23px}
-}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.screen.active .sbody{animation:fadeUp .38s cubic-bezier(.2,.8,.2,1) both}
-.screen.active header.app{animation:fadeUp .3s ease both}
-@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes growY{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BBLC Competency Development Studio</title>
 <script>
 /* ================== KONFIGURASI BACKEND ==================
-   Setelah backend Google Apps Script dideploy, tempel URL
-   Web App di antara tanda kutip di bawah ini.
-   Biarkan kosong untuk mode mandiri (data per perangkat). */
+   Tempel URL Web App yang SAMA PERSIS dengan yang dipakai
+   Learning Simulator (satu backend, satu database). */
 window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRjZ1nm8lP25LdvPwHciAaj_9SLWYqlCQXWbrPjw04adLVhroKXS/exec";
 </script>
+<style>
+:root{
+  --navy:#102A43; --navy2:#1E3A5F; --red:#C00010; --red-soft:#FBE9EA;
+  --bg:#F4F6F9; --surface:#FFFFFF; --line:#DCE3ED; --text:#1A2433; --muted:#5B6472;
+  --green:#0E8A5F; --green-soft:#E6F6EF; --amber:#B45309; --amber-soft:#FEF3E2;
+  --radius:14px; --shadow:0 8px 26px rgba(16,42,67,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.55}
+#app{display:flex;flex-direction:column;min-height:100vh}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex}
+header.app{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px}
+.logo-mark{width:38px;height:38px;border-radius:9px;background:var(--red);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:16px}
+.app-title{font-weight:800;font-size:15.5px;letter-spacing:.5px}
+.app-sub{font-size:11px;color:#9FB3C8;margin-top:1px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#C7D2E0}
+.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;
+  border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}
+.body-wrap{flex:1;padding:24px 20px 60px;max-width:760px;width:100%;margin:0 auto}
+h2.sect{font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);
+  margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h2.sect::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--red)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);margin-bottom:16px}
+label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 5px}
+label:first-child{margin-top:0}
+input[type=text],input[type=password],input[type=number],input[type=file],select,textarea{
+  width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  color:var(--text);font-size:14.5px;font-family:inherit}
+textarea{resize:vertical;min-height:130px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;
+  border-radius:10px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2)}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.err{background:var(--red-soft);border:1px solid #F3B9BD;color:#8A1620;border-radius:9px;padding:9px 12px;
+  font-size:13px;margin-top:10px;display:none}
+.err.show{display:block}
+.badge{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+.badge-green{background:var(--green-soft);color:var(--green)}
+.badge-amber{background:var(--amber-soft);color:var(--amber)}
+.badge-red{background:var(--red-soft);color:var(--red)}
+.badge-grey{background:#EEF1F6;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.team-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);
+  border-radius:11px;margin-bottom:9px;cursor:pointer;transition:.15s}
+.team-item:hover{border-color:var(--navy2);box-shadow:0 4px 14px rgba(16,42,67,.08)}
+.team-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;display:flex;
+  align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.team-info{flex:1;min-width:0}
+.team-name{font-weight:700;font-size:14px;color:var(--navy)}
+.team-jabatan{font-size:12px;color:var(--muted)}
+.kompetensi-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.kompetensi-row:last-child{border-bottom:none}
+.kompetensi-name{flex:1;font-size:13.5px;font-weight:600}
+.kompetensi-target{font-size:11px;color:var(--muted)}
+.kompetensi-row select{width:90px}
+.idp-card{border-left:4px solid var(--navy);background:#F8FAFC;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}
+.idp-comp{font-weight:800;font-size:13.5px;color:var(--navy)}
+.idp-line{font-size:12.5px;color:var(--text);margin-top:5px}
+.idp-line b{color:var(--navy)}
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 0;color:var(--muted)}
+.spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--navy);border-radius:50%;
+  animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0}
+.tab-row{display:flex;gap:6px;margin-bottom:16px}
+.tab-btn{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:12.5px;
+  font-weight:700;color:var(--muted);cursor:pointer}
+.tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.credit{text-align:center;font-size:10.5px;color:#9AA5B4;padding:16px 0;letter-spacing:.3px}
+</style>
 </head>
 <body>
-<button class="theme-toggle" id="btn-theme" aria-label="Ganti tema terang atau gelap">
-  <svg id="ic-moon" viewBox="0 0 24 24"><path d="M12.3 2a9.9 9.9 0 1 0 9.7 12.1A8 8 0 0 1 12.3 2z"/></svg>
-  <svg id="ic-sun" viewBox="0 0 24 24" style="display:none"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 3v2m0-20v2m10 8h-2M4 12H2m15.5 7.5-1.4-1.4M7.9 7.9 6.5 6.5m0 11 1.4-1.4m8.2-8.2 1.4-1.4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-</button>
+<div id="app">
 
-<!-- ============ SETUP ============ -->
-<section class="screen" id="scr-setup">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">LEARNING SIMULATOR</div><div class="app-sub">Bosowa Berlian Learning Center</div></div>
-  </header>
-  <div class="sbody">
-  <h2 class="sect">Pengaturan Awal</h2>
-  <div class="card">
-    <div id="fld-nama">
-      <label>Nama Lengkap</label>
-      <input type="text" id="inp-nama" placeholder="Contoh: Andi Pratama">
-    </div>
-    <label>NIK</label>
-    <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
-    <div id="fld-pin" style="display:none">
-      <label>PIN</label>
-      <input type="password" id="inp-pin" placeholder="PIN yang diberikan L&amp;D">
-      <p class="hint">Lupa PIN? Hubungi Learning &amp; Development.</p>
-    </div>
-    <div id="fld-cabang">
-      <label>Cabang</label>
-      <input type="text" id="inp-cabang" placeholder="Contoh: Urip Sumoharjo">
-    </div>
-    <div id="fld-key">
-      <label>Kunci API Gemini</label>
-      <input type="password" id="inp-key" placeholder="Tempel kunci API di sini">
-      <p class="hint">Kunci API diperoleh gratis di aistudio.google.com, menu Get API Key. Kunci hanya tersimpan di perangkat ini dan tidak dikirim ke pihak mana pun selain Google.</p>
-    </div>
-  </div>
-  <div class="err" id="err-setup"></div>
-  </div>
-  <div class="actions"><div class="stack">
-    <button class="btn btn-red" id="btn-save-setup">Simpan dan Mulai</button>
-  </div></div>
-  <div class="credit">Created by Sujarwadi<br>Property of Learning &amp; Development Department</div>
-</section>
-
-<!-- ============ HOME ============ -->
-<section class="screen" id="scr-home">
-  <header class="app">
-    <div class="logo-mark" id="logo-home"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div style="flex:1"><div class="app-title">LEARNING SIMULATOR</div><div class="app-sub">Bosowa Berlian Learning Center</div></div>
-  </header>
-  <div class="sbody"><div class="grid2">
-  <div>
-  <div class="card hero" style="margin-top:22px">
-    <div class="hero-top">
-      <div>
-        <div class="hero-hi">Selamat datang kembali</div>
-        <div class="profile-name" id="home-nama">-</div>
-        <div class="profile-meta" id="home-meta">-</div>
-      </div>
-      <button class="btn btn-ghost btn-mini" id="btn-edit-profile">Ubah</button>
-    </div>
-    <div class="hero-stats">
-      <div class="hstat"><div class="hstat-num" id="hero-week">0</div><div class="hstat-label">Sesi Minggu Ini</div></div>
-      <div class="hstat"><div class="hstat-num" id="hero-last">-</div><div class="hstat-label">Skor Terakhir</div></div>
-      <div class="hstat"><div class="hstat-num" id="hero-best">-</div><div class="hstat-label">Skor Terbaik</div></div>
-    </div>
-  </div>
-  <h2 class="sect">Modul Simulasi</h2>
-  <div class="card module mod-tile tile-a" id="mod-pkt">
-    <div class="mod-icon">P1</div>
-    <div class="mod-body">
-      <div class="mod-title">PKT Masterclass: Roleplay Hari H</div>
-      <div class="mod-desc">Penyambutan, perkenalan tim, demonstrasi sesuai profil pelanggan, aktivasi MMID, dan satu skenario krisis acak. Durasi 10 sampai 15 menit.</div>
-    </div>
-    <span class="badge badge-red">MULAI</span>
-  </div>
-  <div class="card module mod-tile tile-b" id="mod-video">
-    <div class="mod-icon">V1</div>
-    <div class="mod-body">
-      <div class="mod-title">PKT Video Assessment</div>
-      <div class="mod-desc">Rekam roleplay fisik bersama rekan yang berperan sebagai pelanggan, unggah videonya, dan AI menilai kelima parameter termasuk gestur secara visual. Maksimal 10 menit.</div>
-    </div>
-    <span class="badge badge-red">MULAI</span>
-  </div>
-  </div>
-  <div>
-  <h2 class="sect">Perkembangan</h2>
-  <div class="card module" id="btn-progress">
-    <div class="mod-icon">TR</div>
-    <div class="mod-body">
-      <div class="mod-title">Perkembangan Saya</div>
-      <div class="mod-desc">Tren skor, rata-rata per parameter, dan riwayat lengkap seluruh sesi latihan dan ujian Anda.</div>
-    </div>
-    <span class="badge badge-grey">LIHAT</span>
-  </div>
-  <h2 class="sect">Riwayat Sesi Terakhir</h2>
-  <div class="card" id="hist-box"><div class="empty">Belum ada sesi latihan. Mulailah sesi pertama Anda.</div></div>
-  </div>
-  </div></div>
-  <div class="credit">Created by Sujarwadi<br>Property of Learning &amp; Development Department</div>
-</section>
-
-<!-- ============ BRIEFING ============ -->
-<section class="screen" id="scr-brief">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">BRIEFING SESI</div><div class="app-sub">PKT Masterclass: Roleplay Hari H</div></div>
-  </header>
-  <div class="sbody">
-  <h2 class="sect">Skenario Anda</h2>
-  <div class="card">
-    <p id="brief-scenario" style="font-size:14px"></p>
-  </div>
-  <h2 class="sect">Ketentuan Sesi</h2>
-  <div class="card">
-    <ul class="brief-list">
-      <li>Anda berperan sebagai Sales. AI berperan sebagai pelanggan yang datang mengambil unit di dealer.</li>
-      <li>Bicaralah persis seperti menghadapi pelanggan sungguhan, mulai dari penyambutan di lobi.</li>
-      <li>Sebutkan secara lisan setiap tindakan fisik yang Anda lakukan, misalnya "saya membuka pintu kemudi dengan dua tangan". Tindakan yang tidak disebutkan dianggap tidak dilakukan.</li>
-      <li>Tekan tombol mikrofon untuk mulai bicara, tekan lagi untuk selesai. Jawaban pelanggan akan diperdengarkan.</li>
-      <li>Selesaikan seluruh proses hingga penutupan, lalu tekan Akhiri Sesi untuk mendapatkan penilaian.</li>
-    </ul>
-  </div>
-  </div>
-  <div class="actions"><div class="stack">
-    <button class="btn btn-red" id="btn-start-session">Mulai Sesi</button>
-    <button class="btn btn-ghost" id="btn-brief-back">Kembali</button>
-  </div></div>
-</section>
-
-<!-- ============ SESSION ============ -->
-<section class="screen" id="scr-session">
-  <div class="sess-top">
-    <div>
-      <span class="badge badge-grey" id="sess-profile-badge">-</span>
-    </div>
-    <div class="timer" id="sess-timer">00:00</div>
-  </div>
-  <div class="chat" id="chat"></div>
-  <div class="mic-zone">
-    <div class="err" id="err-session"></div>
-    <button class="mic-btn" id="btn-mic" aria-label="Mikrofon">
-      <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
-    </button>
-    <div class="mic-label" id="mic-label">Tekan untuk bicara</div>
-    <div class="text-fallback" id="text-fallback">
-      <input type="text" id="inp-text" placeholder="Ketik ucapan Anda di sini">
-      <button class="btn btn-red" id="btn-send-text">Kirim</button>
-    </div>
-    <div class="sess-actions">
-      <button class="btn btn-dark" id="btn-toggle-text">Mode Ketik</button>
-      <button class="btn btn-red" id="btn-end-session">Akhiri Sesi dan Nilai</button>
-    </div>
-  </div>
-</section>
-
-<!-- ============ VIDEO ASSESSMENT ============ -->
-<section class="screen" id="scr-video">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">VIDEO ASSESSMENT</div><div class="app-sub">PKT Masterclass: Roleplay Fisik</div></div>
-  </header>
-  <div class="sbody"><div class="grid2">
-  <div>
-  <h2 class="sect">Pilih Skenario</h2>
-  <div class="card">
-    <div class="sel-row">
-      <div>
-        <label style="margin-top:0">Profil Pelanggan</label>
-        <select id="sel-profil">
-          <option value="acak">Acak</option>
-          <option value="first-timer">First-Timer</option>
-          <option value="tech-geek">Tech-Geek</option>
-          <option value="family-driver">Family Driver</option>
-        </select>
-      </div>
-      <div>
-        <label style="margin-top:0">Skenario Krisis</label>
-        <select id="sel-krisis">
-          <option value="acak">Acak</option>
-          <option value="baret">Baret Menit Terakhir</option>
-          <option value="blank">Pertanyaan Teknis Sulit</option>
-        </select>
+  <!-- ============ LOGIN ============ -->
+  <section class="screen active" id="scr-login">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">BBLC COMPETENCY DEVELOPMENT STUDIO</div>
+      <div class="app-sub">Bosowa Berlian Learning Center</div></div>
+    </header>
+    <div class="body-wrap" style="max-width:420px;padding-top:60px">
+      <div class="card">
+        <h2 class="sect">Masuk</h2>
+        <label>NIK</label>
+        <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
+        <label>PIN</label>
+        <input type="password" id="inp-pin" placeholder="PIN yang sama dengan Learning Simulator">
+        <div class="hint">Khusus L&amp;D Admin dan Atasan (Dept Head/Kepala Cabang). Bukan untuk akun karyawan biasa.</div>
+        <div class="err" id="err-login"></div>
+        <div style="margin-top:16px"><button class="btn btn-primary" id="btn-login">Masuk</button></div>
       </div>
     </div>
-    <div class="chk-row">
-      <input type="checkbox" id="chk-ujian">
-      <span>Mode Ujian: skenario diacak sistem dan hasil tercatat sebagai ujian resmi.</span>
+    <div class="credit">Created by Sujarwadi &middot; Satu backend dengan Learning Simulator</div>
+  </section>
+
+  <!-- ============ DITOLAK (role user) ============ -->
+  <section class="screen" id="scr-denied">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">BBLC COMPETENCY DEVELOPMENT STUDIO</div></div>
+    </header>
+    <div class="body-wrap" style="text-align:center;padding-top:60px">
+      <div class="card">
+        <h2 class="sect" style="justify-content:center">Akses Terbatas</h2>
+        <p>Aplikasi ini khusus untuk L&amp;D Admin dan Atasan. Akun Anda tidak memiliki akses ke fitur ini.</p>
+        <button class="btn btn-ghost" id="btn-denied-back">Kembali ke Layar Masuk</button>
+      </div>
     </div>
-  </div>
-  <h2 class="sect">Skenario Anda</h2>
-  <div class="card"><p id="vbrief-scenario" style="font-size:14px"></p></div>
-  </div>
-  <div>
-  <h2 class="sect">Ketentuan Rekaman</h2>
-  <div class="card">
-    <ul class="brief-list">
-      <li>Minta satu rekan berperan sebagai pelanggan sesuai profil pada skenario di atas. Rekan cukup merespons natural, tidak perlu naskah.</li>
-      <li>Rekam dengan HP dalam posisi landscape. Seluruh badan Anda harus terlihat dan suara terdengar jelas.</li>
-      <li>Durasi maksimal 10 menit. Rekam di resolusi 720p agar file tidak terlalu besar dan unggahan cepat.</li>
-      <li>Jalankan proses selengkap mungkin: penyambutan, perkenalan tim, demonstrasi unit, aktivasi aplikasi, hingga penutupan, termasuk merespons krisis pada skenario.</li>
-      <li>Gestur dinilai secara visual: cara berjalan, senyum, membuka pintu, penggunaan sarung tangan, dan gestur tangan saat menunjuk fitur.</li>
-    </ul>
-  </div>
-  <h2 class="sect">Unggah Video</h2>
-  <div class="card">
-    <input type="file" id="inp-video" accept="video/*" style="display:none">
-    <button class="btn btn-dark" id="btn-pick-video">Pilih File Video</button>
-    <div class="hint" id="video-info" style="margin-top:10px">Belum ada file dipilih.</div>
-    <div class="param-bar" id="vprog-wrap" style="display:none;margin-top:12px"><div class="param-fill" id="vprog" style="width:0%;background:var(--red)"></div></div>
-    <div class="hint" id="vprog-label" style="display:none"></div>
-  </div>
-  <div class="err" id="err-video"></div>
-  </div>
-  </div></div>
-  <div class="actions"><div class="stack">
-    <button class="btn btn-red" id="btn-analyze-video" disabled>Unggah dan Nilai Video</button>
-    <button class="btn btn-ghost" id="btn-video-back">Kembali</button>
-  </div></div>
-</section>
+  </section>
 
-<!-- ============ ADMIN (tersembunyi) ============ -->
-<section class="screen" id="scr-admin">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">PANEL ADMIN</div><div class="app-sub">Bosowa Berlian Learning Center | Khusus L&amp;D</div></div>
-  </header>
-  <div class="sbody"><div class="grid2">
-  <div>
-  <h2 class="sect">Basis Pengetahuan</h2>
-  <div class="card">
-    <p class="hint" style="margin-top:0">Materi di bawah ini disuntikkan ke AI: menjadi konteks tambahan bagi pelanggan saat roleplay dan bagi validator saat menilai. Contoh isi: product knowledge terbaru, program promo, kebijakan cabang, atau catatan rubrik tambahan.</p>
-    <textarea id="adm-kb" rows="9" placeholder="Tulis atau tempel pengetahuan tambahan di sini"></textarea>
-    <div class="stack"><button class="btn btn-red" id="adm-save-kb">Simpan Basis Pengetahuan</button></div>
-  </div>
-  <h2 class="sect">Keamanan</h2>
-  <div class="card">
-    <div class="stack" style="margin-top:0"><button class="btn btn-dark" id="adm-ganti-pin">Ganti PIN Admin</button></div>
-    <p class="hint">Catatan transparansi: pada fase prototype, panel dan datanya tersimpan di perangkat ini dan pengamanannya berbasis PIN plus pintu masuk tersembunyi. Keamanan penuh sisi server berlaku setelah fase backend.</p>
-  </div>
-  </div>
-  <div>
-  <h2 class="sect">Profil Pelanggan Kustom</h2>
-  <div class="card">
-    <label style="margin-top:0">Nama Profil (contoh: Fleet Buyer Tambang)</label>
-    <input type="text" id="adm-p-label">
-    <label>Nama Pelanggan (contoh: Bapak Haji Anwar)</label>
-    <input type="text" id="adm-p-nama">
-    <label>Deskripsi Karakter dan Fokusnya</label>
-    <textarea id="adm-p-desc" rows="3" placeholder="Contoh: pengusaha angkutan nikel, fokus pada durabilitas, biaya perawatan, dan ketersediaan sparepart"></textarea>
-    <div class="stack"><button class="btn btn-red" id="adm-add-p">Tambah Profil</button></div>
-    <div id="adm-list-p" style="margin-top:12px"></div>
-  </div>
-  <h2 class="sect">Skenario Krisis Kustom</h2>
-  <div class="card">
-    <label style="margin-top:0">Judul Krisis (contoh: Komplain Harga Kompetitor)</label>
-    <input type="text" id="adm-k-label">
-    <label>Briefing untuk Peserta (terlihat di skenario)</label>
-    <textarea id="adm-k-brief" rows="2"></textarea>
-    <label>Instruksi Rahasia untuk AI Pelanggan</label>
-    <textarea id="adm-k-note" rows="3" placeholder="Contoh: Di tengah sesi, sebutkan bahwa dealer sebelah menawarkan unit serupa lebih murah 15 juta dan tuntut penjelasan"></textarea>
-    <div class="stack"><button class="btn btn-red" id="adm-add-k">Tambah Krisis</button></div>
-    <div id="adm-list-k" style="margin-top:12px"></div>
-  </div>
-  </div>
-  </div></div>
-  <div class="actions"><div class="stack">
-    <button class="btn btn-ghost" id="adm-back">Keluar dari Panel Admin</button>
-  </div></div>
-</section>
-
-<!-- ============ SCORING (loading) ============ -->
-<section class="screen" id="scr-scoring">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">PENILAIAN SESI</div><div class="app-sub">Validator sedang bekerja</div></div>
-  </header>
-  <div class="sbody" style="display:flex;align-items:center;justify-content:center">
-  <div class="loading">
-    <div class="spinner"></div>
-    <div style="text-align:center">Validator sedang mengevaluasi sesi Anda terhadap rubrik materi. Mohon tunggu.</div>
-  </div>
-  </div>
-</section>
-
-<!-- ============ RESULT ============ -->
-<section class="screen" id="scr-result">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">HASIL PENILAIAN</div><div class="app-sub" id="res-meta">-</div></div>
-  </header>
-  <div class="sbody"><div class="grid2 g-result">
-  <div>
-  <div class="score-hero">
-    <div class="gauge">
-      <svg width="150" height="150">
-        <defs>
-          <linearGradient id="ggrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#A855F7"/></linearGradient>
-          <linearGradient id="ggrad-pass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34D399"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>
-          <linearGradient id="ggrad-warm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBBF24"/><stop offset="1" stop-color="#FB7185"/></linearGradient>
-        </defs>
-        <circle cx="75" cy="75" r="64" fill="none" style="stroke:var(--surface2)" stroke-width="10"/>
-        <circle id="gauge-arc" cx="75" cy="75" r="64" fill="none" stroke="url(#ggrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402"/>
-      </svg>
-      <div class="val"><div class="num" id="res-score">0</div><div class="of">dari 10</div></div>
+  <!-- ============ ADMIN HOME ============ -->
+  <section class="screen" id="scr-admin">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">COMPETENCY DEVELOPMENT STUDIO</div><div class="app-sub" id="admin-nama">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-admin-logout">Keluar</button></div>
+    </header>
+    <div class="body-wrap">
+      <h2 class="sect">Generate Matriks Kompetensi dari Deskripsi Jabatan</h2>
+      <div class="card">
+        <label>Unggah File JD (PDF)</label>
+        <input type="file" id="inp-jd-file" accept=".pdf,application/pdf">
+        <div class="hint">Jika JD Anda berformat Word, simpan dulu sebagai PDF (Word: File, Save As, pilih PDF), lalu unggah di sini. Atau lewati ini dan tempel teksnya di bawah.</div>
+        <label style="margin-top:16px">Atau Tempel Teks Deskripsi Jabatan</label>
+        <textarea id="inp-jd" placeholder="Tempel isi deskripsi jabatan di sini jika tidak mengunggah file..."></textarea>
+        <div class="hint">Nama jabatan dan tier hirarki <b>tidak perlu diisi manual</b>, AI membacanya sendiri dari dokumen atau teks yang diberikan.</div>
+        <div class="err" id="err-matrix"></div>
+        <div style="margin-top:16px"><button class="btn btn-red" id="btn-generate-matrix">1. Generate (Tinjau Dulu)</button></div>
+      </div>
+      <div id="matrix-loading" style="display:none"><div class="loading"><div class="spinner"></div>AI sedang membaca dan menganalisis deskripsi jabatan&hellip;</div></div>
+      <div id="matrix-result"></div>
+      <h2 class="sect">Ekspor ke Excel</h2>
+      <div class="card">
+        <label>Pilih Jabatan</label>
+        <select id="sel-export-jabatan"><option value="">Memuat daftar jabatan&hellip;</option></select>
+        <div class="hint">Daftar ini terisi otomatis dari Matriks Kompetensi yang sudah tersimpan, tanpa pengetikan manual. Jabatan yang baru saja Anda simpan langsung terpilih sendiri. Menghasilkan file .xlsx berisi Kamus Kompetensi (5 level, merge asli), Competency Matrix, dan Katalog Training, dengan format warna dan font sesuai standar BBM.</div>
+        <div class="err" id="err-export"></div>
+        <div style="margin-top:14px"><button class="btn btn-ghost" id="btn-export-kompetensi">Unduh Master Kompetensi (.xlsx)</button></div>
+      </div>
+      <h2 class="sect" style="margin-top:28px">Lihat IDP Karyawan</h2>
+      <div class="card">
+        <label>Cari Karyawan (opsional, ketik untuk menyaring)</label>
+        <input type="text" id="inp-filter-karyawan" placeholder="Ketik sebagian nama, cabang, atau jabatan">
+        <label style="margin-top:12px">Pilih Karyawan</label>
+        <select id="sel-lookup-nik"><option value="">Memuat daftar karyawan&hellip;</option></select>
+        <div class="hint">Daftar terisi otomatis dari data karyawan terdaftar. Tidak ada pengetikan NIK, cukup pilih nama.</div>
+        <div style="margin-top:14px;display:flex;gap:10px">
+          <button class="btn btn-ghost" id="btn-lookup-idp">Tampilkan IDP</button>
+          <button class="btn btn-ghost" id="btn-export-idp">Unduh IDP (.xlsx)</button>
+        </div>
+        <div class="err" id="err-export-idp"></div>
+        <div id="lookup-idp-result" style="margin-top:14px"></div>
+      </div>
     </div>
-    <div class="level-line" id="res-level">-</div>
-    <div style="margin-top:8px"><span class="badge" id="res-status">-</span></div>
-  </div>
-  <h2 class="sect">Radar Kompetensi</h2>
-  <div class="card radar-wrap" id="res-radar"></div>
-  </div>
-  <div>
-  <h2 class="sect">Ringkasan Eksekutif</h2>
-  <div class="card"><p id="res-eval" style="font-size:13.5px;color:var(--text)"></p></div>
-  <h2 class="sect">Kekuatan yang Teramati</h2>
-  <div class="card" id="res-strengths"></div>
-  <h2 class="sect">Skor per Parameter</h2>
-  <div class="card" id="res-params"></div>
-  <h2 class="sect">Rekomendasi Pengembangan</h2>
-  <div class="card" id="res-recs"></div>
-  </div>
-  </div></div>
-  <div class="actions"><div class="stack">
-    <button class="btn btn-dark" id="btn-unduh-word">Unduh Laporan (Word)</button>
-    <button class="btn btn-red" id="btn-res-home">Kembali ke Beranda</button>
-  </div></div>
-</section>
+    <div class="credit">BBLC Competency Development Studio &middot; Created by Sujarwadi</div>
+  </section>
 
-<!-- ============ PROGRESS ============ -->
-<section class="screen" id="scr-progress">
-  <header class="app">
-    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">PERKEMBANGAN SAYA</div><div class="app-sub" id="prog-meta">-</div></div>
-  </header>
-  <div class="sbody">
-  <h2 class="sect">Ringkasan</h2>
-  <div class="kpi-grid" id="prog-kpi"></div>
-  <div class="grid2">
-  <div>
-  <h2 class="sect">Tren Skor Total</h2>
-  <div class="card"><div class="trend-wrap" id="prog-trend"></div><div class="hint" id="prog-trend-note"></div></div>
-  </div>
-  <div>
-  <h2 class="sect">Rata-rata per Parameter (5 Sesi Terakhir)</h2>
-  <div class="card" id="prog-params"></div>
-  </div>
-  </div>
-  <h2 class="sect">Riwayat Lengkap</h2>
-  <div class="card" id="prog-hist"></div>
-  </div>
-  <div class="actions"><div class="stack">
-    <button class="btn btn-red" id="btn-prog-home">Kembali ke Beranda</button>
-  </div></div>
-</section>
+  <!-- ============ ATASAN HOME ============ -->
+  <section class="screen" id="scr-atasan">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">COMPETENCY DEVELOPMENT STUDIO</div><div class="app-sub" id="atasan-nama">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-atasan-logout">Keluar</button></div>
+    </header>
+    <div class="body-wrap">
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-asesmen">Asesmen Tim</button>
+        <button class="tab-btn" id="tab-idp-tim">IDP Tim</button>
+      </div>
+      <div id="panel-asesmen">
+        <h2 class="sect">Tim Anda &middot; Periode <span id="periode-label">-</span></h2>
+        <div id="tim-loading"><div class="loading"><div class="spinner"></div>Memuat daftar tim&hellip;</div></div>
+        <div id="tim-list"></div>
+      </div>
+      <div id="panel-idp-tim" style="display:none">
+        <h2 class="sect">IDP Seluruh Tim</h2>
+        <div id="idp-tim-loading" style="display:none"><div class="loading"><div class="spinner"></div>Memuat IDP&hellip;</div></div>
+        <div id="idp-tim-list"></div>
+      </div>
+    </div>
+    <div class="credit">BBLC Competency Development Studio &middot; Created by Sujarwadi</div>
+  </section>
+
+  <!-- ============ FORM ASESMEN ============ -->
+  <section class="screen" id="scr-assess-form">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">ASESMEN KOMPETENSI</div><div class="app-sub" id="assess-nama-jabatan">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-assess-back">Batal</button></div>
+    </header>
+    <div class="body-wrap">
+      <div class="card">
+        <h2 class="sect">Beri Skor Level Aktual (1 sampai 5)</h2>
+        <div id="assess-kompetensi-list"></div>
+        <div class="err" id="err-assess"></div>
+        <div style="margin-top:16px"><button class="btn btn-red" id="btn-submit-assess">Kirim Asesmen</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HASIL IDP SETELAH SUBMIT ============ -->
+  <section class="screen" id="scr-idp-result">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">IDP TERSUSUN OTOMATIS</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-idpresult-back">Kembali</button></div>
+    </header>
+    <div class="body-wrap">
+      <div class="card">
+        <p id="idp-result-pesan" style="font-weight:700;color:var(--navy)"></p>
+        <div id="idp-result-list"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
 
 <script>
-/* ================================================================
-   SALES SIMULATOR PKT, PT BOSOWA BERLIAN MOTOR
-   Prototype v0.1, mode voice roleplay + validator AI
-   ================================================================ */
-
-const GEMINI_MODEL = "gemini-2.5-flash";
 const BACKEND_URL = ((typeof window!=="undefined" && window.BACKEND_URL) ? window.BACKEND_URL : "").trim();
-let SRV = { kb:"", profils:[], krisis:[], role:"user" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let state = { nik:"", nama:"", role:"", jabatan:"" };
+let selectedMember = null;
+let currentTeam = [];
+
 async function api(action, payload){
+  if(!BACKEND_URL) throw new Error("BACKEND_URL belum diisi di kepala file.");
   const res = await fetch(BACKEND_URL, {
-    method:"POST",
-    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
     body: JSON.stringify(Object.assign({action:action}, payload||{}))
   });
   if(!res.ok) throw new Error("Server tidak merespons (kode "+res.status+").");
   const j = await res.json();
-  if(!j.ok) throw new Error(j.error||"Permintaan ditolak server.");
+  if(!j.ok){
+    const err = new Error(j.error||"Permintaan ditolak server.");
+    if(j.needsConfirm) err.needsConfirm = true;
+    throw err;
+  }
   return j;
 }
-const AMBANG_LULUS = 6; /* skor minimum per parameter, setara Level 3 Mandiri */
-const MIN_GILIRAN = 4;  /* minimal giliran bicara peserta agar sesi dapat dinilai */
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); }
+function showErr(id, msg){ const e=$(id); e.textContent=msg; e.classList.add("show"); }
+function clearErr(id){ const e=$(id); e.textContent=""; e.classList.remove("show"); }
 
-/* ---------- Rubrik PKT Masterclass (sumber: deck PKT rev2) ---------- */
-const RUBRIK = `
-RUBRIK PENILAIAN ROLEPLAY PKT MASTERCLASS, PT BOSOWA BERLIAN MOTOR.
-Skala penilaian tiap parameter: 1 sampai 10. Komposisi nilai tiap parameter: Anchor verbatim terucap (bobot 40 persen), kata kunci wajib lengkap (bobot 40 persen), struktur atau urutan benar (bobot 20 persen).
-Pemetaan skor ke level kompetensi: 1-2 Level 1 Awareness (belum mandiri), 3-4 Level 2 Basic (perlu bimbingan), 5-6 Level 3 Intermediate (mandiri), 7-8 Level 4 Advanced (mahir dan rujukan), 9-10 Level 5 Expert (inovator).
-Status LULUS hanya jika SEMUA parameter mencapai skor minimal ${AMBANG_LULUS}. Satu parameter di bawah ambang berarti BELUM LULUS meskipun rata-rata tinggi.
-
-PARAMETER 1. PENYAMBUTAN AWAL (Skrip slide 28 dan 29).
-Anchor verbatim: frasa "Welcome Home" dan menyapa pelanggan dengan menyebut nama.
-Kata kunci wajib: ucapan selamat atas Mitsubishi barunya; pernyataan unit sudah siap 100 persen; pernyataan unit sudah lolos inspeksi ketat; ajakan mengantar pelanggan. Untuk perkenalan tim: memperkenalkan Kepala Cabang, Kepala Bengkel, dan CSO dengan nama dan jabatan; framing bahwa mereka siap membantu proses apa pun termasuk servis.
-Struktur: sapaan dengan nama, lalu ucapan selamat, lalu jaminan kesiapan unit, lalu ajakan. Perkenalan tim dilakukan SEBELUM penjelasan mobil.
-Karena mode suara, aspek fisik (jalan tegap, kontak mata, jabat tangan) dinilai dari action callout, yaitu peserta menyebutkan tindakan fisiknya secara lisan.
-
-PARAMETER 2. GESTUR PRESENTASI (slide 30 dan 31), dinilai melalui action callout.
-Kata kunci wajib: menyebutkan membuka pintu kemudi dengan dua tangan; mempersilakan pelanggan duduk di kursi kemudi; menyebutkan mengambil posisi duduk di kursi penumpang depan; menyebutkan penggunaan sarung tangan; menyebutkan gestur tangan terbuka saat menunjuk fitur.
-Pelanggaran fatal: menyebutkan atau mengindikasikan menunjuk fitur dengan satu jari telunjuk.
-
-PARAMETER 3. DELIVERY BASED ON PROFILING (Skrip slide 32 sampai 37).
-Anchor verbatim urutan keselamatan: instruksi "injak pedal rem" harus diucapkan SEBELUM "tekan tombol Start". Urutan terbalik adalah kesalahan serius.
-Kata kunci wajib: mempersilakan pelanggan duduk di kursi pengemudi dan merasakan visibilitas; membiarkan pelanggan sendiri yang menyentuh tombol dan kemudi (tactile experience); materi demonstrasi HARUS sesuai profil pelanggan. Profil First-Timer: indikator dashboard, rem tangan EPB, tuas kap mesin dan bensin, fitur keamanan dasar, tanpa jargon teknis. Profil Tech-Geek: Voice Command, Apple CarPlay atau Android Auto, ADAS, mode berkendara, tanpa membuang waktu pada hal dasar. Profil Family Driver: Child Lock, ISOFIX, Kick Sensor bagasi, kompartemen penyimpanan, higienitas.
-Kesalahan: memberi materi yang tidak sesuai profil (misalnya menjelaskan ADAS mendetail kepada First-Timer).
-
-PARAMETER 4. SKRIP PERSUASI APLIKASI (Skrip slide 40).
-Anchor verbatim: menyebut "MMID" dan "Bosowa Connect".
-Kata kunci wajib: garansi resmi aktif segera atau detik ini juga; tawaran membantu mengunduh dan meregistrasi; panduan booking servis agar bebas antre; meminta izin secara sopan; menyebutkan duduk berdampingan dengan pelanggan (action callout).
-Struktur: manfaat garansi dahulu, lalu tawaran bantuan, lalu manfaat booking servis.
-
-PARAMETER 5. CRISIS HANDLING (Skrip slide 42 dan 43).
-Skenario baret menit terakhir. Kata kunci wajib: menyampaikan secara PROAKTIF sebelum pelanggan melihat sendiri; framing transparansi; mengakui temuan secara spesifik; solusi bahwa unit tetap dapat dibawa hari ini; jadwal perbaikan yang spesifik; tanpa biaya.
-Skenario pertanyaan sulit (anti-blank). Kata kunci wajib: mengapresiasi pertanyaan pelanggan; tidak menebak jawaban; menawarkan memanggil Kepala Mekanik secara elegan; framing penjelasan 100 persen presisi.
-PELANGGARAN AUTO-FAIL pada parameter ini (skor maksimal 3 jika terjadi): berbohong tentang kondisi unit (misalnya menyebut baret sebagai debu); menutupi kerusakan; menebak-nebak jawaban teknis; menyuruh pelanggan membaca buku manual; berteriak memanggil rekan sales.
-
-PELANGGARAN AUTO-FAIL LINTAS PARAMETER (parameter terkait skor maksimal 3): menjanjikan penyerahan padahal menyatakan dokumen belum lengkap; menyerahkan proses kepada supir tanpa pendampingan sales.
-
-REFERENSI MATERI UNTUK REKOMENDASI: Sesi 2 SOP Zero-Defect (slide 19 sampai 25, persiapan H-3, H-1, skrip persuasi VIP), Sesi 3 The Showtime (slide 27 sampai 37, penyambutan, perkenalan, gestur, demonstrasi profiling), Sesi 4 Digital Handover (slide 38 sampai 40, MMID dan Bosowa Connect), Sesi 5 Crisis dan Anti-Blank Protocol (slide 41 sampai 45), Sesi 6 Post-Delivery Echo (slide 46 sampai 47).
-
-SKRIP STANDAR PKT MASTERCLASS (gunakan sebagai contoh benar dalam rekomendasi, kutip apa adanya):
-1. Skrip Persuasi VIP H-1 (slide 25): "Selamat pagi Bapak/Ibu. Unit Bapak/Ibu sudah siap 100%. Kami menyarankan Bapak/Ibu sekeluarga hadir ke Showroom besok jam 10 pagi, karena kami sudah menyiapkan Special Ceremony di area VIP kami. Pencahayaan di Dealer juga optimal agar Bapak puas mengecek detailnya."
-2. Skrip Penyambutan (slide 28): "Selamat pagi Pak/Bu [Nama]! Selamat datang di Mitsubishi Bosowa [cabang]. Welcome Home! Sekali lagi, selamat atas Mitsubishi barunya. Unit Bapak sudah kami siapkan 100% dan sudah lolos inspeksi ketat. Mari saya antar."
-3. Skrip Perkenalan Tim (slide 29): "Selamat pagi Pak/Bu [Nama]! Selamat datang. Sebelum saya jelaskan mengenai mobilnya, saya ingin perkenalkan Bapak/Ibu dengan Kepala Cabang kami, Kepala Bengkel, serta CSO. Mereka semua siap membantu Bapak Ibu dalam proses apapun termasuk servis."
-4. Skrip Panduan Kabin (slide 32): "Bapak silakan duduk di kursi pengemudi, rasakan visibilitasnya. Untuk menyalakan mesin, silakan injak pedal rem dan tekan tombol Start di sebelah kiri setir menggunakan jari Bapak."
-5. Skrip Aktivasi Digital (slide 40): "Pak/Bu, agar garansi resmi Mitsubishi Bapak langsung aktif detik ini juga, mari saya bantu unduh dan registrasikan aplikasi MMID dan Bosowa Connect. Mari saya pandu Bapak untuk cara booking servis agar urusan booking servis ke depannya bebas antre."
-6. Skrip Penyelamatan Baret (slide 42): "Pak, sebagai bentuk transparansi kami, tim QA baru saja menemukan goresan setitik di bumper bawah saat inspeksi akhir tadi. Bapak bisa bawa pulang unitnya hari ini, dan saya sudah jadwalkan teknisi khusus kami hari Selasa depan untuk memperbaikinya tanpa biaya di rumah Bapak."
-7. Skrip Anti-Blank (slide 43): "Pertanyaan yang sangat detail dan bagus, jarang ditanyakan oleh customer lain. Untuk modul kelistrikan spesifik tersebut, izinkan saya panggilkan Kepala Mekanik ke sini sebentar agar penjelasan yang Bapak terima 100% presisi."
-8. Skrip Post-Delivery (slide 47): H+3 Comfort Check: "Pagi Pak, hanya ingin memastikan apakah fitur koneksi audionya sudah lancar terhubung ke HP Bapak?" H+21 Referral: "Jika ada kolega Bapak yang butuh mobil baru, boleh saya direkomendasikan."
-Gestur standar (slide 30 dan 31): membuka pintu kemudi dengan dua tangan; mempersilakan pelanggan duduk layaknya tamu kenegaraan; sales duduk di kursi penumpang depan; menggunakan sarung tangan; menunjuk fitur dengan gestur tangan terbuka, dilarang keras satu jari telunjuk.
-`;
-
-/* ---------- Profil pelanggan dan krisis ---------- */
-const PROFIL = [
-  { id:"first-timer", label:"First-Timer",
-    desc:"pembeli mobil pertama, sedikit gugup, awam teknologi, banyak bertanya hal dasar, khawatir salah pakai fitur",
-    namaM:"Bapak Rahman", namaF:"Ibu Ratna" },
-  { id:"tech-geek", label:"Tech-Geek",
-    desc:"paham teknologi, sudah riset spesifikasi, tidak sabar dengan penjelasan dasar, ingin langsung ke fitur canggih seperti ADAS dan konektivitas",
-    namaM:"Bapak Vincent", namaF:"Ibu Fanny" },
-  { id:"family-driver", label:"Family Driver",
-    desc:"orang tua dua anak kecil, fokus pada keamanan anak, kepraktisan, dan kebersihan kabin",
-    namaM:"Bapak Ilham", namaF:"Ibu Sari" }
-];
-const KRISIS = [
-  { id:"baret", note:"KRISIS: Tim menemukan goresan kecil di bumper bawah saat inspeksi akhir beberapa menit lalu. Pelanggan BELUM mengetahuinya. Amati apakah sales menyampaikannya secara proaktif dan transparan. Jika hingga dua giliran berikutnya sales tidak menyampaikan, pelanggan menemukan sendiri goresan itu dan bertanya dengan nada kecewa.",
-    brief:"Beberapa menit sebelum pelanggan tiba, tim inspeksi menemukan goresan kecil di bumper bawah unit." },
-  { id:"blank", note:"KRISIS: Pelanggan menanyakan satu pertanyaan teknis yang sangat spesifik dan sulit tentang modul kelistrikan atau sistem kendaraan, yang kemungkinan besar tidak dikuasai sales. Ajukan pertanyaan itu sekarang dengan rasa ingin tahu yang tinggi dan tuntut jawaban yang meyakinkan.",
-    brief:"Pelanggan Anda dikenal kritis dan gemar mengajukan pertanyaan teknis mendetail." }
-];
-
-/* ---------- Data Admin (basis pengetahuan & skenario kustom) ---------- */
-function admGet(k,d){ try{ return JSON.parse(localStorage.getItem(k)) || d; }catch(e){ return d; } }
-let ADM = {
-  kb: localStorage.getItem("ss_adm_kb") || "",
-  profils: admGet("ss_adm_profils", []),
-  krisis: admGet("ss_adm_krisis", [])
-};
-function admSimpan(){
-  localStorage.setItem("ss_adm_kb", ADM.kb);
-  localStorage.setItem("ss_adm_profils", JSON.stringify(ADM.profils));
-  localStorage.setItem("ss_adm_krisis", JSON.stringify(ADM.krisis));
-}
-function poolProfil(){ return PROFIL.concat(SRV.profils||[], ADM.profils); }
-function poolKrisis(){ return KRISIS.concat(SRV.krisis||[], ADM.krisis); }
-function kbEfektif(){ return ((SRV.kb||"")+"\n"+(ADM.kb||"")).trim(); }
-function namaKrisis(id){
-  if(id==="baret") return "Baret Menit Terakhir";
-  if(id==="blank") return "Pertanyaan Teknis Sulit (Anti-Blank)";
-  const k = ADM.krisis.find(x=>x.id===id);
-  return k ? k.label : "Skenario Kustom";
-}
-
-/* ---------- State ---------- */
-let state = {
-  key:"", nama:"", nik:"", cabang:"",
-  profil:null, krisis:null, krisisInjected:false,
-  chat:[], turns:0, timerStart:0, timerInt:null,
-  listening:false, busy:false
-};
-
-/* ---------- Utilitas ---------- */
-const $ = id => document.getElementById(id);
-function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo(0,0); }
-function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
-function fmtTime(ms){ const t=Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0"); }
-function showErr(id,msg){ const e=$(id); e.textContent=msg; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),6000); }
-/* Buang semua kebocoran arahan sutradara atau catatan meta dari ucapan pelanggan */
-function stripMeta(t){
-  return (t||"")
-    .replace(/\[[^\]]*\]/g," ")
-    .replace(/\([^)]*sales[^)]*\)/gi," ")
-    .replace(/^\s*(INSTRUKSI|CATATAN|SUTRADARA|SISTEM)[^:]*:.*$/gim," ")
-    .replace(/\s{2,}/g," ").trim();
-}
-
-function loadStore(){
-  state.key = localStorage.getItem("ss_key")||"";
-  const p = JSON.parse(localStorage.getItem("ss_profile")||"null");
-  if(p){ state.nama=p.nama; state.nik=p.nik; state.cabang=p.cabang; }
-}
-function history(){ return JSON.parse(localStorage.getItem("ss_history")||"[]"); }
-function pushHistory(item){
-  const h=history(); h.unshift(item); localStorage.setItem("ss_history",JSON.stringify(h.slice(0,50)));
-  if(BACKEND_URL && state.nik){
-    api("save",{ nik:state.nik, item:item }).catch(e=>console.warn("Sinkronisasi server gagal:", e.message));
-  }
-}
-
-/* ---------- Gemini API ---------- */
-async function gemini(contents, systemText, asJson){
-  const body = {
-    system_instruction:{ parts:[{text:systemText}] },
-    contents: contents,
-    generationConfig: asJson ? { response_mime_type:"application/json", temperature:0.3 } : { temperature:0.9, maxOutputTokens:512, thinkingConfig:{ thinkingBudget:0 } }
-  };
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/"+GEMINI_MODEL+":generateContent?key="+encodeURIComponent(state.key);
-  const res = await fetch(url,{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
-  if(!res.ok){
-    const t = await res.text();
-    if(res.status===400 && t.includes("API key")) throw new Error("Kunci API tidak valid. Periksa kembali di menu Ubah profil.");
-    if(res.status===429) throw new Error("Kuota API harian tercapai. Coba lagi beberapa saat lagi.");
-    throw new Error("Panggilan API gagal (kode "+res.status+").");
-  }
-  const data = await res.json();
-  const parts = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts;
-  if(!parts || !parts.length) throw new Error("Respons AI kosong. Silakan coba lagi.");
-  return parts.map(p=>p.text||"").join("");
-}
-
-/* ---------- Prompt roleplay ---------- */
-function roleplaySystem(){
-  const p = state.profil;
-  return `Anda adalah PELANGGAN dealer Mitsubishi Bosowa yang hari ini datang mengambil unit mobil baru (proses PKT, Penyerahan Kendaraan Terjual). Nama Anda ${p.nama}. Profil Anda: ${p.desc}.
-Aturan main:
-1. Anda HANYA berperan sebagai pelanggan. Jangan pernah keluar karakter, jangan memberi pujian, koreksi, evaluasi, atau bimbingan kepada sales dalam bentuk apa pun.
-2. Jawab natural dan ringkas, maksimal 3 kalimat utuh, dalam Bahasa Indonesia lisan sehari-hari yang sopan. Jawaban Anda akan dibacakan oleh mesin suara, jadi JANGAN gunakan simbol tulisan apa pun seperti garis miring, tanda kurung, tanda bintang, atau singkatan yang tidak lazim diucapkan. Selalu selesaikan kalimat Anda, jangan menggantung.
-3. Output Anda HANYA berisi ucapan lisan pelanggan, tidak boleh ada teks lain. DILARANG KERAS menulis teks dalam kurung siku, catatan panggung, arahan, narasi, deskripsi situasi, atau komentar tentang performa sales. Langsung tulis ucapan pelanggan tanpa awalan apa pun.
-4. Bereaksilah realistis. Jika sales melewatkan tahapan penting (tidak menyambut, tidak memperkenalkan tim, langsung menyerahkan kunci), tunjukkan kebingungan atau sedikit kekecewaan secara wajar melalui ucapan pelanggan, bukan melalui komentar.
-5. Ajukan pertanyaan yang sesuai profil Anda. Tunjukkan emosi yang wajar: antusias, ragu, atau khawatir.
-6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
-7. Percakapan dimulai saat Anda baru tiba di lobi dealer bersama keluarga.`
-  + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
-}
-
-/* ---------- Prompt validator ---------- */
-function validatorSystem(){
-  return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda menilai transkrip roleplay PKT berikut secara ketat, objektif, dan berbasis bukti kutipan dari transkrip. Peserta berperan sebagai Sales, lawan bicara adalah AI pelanggan.
-${RUBRIK}
-Konteks sesi: profil pelanggan ${state.profil.label}; skenario krisis yang disisipkan: ${namaKrisis(state.krisis.id)} (${state.krisis.brief||""}).
-${kbEfektif() ? "KONTEKS TAMBAHAN DARI L&D (pertimbangkan dalam penilaian): "+kbEfektif() : ""}
-Instruksi penilaian:
-1. Nilai HANYA berdasarkan apa yang benar-benar diucapkan peserta di transkrip. Tindakan fisik yang tidak disebutkan secara lisan dianggap tidak dilakukan.
-2. Jangan murah hati. Skor 9 sampai 10 hanya untuk eksekusi nyaris sempurna. Jika suatu parameter sama sekali tidak disentuh peserta, beri skor 1 sampai 2.
-3. Kutip bukti singkat dari transkrip untuk setiap parameter.
-4. Terapkan aturan auto-fail dengan tegas.
-5. Rekomendasi harus merujuk sesi dan nomor slide PKT Masterclass yang spesifik.
-Balas HANYA dengan JSON valid berstruktur persis:
-{"parameter":[{"nama":"Penyambutan Awal","skor":0,"bukti":"","evaluasi":""},{"nama":"Gestur Presentasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Delivery based on Profiling","skor":0,"bukti":"","evaluasi":""},{"nama":"Skrip Persuasi Aplikasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Crisis Handling","skor":0,"bukti":"","evaluasi":""}],"skorTotal":0,"level":"","status":"","evaluasiUmum":"","kekuatan":[""],"rekomendasi":[{"materi":"","referensi":"","gap":"","contohBenar":""}]}
-Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik berdasarkan skorTotal; status bernilai "LULUS" hanya jika semua parameter minimal ${AMBANG_LULUS}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif menyeluruh; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, masing-masing satu kalimat spesifik beserta buktinya.
-Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK peserta, kutip ucapan peserta yang keliru atau sebutkan hal wajib yang tidak diucapkan sama sekali; "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan peserta pada momen itu (kutip SKRIP STANDAR yang relevan, sesuaikan nama pelanggan) atau gestur persis yang seharusnya dilakukan, sehingga peserta langsung tahu bentuk benarnya tanpa membuka materi; "materi" dan "referensi" menunjuk sesi dan slide spesifik untuk pendalaman. Dilarang menulis rekomendasi umum seperti "pelajari kembali materi" tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
-}
-
-/* ---------- Text to Speech ---------- */
-let voiceID = null, voiceGender = "f";
-function pickVoice(){
-  const vs = speechSynthesis.getVoices();
-  const idv = vs.filter(v=>v.lang && v.lang.toLowerCase().startsWith("id"));
-  const male = idv.find(v=>/andika|ardi|male|pria/i.test(v.name));
-  const female = idv.find(v=>/gadis|female|wanita/i.test(v.name));
-  voiceID = male || female || idv[0] || null;
-  voiceGender = male ? "m" : "f";
-}
-if("speechSynthesis" in window){
-  pickVoice();
-  speechSynthesis.onvoiceschanged = pickVoice;
-}
-function speak(text){
-  return new Promise(resolve=>{
-    if(!("speechSynthesis" in window)){ resolve(); return; }
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
-    u.onend = resolve; u.onerror = resolve;
-    speechSynthesis.speak(u);
-  });
-}
-
-/* ---------- Speech to Text ---------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recog = null;
-function initRecog(){
-  if(!SR) return null;
-  const r = new SR();
-  r.lang = "id-ID"; r.interimResults = true; r.continuous = true;
-  return r;
-}
-
-/* ---------- Chat UI ---------- */
-function addBubble(role, text){
-  const c = $("chat");
-  const b = document.createElement("div");
-  b.className = "bubble "+(role==="ai"?"ai":role==="me"?"me":"sys");
-  if(role==="ai") b.innerHTML = '<span class="who">'+esc(state.profil.nama)+'</span>'+esc(text);
-  else if(role==="me") b.innerHTML = '<span class="who">Anda (Sales)</span>'+esc(text);
-  else b.textContent = text;
-  c.appendChild(b); c.scrollTop = c.scrollHeight;
-}
-
-/* ---------- Alur sesi ---------- */
-async function startSession(){
-  state.chat = []; state.turns = 0; state.krisisInjected = false;
-  $("chat").innerHTML = "";
-  $("sess-profile-badge").textContent = "Pelanggan: "+state.profil.label;
-  show("scr-session");
-  state.timerStart = Date.now();
-  state.timerInt = setInterval(()=>{ $("sess-timer").textContent = fmtTime(Date.now()-state.timerStart); },500);
-  addBubble("sys","Sesi dimulai. Pelanggan "+state.profil.nama+" baru tiba di lobi dealer. Silakan mulai penyambutan Anda.");
-}
-
-async function sendUtterance(text){
-  text = (text||"").trim();
-  if(!text || state.busy) return;
-  state.busy = true; setMicBusy(true);
-  addBubble("me", text);
-  const lenSebelum = state.chat.length;
-  const krisisBaru = !state.krisisInjected && (state.turns+1)>=5;
-  state.chat.push({ role:"user", parts:[{text:text}] });
-  state.turns++;
-  /* injeksi krisis di giliran ke-5 */
-  if(krisisBaru){
-    state.krisisInjected = true;
-    state.chat.push({ role:"user", parts:[{text:"INSTRUKSI SUTRADARA (rahasia, jangan pernah disebut): "+state.krisis.note}] });
-  }
+/* ---------- Login ---------- */
+$("btn-login").onclick = async ()=>{
+  clearErr("err-login");
+  const nik = $("inp-nik").value.trim(), pin = $("inp-pin").value.trim();
+  if(!nik||!pin){ showErr("err-login","NIK dan PIN wajib diisi."); return; }
+  $("btn-login").disabled = true;
   try{
-    const rawReply = await gemini(state.chat, roleplaySystem(), false);
-    const reply = stripMeta(rawReply);
-    if(!reply) throw new Error("Respons pelanggan kosong. Silakan ulangi ucapan Anda.");
-    state.chat.push({ role:"model", parts:[{text:reply}] });
-    addBubble("ai", reply);
-    await speak(reply);
-    autoListen();
-  }catch(e){
-    showErr("err-session", e.message);
-    state.chat.length = lenSebelum;
-    state.turns--;
-    if(krisisBaru) state.krisisInjected = false;
-  }
-  state.busy = false; setMicBusy(false);
-}
+    const r = await api("login", { nik, pin });
+    state = { nik: nik, nama: r.nama, role: r.role, jabatan: r.jabatan||"" };
+    if(state.role === "admin"){
+      $("admin-nama").textContent = state.nama + " · L&D Admin";
+      show("scr-admin");
+      muatDaftarPilihan("");
+    } else if(state.role === "atasan"){
+      $("atasan-nama").textContent = state.nama + " · Atasan";
+      show("scr-atasan");
+      loadTim();
+    } else {
+      show("scr-denied");
+    }
+  }catch(e){ showErr("err-login", e.message); }
+  $("btn-login").disabled = false;
+};
+$("btn-denied-back").onclick = ()=>{ $("inp-nik").value=""; $("inp-pin").value=""; show("scr-login"); };
+$("btn-admin-logout").onclick = ()=>show("scr-login");
+$("btn-atasan-logout").onclick = ()=>show("scr-login");
 
-/* ---------- Mikrofon ---------- */
-let interimEl = null, finalBuf = "", userStopped = false, lastActivity = 0, silenceInt = null;
-const JEDA_KIRIM_MS = 2200; /* hening selama ini berarti ucapan selesai dan otomatis terkirim */
-function setMicBusy(b){
-  const btn = $("btn-mic");
-  btn.classList.toggle("busy", b);
-  $("mic-label").textContent = b ? "Pelanggan sedang merespons" : (state.listening ? "Silakan bicara, diam sejenak untuk mengirim" : "Tekan untuk bicara");
-}
-function autoListen(){
-  /* mulai mendengarkan otomatis setelah pelanggan selesai bicara */
-  if($("scr-session").classList.contains("active") && !state.listening && !state.busy && SR){
-    startListening();
-  }
-}
-function startListening(){
-  recog = initRecog();
-  finalBuf = ""; userStopped = false; lastActivity = Date.now();
-  recog.onresult = ev=>{
-    lastActivity = Date.now();
-    let interim = "";
-    for(let i=ev.resultIndex;i<ev.results.length;i++){
-      if(ev.results[i].isFinal) finalBuf += ev.results[i][0].transcript+" ";
-      else interim += ev.results[i][0].transcript;
-    }
-    if(!interimEl){ interimEl=document.createElement("div"); interimEl.className="interim"; $("chat").appendChild(interimEl); }
-    interimEl.textContent = (finalBuf+interim).trim();
-    $("chat").scrollTop = $("chat").scrollHeight;
-  };
-  recog.onend = ()=>{
-    /* Chrome berhenti sendiri saat hening. Jika belum ada ucapan dan
-       peserta belum menekan jeda, nyalakan kembali. Jika sudah ada
-       ucapan, kirim otomatis. */
-    if(state.listening && !userStopped && !finalBuf.trim()){
-      try{ recog.start(); return; }catch(e){}
-    }
-    stopListenUI();
-    const t = finalBuf.trim();
-    if(t) sendUtterance(t);
-  };
-  recog.onerror = ev=>{
-    userStopped = true;
-    stopListenUI();
-    if(ev.error==="not-allowed") showErr("err-session","Izin mikrofon ditolak. Aktifkan izin mikrofon di pengaturan peramban, atau gunakan Mode Ketik.");
-    else if(ev.error!=="aborted" && ev.error!=="no-speech") showErr("err-session","Pengenalan suara terganggu ("+ev.error+"). Silakan coba lagi.");
-  };
-  speechSynthesis.cancel();
-  try{ recog.start(); }catch(e){ return; }
-  state.listening = true;
-  $("btn-mic").classList.add("listening");
-  $("mic-label").textContent = "Silakan bicara, diam sejenak untuk mengirim";
-  clearInterval(silenceInt);
-  silenceInt = setInterval(()=>{
-    if(state.listening && finalBuf.trim() && Date.now()-lastActivity > JEDA_KIRIM_MS){
-      userStopped = true;
-      try{ recog.stop(); }catch(e){}
-    }
-  }, 400);
-}
-function stopListenUI(){
-  clearInterval(silenceInt);
-  state.listening = false;
-  $("btn-mic").classList.remove("listening");
-  if(interimEl){ interimEl.remove(); interimEl=null; }
-  setMicBusy(state.busy);
-}
-function toggleMic(){
-  if(state.busy) return;
-  if(!SR){ showErr("err-session","Perangkat ini tidak mendukung pengenalan suara. Gunakan Mode Ketik."); $("text-fallback").classList.add("show"); return; }
-  if(state.listening){
-    /* tombol berfungsi sebagai jeda: hentikan dan kirim jika ada ucapan */
-    userStopped = true;
-    try{ recog.stop(); }catch(e){}
-    return;
-  }
-  startListening();
-}
+/* ---------- Wajah L&D: Tahap 1, Generate (Preview), otomatis deteksi jabatan+tier ---------- */
+let previewData = null;
+let daftarKaryawan = [];
 
-/* ---------- Penilaian ---------- */
-async function endSession(){
-  if(state.turns < MIN_GILIRAN){
-    showErr("err-session","Sesi terlalu singkat untuk dinilai. Lakukan minimal "+MIN_GILIRAN+" giliran bicara.");
-    return;
-  }
-  clearInterval(state.timerInt);
-  speechSynthesis.cancel();
-  if(state.listening && recog) recog.stop();
-  show("scr-scoring");
-  const transcript = state.chat
-    .filter(m=>!(m.parts[0].text||"").startsWith("INSTRUKSI SUTRADARA"))
-    .map(m=>(m.role==="user"?"SALES: ":"PELANGGAN: ")+m.parts[0].text).join("\n");
+/* ---------- Daftar pilihan dropdown (anti input manual) ---------- */
+async function muatDaftarPilihan(pilihJabatan){
   try{
-    const raw = await gemini([{role:"user",parts:[{text:"TRANSKRIP SESI:\n"+transcript+"\n\nNilai transkrip di atas."}]}], validatorSystem(), true);
-    const hasil = JSON.parse(raw);
-    const item = {
-      tanggal:new Date().toISOString(), modul:"PKT Roleplay Hari H", jenis:"Latihan",
-      profil:state.profil.label, krisis:state.krisis.id,
-      skor:hasil.skorTotal, status:hasil.status, level:hasil.level,
-      durasi:fmtTime(Date.now()-state.timerStart), hasil:hasil
-    };
-    setLaporanAktif(item);
-    renderResult(hasil, metaDari(item));
-    pushHistory(item);
-  }catch(e){
-    show("scr-session");
-    state.timerInt = setInterval(()=>{ $("sess-timer").textContent = fmtTime(Date.now()-state.timerStart); },500);
-    showErr("err-session","Penilaian gagal: "+e.message+" Tekan Akhiri Sesi untuk mencoba lagi.");
-  }
-}
-
-function radarSVG(params){
-  const cx=130, cy=118, R=86, N=params.length;
-  const pt=(i,r)=>{ const a=(-90+i*(360/N))*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
-  const ring=v=>{ let s=""; for(let i=0;i<N;i++){ const[x,y]=pt(i,R*v/10); s+=(i?"L":"M")+x.toFixed(1)+","+y.toFixed(1);} return s+"Z"; };
-  const label=["Penyambutan","Gestur","Profiling","Persuasi App","Crisis"];
-  let g="";
-  [2.5,5,7.5,10].forEach(v=>{ g+='<path d="'+ring(v)+'" fill="none" style="stroke:var(--line)" stroke-width="1"/>'; });
-  for(let i=0;i<N;i++){ const[x,y]=pt(i,R); g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" style="stroke:var(--line)" stroke-width="1"/>';
-    const[lx,ly]=pt(i,R+20);
-    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="middle" font-size="10.5" style="fill:var(--muted)" font-family="Inter,sans-serif">'+label[i]+'</text>';
-    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+17).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" style="fill:'+(params[i].skor>=AMBANG_LULUS?"var(--pass)":"var(--fail)")+'" font-family="Inter,sans-serif">'+params[i].skor+'</text>';
-  }
-  let poly="";
-  params.forEach((p,i)=>{ const[x,y]=pt(i,R*Math.max(0.4,p.skor)/10); poly+=(i?"L":"M")+x.toFixed(1)+","+y.toFixed(1); });
-  g+='<path d="'+poly+'Z" fill="rgba(139,92,246,.24)" stroke="#8B5CF6" stroke-width="2"/>';
-  params.forEach((p,i)=>{ const[x,y]=pt(i,R*Math.max(0.4,p.skor)/10); g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.4" fill="#8B5CF6"/>'; });
-  return '<svg width="260" height="240" viewBox="0 0 260 240">'+g+'</svg>';
-}
-
-function renderResult(h, metaText){
-  $("res-meta").textContent = metaText || (state.nama+" | "+state.cabang);
-  $("res-score").textContent = h.skorTotal;
-  $("res-level").textContent = h.level;
-  const st = $("res-status");
-  st.textContent = h.status;
-  st.className = "badge "+(h.status==="LULUS"?"badge-green":"badge-red");
-  const arc = $("gauge-arc");
-  const frac = Math.max(0,Math.min(1,h.skorTotal/10));
-  arc.style.transition = "none";
-  arc.style.strokeDashoffset = "402";
-  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
-    arc.style.transition = "";
-    arc.style.strokeDashoffset = String(402*(1-frac));
-  }); });
-  arc.style.stroke = h.status==="LULUS" ? "url(#ggrad-pass)" : (h.skorTotal>=5 ? "url(#ggrad)" : "url(#ggrad-warm)");
-  const pb = $("res-params"); pb.innerHTML = "";
-  h.parameter.forEach(p=>{
-    const col = p.skor>=AMBANG_LULUS ? "var(--pass)" : (p.skor>=4 ? "var(--warn)" : "var(--fail)");
-    const d = document.createElement("div");
-    d.className = "param";
-    d.innerHTML = '<div class="param-head"><span>'+esc(p.nama)+'</span><span style="color:'+col+'">'+p.skor+'/10</span></div>'
-      +'<div class="param-bar"><div class="param-fill" style="width:'+(p.skor*10)+'%;background:'+col+'"></div></div>'
-      +'<div class="param-note"><strong>Bukti:</strong> '+esc(p.bukti||"tidak ada")+'<br><strong>Evaluasi:</strong> '+esc(p.evaluasi||"")+'</div>';
-    pb.appendChild(d);
-  });
-  $("res-radar").innerHTML = radarSVG(h.parameter);
-  const sb = $("res-strengths"); sb.innerHTML = "";
-  const kk = (h.kekuatan||[]).filter(Boolean);
-  if(kk.length){ kk.forEach(k=>{ const d=document.createElement("div"); d.className="strength-item"; d.textContent=k; sb.appendChild(d); }); }
-  else sb.innerHTML = '<div class="empty">Tidak ada kekuatan menonjol yang tercatat pada sesi ini.</div>';
-  $("res-eval").textContent = h.evaluasiUmum||"";
-  const rb = $("res-recs"); rb.innerHTML = "";
-  (h.rekomendasi||[]).forEach(r=>{
-    const d = document.createElement("div");
-    d.className = "rec-item";
-    d.innerHTML = '<div><strong>'+esc(r.materi)+'</strong></div>'
-      +'<div style="color:var(--fail);margin-top:4px"><strong>Gap:</strong> '+esc(r.gap||"")+'</div>'
-      +'<div style="color:var(--pass);margin-top:4px"><strong>Seharusnya:</strong> '+esc(r.contohBenar||"")+'</div>'
-      +'<div class="rec-ref" style="margin-top:5px">Pendalaman: '+esc(r.referensi)+'</div>';
-    rb.appendChild(d);
-  });
-  show("scr-result");
-}
-
-/* ---------- Home ---------- */
-function renderHome(){
-  $("home-nama").textContent = state.nama;
-  $("home-meta").textContent = "NIK "+state.nik+" | Cabang "+state.cabang;
-  const h = history();
-  const minggu = h.filter(x=>Date.now()-new Date(x.tanggal).getTime() < 7*24*3600*1000).length;
-  $("hero-week").textContent = minggu;
-  $("hero-last").textContent = h.length ? h[0].skor : "-";
-  $("hero-best").textContent = h.length ? Math.max(...h.map(x=>Number(x.skor||0))).toFixed(1) : "-";
-  const box = $("hist-box");
-  if(!h.length){ box.innerHTML = '<div class="empty">Belum ada sesi latihan. Mulailah sesi pertama Anda.</div>'; return; }
-  box.innerHTML = "";
-  h.slice(0,5).forEach(it=>{ box.appendChild(buatHistItem(it)); });
-}
-
-/* ---------- Navigasi & event ---------- */
-$("btn-save-setup").onclick = async ()=>{
-  if(BACKEND_URL){
-    const nik=$("inp-nik").value.trim(), pin=$("inp-pin").value.trim();
-    if(!nik||!pin){ showErr("err-setup","NIK dan PIN wajib diisi."); return; }
-    $("btn-save-setup").disabled = true;
-    try{
-      const r = await api("login",{nik:nik,pin:pin});
-      state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key=r.geminiKey;
-      SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
-      sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:nik,cabang:r.cabang,key:r.geminiKey,srv:SRV}));
-      renderHome(); show("scr-home");
-    }catch(e){ showErr("err-setup", e.message); }
-    $("btn-save-setup").disabled = false;
-    return;
-  }
-  const nama=$("inp-nama").value.trim(), nik=$("inp-nik").value.trim(),
-        cabang=$("inp-cabang").value.trim(), key=$("inp-key").value.trim();
-  if(!nama||!nik||!cabang||!key){ showErr("err-setup","Semua kolom wajib diisi."); return; }
-  state.nama=nama; state.nik=nik; state.cabang=cabang; state.key=key;
-  localStorage.setItem("ss_key",key);
-  localStorage.setItem("ss_profile",JSON.stringify({nama,nik,cabang}));
-  renderHome(); show("scr-home");
-};
-$("btn-edit-profile").onclick = ()=>{
-  $("inp-nama").value=state.nama; $("inp-nik").value=state.nik;
-  $("inp-cabang").value=state.cabang; $("inp-key").value=state.key;
-  show("scr-setup");
-};
-$("mod-pkt").onclick = ()=>{
-  pickVoice();
-  const pp = poolProfil(), pk = poolKrisis();
-  const base = pp[Math.floor(Math.random()*pp.length)];
-  state.profil = { id:base.id, label:base.label, desc:base.desc,
-    nama: voiceGender==="m" ? (base.namaM||base.nama) : (base.namaF||base.nama) };
-  state.krisis = pk[Math.floor(Math.random()*pk.length)];
-  $("brief-scenario").textContent =
-    "Hari ini adalah hari penyerahan unit (Hari H). Pelanggan Anda: "+state.profil.nama
-    +", profil "+state.profil.label+". "+state.krisis.brief
-    +" Jalankan seluruh proses PKT sesuai standar Masterclass, mulai dari penyambutan hingga penutupan.";
-  show("scr-brief");
-};
-$("btn-brief-back").onclick = ()=>show("scr-home");
-$("btn-start-session").onclick = startSession;
-$("btn-mic").onclick = toggleMic;
-$("btn-end-session").onclick = endSession;
-$("btn-toggle-text").onclick = ()=>$("text-fallback").classList.toggle("show");
-$("btn-send-text").onclick = ()=>{ const v=$("inp-text").value; $("inp-text").value=""; return sendUtterance(v); };
-$("inp-text").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("btn-send-text").click(); } });
-$("btn-res-home").onclick = ()=>{ renderHome(); show("scr-home"); };
-
-/* ================== MODE VIDEO ================== */
-const VIDEO_MAX_DETIK = 630;      /* 10 menit 30 detik toleransi */
-const VIDEO_MAX_MB = 800;
-const INLINE_MAX_MB = 10;         /* di bawah ini kirim base64 langsung, aman dari batas 20 MB per permintaan */
-let videoFile = null;
-
-function vprog(pct, label){
-  $("vprog-wrap").style.display = "block";
-  $("vprog-label").style.display = "block";
-  $("vprog").style.width = pct+"%";
-  $("vprog-label").textContent = label;
-}
-
-function bacaDurasi(file){
-  return new Promise(resolve=>{
-    let selesai = false;
-    const done = d=>{ if(!selesai){ selesai=true; try{URL.revokeObjectURL(v.src);}catch(e){} resolve(d); } };
-    const v = document.createElement("video");
-    v.preload = "metadata";
-    v.onloadedmetadata = ()=>done(v.duration||0);
-    v.onerror = ()=>done(0);
-    /* beberapa format rekaman HP tidak memicu event metadata;
-       jangan biarkan alur menggantung, lanjutkan tanpa cek durasi */
-    setTimeout(()=>done(0), 4000);
-    try{ v.src = URL.createObjectURL(file); }catch(e){ done(0); }
-  });
-}
-
-function fileKeBase64(file){
-  return new Promise((res,rej)=>{
-    const r = new FileReader();
-    r.onload = ()=>res(r.result.split(",")[1]);
-    r.onerror = ()=>rej(new Error("Gagal membaca file."));
-    r.readAsDataURL(file);
-  });
-}
-
-/* Unggah resumable ke Gemini Files API untuk file besar, dengan progres */
-async function uploadFilesAPI(file){
-  vprog(2,"Menghubungi server unggahan.");
-  let startRes;
-  try{
-    startRes = await fetch("https://generativelanguage.googleapis.com/upload/v1beta/files?key="+encodeURIComponent(state.key),{
-      method:"POST",
-      headers:{
-        "X-Goog-Upload-Protocol":"resumable",
-        "X-Goog-Upload-Command":"start",
-        "X-Goog-Upload-Header-Content-Length":String(file.size),
-        "X-Goog-Upload-Header-Content-Type":file.type||"video/mp4",
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({file:{display_name:"pkt-video-"+Date.now()}})
-    });
-  }catch(e){
-    throw new Error("Tidak dapat menghubungi server unggahan. Periksa koneksi internet Anda.");
-  }
-  if(!startRes.ok) throw new Error("Server unggahan menolak permintaan (kode "+startRes.status+"). Periksa kunci API Anda.");
-  const uploadUrl = startRes.headers.get("x-goog-upload-url");
-  if(!uploadUrl) throw new Error("Server tidak memberikan alamat unggahan. Coba lagi beberapa saat.");
-  const info = await new Promise((res,rej)=>{
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", uploadUrl);
-    xhr.setRequestHeader("X-Goog-Upload-Command","upload, finalize");
-    xhr.setRequestHeader("X-Goog-Upload-Offset","0");
-    xhr.upload.onprogress = e=>{ if(e.lengthComputable) vprog(Math.round(e.loaded/e.total*70), "Mengunggah video: "+Math.round(e.loaded/e.total*100)+"%"); };
-    xhr.onload = ()=>{ try{ res(JSON.parse(xhr.responseText)); }catch(e){ rej(new Error("Respons unggahan tidak valid.")); } };
-    xhr.onerror = ()=>rej(new Error("Unggahan terputus. Periksa koneksi internet."));
-    xhr.send(file);
-  });
-  const f = info.file;
-  if(!f || !f.uri) throw new Error("Unggahan tidak menghasilkan berkas yang valid.");
-  /* tunggu pemrosesan video di sisi Google */
-  let st = f.state, uri = f.uri, name = f.name;
-  let tries = 0;
-  while(st==="PROCESSING" && tries<60){
-    vprog(70+Math.min(25,tries), "Video sedang diproses server. Mohon tunggu.");
-    await new Promise(r=>setTimeout(r,3000));
-    const chk = await fetch("https://generativelanguage.googleapis.com/v1beta/"+name+"?key="+encodeURIComponent(state.key));
-    if(chk.ok){ const j = await chk.json(); st = j.state; uri = j.uri||uri; }
-    tries++;
-  }
-  if(st!=="ACTIVE") throw new Error("Pemrosesan video gagal atau terlalu lama. Coba video yang lebih pendek atau resolusi lebih rendah.");
-  return { file_uri:uri, mime_type:file.type||"video/mp4" };
-}
-
-function validatorVideoSystem(){
-  return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda MENONTON dan MENDENGARKAN video roleplay PKT berikut, lalu menilai secara ketat, objektif, dan berbasis bukti. Dalam video, peserta adalah orang yang berperan sebagai Sales; lawan mainnya adalah rekan yang berperan sebagai pelanggan.
-${RUBRIK}
-Konteks tugas: profil pelanggan yang seharusnya diperankan ${state.profil.label}; skenario krisis yang seharusnya dimainkan: ${namaKrisis(state.krisis.id)} (${state.krisis.brief||""}).
-${kbEfektif() ? "KONTEKS TAMBAHAN DARI L&D (pertimbangkan dalam penilaian): "+kbEfektif() : ""}
-Instruksi khusus penilaian VIDEO:
-1. Parameter Gestur Presentasi dinilai secara VISUAL langsung dari video: cara berjalan (tegap atau tidak), senyum dan kontak mata, membuka pintu dengan dua tangan, penggunaan sarung tangan, posisi duduk saat demonstrasi, dan gestur tangan terbuka saat menunjuk fitur (menunjuk dengan satu jari telunjuk adalah pelanggaran).
-2. Parameter lain dinilai dari apa yang DIUCAPKAN peserta di video, dengan aturan anchor, kata kunci, dan struktur pada rubrik.
-3. Kutip bukti berupa perkiraan menit dan detik kejadian beserta ucapan atau gestur yang teramati, contoh format bukti: "menit 1:20, peserta membuka pintu dengan satu tangan".
-4. Jika kualitas video menghalangi penilaian (peserta tidak terlihat utuh, suara tidak terdengar), nilai hanya dari yang dapat diamati dan sebutkan keterbatasannya di evaluasi parameter terkait.
-5. Jika isi video bukan roleplay PKT, beri semua parameter skor 1 dan jelaskan di evaluasiUmum.
-6. Jangan murah hati. Skor 9 sampai 10 hanya untuk eksekusi nyaris sempurna. Terapkan aturan auto-fail dengan tegas.
-Balas HANYA dengan JSON valid berstruktur persis:
-{"parameter":[{"nama":"Penyambutan Awal","skor":0,"bukti":"","evaluasi":""},{"nama":"Gestur Presentasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Delivery based on Profiling","skor":0,"bukti":"","evaluasi":""},{"nama":"Skrip Persuasi Aplikasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Crisis Handling","skor":0,"bukti":"","evaluasi":""}],"skorTotal":0,"level":"","status":"","evaluasiUmum":"","kekuatan":[""],"rekomendasi":[{"materi":"","referensi":"","gap":"","contohBenar":""}]}
-Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik; status "LULUS" hanya jika semua parameter minimal ${AMBANG_LULUS}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, satu kalimat spesifik beserta bukti (sertakan perkiraan menit).
-Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK yang teramati (ucapan keliru, gestur salah, atau hal wajib yang absen, sertakan perkiraan menit); "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan (kutip SKRIP STANDAR, sesuaikan nama) atau gestur persis yang seharusnya dilakukan; "materi" dan "referensi" menunjuk sesi dan slide spesifik. Dilarang menulis rekomendasi umum tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
-}
-
-async function analisisVideo(){
-  if(!videoFile) return;
-  $("btn-analyze-video").disabled = true;
-  try{
-    let mediaPart;
-    if(videoFile.size <= INLINE_MAX_MB*1024*1024){
-      vprog(30,"Menyiapkan video.");
-      const b64 = await fileKeBase64(videoFile);
-      mediaPart = { inline_data:{ mime_type:videoFile.type||"video/mp4", data:b64 } };
-      vprog(70,"Video siap dianalisis.");
-    }else{
-      const up = await uploadFilesAPI(videoFile);
-      mediaPart = { file_data:{ mime_type:up.mime_type, file_uri:up.file_uri } };
+    const r = await api("getDaftarPilihan", { nik: state.nik });
+    // Dropdown jabatan ekspor
+    const selJ = $("sel-export-jabatan");
+    selJ.innerHTML = "";
+    if(!r.jabatanList.length){
+      selJ.innerHTML = '<option value="">Belum ada Matriks Kompetensi tersimpan</option>';
+    } else {
+      selJ.innerHTML = '<option value="">Pilih jabatan&hellip;</option>' +
+        r.jabatanList.map(j=>'<option value="'+esc(j)+'">'+esc(j)+'</option>').join("");
+      if(pilihJabatan){
+        const cocok = r.jabatanList.find(j=>j.toLowerCase()===String(pilihJabatan).toLowerCase());
+        if(cocok) selJ.value = cocok;
+      }
     }
-    vprog(96,"Validator sedang menonton video Anda.");
-    show("scr-scoring");
-    const raw = await gemini(
-      [{ role:"user", parts:[ mediaPart, { text:"Tonton video roleplay PKT ini dan nilai sesuai instruksi." } ] }],
-      validatorVideoSystem(), true);
-    const hasil = JSON.parse(raw);
-    const item = {
-      tanggal:new Date().toISOString(), modul:"PKT Video Assessment", jenis:state.jenisSesi||"Latihan",
-      profil:state.profil.label, krisis:state.krisis.id,
-      skor:hasil.skorTotal, status:hasil.status, level:hasil.level,
-      durasi:"video", hasil:hasil
-    };
-    setLaporanAktif(item);
-    renderResult(hasil, metaDari(item));
-    pushHistory(item);
+    // Dropdown karyawan IDP
+    daftarKaryawan = r.karyawanList || [];
+    renderDropdownKaryawan("");
   }catch(e){
-    show("scr-video");
-    showErr("err-video","Analisis gagal: "+e.message);
-    $("btn-analyze-video").disabled = false;
+    $("sel-export-jabatan").innerHTML = '<option value="">Gagal memuat: '+esc(e.message)+'</option>';
+    $("sel-lookup-nik").innerHTML = '<option value="">Gagal memuat daftar karyawan</option>';
   }
 }
 
-function isiDropdownSkenario(){
-  const optP = ['<option value="acak">Acak</option>'].concat(poolProfil().map(p=>'<option value="'+p.id+'">'+esc(p.label)+'</option>'));
-  const optK = ['<option value="acak">Acak</option>'].concat(poolKrisis().map(k=>'<option value="'+k.id+'">'+esc(namaKrisis(k.id))+'</option>'));
-  $("sel-profil").innerHTML = optP.join("");
-  $("sel-krisis").innerHTML = optK.join("");
+function renderDropdownKaryawan(saring){
+  const sel = $("sel-lookup-nik");
+  const q = String(saring||"").trim().toLowerCase();
+  const cocok = daftarKaryawan.filter(k=>{
+    if(!q) return true;
+    return (k.nama+" "+k.cabang+" "+k.jabatan+" "+k.nik).toLowerCase().includes(q);
+  });
+  if(!daftarKaryawan.length){ sel.innerHTML = '<option value="">Belum ada karyawan terdaftar</option>'; return; }
+  if(!cocok.length){ sel.innerHTML = '<option value="">Tidak ada yang cocok dengan saringan</option>'; return; }
+  sel.innerHTML = '<option value="">Pilih karyawan&hellip;</option>' +
+    cocok.map(k=>'<option value="'+esc(k.nik)+'">'+esc(k.nama)+' &middot; '+esc(k.cabang)+(k.jabatan?' &middot; '+esc(k.jabatan):'')+'</option>').join("");
+  if(cocok.length===1) sel.value = cocok[0].nik;
 }
-function resolveSkenarioVideo(){
-  const ujian = $("chk-ujian").checked;
-  state.jenisSesi = ujian ? "Ujian" : "Latihan";
-  $("sel-profil").disabled = ujian;
-  $("sel-krisis").disabled = ujian;
-  const pp = poolProfil(), pk = poolKrisis();
-  let pid = ujian ? "acak" : $("sel-profil").value;
-  let kid = ujian ? "acak" : $("sel-krisis").value;
-  const base = pid==="acak" ? pp[Math.floor(Math.random()*pp.length)] : pp.find(p=>p.id===pid);
-  state.profil = { id:base.id, label:base.label, desc:base.desc, nama:(base.namaM||base.nama) };
-  state.krisis = kid==="acak" ? pk[Math.floor(Math.random()*pk.length)] : pk.find(k=>k.id===kid);
-  $("vbrief-scenario").textContent =
-    (ujian ? "SESI UJIAN. " : "")
-    +"Rekan Anda berperan sebagai pelanggan dengan profil "+base.label+" ("+base.desc+"). "
-    +state.krisis.brief+" Jalankan seluruh proses PKT Hari H sesuai standar Masterclass dan pastikan Anda merespons situasi tersebut di dalam rekaman.";
+
+$("inp-filter-karyawan").oninput = ()=> renderDropdownKaryawan($("inp-filter-karyawan").value);
+
+function bacaFileSebagaiBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result.split(",")[1]); // buang prefix "data:...;base64,"
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
-$("mod-video").onclick = ()=>{
-  videoFile = null;
-  $("video-info").textContent = "Belum ada file dipilih.";
-  $("btn-analyze-video").disabled = true;
-  $("vprog-wrap").style.display = "none";
-  $("vprog-label").style.display = "none";
-  isiDropdownSkenario();
-  $("sel-profil").value = "acak";
-  $("sel-krisis").value = "acak";
-  $("chk-ujian").checked = false;
-  resolveSkenarioVideo();
-  show("scr-video");
+
+$("btn-generate-matrix").onclick = async ()=>{
+  clearErr("err-matrix");
+  const file = $("inp-jd-file").files[0];
+  const teksJD = $("inp-jd").value.trim();
+  if(!file && !teksJD){ showErr("err-matrix","Unggah file JD (PDF) atau tempel teksnya, salah satu wajib diisi."); return; }
+  $("btn-generate-matrix").disabled = true;
+  $("matrix-loading").style.display = "block";
+  $("matrix-result").innerHTML = "";
+  try{
+    let payload = { nik: state.nik };
+    if(file){
+      payload.fileBase64 = await bacaFileSebagaiBase64(file);
+      payload.mimeType = file.type || "application/pdf";
+    } else {
+      payload.teksJD = teksJD;
+    }
+    const r = await api("generateMatrix", payload);
+    previewData = r;
+    renderMatrixPreview(r);
+  }catch(e){ showErr("err-matrix", e.message); }
+  $("matrix-loading").style.display = "none";
+  $("btn-generate-matrix").disabled = false;
 };
-$("sel-profil").onchange = resolveSkenarioVideo;
-$("sel-krisis").onchange = resolveSkenarioVideo;
-$("chk-ujian").onchange = resolveSkenarioVideo;
-$("btn-video-back").onclick = ()=>show("scr-home");
-$("btn-pick-video").onclick = ()=>$("inp-video").click();
-$("inp-video").onchange = async ev=>{
-  const f = ev.target.files[0];
-  ev.target.value = ""; /* agar memilih file yang sama tetap memicu event */
-  if(!f) return;
-  $("video-info").textContent = "Membaca file...";
-  $("btn-analyze-video").disabled = true;
-  const mb = f.size/1024/1024;
-  if(mb > VIDEO_MAX_MB){
-    $("video-info").textContent = "Belum ada file dipilih.";
-    showErr("err-video","File terlalu besar ("+mb.toFixed(0)+" MB). Maksimal "+VIDEO_MAX_MB+" MB. Rekam di resolusi 720p atau lebih rendah.");
-    return;
+
+function renderMatrixPreview(r){
+  let html = '<div class="card"><h2 class="sect">Terdeteksi Otomatis oleh AI</h2>'+
+    '<p style="margin:0 0 4px"><b>Jabatan:</b> '+esc(r.jabatan)+' &nbsp;&middot;&nbsp; <b>Tier:</b> '+esc(r.jabatanTier)+'</p>'+
+    '<div class="hint">Jika nama jabatan atau tier ini kurang tepat, batalkan dan perbaiki teks JD, lalu generate ulang. Ini bukan kolom yang bisa diedit langsung, karena harus konsisten dengan isi dokumen sumber.</div></div>';
+  html += '<div class="card"><h2 class="sect">Pratinjau: '+r.jumlahKompetensi+' Kompetensi (Belum Tersimpan)</h2>';
+  if(r.sudahAda){
+    html += '<div class="err show" style="margin-bottom:12px">Jabatan "'+esc(r.jabatan)+'" sudah punya Matriks Kompetensi sebelumnya. Menyimpan akan menimpa data lama (perlu konfirmasi).</div>';
   }
-  const dur = await bacaDurasi(f);
-  if(dur && dur > VIDEO_MAX_DETIK){
-    $("video-info").textContent = "Belum ada file dipilih.";
-    showErr("err-video","Durasi video "+Math.round(dur/60)+" menit melebihi batas 10 menit. Potong atau rekam ulang.");
-    return;
-  }
-  videoFile = f;
-  $("video-info").textContent = "Siap dianalisis: "+f.name+" ("+mb.toFixed(1)+" MB"+(dur?", "+Math.floor(dur/60)+" menit "+Math.round(dur%60)+" detik":"")+")";
-  $("btn-analyze-video").disabled = false;
-};
-$("btn-analyze-video").onclick = analisisVideo;
-
-/* ---------- Laporan aktif dan ekspor Word ---------- */
-function metaDari(item){
-  const label = item.modul.includes("Video") ? "Video Assessment" : "Roleplay Suara";
-  return state.nama+" | "+state.cabang+" | "+label+" ("+item.profil+", "+(item.jenis||"Latihan")+")";
-}
-function setLaporanAktif(item){ state.laporan = item; }
-
-
-function buatLaporanWord(item){
-  const h = item.hasil;
-  const tgl = new Date(item.tanggal).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
-  const esc2 = s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  const rowsParam = h.parameter.map(p=>
-    "<tr><td>"+esc2(p.nama)+"</td><td style='text-align:center;font-weight:bold;color:"+(p.skor>=AMBANG_LULUS?"#1d7a49":"#c00010")+"'>"+p.skor+"</td><td>"+esc2(p.bukti)+"</td><td>"+esc2(p.evaluasi)+"</td></tr>").join("");
-  const rowsKekuatan = (h.kekuatan||[]).filter(Boolean).map(k=>"<li>"+esc2(k)+"</li>").join("");
-  const rowsRek = (h.rekomendasi||[]).map((r,i)=>
-    "<tr><td style='text-align:center'>"+(i+1)+"</td><td><b>"+esc2(r.materi)+"</b></td><td>"+esc2(r.gap)+"</td><td><i>"+esc2(r.contohBenar)+"</i></td><td>"+esc2(r.referensi)+"</td></tr>").join("");
-  const statusColor = h.status==="LULUS" ? "#1d7a49" : "#c00010";
-  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8"><title>Laporan Hasil Simulasi Kompetensi</title>
-<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml>
-<style>
-body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#1a1a1a}
-h1{font-size:17pt;color:#E60012;margin:0}
-h2{font-size:13pt;color:#E60012;border-bottom:2pt solid #E60012;padding-bottom:3pt;margin-top:18pt}
-table{border-collapse:collapse;width:100%;font-size:10pt}
-td,th{border:1pt solid #999;padding:5pt;vertical-align:top}
-th{background:#E60012;color:#fff;text-align:left}
-.meta td{border:none;padding:2pt 8pt 2pt 0}
-.skorbesar{font-size:26pt;font-weight:bold}
-.footer{font-size:8.5pt;color:#777;margin-top:24pt;border-top:1pt solid #ccc;padding-top:6pt}
-</style></head><body>
-<h1>LAPORAN HASIL SIMULASI KOMPETENSI</h1>
-<p style="margin-top:2pt"><b>Learning Simulator | Bosowa Berlian Learning Center</b></p>
-<h2>Identitas Sesi</h2>
-<table class="meta">
-<tr><td width="180">Nama Peserta</td><td>: <b>${esc2(state.nama)}</b></td></tr>
-<tr><td>NIK</td><td>: ${esc2(state.nik)}</td></tr>
-<tr><td>Cabang</td><td>: ${esc2(state.cabang)}</td></tr>
-<tr><td>Tanggal Sesi</td><td>: ${tgl}</td></tr>
-<tr><td>Jenis Sesi</td><td>: ${esc2(item.modul)} (${esc2(item.jenis||"Latihan")})</td></tr>
-<tr><td>Skenario</td><td>: Pelanggan ${esc2(item.profil)}, krisis ${namaKrisis(item.krisis)}</td></tr>
-</table>
-<h2>Ringkasan Hasil</h2>
-<table class="meta">
-<tr><td width="180">Skor Total</td><td>: <span class="skorbesar" style="color:${statusColor}">${h.skorTotal}</span> / 10</td></tr>
-<tr><td>Level Kompetensi</td><td>: <b>${esc2(h.level)}</b></td></tr>
-<tr><td>Status</td><td>: <b style="color:${statusColor}">${esc2(h.status)}</b> (ambang kelulusan: skor minimal ${AMBANG_LULUS} pada setiap parameter)</td></tr>
-</table>
-<p style="margin-top:8pt">${esc2(h.evaluasiUmum)}</p>
-<h2>Kekuatan yang Teramati</h2>
-<ul>${rowsKekuatan || "<li>Tidak ada kekuatan menonjol yang tercatat pada sesi ini.</li>"}</ul>
-<h2>Skor per Parameter</h2>
-<table><tr><th width="150">Parameter</th><th width="45">Skor</th><th>Bukti</th><th>Evaluasi</th></tr>${rowsParam}</table>
-<h2>Rekomendasi Pengembangan</h2>
-<table><tr><th width="25">No</th><th width="120">Materi</th><th>Gap yang Teramati</th><th>Contoh yang Seharusnya</th><th width="120">Referensi</th></tr>${rowsRek}</table>
-<p class="footer">Dokumen ini dihasilkan secara otomatis oleh Learning Simulator. Properti Learning &amp; Development Department, PT Bosowa Berlian Motor (Bosowa Berlian Learning Center). Created by Sujarwadi. Hasil penilaian sesi latihan bersifat formatif untuk pengembangan kompetensi peserta.</p>
-</body></html>`;
+  html += '<table><tr><th>Kompetensi</th><th>Kategori</th><th>Level Target</th><th>Checklist</th></tr>';
+  r.kompetensi.forEach(k=>{
+    html += '<tr><td>'+esc(k.nama)+'</td><td>'+esc(k.kategori)+'</td><td><span class="badge badge-grey">Level '+k.levelTarget+'</span></td>'+
+      '<td>'+k.checklist.length+' item</td></tr>';
+  });
+  html += '</table><div class="hint" style="margin-top:10px">Ini baru pratinjau. Kamus 5 level, checklist, dan katalog training belum masuk ke Sheet sampai Anda menekan tombol Simpan.</div>'+
+    '<div class="err" id="err-simpan"></div>'+
+    '<div style="margin-top:16px"><button class="btn btn-primary" id="btn-simpan-matrix">2. Simpan ke Matriks Kompetensi</button></div></div>';
+  $("matrix-result").innerHTML = html;
+  $("btn-simpan-matrix").onclick = ()=> simpanMatrix(false);
 }
 
-function unduhWord(){
-  if(!state.laporan){ return; }
-  const htmlDoc = buatLaporanWord(state.laporan);
-  const blob = new Blob(["\ufeff"+htmlDoc], {type:"application/msword"});
+async function simpanMatrix(overwrite){
+  clearErr("err-simpan");
+  const jabatan = previewData.jabatan;
+  const btnAwal = $("btn-simpan-matrix");
+  if(btnAwal) btnAwal.disabled = true;
+  try{
+    const r = await api("simpanMatrix", { nik: state.nik, jabatan, kompetensi: previewData.kompetensi, overwrite: overwrite });
+    $("matrix-result").innerHTML = '<div class="card"><h2 class="sect" style="color:var(--green)">Tersimpan</h2>'+
+      '<p>'+esc(r.catatan)+'</p>'+
+      '<p class="hint">Jabatan ini sudah terpilih otomatis di bagian Ekspor ke Excel di bawah, tinggal klik Unduh.</p></div>';
+    await muatDaftarPilihan(r.jabatan || jabatan);
+    return;
+  }catch(e){
+    if(e.needsConfirm){
+      if(confirm(e.message)) { await simpanMatrix(true); return; }
+      else { showErr("err-simpan", "Dibatalkan, tidak ada yang ditimpa."); }
+    } else {
+      showErr("err-simpan", e.message);
+    }
+  }
+  const btnAkhir = $("btn-simpan-matrix");
+  if(btnAkhir) btnAkhir.disabled = false;
+}
+
+/* ---------- Wajah L&D: Export ke Excel ---------- */
+function unduhBase64SebagaiFile(base64, filename){
+  const byteChars = atob(base64);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i=0; i<byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  const tgl = new Date(state.laporan.tanggal);
-  const stamp = tgl.getFullYear()+String(tgl.getMonth()+1).padStart(2,"0")+String(tgl.getDate()).padStart(2,"0");
-  a.href = URL.createObjectURL(blob);
-  a.download = "Laporan_PKT_"+state.nama.replace(/\s+/g,"_")+"_"+stamp+".doc";
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
-$("btn-unduh-word").onclick = unduhWord;
 
-/* ---------- Perkembangan ---------- */
-function bukaHasil(item){
-  setLaporanAktif(item);
-  renderResult(item.hasil, metaDari(item));
-}
-function renderProgress(){
-  const h = history();
-  $("prog-meta").textContent = state.nama+" | NIK "+state.nik+" | Cabang "+state.cabang;
-  const kpi = $("prog-kpi"); kpi.innerHTML = "";
-  const last5 = h.slice(0,5);
-  const avg5 = last5.length ? (last5.reduce((s,x)=>s+Number(x.skor||0),0)/last5.length).toFixed(1) : "-";
-  const best = h.length ? Math.max(...h.map(x=>Number(x.skor||0))).toFixed(1) : "-";
-  const ujianTerakhir = h.find(x=>x.jenis==="Ujian");
-  const cards = [
-    [h.length, "Total Sesi"],
-    [avg5, "Rata-rata 5 Sesi Terakhir"],
-    [best, "Skor Terbaik"],
-    [ujianTerakhir ? ujianTerakhir.status : "Belum Ada", "Hasil Ujian Terakhir"]
-  ];
-  cards.forEach(([num,label])=>{
-    const d = document.createElement("div"); d.className="kpi";
-    d.innerHTML = '<div class="kpi-num">'+num+'</div><div class="kpi-label">'+label+'</div>';
-    kpi.appendChild(d);
-  });
-  /* tren 10 sesi terakhir, kronologis kiri ke kanan */
-  const tr = $("prog-trend"); tr.innerHTML = "";
-  const seq = h.slice(0,10).reverse();
-  if(!seq.length){ tr.innerHTML = '<div class="empty" style="width:100%">Belum ada data.</div>'; }
-  seq.forEach(it=>{
-    const s = Number(it.skor||0);
-    const b = document.createElement("div");
-    b.className = "trend-bar";
-    b.style.height = Math.max(5, s*10)+"%";
-    b.style.background = it.status==="LULUS" ? "var(--pass)" : (s>=5 ? "var(--warn)" : "var(--fail)");
-    b.innerHTML = '<span class="tb-val">'+s+'</span>';
-    tr.appendChild(b);
-  });
-  $("prog-trend-note").textContent = seq.length ? "Urutan dari sesi terlama (kiri) ke terbaru (kanan). Hijau lulus, kuning mendekati, merah jauh dari ambang." : "";
-  /* rata-rata per parameter dari 5 sesi terakhir */
-  const pp = $("prog-params"); pp.innerHTML = "";
-  const namaParam = ["Penyambutan Awal","Gestur Presentasi","Delivery based on Profiling","Skrip Persuasi Aplikasi","Crisis Handling"];
-  if(!last5.length){ pp.innerHTML = '<div class="empty">Belum ada data.</div>'; }
-  else namaParam.forEach((np,idx)=>{
-    const vals = last5.map(it=>{ const p=(it.hasil&&it.hasil.parameter||[])[idx]; return p?Number(p.skor||0):null; }).filter(v=>v!==null);
-    if(!vals.length) return;
-    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
-    const col = avg>=AMBANG_LULUS ? "var(--pass)" : (avg>=4 ? "var(--warn)" : "var(--fail)");
-    const d = document.createElement("div");
-    d.className = "pbar-row";
-    d.innerHTML = '<div class="pbar-head"><span>'+np+'</span><span style="color:'+col+'">'+avg.toFixed(1)+'</span></div>'
-      +'<div class="pbar-track"><div class="pbar-fill" style="width:'+(avg*10)+'%;background:'+col+'"></div><div class="pbar-gate"></div></div>';
-    pp.appendChild(d);
-  });
-  /* riwayat lengkap, klik untuk buka laporan */
-  const ph = $("prog-hist"); ph.innerHTML = "";
-  if(!h.length){ ph.innerHTML = '<div class="empty">Belum ada sesi.</div>'; return; }
-  h.forEach(it=>{ ph.appendChild(buatHistItem(it)); });
-}
-function buatHistItem(it){
-  const d = document.createElement("div");
-  d.className = "hist-item";
-  const tgl = new Date(it.tanggal);
-  const col = it.status==="LULUS" ? "var(--pass)" : "var(--fail)";
-  const jenisBadge = it.jenis==="Ujian" ? ' <span class="badge badge-warn">UJIAN</span>' : '';
-  d.innerHTML = '<div><div style="font-weight:600;font-size:13.5px">'+esc(it.modul)+' ('+esc(it.profil)+')'+jenisBadge+'</div>'
-    +'<div style="font-size:11.5px;color:var(--muted)">'+tgl.toLocaleDateString("id-ID",{day:"numeric",month:"short"})+' '+tgl.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})+' | '+esc(it.status||"")+'</div></div>'
-    +'<div class="hist-score" style="color:'+col+'">'+it.skor+'</div>';
-  if(it.hasil) d.onclick = ()=>bukaHasil(it);
-  return d;
-}
-$("btn-progress").onclick = ()=>{ renderProgress(); show("scr-progress"); };
-$("btn-prog-home").onclick = ()=>{ renderHome(); show("scr-home"); };
-
-/* ---------- Panel Admin: pintu rahasia dan pengelolaan ---------- */
-let ketukLogo = 0, ketukTimer = null;
-$("logo-home").onclick = ()=>{
-  ketukLogo++;
-  clearTimeout(ketukTimer);
-  ketukTimer = setTimeout(()=>{ ketukLogo = 0; }, 2500);
-  if(ketukLogo >= 7){ ketukLogo = 0; bukaAdmin(); }
+$("btn-export-kompetensi").onclick = async ()=>{
+  clearErr("err-export");
+  const jabatan = $("sel-export-jabatan").value.trim();
+  if(!jabatan){ showErr("err-export","Pilih jabatan dari daftar terlebih dahulu."); return; }
+  $("btn-export-kompetensi").disabled = true;
+  $("btn-export-kompetensi").textContent = "Menyiapkan file...";
+  try{
+    const r = await api("exportKompetensi", { nik: state.nik, jabatan });
+    unduhBase64SebagaiFile(r.base64, r.filename);
+  }catch(e){ showErr("err-export", e.message); }
+  $("btn-export-kompetensi").disabled = false;
+  $("btn-export-kompetensi").textContent = "Unduh Master Kompetensi (.xlsx)";
 };
-function bukaAdmin(){
-  let pin = localStorage.getItem("ss_adm_pin");
-  if(!pin){
-    const p1 = prompt("Buat PIN Admin baru (4 sampai 6 digit):");
-    if(!p1 || !/^\d{4,6}$/.test(p1)) return;
-    const p2 = prompt("Ulangi PIN untuk konfirmasi:");
-    if(p1 !== p2){ alert("PIN tidak sama. Silakan ulangi."); return; }
-    localStorage.setItem("ss_adm_pin", btoa(p1));
-    pin = btoa(p1);
-  }else{
-    const masuk = prompt("Masukkan PIN Admin:");
-    if(!masuk || btoa(masuk) !== pin) return;
+
+$("btn-export-idp").onclick = async ()=>{
+  clearErr("err-export-idp");
+  const nikTarget = $("sel-lookup-nik").value.trim();
+  if(!nikTarget){ showErr("err-export-idp","Pilih karyawan dari daftar terlebih dahulu."); return; }
+  $("btn-export-idp").disabled = true;
+  $("btn-export-idp").textContent = "Menyiapkan file...";
+  try{
+    const r = await api("exportIDP", { nik: state.nik, nikTarget });
+    unduhBase64SebagaiFile(r.base64, r.filename);
+  }catch(e){ showErr("err-export-idp", e.message); }
+  $("btn-export-idp").disabled = false;
+  $("btn-export-idp").textContent = "Unduh IDP (.xlsx)";
+};
+
+/* ---------- Wajah L&D: Lookup IDP by NIK ---------- */
+$("btn-lookup-idp").onclick = async ()=>{
+  const nik = $("sel-lookup-nik").value.trim();
+  if(!nik){ $("lookup-idp-result").innerHTML = '<div class="err show">Pilih karyawan dari daftar terlebih dahulu.</div>'; return; }
+  $("lookup-idp-result").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
+  try{
+    const r = await api("getIDP", { nik });
+    if(!r.idp.length){ $("lookup-idp-result").innerHTML = '<div class="empty">Belum ada IDP untuk NIK ini.</div>'; return; }
+    let html = "";
+    r.idp.forEach(it=>{
+      html += '<div class="idp-card"><div class="idp-comp">'+esc(it.kompetensi)+'</div>'+
+        '<div class="idp-line"><b>Gap:</b> '+esc(it.gap)+'</div>'+
+        '<div class="idp-line"><b>Rencana:</b> '+esc(it.rencana)+'</div>'+
+        '<div class="idp-line"><b>Milestone:</b> '+esc(it.milestone)+'</div></div>';
+    });
+    $("lookup-idp-result").innerHTML = html;
+  }catch(e){ $("lookup-idp-result").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+};
+
+/* ---------- Wajah Atasan: Tab switch ---------- */
+$("tab-asesmen").onclick = ()=>{
+  $("tab-asesmen").classList.add("active"); $("tab-idp-tim").classList.remove("active");
+  $("panel-asesmen").style.display = "block"; $("panel-idp-tim").style.display = "none";
+};
+$("tab-idp-tim").onclick = ()=>{
+  $("tab-idp-tim").classList.add("active"); $("tab-asesmen").classList.remove("active");
+  $("panel-idp-tim").style.display = "block"; $("panel-asesmen").style.display = "none";
+  loadIdpTim();
+};
+
+/* ---------- Wajah Atasan: Load Tim ---------- */
+async function loadTim(){
+  $("tim-loading").style.display = "block";
+  $("tim-list").innerHTML = "";
+  try{
+    const r = await api("getTimAsesmen", { nikAtasan: state.nik });
+    currentTeam = r.tim;
+    $("periode-label").textContent = r.periode;
+    if(!r.tim.length){ $("tim-list").innerHTML = '<div class="empty">Belum ada anggota tim yang terdaftar di bawah NIK Anda.</div>'; }
+    else {
+      let html = "";
+      r.tim.forEach((t,i)=>{
+        const inisial = (t.nama||"?").charAt(0).toUpperCase();
+        const badge = t.sudahDinilaiPeriodeIni ? '<span class="badge badge-green">Sudah Dinilai</span>' : '<span class="badge badge-amber">Belum Dinilai</span>';
+        html += '<div class="team-item" data-i="'+i+'"><div class="team-avatar">'+inisial+'</div>'+
+          '<div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(t.jabatan)+'</div></div>'+badge+'</div>';
+      });
+      $("tim-list").innerHTML = html;
+      document.querySelectorAll(".team-item").forEach(el=>{
+        el.onclick = ()=> openAssessForm(currentTeam[parseInt(el.dataset.i)]);
+      });
+    }
+  }catch(e){ $("tim-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+  $("tim-loading").style.display = "none";
+}
+
+function openAssessForm(member){
+  selectedMember = member;
+  $("assess-nama-jabatan").textContent = member.nama + " · " + member.jabatan;
+  let html = "";
+  if(!member.kompetensi.length){
+    html = '<div class="empty">Belum ada Matriks Kompetensi untuk jabatan ini. Minta L&D membuatnya dulu.</div>';
+  } else {
+    member.kompetensi.forEach((k,i)=>{
+      const items = k.checklist || [];
+      let checkboxes = "";
+      if(!items.length){
+        checkboxes = '<div class="hint" style="color:var(--red)">Checklist belum tersedia untuk kompetensi ini, minta L&D melengkapi.</div>';
+      } else {
+        items.forEach((item,ci)=>{
+          checkboxes += '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;font-size:13px;margin:6px 0;color:var(--text)">'+
+            '<input type="checkbox" class="chk-item" data-k="'+i+'" data-c="'+ci+'" style="margin-top:3px;flex-shrink:0">'+
+            '<span>'+esc(item)+'</span></label>';
+        });
+      }
+      html += '<div class="kompetensi-block" data-k="'+i+'" style="padding:13px 0;border-bottom:1px solid var(--line)">'+
+        '<div class="kompetensi-name">'+esc(k.kompetensi)+'</div>'+
+        '<div class="kompetensi-target">Level Target '+k.levelTarget+' &middot; centang item yang benar-benar teramati</div>'+
+        checkboxes+'</div>';
+    });
   }
-  renderAdmin();
-  show("scr-admin");
+  $("assess-kompetensi-list").innerHTML = html;
+  clearErr("err-assess");
+  show("scr-assess-form");
 }
-function renderAdmin(){
-  $("adm-kb").value = ADM.kb;
-  const lp = $("adm-list-p"); lp.innerHTML = "";
-  if(!ADM.profils.length) lp.innerHTML = '<div class="empty">Belum ada profil kustom.</div>';
-  ADM.profils.forEach((p,i)=>{
-    const d = document.createElement("div");
-    d.className = "hist-item";
-    d.innerHTML = '<div><div style="font-weight:700;font-size:13.5px">'+esc(p.label)+'</div><div style="font-size:11.5px;color:var(--muted)">'+esc(p.nama)+'</div></div><span class="badge badge-red">HAPUS</span>';
-    d.onclick = ()=>{ if(confirm("Hapus profil \""+p.label+"\"?")){ ADM.profils.splice(i,1); admSimpan(); renderAdmin(); } };
-    lp.appendChild(d);
-  });
-  const lk = $("adm-list-k"); lk.innerHTML = "";
-  if(!ADM.krisis.length) lk.innerHTML = '<div class="empty">Belum ada krisis kustom.</div>';
-  ADM.krisis.forEach((k,i)=>{
-    const d = document.createElement("div");
-    d.className = "hist-item";
-    d.innerHTML = '<div><div style="font-weight:700;font-size:13.5px">'+esc(k.label)+'</div><div style="font-size:11.5px;color:var(--muted)">'+esc((k.brief||"").slice(0,60))+'</div></div><span class="badge badge-red">HAPUS</span>';
-    d.onclick = ()=>{ if(confirm("Hapus krisis \""+k.label+"\"?")){ ADM.krisis.splice(i,1); admSimpan(); renderAdmin(); } };
-    lk.appendChild(d);
-  });
-}
-$("adm-save-kb").onclick = ()=>{ ADM.kb = $("adm-kb").value.trim(); admSimpan(); alert("Basis pengetahuan tersimpan dan langsung aktif di sesi berikutnya."); };
-$("adm-add-p").onclick = ()=>{
-  const label = $("adm-p-label").value.trim(), nama = $("adm-p-nama").value.trim(), desc = $("adm-p-desc").value.trim();
-  if(!label || !nama || !desc){ alert("Lengkapi nama profil, nama pelanggan, dan deskripsi."); return; }
-  ADM.profils.push({ id:"cp"+Date.now(), label:label, nama:nama, desc:desc });
-  admSimpan();
-  $("adm-p-label").value = ""; $("adm-p-nama").value = ""; $("adm-p-desc").value = "";
-  renderAdmin();
-};
-$("adm-add-k").onclick = ()=>{
-  const label = $("adm-k-label").value.trim(), brief = $("adm-k-brief").value.trim(), note = $("adm-k-note").value.trim();
-  if(!label || !brief || !note){ alert("Lengkapi judul, briefing peserta, dan instruksi rahasia AI."); return; }
-  ADM.krisis.push({ id:"ck"+Date.now(), label:label, brief:brief, note:note });
-  admSimpan();
-  $("adm-k-label").value = ""; $("adm-k-brief").value = ""; $("adm-k-note").value = "";
-  renderAdmin();
-};
-$("adm-ganti-pin").onclick = ()=>{
-  const lama = prompt("Masukkan PIN lama:");
-  if(!lama || btoa(lama) !== localStorage.getItem("ss_adm_pin")){ alert("PIN lama salah."); return; }
-  const baru = prompt("PIN baru (4 sampai 6 digit):");
-  if(!baru || !/^\d{4,6}$/.test(baru)){ alert("Format PIN tidak valid."); return; }
-  localStorage.setItem("ss_adm_pin", btoa(baru));
-  alert("PIN berhasil diganti.");
-};
-$("adm-back").onclick = ()=>{ renderHome(); show("scr-home"); };
+$("btn-assess-back").onclick = ()=> show("scr-atasan");
 
-/* ---------- Tema ---------- */
-function setTheme(t){
-  document.documentElement.dataset.theme = t;
-  localStorage.setItem("ss_theme", t);
-  $("ic-moon").style.display = t==="dark" ? "" : "none";
-  $("ic-sun").style.display = t==="light" ? "" : "none";
-}
-$("btn-theme").onclick = ()=>setTheme((localStorage.getItem("ss_theme")||"dark")==="dark" ? "light" : "dark");
-setTheme(localStorage.getItem("ss_theme")||"dark");
+$("btn-submit-assess").onclick = async ()=>{
+  clearErr("err-assess");
+  const blocks = document.querySelectorAll("#assess-kompetensi-list .kompetensi-block");
+  if(!blocks.length){ showErr("err-assess","Tidak ada kompetensi untuk dinilai."); return; }
+  const penilaian = [];
+  blocks.forEach((block)=>{
+    const i = parseInt(block.dataset.k);
+    const k = selectedMember.kompetensi[i];
+    const checks = block.querySelectorAll(".chk-item");
+    const itemsTercentang = Array.from(checks).map(c=>c.checked);
+    penilaian.push({ kompetensi: k.kompetensi, levelTarget: k.levelTarget, itemsTercentang: itemsTercentang });
+  });
+  $("btn-submit-assess").disabled = true;
+  try{
+    const r = await api("submitAsesmen", { nikAtasan: state.nik, nik: selectedMember.nik, penilaian: penilaian });
+    renderIdpResult(r.idp);
+    show("scr-idp-result");
+  }catch(e){ showErr("err-assess", e.message); }
+  $("btn-submit-assess").disabled = false;
+};
 
-/* ---------- Boot ---------- */
-loadStore();
-if(BACKEND_URL){
-  $("fld-nama").style.display = "none";
-  $("fld-cabang").style.display = "none";
-  $("fld-key").style.display = "none";
-  $("fld-pin").style.display = "";
-  const s = sessionStorage.getItem("ss_srv");
-  if(s){
-    try{
-      const j = JSON.parse(s);
-      state.nama=j.nama; state.nik=j.nik; state.cabang=j.cabang; state.key=j.key; SRV=j.srv||SRV;
-      renderHome(); show("scr-home");
-    }catch(e){ show("scr-setup"); }
-  }else show("scr-setup");
-}else if(state.key && state.nama){ renderHome(); show("scr-home"); }
-else show("scr-setup");
+function renderIdpResult(idp){
+  $("idp-result-pesan").textContent = idp.pesan;
+  let html = "";
+  (idp.prioritas||[]).forEach(p=>{
+    const cls = p.prioritas==="Kritis" ? "badge-red" : (p.prioritas==="Perlu Perhatian" ? "badge-amber" : "badge-grey");
+    html += '<div class="idp-card"><div class="idp-comp">'+esc(p.kompetensi)+' <span class="badge '+cls+'">'+esc(p.prioritas)+'</span></div>'+
+      '<div class="idp-line"><b>Rencana 70-20-10:</b> '+esc(p.rencana)+'</div>'+
+      '<div class="idp-line"><b>Milestone:</b> '+esc(p.milestone)+'</div></div>';
+  });
+  $("idp-result-list").innerHTML = html;
+}
+$("btn-idpresult-back").onclick = ()=>{ show("scr-atasan"); loadTim(); };
+
+/* ---------- Wajah Atasan: IDP Tim ---------- */
+async function loadIdpTim(){
+  $("idp-tim-loading").style.display = "block";
+  $("idp-tim-list").innerHTML = "";
+  try{
+    const r = await api("getIDP", { nikAtasan: state.nik });
+    if(!r.idp.length){ $("idp-tim-list").innerHTML = '<div class="empty">Belum ada IDP untuk tim Anda.</div>'; }
+    else {
+      let html = "";
+      r.idp.forEach(it=>{
+        html += '<div class="idp-card"><div class="idp-comp">'+esc(it.nama)+' &middot; '+esc(it.kompetensi)+'</div>'+
+          '<div class="idp-line"><b>Rencana:</b> '+esc(it.rencana)+'</div>'+
+          '<div class="idp-line"><b>Milestone:</b> '+esc(it.milestone)+'</div></div>';
+      });
+      $("idp-tim-list").innerHTML = html;
+    }
+  }catch(e){ $("idp-tim-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+  $("idp-tim-loading").style.display = "none";
+}
 </script>
 </body>
 </html>
