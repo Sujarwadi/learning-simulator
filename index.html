@@ -1,3 +1,4 @@
+<!-- Learning Simulator v2.1, 16 Jul 2026. Perubahan: Mode Validator L&D pada Video Assessment (admin memilih peserta, laporan dan sesi tercatat atas nama peserta). -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -247,7 +248,17 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     <div class="logo-mark" id="logo-home"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
     <div style="flex:1"><div class="app-title">LEARNING SIMULATOR</div><div class="app-sub">Bosowa Berlian Learning Center</div></div>
   </header>
-  <div class="sbody"><div class="grid2">
+  <div class="sbody">
+  <div class="card" id="val-blok" style="display:none">
+    <h3 style="margin:0 0 6px">Mode Validator L&D</h3>
+    <p class="hint" style="margin-top:0">Pilih peserta yang videonya akan dinilai. Laporan dan riwayat sesi akan tercatat atas nama peserta tersebut, bukan atas nama Anda. Kosongkan (Diri sendiri) untuk menilai latihan Anda sendiri.</p>
+    <label>Cari Peserta (opsional, ketik untuk menyaring)</label>
+    <input type="text" id="val-filter" placeholder="Ketik sebagian nama, cabang, atau jabatan">
+    <label style="margin-top:10px">Peserta yang Dinilai</label>
+    <select id="val-peserta"><option value="">Diri sendiri</option></select>
+    <div class="hint" id="val-status" style="margin-top:8px"></div>
+  </div>
+  <div class="grid2">
   <div>
   <div class="card hero" style="margin-top:22px">
     <div class="hero-top">
@@ -693,11 +704,50 @@ function loadStore(){
   const p = JSON.parse(localStorage.getItem("ss_profile")||"null");
   if(p){ state.nama=p.nama; state.nik=p.nik; state.cabang=p.cabang; }
 }
+/* ---------- Mode Validator L&D: menilai video atas nama peserta ---------- */
+let pesertaDipilih = null;
+let daftarPesertaVal = [];
+function identitasAktif(){
+  return pesertaDipilih || { nik: state.nik, nama: state.nama, cabang: state.cabang };
+}
+async function siapkanModeValidator(){
+  if(SRV.role !== "admin"){ $("val-blok").style.display = "none"; return; }
+  $("val-blok").style.display = "block";
+  if(!daftarPesertaVal.length && BACKEND_URL){
+    try{
+      const r = await api("getDaftarPilihan", { nik: state.nik });
+      daftarPesertaVal = r.karyawanList || [];
+      renderPesertaVal("");
+    }catch(e){ $("val-status").textContent = "Gagal memuat daftar peserta: " + e.message; }
+  }
+}
+function renderPesertaVal(saring){
+  const sel = $("val-peserta");
+  const q = String(saring||"").trim().toLowerCase();
+  const cocok = daftarPesertaVal.filter(k => !q || (k.nama+" "+k.cabang+" "+k.jabatan+" "+k.nik).toLowerCase().includes(q));
+  sel.innerHTML = '<option value="">Diri sendiri</option>' +
+    cocok.map(k => '<option value="'+esc(k.nik)+'">'+esc(k.nama)+' &middot; '+esc(k.cabang)+(k.jabatan?' &middot; '+esc(k.jabatan):'')+'</option>').join("");
+  if(cocok.length===1 && q) sel.value = cocok[0].nik;
+  aturPesertaDariSelect();
+}
+function aturPesertaDariSelect(){
+  const nik = $("val-peserta").value;
+  if(!nik){ pesertaDipilih = null; $("val-status").textContent = ""; return; }
+  const k = daftarPesertaVal.find(x => x.nik === nik);
+  pesertaDipilih = k ? { nik: k.nik, nama: k.nama, cabang: k.cabang } : null;
+  $("val-status").textContent = k ? ("Menilai atas nama: " + k.nama + ", " + k.cabang + ". Seluruh laporan sesi ini tercatat untuk peserta tersebut.") : "";
+}
+function resetModeValidator(){
+  pesertaDipilih = null;
+  const sel = document.getElementById("val-peserta"); if(sel) sel.value = "";
+  const st = document.getElementById("val-status"); if(st) st.textContent = "";
+}
+
 function history(){ return JSON.parse(localStorage.getItem("ss_history")||"[]"); }
 function pushHistory(item){
   const h=history(); h.unshift(item); localStorage.setItem("ss_history",JSON.stringify(h.slice(0,50)));
   if(BACKEND_URL && state.nik){
-    api("save",{ nik:state.nik, item:item }).catch(e=>console.warn("Sinkronisasi server gagal:", e.message));
+    api("save",{ nik:identitasAktif().nik, item:item }).catch(e=>console.warn("Sinkronisasi server gagal:", e.message));
   }
 }
 
@@ -972,7 +1022,7 @@ function radarSVG(params){
 }
 
 function renderResult(h, metaText){
-  $("res-meta").textContent = metaText || (state.nama+" | "+state.cabang);
+  $("res-meta").textContent = metaText || (identitasAktif().nama+" | "+identitasAktif().cabang);
   $("res-score").textContent = h.skorTotal;
   $("res-level").textContent = h.level;
   const st = $("res-status");
@@ -1018,6 +1068,7 @@ function renderResult(h, metaText){
 
 /* ---------- Home ---------- */
 function renderHome(){
+  resetModeValidator();
   $("home-nama").textContent = state.nama;
   $("home-meta").textContent = "NIK "+state.nik+" | Cabang "+state.cabang;
   const h = history();
@@ -1254,12 +1305,15 @@ $("mod-video").onclick = ()=>{
   $("sel-krisis").value = "acak";
   $("chk-ujian").checked = false;
   resolveSkenarioVideo();
+  siapkanModeValidator();
   show("scr-video");
 };
 $("sel-profil").onchange = resolveSkenarioVideo;
 $("sel-krisis").onchange = resolveSkenarioVideo;
 $("chk-ujian").onchange = resolveSkenarioVideo;
 $("btn-video-back").onclick = ()=>show("scr-home");
+$("val-filter").oninput = ()=> renderPesertaVal($("val-filter").value);
+$("val-peserta").onchange = aturPesertaDariSelect;
 $("btn-pick-video").onclick = ()=>$("inp-video").click();
 $("inp-video").onchange = async ev=>{
   const f = ev.target.files[0];
@@ -1288,7 +1342,8 @@ $("btn-analyze-video").onclick = analisisVideo;
 /* ---------- Laporan aktif dan ekspor Word ---------- */
 function metaDari(item){
   const label = item.modul.includes("Video") ? "Video Assessment" : "Roleplay Suara";
-  return state.nama+" | "+state.cabang+" | "+label+" ("+item.profil+", "+(item.jenis||"Latihan")+")";
+  var idAktif = identitasAktif();
+  return idAktif.nama+" | "+idAktif.cabang+" | "+label+" ("+item.profil+", "+(item.jenis||"Latihan")+")";
 }
 function setLaporanAktif(item){ state.laporan = item; }
 
@@ -1321,7 +1376,7 @@ th{background:#E60012;color:#fff;text-align:left}
 <p style="margin-top:2pt"><b>Learning Simulator | Bosowa Berlian Learning Center</b></p>
 <h2>Identitas Sesi</h2>
 <table class="meta">
-<tr><td width="180">Nama Peserta</td><td>: <b>${esc2(state.nama)}</b></td></tr>
+<tr><td width="180">Nama Peserta</td><td>: <b>${esc2(identitasAktif().nama)}</b></td></tr>
 <tr><td>NIK</td><td>: ${esc2(state.nik)}</td></tr>
 <tr><td>Cabang</td><td>: ${esc2(state.cabang)}</td></tr>
 <tr><td>Tanggal Sesi</td><td>: ${tgl}</td></tr>
@@ -1353,7 +1408,7 @@ function unduhWord(){
   const tgl = new Date(state.laporan.tanggal);
   const stamp = tgl.getFullYear()+String(tgl.getMonth()+1).padStart(2,"0")+String(tgl.getDate()).padStart(2,"0");
   a.href = URL.createObjectURL(blob);
-  a.download = "Laporan_PKT_"+state.nama.replace(/\s+/g,"_")+"_"+stamp+".doc";
+  a.download = "Laporan_PKT_"+identitasAktif().nama.replace(/\s+/g,"_")+"_"+stamp+".doc";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
 }

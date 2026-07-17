@@ -1,3 +1,4 @@
+<!-- BBLC Studio v2.2, 16 Jul 2026. Perubahan: simpan meneruskan divisi, departemen, tugasUtama untuk ekspor format standar. -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -398,7 +399,7 @@ async function simpanMatrix(overwrite){
   const btnAwal = $("btn-simpan-matrix");
   if(btnAwal) btnAwal.disabled = true;
   try{
-    const r = await api("simpanMatrix", { nik: state.nik, jabatan, kompetensi: previewData.kompetensi, overwrite: overwrite });
+    const r = await api("simpanMatrix", { nik: state.nik, jabatan, kompetensi: previewData.kompetensi, divisi: previewData.divisi || "", departemen: previewData.departemen || "", tugasUtama: previewData.tugasUtama || [], overwrite: overwrite });
     $("matrix-result").innerHTML = '<div class="card"><h2 class="sect" style="color:var(--green)">Tersimpan</h2>'+
       '<p>'+esc(r.catatan)+'</p>'+
       '<p class="hint">Jabatan ini sudah terpilih otomatis di bagian Ekspor ke Excel di bawah, tinggal klik Unduh.</p></div>';
