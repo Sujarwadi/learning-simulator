@@ -698,7 +698,7 @@ let state = {
 
 /* ---------- Utilitas ---------- */
 const $ = id => document.getElementById(id);
-function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo(0,0); }
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo(0,0); if(id==="scr-video"){ try{ siapkanModeValidator(); }catch(e){} } }
 function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 function fmtTime(ms){ const t=Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0"); }
 function showErr(id,msg){ const e=$(id); e.textContent=msg; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),6000); }
