@@ -1,3 +1,4 @@
+<!-- BBLC Studio v2.4, 22 Jul 2026. Perbaikan: tombol unduh Form Asesmen memanggil unduhBase64SebagaiFile (sebelumnya unduhBase64, tidak terdefinisi, unduhan selalu gagal). -->
 <!-- BBLC Studio v2.3, 17 Jul 2026. Perubahan: input transkrip wawancara SME opsional dengan badge sumber di pratinjau, bagian Generate Form Asesmen per karyawan. -->
 <!DOCTYPE html>
 <html lang="id">
@@ -375,7 +376,9 @@ $("btn-form-asesmen").onclick = async ()=>{
   $("btn-form-asesmen").disabled = true;
   try{
     const r = await api("exportFormAsesmen", { nik: state.nik, nikKaryawan: nikTarget });
-    unduhBase64(r.base64, r.filename);
+    /* FIX v2.4: sebelumnya memanggil unduhBase64 yang tidak pernah didefinisikan
+       (ReferenceError), file .xlsx tidak pernah terunduh. Nama fungsi yang benar: */
+    unduhBase64SebagaiFile(r.base64, r.filename);
   }catch(e){ showErr("err-asesmen", e.message); }
   $("btn-form-asesmen").disabled = false;
 };
