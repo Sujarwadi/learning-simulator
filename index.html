@@ -764,7 +764,15 @@ function pushHistory(item){
 }
 
 /* ---------- Gemini API ---------- */
+/* PERBAIKAN KEAMANAN v3.3: mode server memanggil AI lewat proxy backend
+   (aksi "aiGenerate"), kunci API tidak pernah ada di browser. Mode manual
+   (tanpa BACKEND_URL, kunci milik pengguna sendiri) tetap panggil langsung. */
 async function gemini(contents, systemText, asJson){
+  if(BACKEND_URL && state.nik){
+    const r = await api("aiGenerate", { nik: state.nik, contents: contents, systemText: systemText, asJson: asJson===true });
+    if(!r.text) throw new Error("Respons AI kosong. Silakan coba lagi.");
+    return r.text;
+  }
   const body = {
     system_instruction:{ parts:[{text:systemText}] },
     contents: contents,
@@ -1102,9 +1110,11 @@ $("btn-save-setup").onclick = async ()=>{
     $("btn-save-setup").disabled = true;
     try{
       const r = await api("login",{nik:nik,pin:pin});
-      state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key=r.geminiKey;
+      /* PERBAIKAN KEAMANAN v3.3: backend tidak lagi mengirim geminiKey;
+         semua panggilan AI mode server lewat proxy backend. */
+      state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key="";
       SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
-      sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:nik,cabang:r.cabang,key:r.geminiKey,srv:SRV}));
+      sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:nik,cabang:r.cabang,srv:SRV}));
       renderHome(); show("scr-home");
     }catch(e){ showErr("err-setup", e.message); }
     $("btn-save-setup").disabled = false;
@@ -1182,27 +1192,36 @@ function fileKeBase64(file){
   });
 }
 
-/* Unggah resumable ke Gemini Files API untuk file besar, dengan progres */
+/* Unggah resumable ke Gemini Files API untuk file besar, dengan progres.
+   PERBAIKAN KEAMANAN v3.3: mode server membuka sesi unggahan lewat proxy
+   backend (aksi "aiFileUploadStart"); browser hanya menerima uploadUrl sesi
+   (tanpa API key) lalu mengunggah byte video langsung ke Google. */
 async function uploadFilesAPI(file){
   vprog(2,"Menghubungi server unggahan.");
-  let startRes;
-  try{
-    startRes = await fetch("https://generativelanguage.googleapis.com/upload/v1beta/files?key="+encodeURIComponent(state.key),{
-      method:"POST",
-      headers:{
-        "X-Goog-Upload-Protocol":"resumable",
-        "X-Goog-Upload-Command":"start",
-        "X-Goog-Upload-Header-Content-Length":String(file.size),
-        "X-Goog-Upload-Header-Content-Type":file.type||"video/mp4",
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({file:{display_name:"pkt-video-"+Date.now()}})
-    });
-  }catch(e){
-    throw new Error("Tidak dapat menghubungi server unggahan. Periksa koneksi internet Anda.");
+  let uploadUrl = "";
+  if(BACKEND_URL && state.nik){
+    const r = await api("aiFileUploadStart", { nik: state.nik, fileSize: file.size, mimeType: file.type||"video/mp4", displayName: "pkt-video-"+Date.now() });
+    uploadUrl = r.uploadUrl;
+  } else {
+    let startRes;
+    try{
+      startRes = await fetch("https://generativelanguage.googleapis.com/upload/v1beta/files?key="+encodeURIComponent(state.key),{
+        method:"POST",
+        headers:{
+          "X-Goog-Upload-Protocol":"resumable",
+          "X-Goog-Upload-Command":"start",
+          "X-Goog-Upload-Header-Content-Length":String(file.size),
+          "X-Goog-Upload-Header-Content-Type":file.type||"video/mp4",
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({file:{display_name:"pkt-video-"+Date.now()}})
+      });
+    }catch(e){
+      throw new Error("Tidak dapat menghubungi server unggahan. Periksa koneksi internet Anda.");
+    }
+    if(!startRes.ok) throw new Error("Server unggahan menolak permintaan (kode "+startRes.status+"). Periksa kunci API Anda.");
+    uploadUrl = startRes.headers.get("x-goog-upload-url");
   }
-  if(!startRes.ok) throw new Error("Server unggahan menolak permintaan (kode "+startRes.status+"). Periksa kunci API Anda.");
-  const uploadUrl = startRes.headers.get("x-goog-upload-url");
   if(!uploadUrl) throw new Error("Server tidak memberikan alamat unggahan. Coba lagi beberapa saat.");
   const info = await new Promise((res,rej)=>{
     const xhr = new XMLHttpRequest();
@@ -1222,8 +1241,15 @@ async function uploadFilesAPI(file){
   while(st==="PROCESSING" && tries<60){
     vprog(70+Math.min(25,tries), "Video sedang diproses server. Mohon tunggu.");
     await new Promise(r=>setTimeout(r,3000));
-    const chk = await fetch("https://generativelanguage.googleapis.com/v1beta/"+name+"?key="+encodeURIComponent(state.key));
-    if(chk.ok){ const j = await chk.json(); st = j.state; uri = j.uri||uri; }
+    if(BACKEND_URL && state.nik){
+      try{
+        const j = await api("aiFileStatus", { nik: state.nik, name: name });
+        st = j.state; uri = j.uri||uri;
+      }catch(e){ /* gagal cek status sekali tidak fatal, coba lagi putaran berikut */ }
+    } else {
+      const chk = await fetch("https://generativelanguage.googleapis.com/v1beta/"+name+"?key="+encodeURIComponent(state.key));
+      if(chk.ok){ const j = await chk.json(); st = j.state; uri = j.uri||uri; }
+    }
     tries++;
   }
   if(st!=="ACTIVE") throw new Error("Pemrosesan video gagal atau terlalu lama. Coba video yang lebih pendek atau resolusi lebih rendah.");
@@ -1592,7 +1618,8 @@ if(BACKEND_URL){
   if(s){
     try{
       const j = JSON.parse(s);
-      state.nama=j.nama; state.nik=j.nik; state.cabang=j.cabang; state.key=j.key; SRV=j.srv||SRV;
+      /* v3.3: key tidak lagi disimpan di sessionStorage mode server */
+      state.nama=j.nama; state.nik=j.nik; state.cabang=j.cabang; state.key=""; SRV=j.srv||SRV;
       renderHome(); show("scr-home");
     }catch(e){ show("scr-setup"); }
   }else show("scr-setup");
