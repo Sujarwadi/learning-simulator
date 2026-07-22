@@ -1,3 +1,4 @@
+<!-- BBLC Studio v2.5, 22 Jul 2026. Perubahan: Admin kini bisa membuka Tampilan Atasan (tombol di Panel Admin) untuk testing/pengawasan, sejalan dengan backend v3.4 yang menentukan status atasan secara dinamis dari kolom Atasan NIK, bukan dari nilai Role yang di-hardcode. -->
 <!-- BBLC Studio v2.4, 22 Jul 2026. Perbaikan: tombol unduh Form Asesmen memanggil unduhBase64SebagaiFile (sebelumnya unduhBase64, tidak terdefinisi, unduhan selalu gagal). -->
 <!-- BBLC Studio v2.3, 17 Jul 2026. Perubahan: input transkrip wawancara SME opsional dengan badge sumber di pratinjau, bagian Generate Form Asesmen per karyawan. -->
 <!DOCTYPE html>
@@ -139,7 +140,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     <header class="app">
       <div class="logo-mark">CD</div>
       <div><div class="app-title">COMPETENCY DEVELOPMENT STUDIO</div><div class="app-sub" id="admin-nama">-</div></div>
-      <div class="header-right"><button class="btn-logout" id="btn-admin-logout">Keluar</button></div>
+      <div class="header-right">
+        <button class="btn-logout" id="btn-lihat-atasan" style="margin-right:8px">Lihat sebagai Atasan (Testing)</button>
+        <button class="btn-logout" id="btn-admin-logout">Keluar</button>
+      </div>
     </header>
     <div class="body-wrap">
       <h2 class="sect">Generate Matriks Kompetensi dari Deskripsi Jabatan</h2>
@@ -201,7 +205,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     <header class="app">
       <div class="logo-mark">CD</div>
       <div><div class="app-title">COMPETENCY DEVELOPMENT STUDIO</div><div class="app-sub" id="atasan-nama">-</div></div>
-      <div class="header-right"><button class="btn-logout" id="btn-atasan-logout">Keluar</button></div>
+      <div class="header-right">
+        <button class="btn-logout" id="btn-atasan-ke-admin" style="display:none;margin-right:8px">Kembali ke Panel Admin</button>
+        <button class="btn-logout" id="btn-atasan-logout">Keluar</button>
+      </div>
     </header>
     <div class="body-wrap">
       <div class="tab-row">
@@ -296,7 +303,9 @@ $("btn-login").onclick = async ()=>{
       $("admin-nama").textContent = state.nama + " · L&D Admin";
       show("scr-admin");
       muatDaftarPilihan("");
-    } else if(state.role === "atasan"){
+    } else if(state.role === "atasan" || r.isAtasan){
+      // r.isAtasan dihitung dinamis backend dari kolom Atasan NIK (v3.4), bukan dari
+      // literal role — begitu HC mengisi Atasan NIK, atasan sungguhan otomatis masuk sini.
       $("atasan-nama").textContent = state.nama + " · Atasan";
       show("scr-atasan");
       loadTim();
@@ -309,6 +318,18 @@ $("btn-login").onclick = async ()=>{
 $("btn-denied-back").onclick = ()=>{ $("inp-nik").value=""; $("inp-pin").value=""; show("scr-login"); };
 $("btn-admin-logout").onclick = ()=>show("scr-login");
 $("btn-atasan-logout").onclick = ()=>show("scr-login");
+
+/* ---------- Admin: buka Tampilan Atasan untuk testing/pengawasan (v2.5) ---------- */
+$("btn-lihat-atasan").onclick = ()=>{
+  $("atasan-nama").textContent = state.nama + " · Atasan (mode Admin)";
+  $("btn-atasan-ke-admin").style.display = "";
+  show("scr-atasan");
+  loadTim();
+};
+$("btn-atasan-ke-admin").onclick = ()=>{
+  $("btn-atasan-ke-admin").style.display = "none";
+  show("scr-admin");
+};
 
 /* ---------- Wajah L&D: Tahap 1, Generate (Preview), otomatis deteksi jabatan+tier ---------- */
 let previewData = null;
