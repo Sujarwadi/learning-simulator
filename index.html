@@ -1,3 +1,7 @@
+<!-- BBLC Learning Simulator v3.7, 23 Jul 2026. Perubahan: indikator visual "AI sedang memproses..."
+     (bubble animasi titik-titik) muncul di chat roleplay selama menunggu balasan AI (~30-45 detik),
+     supaya jelas ini proses AI yang wajar, bukan aplikasi hang. Murni perubahan tampilan, tidak
+     menyentuh logika backend atau data karyawan. -->
 <!-- BBLC Learning Simulator v3.6, 22 Jul 2026. Perubahan: layar wajib ganti PIN (pola ATM)
      saat login pertama kali (backend v3.5 mendeteksi Wajib_Ganti_PIN=TRUE), plus opsi
      "Ganti PIN" sukarela di menu profil kapan saja. -->
@@ -130,6 +134,12 @@ html[data-theme="light"] .hstat{background:rgba(255,255,255,.6)}
 .bubble.me{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;align-self:flex-end;border-bottom-right-radius:5px;box-shadow:0 6px 18px rgba(124,58,237,.28)}
 .bubble.sys{align-self:center;background:transparent;border:1px dashed var(--line);color:var(--warn);font-size:12px;max-width:100%;text-align:center}
 .bubble .who{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;opacity:.75;display:block;margin-bottom:3px}
+.bubble.typing{display:flex;align-items:center;gap:8px}
+.bubble.typing .dots{display:flex;gap:4px}
+.bubble.typing .dots span{width:6px;height:6px;border-radius:50%;background:var(--pri);animation:typingDot 1.2s infinite ease-in-out}
+.bubble.typing .dots span:nth-child(2){animation-delay:.2s}
+.bubble.typing .dots span:nth-child(3){animation-delay:.4s}
+@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
 .interim{color:var(--faint);font-style:italic;font-size:13px;align-self:flex-end;padding:0 6px}
 .mic-btn{width:84px;height:84px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 12px 30px rgba(124,58,237,.4)}
 .mic-btn svg{width:33px;height:33px;fill:#fff}
@@ -902,6 +912,20 @@ function addBubble(role, text){
   else b.textContent = text;
   c.appendChild(b); c.scrollTop = c.scrollHeight;
 }
+/* v3.7: indikator "AI sedang memproses..." selagi menunggu balasan Gemini (biasanya 30-45 detik),
+   supaya jelas ini proses AI yang wajar, bukan aplikasi hang. */
+function tampilkanIndikatorAI(){
+  const c = $("chat");
+  const b = document.createElement("div");
+  b.className = "bubble ai typing";
+  b.id = "ai-typing-indicator";
+  b.innerHTML = '<span>AI sedang memproses jawaban</span><span class="dots"><span></span><span></span><span></span></span>';
+  c.appendChild(b); c.scrollTop = c.scrollHeight;
+}
+function sembunyikanIndikatorAI(){
+  const el = document.getElementById("ai-typing-indicator");
+  if(el) el.remove();
+}
 
 /* ---------- Alur sesi ---------- */
 async function startSession(){
@@ -928,15 +952,18 @@ async function sendUtterance(text){
     state.krisisInjected = true;
     state.chat.push({ role:"user", parts:[{text:"INSTRUKSI SUTRADARA (rahasia, jangan pernah disebut): "+state.krisis.note}] });
   }
+  tampilkanIndikatorAI();
   try{
     const rawReply = await gemini(state.chat, roleplaySystem(), false);
     const reply = stripMeta(rawReply);
     if(!reply) throw new Error("Respons pelanggan kosong. Silakan ulangi ucapan Anda.");
     state.chat.push({ role:"model", parts:[{text:reply}] });
+    sembunyikanIndikatorAI();
     addBubble("ai", reply);
     await speak(reply);
     autoListen();
   }catch(e){
+    sembunyikanIndikatorAI();
     showErr("err-session", e.message);
     state.chat.length = lenSebelum;
     state.turns--;
