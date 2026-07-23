@@ -394,7 +394,8 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
 <!-- ============ SESSION ============ -->
 <section class="screen" id="scr-session">
   <div class="sess-top">
-    <div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-ghost btn-mini" id="btn-session-home">← Beranda</button>
       <span class="badge badge-grey" id="sess-profile-badge">-</span>
     </div>
     <div class="timer" id="sess-timer">00:00</div>
@@ -1252,6 +1253,18 @@ $("btn-brief-back").onclick = ()=>show("scr-home");
 $("btn-start-session").onclick = startSession;
 $("btn-mic").onclick = toggleMic;
 $("btn-end-session").onclick = endSession;
+/* v3.7: keluar dari sesi roleplay yang sedang berjalan lewat "Kembali ke Beranda",
+   dengan konfirmasi supaya progres sesi tidak hilang tanpa sadar. */
+$("btn-session-home").onclick = ()=>{
+  if(!confirm("Sesi belum selesai, yakin mau kembali ke beranda? Progres sesi ini tidak akan tersimpan.")) return;
+  clearInterval(state.timerInt);
+  speechSynthesis.cancel();
+  if(state.listening && recog) recog.stop();
+  sembunyikanIndikatorAI();
+  state.busy = false;
+  renderHome();
+  show("scr-home");
+};
 $("btn-toggle-text").onclick = ()=>$("text-fallback").classList.toggle("show");
 $("btn-send-text").onclick = ()=>{ const v=$("inp-text").value; $("inp-text").value=""; return sendUtterance(v); };
 $("inp-text").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("btn-send-text").click(); } });
