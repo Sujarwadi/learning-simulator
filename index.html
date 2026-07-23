@@ -1,3 +1,6 @@
+<!-- BBLC Learning Simulator v3.6, 22 Jul 2026. Perubahan: layar wajib ganti PIN (pola ATM)
+     saat login pertama kali (backend v3.5 mendeteksi Wajib_Ganti_PIN=TRUE), plus opsi
+     "Ganti PIN" sukarela di menu profil kapan saja. -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -254,6 +257,31 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   <div class="credit">Created by Sujarwadi<br>Property of Learning &amp; Development Department</div>
 </section>
 
+<!-- ============ GANTI PIN (v3.6, wajib saat login pertama & sukarela via menu) ============ -->
+<section class="screen" id="scr-ganti-pin">
+  <header class="app">
+    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
+    <div><div class="app-title">LEARNING SIMULATOR</div><div class="app-sub">Ganti PIN</div></div>
+  </header>
+  <div class="sbody">
+  <h2 class="sect">Ganti PIN Anda</h2>
+  <div class="card">
+    <p class="hint" id="gp-hint" style="margin-top:0">Demi keamanan, PIN Anda wajib diganti sebelum melanjutkan.</p>
+    <label>PIN Lama</label>
+    <input type="password" id="inp-gp-lama" placeholder="PIN saat ini" inputmode="numeric" maxlength="4">
+    <label>PIN Baru (4 digit)</label>
+    <input type="password" id="inp-gp-baru" placeholder="4 digit angka" inputmode="numeric" maxlength="4">
+    <label>Konfirmasi PIN Baru</label>
+    <input type="password" id="inp-gp-konfirmasi" placeholder="Ulangi PIN baru" inputmode="numeric" maxlength="4">
+  </div>
+  <div class="err" id="err-gp"></div>
+  <div class="actions"><div class="stack">
+    <button class="btn btn-red" id="btn-gp-simpan">Simpan PIN Baru</button>
+    <button class="btn btn-ghost" id="btn-gp-batal" style="display:none">Batal</button>
+  </div></div>
+  <div class="credit">Created by Sujarwadi<br>Property of Learning &amp; Development Department</div>
+</section>
+
 <!-- ============ HOME ============ -->
 <section class="screen" id="scr-home">
   <header class="app">
@@ -279,7 +307,10 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
         <div class="profile-name" id="home-nama">-</div>
         <div class="profile-meta" id="home-meta">-</div>
       </div>
-      <button class="btn btn-ghost btn-mini" id="btn-edit-profile">Ubah</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-mini" id="btn-edit-profile">Ubah</button>
+        <button class="btn btn-ghost btn-mini" id="btn-ganti-pin-menu" style="display:none">Ganti PIN</button>
+      </div>
     </div>
     <div class="hero-stats">
       <div class="hstat"><div class="hstat-num" id="hero-week">0</div><div class="hstat-label">Sesi Minggu Ini</div></div>
@@ -702,6 +733,7 @@ function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.r
 function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 function fmtTime(ms){ const t=Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0"); }
 function showErr(id,msg){ const e=$(id); e.textContent=msg; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),6000); }
+function clearErr(id){ const e=$(id); e.textContent=""; e.classList.remove("show"); }
 /* Buang semua kebocoran arahan sutradara atau catatan meta dari ucapan pelanggan */
 function stripMeta(t){
   return (t||"")
@@ -1110,6 +1142,14 @@ $("btn-save-setup").onclick = async ()=>{
     $("btn-save-setup").disabled = true;
     try{
       const r = await api("login",{nik:nik,pin:pin});
+      /* v3.6: PIN default belum pernah diganti -> paksa ganti PIN dulu, data sensitif
+         (kb/profils/krisis/katalog) belum dikirim backend sama sekali di kondisi ini. */
+      if(r.wajibGantiPin){
+        $("inp-pin").value = "";
+        bukaLayarGantiPin(nik, true);
+        $("btn-save-setup").disabled = false;
+        return;
+      }
       /* PERBAIKAN KEAMANAN v3.3: backend tidak lagi mengirim geminiKey;
          semua panggilan AI mode server lewat proxy backend. */
       state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key="";
@@ -1132,6 +1172,41 @@ $("btn-edit-profile").onclick = ()=>{
   $("inp-nama").value=state.nama; $("inp-nik").value=state.nik;
   $("inp-cabang").value=state.cabang; $("inp-key").value=state.key;
   show("scr-setup");
+};
+
+/* ---------- Ganti PIN (v3.6): wajib saat login pertama, atau sukarela via menu ---------- */
+let gpNikAktif = "";
+let gpModePaksa = false;
+function bukaLayarGantiPin(nik, paksa){
+  gpNikAktif = nik;
+  gpModePaksa = paksa;
+  $("inp-gp-lama").value = ""; $("inp-gp-baru").value = ""; $("inp-gp-konfirmasi").value = "";
+  clearErr("err-gp");
+  $("gp-hint").textContent = paksa
+    ? "Demi keamanan, PIN Anda wajib diganti sebelum melanjutkan. Langkah ini tidak bisa dilewati."
+    : "Ganti PIN Anda kapan saja. Masukkan PIN lama untuk konfirmasi.";
+  $("btn-gp-batal").style.display = paksa ? "none" : "";
+  show("scr-ganti-pin");
+}
+$("btn-ganti-pin-menu").onclick = ()=> bukaLayarGantiPin(state.nik, false);
+$("btn-gp-batal").onclick = ()=> show("scr-home");
+$("btn-gp-simpan").onclick = async ()=>{
+  clearErr("err-gp");
+  const pinLama = $("inp-gp-lama").value.trim();
+  const pinBaru = $("inp-gp-baru").value.trim();
+  const pinKonfirmasi = $("inp-gp-konfirmasi").value.trim();
+  if(!pinLama || !pinBaru || !pinKonfirmasi){ showErr("err-gp","Semua kolom wajib diisi."); return; }
+  if(!/^[0-9]{4}$/.test(pinBaru)){ showErr("err-gp","PIN baru harus tepat 4 digit angka."); return; }
+  if(pinBaru !== pinKonfirmasi){ showErr("err-gp","Konfirmasi PIN baru tidak cocok."); return; }
+  $("btn-gp-simpan").disabled = true;
+  try{
+    const r = await api("gantiPin", { nik: gpNikAktif, pinLama: pinLama, pinBaru: pinBaru });
+    state.nama=r.nama; state.nik=gpNikAktif; state.cabang=r.cabang; state.key="";
+    SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
+    sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:gpNikAktif,cabang:r.cabang,srv:SRV}));
+    renderHome(); show("scr-home");
+  }catch(e){ showErr("err-gp", e.message); }
+  $("btn-gp-simpan").disabled = false;
 };
 $("mod-pkt").onclick = ()=>{
   pickVoice();
@@ -1614,6 +1689,7 @@ if(BACKEND_URL){
   $("fld-cabang").style.display = "none";
   $("fld-key").style.display = "none";
   $("fld-pin").style.display = "";
+  $("btn-ganti-pin-menu").style.display = ""; /* v3.6: hanya relevan di mode server (ada PIN) */
   const s = sessionStorage.getItem("ss_srv");
   if(s){
     try{

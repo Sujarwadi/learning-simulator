@@ -1,3 +1,4 @@
+<!-- BBLC Studio v2.6, 22 Jul 2026. Perubahan: menangani respons login wajibGantiPin (backend v3.5) - Studio tidak punya layar ganti PIN sendiri, jadi jika PIN belum pernah diganti dari default, tampilkan pesan yang mengarahkan ke Learning Simulator untuk ganti PIN dulu, alih-alih lanjut dengan data undefined. -->
 <!-- BBLC Studio v2.5, 22 Jul 2026. Perubahan: Admin kini bisa membuka Tampilan Atasan (tombol di Panel Admin) untuk testing/pengawasan, sejalan dengan backend v3.4 yang menentukan status atasan secara dinamis dari kolom Atasan NIK, bukan dari nilai Role yang di-hardcode. -->
 <!-- BBLC Studio v2.4, 22 Jul 2026. Perbaikan: tombol unduh Form Asesmen memanggil unduhBase64SebagaiFile (sebelumnya unduhBase64, tidak terdefinisi, unduhan selalu gagal). -->
 <!-- BBLC Studio v2.3, 17 Jul 2026. Perubahan: input transkrip wawancara SME opsional dengan badge sumber di pratinjau, bagian Generate Form Asesmen per karyawan. -->
@@ -298,6 +299,14 @@ $("btn-login").onclick = async ()=>{
   $("btn-login").disabled = true;
   try{
     const r = await api("login", { nik, pin });
+    // v3.5/v2.6: PIN default belum pernah diganti. Studio tidak punya layar ganti PIN
+    // sendiri (dipakai sangat jarang, hanya Admin/Atasan) - arahkan ke Learning Simulator
+    // yang punya alur ganti PIN lengkap, lalu kembali ke sini setelah selesai.
+    if(r.wajibGantiPin){
+      showErr("err-login", "PIN Anda belum pernah diganti dari default. Buka Learning Simulator terlebih dahulu untuk mengganti PIN, lalu login kembali di sini dengan PIN baru.");
+      $("btn-login").disabled = false;
+      return;
+    }
     state = { nik: nik, nama: r.nama, role: r.role, jabatan: r.jabatan||"" };
     if(state.role === "admin"){
       $("admin-nama").textContent = state.nama + " · L&D Admin";
