@@ -356,6 +356,14 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     </div>
     <span class="badge badge-grey">LIHAT</span>
   </div>
+  <div class="card module" id="btn-admin-panel" style="display:none">
+    <div class="mod-icon">AD</div>
+    <div class="mod-body">
+      <div class="mod-title">Panel Admin</div>
+      <div class="mod-desc">Kelola Basis Pengetahuan, Profil Pelanggan Kustom, dan Krisis Kustom untuk perangkat ini.</div>
+    </div>
+    <span class="badge badge-grey">BUKA</span>
+  </div>
   <h2 class="sect">Riwayat Sesi Terakhir</h2>
   <div class="card" id="hist-box"><div class="empty">Belum ada sesi latihan. Mulailah sesi pertama Anda.</div></div>
   </div>
@@ -496,11 +504,6 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     <p class="hint" style="margin-top:0">Materi di bawah ini disuntikkan ke AI: menjadi konteks tambahan bagi pelanggan saat roleplay dan bagi validator saat menilai. Contoh isi: product knowledge terbaru, program promo, kebijakan cabang, atau catatan rubrik tambahan.</p>
     <textarea id="adm-kb" rows="9" placeholder="Tulis atau tempel pengetahuan tambahan di sini"></textarea>
     <div class="stack"><button class="btn btn-red" id="adm-save-kb">Simpan Basis Pengetahuan</button></div>
-  </div>
-  <h2 class="sect">Keamanan</h2>
-  <div class="card">
-    <div class="stack" style="margin-top:0"><button class="btn btn-dark" id="adm-ganti-pin">Ganti PIN Admin</button></div>
-    <p class="hint">Catatan transparansi: pada fase prototype, panel dan datanya tersimpan di perangkat ini dan pengamanannya berbasis PIN plus pintu masuk tersembunyi. Keamanan penuh sisi server berlaku setelah fase backend.</p>
   </div>
   </div>
   <div>
@@ -1151,6 +1154,8 @@ function renderHome(){
   resetModeValidator();
   $("home-nama").textContent = state.nama;
   $("home-meta").textContent = "NIK "+state.nik+" | Cabang "+state.cabang;
+  /* v3.7: menu Panel Admin cuma tampil kalau Role dari sheet Users = admin (divalidasi server saat login) */
+  $("btn-admin-panel").style.display = (SRV.role === "admin") ? "" : "none";
   const h = history();
   const minggu = h.filter(x=>Date.now()-new Date(x.tanggal).getTime() < 7*24*3600*1000).length;
   $("hero-week").textContent = minggu;
@@ -1638,32 +1643,10 @@ function buatHistItem(it){
   return d;
 }
 $("btn-progress").onclick = ()=>{ renderProgress(); show("scr-progress"); };
+$("btn-admin-panel").onclick = ()=>{ renderAdmin(); show("scr-admin"); };
 $("btn-prog-home").onclick = ()=>{ renderHome(); show("scr-home"); };
 
-/* ---------- Panel Admin: pintu rahasia dan pengelolaan ---------- */
-let ketukLogo = 0, ketukTimer = null;
-$("logo-home").onclick = ()=>{
-  ketukLogo++;
-  clearTimeout(ketukTimer);
-  ketukTimer = setTimeout(()=>{ ketukLogo = 0; }, 2500);
-  if(ketukLogo >= 7){ ketukLogo = 0; bukaAdmin(); }
-};
-function bukaAdmin(){
-  let pin = localStorage.getItem("ss_adm_pin");
-  if(!pin){
-    const p1 = prompt("Buat PIN Admin baru (4 sampai 6 digit):");
-    if(!p1 || !/^\d{4,6}$/.test(p1)) return;
-    const p2 = prompt("Ulangi PIN untuk konfirmasi:");
-    if(p1 !== p2){ alert("PIN tidak sama. Silakan ulangi."); return; }
-    localStorage.setItem("ss_adm_pin", btoa(p1));
-    pin = btoa(p1);
-  }else{
-    const masuk = prompt("Masukkan PIN Admin:");
-    if(!masuk || btoa(masuk) !== pin) return;
-  }
-  renderAdmin();
-  show("scr-admin");
-}
+/* ---------- Panel Admin: akses berbasis Role dari sheet Users, divalidasi server saat login ---------- */
 function renderAdmin(){
   $("adm-kb").value = ADM.kb;
   const lp = $("adm-list-p"); lp.innerHTML = "";
@@ -1701,14 +1684,6 @@ $("adm-add-k").onclick = ()=>{
   admSimpan();
   $("adm-k-label").value = ""; $("adm-k-brief").value = ""; $("adm-k-note").value = "";
   renderAdmin();
-};
-$("adm-ganti-pin").onclick = ()=>{
-  const lama = prompt("Masukkan PIN lama:");
-  if(!lama || btoa(lama) !== localStorage.getItem("ss_adm_pin")){ alert("PIN lama salah."); return; }
-  const baru = prompt("PIN baru (4 sampai 6 digit):");
-  if(!baru || !/^\d{4,6}$/.test(baru)){ alert("Format PIN tidak valid."); return; }
-  localStorage.setItem("ss_adm_pin", btoa(baru));
-  alert("PIN berhasil diganti.");
 };
 $("adm-back").onclick = ()=>{ renderHome(); show("scr-home"); };
 
