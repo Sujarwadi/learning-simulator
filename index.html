@@ -141,12 +141,33 @@ html[data-theme="light"] .hstat{background:rgba(255,255,255,.6)}
 .bubble.typing .dots span:nth-child(3){animation-delay:.4s}
 @keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
 .interim{color:var(--faint);font-style:italic;font-size:13px;align-self:flex-end;padding:0 6px}
-.mic-btn{width:84px;height:84px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 12px 30px rgba(124,58,237,.4)}
-.mic-btn svg{width:33px;height:33px;fill:#fff}
+.mic-btn{width:88px;height:88px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 12px 30px rgba(124,58,237,.4);overflow:hidden;padding:6px}
+/* v4.0: avatar wajah manusia (ilustrasi vektor SVG) menggantikan ikon mic statis.
+   Dibangun di atas class .listening/.busy yang SUDAH ADA (nol perubahan logika JS) -
+   cuma tampilan. Bentuk wajah tetap ilustrasi (bukan foto), lihat catatan ke user. */
+.mic-btn .face-svg{width:92%;height:92%;display:block}
+.mic-btn .db-avatar-f{display:none}
+.mic-btn.gender-f .db-avatar-f{display:block}
+.mic-btn.gender-f .db-avatar-m{display:none}
+.mic-btn .db-mouth{transition:opacity .15s}
+.mic-btn .db-mouth-mid,.mic-btn .db-mouth-open{opacity:0}
+.mic-btn .db-eyes{transform-box:fill-box;transform-origin:center;transition:transform .15s}
 .mic-btn.listening{background:linear-gradient(135deg,var(--pass),var(--cy));box-shadow:0 12px 30px rgba(52,211,153,.4)}
 .mic-btn.listening::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid var(--pass);animation:pulse 1.2s infinite}
-.mic-btn.busy{background:var(--surface2);box-shadow:none;pointer-events:none}
+.mic-btn.listening .db-eyes{transform:scaleY(1.12)}
+.mic-btn.listening .db-mouth-closed{opacity:0}
+.mic-btn.listening .db-mouth-mid{opacity:1;animation:dengar-mulut 1.4s ease-in-out infinite}
+.mic-btn.busy{pointer-events:none}
+.mic-btn.busy .db-mouth-closed{animation:bicara-a .42s ease-in-out infinite}
+.mic-btn.busy .db-mouth-mid{animation:bicara-b .42s ease-in-out infinite}
+.mic-btn.busy .db-mouth-open{animation:bicara-c .42s ease-in-out infinite}
+.mic-btn.busy .db-eyes{animation:kedip 3.2s infinite}
 @keyframes pulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.25);opacity:0}}
+@keyframes dengar-mulut{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes bicara-a{0%,100%{opacity:1}40%{opacity:.15}70%{opacity:.6}}
+@keyframes bicara-b{0%,100%{opacity:0}40%{opacity:.9}70%{opacity:.3}}
+@keyframes bicara-c{0%,100%{opacity:0}55%{opacity:.85}85%{opacity:0}}
+@keyframes kedip{0%,88%,100%{transform:scaleY(1)}92%{transform:scaleY(.12)}}
 .mic-label{font-size:12px;color:var(--muted)}
 .sess-actions{display:flex;gap:8px;width:100%}
 .sess-actions .btn{padding:11px;font-size:13px}
@@ -364,6 +385,14 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     </div>
     <span class="badge badge-grey">BUKA</span>
   </div>
+  <div class="card module" id="btn-tim-saya" style="display:none">
+    <div class="mod-icon">TM</div>
+    <div class="mod-body">
+      <div class="mod-title">Tim Saya</div>
+      <div class="mod-desc">Pantau progres latihan anak buah Anda: skor terakhir, status kelulusan, dan jumlah sesi.</div>
+    </div>
+    <span class="badge badge-grey">LIHAT</span>
+  </div>
   <h2 class="sect">Riwayat Sesi Terakhir</h2>
   <div class="card" id="hist-box"><div class="empty">Belum ada sesi latihan. Mulailah sesi pertama Anda.</div></div>
   </div>
@@ -412,7 +441,23 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   <div class="mic-zone">
     <div class="err" id="err-session"></div>
     <button class="mic-btn" id="btn-mic" aria-label="Mikrofon">
-      <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+      <!-- Avatar: "Avataaars" oleh Pablo Stanley (avataaars.com), dibangkitkan via @dicebear/collection,
+           free for personal and commercial use. 3 varian mulut (default/twinkle/screamOpen) digabung
+           jadi satu SVG, ditoggle via CSS opacity mengikuti class .listening/.busy yang SUDAH ADA
+           (nol perubahan logika JS) - lihat class db-mouth-closed/db-mouth-mid/db-mouth-open. -->
+      <!-- Avatar: "Avataaars" oleh Pablo Stanley (avataaars.com), via @dicebear/collection,
+           free for personal and commercial use. Avatar mewakili PERSONA PELANGGAN AI (bukan
+           user yang login) - gender ikut voiceGender (var JS yang SUDAH ADA, dipakai pilih
+           suara TTS), ditoggle lewat class .gender-m/.gender-f di #btn-mic. 3 varian mulut
+           (default/twinkle/smile) digabung jadi satu SVG per gender, ditoggle via class
+           .listening/.busy yang SUDAH ADA - nol perubahan pada logika inti JS. -->
+      <svg class="face-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <mask id="viewboxMask"><rect width="280" height="280" x="0" y="0" fill="#fff"/></mask>
+  <g mask="url(#viewboxMask)"><g transform="translate(8)">
+    <g class="db-avatar db-avatar-m"><mask id="styleCircle-a-m" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="264" height="280"><path d="M264 0H0v160h12c0 66.27 53.73 120 120 120 66.27 0 120-53.73 120-120h12V0Z" fill="#fff"/></mask><g mask="url(#styleCircle-a-m)"><path d="M132 36a56 56 0 0 0-56 56v6.17A12 12 0 0 0 66 110v14a12 12 0 0 0 10.3 11.88 56.04 56.04 0 0 0 31.7 44.73v18.4h-4a72 72 0 0 0-72 72v9h200v-9a72 72 0 0 0-72-72h-4v-18.39a56.04 56.04 0 0 0 31.7-44.73A12 12 0 0 0 198 124v-14a12 12 0 0 0-10-11.83V92a56 56 0 0 0-56-56Z" fill="#f2d3b1"/><path d="M108 180.61v8a55.79 55.79 0 0 0 24 5.39c8.59 0 16.73-1.93 24-5.39v-8a55.79 55.79 0 0 1-24 5.39 55.79 55.79 0 0 1-24-5.39Z" fill="#000" fill-opacity=".1"/><g transform="translate(0 170)"><path d="M132.5 51.83c18.5 0 33.5-9.62 33.5-21.48 0-.36-.01-.7-.04-1.06A72 72 0 0 1 232 101.04V110H32v-8.95a72 72 0 0 1 67.05-71.83c-.03.37-.05.75-.05 1.13 0 11.86 15 21.48 33.5 21.48Z" fill="#E6E6E6"/><path d="M132.5 58.76c21.89 0 39.63-12.05 39.63-26.91 0-.6-.02-1.2-.08-1.8-2-.33-4.03-.59-6.1-.76.04.35.05.7.05 1.06 0 11.86-15 21.48-33.5 21.48S99 42.2 99 30.35c0-.38.02-.76.05-1.13-2.06.14-4.08.36-6.08.67-.07.65-.1 1.3-.1 1.96 0 14.86 17.74 26.91 39.63 26.91Z" fill="#000" fill-opacity=".16"/><path d="M100.78 29.12 101 28c-2.96.05-6 1-6 1l-.42.66A72.01 72.01 0 0 0 32 101.06V110h74s-10.7-51.56-5.24-80.8l.02-.08ZM158 110s11-53 5-82c2.96.05 6 1 6 1l.42.66a72.01 72.01 0 0 1 62.58 71.4V110h-74Z" fill="#3c4f5c"/><path d="M101 28c-6 29 5 82 5 82H90L76 74l6-9-6-6 19-30s3.04-.95 6-1ZM163 28c6 29-5 82-5 82h16l14-36-6-9 6-6-19-30s-3.04-.95-6-1Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".15"/><path d="m183.42 85.77.87-2.24 6.27-4.7a4 4 0 0 1 4.85.05l6.6 5.12-18.59 1.77Z" fill="#E6E6E6"/></g><g class="db-mouth db-mouth-closed" transform="translate(78 134)"><path fill-rule="evenodd" clip-rule="evenodd" d="M40 15a14 14 0 1 0 28 0" fill="#000" fill-opacity=".7"/></g><g class="db-mouth db-mouth-mid" transform="translate(78 134)"><path d="M40 16c0 5.37 6.16 9 14 9s14-3.63 14-9c0-1.1-.95-2-2-2-1.3 0-1.87.9-2 2-1.24 2.94-4.32 4.72-10 5-5.68-.28-8.76-2.06-10-5-.13-1.1-.7-2-2-2-1.05 0-2 .9-2 2Z" fill="#000" fill-opacity=".6"/></g><g class="db-mouth db-mouth-open" transform="translate(78 134)"><path fill-rule="evenodd" clip-rule="evenodd" d="M35.12 15.13a19 19 0 0 0 37.77-.09c.08-.77-.77-2.04-1.85-2.04H37.1C36 13 35 14.18 35.12 15.13Z" fill="#000" fill-opacity=".7"/><path d="M70 13H39a5 5 0 0 0 5 5h21a5 5 0 0 0 5-5Z" fill="#fff"/><path d="M66.7 27.14A10.96 10.96 0 0 0 54 25.2a10.95 10.95 0 0 0-12.7 1.94A18.93 18.93 0 0 0 54 32c4.88 0 9.33-1.84 12.7-4.86Z" fill="#FF4F6D"/></g><g transform="translate(104 122)"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8c0 4.42 5.37 8 12 8s12-3.58 12-8" fill="#000" fill-opacity=".16"/></g><g class="db-eyes" transform="translate(76 90)"><path d="M36 22a6 6 0 1 1-12 0 6 6 0 0 1 12 0ZM88 22a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z" fill="#000" fill-opacity=".6"/></g><g transform="translate(76 82)"><path d="M26.55 6.15c-5.8.27-15.2 4.49-14.96 10.34.01.18.3.27.43.12 2.76-2.96 22.32-5.95 29.2-4.36.64.14 1.12-.48.72-.93-3.43-3.85-10.2-5.43-15.4-5.18ZM86.45 6.15c5.8.27 15.2 4.49 14.96 10.34-.01.18-.3.27-.43.12-2.76-2.96-22.32-5.95-29.2-4.36-.64.14-1.12-.48-.72-.93 3.43-3.85 10.2-5.43 15.4-5.18Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".6"/></g><g transform="translate(-1)"><path fill-rule="evenodd" clip-rule="evenodd" d="M180.15 39.92c-2.76-2.82-5.96-5.21-9.08-7.61-.69-.53-1.39-1.05-2.06-1.6-.15-.12-1.72-1.24-1.9-1.66-.45-.99-.19-.22-.12-1.4.08-1.5 3.13-5.73.85-6.7-1-.43-2.8.7-3.75 1.08a59.56 59.56 0 0 1-5.73 1.9c.93-1.85 2.7-5.57-.63-4.58-2.6.78-5.03 2.77-7.64 3.7.86-1.4 4.32-5.8 1.2-6.05-.98-.07-3.8 1.75-4.86 2.14a55.81 55.81 0 0 1-9.63 2.51c-11.2 2.02-24.3 1.45-34.65 6.54-8 3.93-15.88 10.03-20.5 17.8-4.44 7.48-6.1 15.67-7.03 24.25-.69 6.3-.74 12.8-.42 19.12.1 2.07.34 11.61 3.34 8.72 1.5-1.44 1.49-7.25 1.87-9.22.75-3.91 1.47-7.85 2.72-11.64 2.2-6.68 4.81-13.8 10.3-18.4 3.53-2.94 6.01-6.93 9.39-9.9 1.51-1.35.36-1.2 2.8-1.03 1.63.12 3.28.16 4.92.2 3.8.1 7.6.08 11.4.1 7.64 0 15.25.12 22.89-.28 3.4-.18 6.8-.28 10.18-.6 1.9-.17 5.25-1.38 6.8-.45 1.43.84 2.91 3.61 3.94 4.75 2.41 2.67 5.3 4.72 8.12 6.92 5.9 4.57 8.87 10.33 10.66 17.48 1.79 7.13 1.29 13.75 3.5 20.76.38 1.24 1.4 3.36 2.67 1.46.24-.36.18-2.3.18-3.42 0-4.52 1.14-7.91 1.13-12.46-.06-13.83-.5-31.87-10.85-42.44Z" fill="#2c1b18"/></g><g transform="translate(49 72)"></g><g transform="translate(62 42)"></g></g></g>
+    <g class="db-avatar db-avatar-f"><mask id="styleCircle-a-f" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="264" height="280"><path d="M264 0H0v160h12c0 66.27 53.73 120 120 120 66.27 0 120-53.73 120-120h12V0Z" fill="#fff"/></mask><g mask="url(#styleCircle-a-f)"><path d="M132 36a56 56 0 0 0-56 56v6.17A12 12 0 0 0 66 110v14a12 12 0 0 0 10.3 11.88 56.04 56.04 0 0 0 31.7 44.73v18.4h-4a72 72 0 0 0-72 72v9h200v-9a72 72 0 0 0-72-72h-4v-18.39a56.04 56.04 0 0 0 31.7-44.73A12 12 0 0 0 198 124v-14a12 12 0 0 0-10-11.83V92a56 56 0 0 0-56-56Z" fill="#f2d3b1"/><path d="M108 180.61v8a55.79 55.79 0 0 0 24 5.39c8.59 0 16.73-1.93 24-5.39v-8a55.79 55.79 0 0 1-24 5.39 55.79 55.79 0 0 1-24-5.39Z" fill="#000" fill-opacity=".1"/><g transform="translate(0 170)"><path d="M132 57.05c14.91 0 27-11.2 27-25 0-1.01-.06-2.01-.2-3h1.2a72 72 0 0 1 72 72V110H32v-8.95a72 72 0 0 1 72-72h1.2c-.14.99-.2 1.99-.2 3 0 13.8 12.09 25 27 25Z" fill="#E6E6E6"/><path d="M100.78 29.12 101 28c-2.96.05-6 1-6 1l-.42.66A72.01 72.01 0 0 0 32 101.06V110h74s-10.7-51.56-5.24-80.8l.02-.08ZM158 110s11-53 5-82c2.96.05 6 1 6 1l.42.66a72.01 72.01 0 0 1 62.58 71.4V110h-74Z" fill="#6b3f5c"/><path d="M101 28c-6 29 5 82 5 82H90L76 74l6-9-6-6 19-30s3.04-.95 6-1ZM163 28c6 29-5 82-5 82h16l14-36-6-9 6-6-19-30s-3.04-.95-6-1Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".15"/><path d="M108 21.54c-6.77 4.6-11 11.12-11 18.35 0 7.4 4.43 14.05 11.48 18.67l5.94-4.68 4.58.33-1-3.15.08-.06c-6.1-3.15-10.08-8.3-10.08-14.12V21.54ZM156 36.88c0 5.82-3.98 10.97-10.08 14.12l.08.06-1 3.15 4.58-.33 5.94 4.68C162.57 53.94 167 47.29 167 39.89c0-7.23-4.23-13.75-11-18.35v15.34Z" fill="#F2F2F2"/><path d="m183.42 85.77.87-2.24 6.27-4.7a4 4 0 0 1 4.85.05l6.6 5.12-18.59 1.77Z" fill="#E6E6E6"/></g><g class="db-mouth db-mouth-closed" transform="translate(78 134)"><path fill-rule="evenodd" clip-rule="evenodd" d="M40 15a14 14 0 1 0 28 0" fill="#000" fill-opacity=".7"/></g><g class="db-mouth db-mouth-mid" transform="translate(78 134)"><path d="M40 16c0 5.37 6.16 9 14 9s14-3.63 14-9c0-1.1-.95-2-2-2-1.3 0-1.87.9-2 2-1.24 2.94-4.32 4.72-10 5-5.68-.28-8.76-2.06-10-5-.13-1.1-.7-2-2-2-1.05 0-2 .9-2 2Z" fill="#000" fill-opacity=".6"/></g><g class="db-mouth db-mouth-open" transform="translate(78 134)"><path fill-rule="evenodd" clip-rule="evenodd" d="M35.12 15.13a19 19 0 0 0 37.77-.09c.08-.77-.77-2.04-1.85-2.04H37.1C36 13 35 14.18 35.12 15.13Z" fill="#000" fill-opacity=".7"/><path d="M70 13H39a5 5 0 0 0 5 5h21a5 5 0 0 0 5-5Z" fill="#fff"/><path d="M66.7 27.14A10.96 10.96 0 0 0 54 25.2a10.95 10.95 0 0 0-12.7 1.94A18.93 18.93 0 0 0 54 32c4.88 0 9.33-1.84 12.7-4.86Z" fill="#FF4F6D"/></g><g transform="translate(104 122)"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8c0 4.42 5.37 8 12 8s12-3.58 12-8" fill="#000" fill-opacity=".16"/></g><g class="db-eyes" transform="translate(76 90)"><path d="M36 22a6 6 0 1 1-12 0 6 6 0 0 1 12 0ZM88 22a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z" fill="#000" fill-opacity=".6"/></g><g transform="translate(76 82)"><path d="M26.55 6.15c-5.8.27-15.2 4.49-14.96 10.34.01.18.3.27.43.12 2.76-2.96 22.32-5.95 29.2-4.36.64.14 1.12-.48.72-.93-3.43-3.85-10.2-5.43-15.4-5.18ZM86.45 6.15c5.8.27 15.2 4.49 14.96 10.34-.01.18-.3.27-.43.12-2.76-2.96-22.32-5.95-29.2-4.36-.64.14-1.12-.48-.72-.93 3.43-3.85 10.2-5.43 15.4-5.18Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".6"/></g><g transform="translate(-1)"><path d="M157 180.61V199h4a71.7 71.7 0 0 1 46 16.6V92a74 74 0 0 0-148 0v183.72A28 28 0 0 0 83 248v-45.58a71.95 71.95 0 0 1 22-3.42h4v-18.39a56.24 56.24 0 0 1-26-25.36V93.27a150 150 0 0 0 28.34-12.77c15.4-8.9 28.1-19.56 36.73-30.1 1.76 5.2 4.1 10.4 7.04 15.48 8.78 15.2 21.12 26.35 33.9 32.04v.25c.4.06.8.15 1.18.26.77.32 1.55.62 2.33.9A12 12 0 0 1 199 110v13a12 12 0 0 1-10.22 11.87A56.03 56.03 0 0 1 157 180.6Z" fill="#4a312c"/><path d="M157 199v-18.39a56.03 56.03 0 0 0 31.8-45.74A12 12 0 0 0 199 123v-13a12 12 0 0 0-6.5-10.66 44.57 44.57 0 0 0 14.5 2.8v113.47A71.7 71.7 0 0 0 161 199h-4ZM83 202.42v-47.17a56.24 56.24 0 0 0 26 25.36V199h-4c-7.67 0-15.07 1.2-22 3.42ZM189 97.92v.25c.4.06.8.15 1.18.26l-1.18-.51Z" fill="#000" fill-opacity=".27"/></g><g transform="translate(49 72)"></g><g transform="translate(62 42)"></g></g></g>
+  </g></g>
+</svg>
     </button>
     <div class="mic-label" id="mic-label">Tekan untuk bicara</div>
     <div class="text-fallback" id="text-fallback">
@@ -437,7 +482,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   <h2 class="sect">Pilih Skenario</h2>
   <div class="card">
     <div class="sel-row">
-      <div>
+      <div id="wrap-sel-profil">
         <label style="margin-top:0">Profil Pelanggan</label>
         <select id="sel-profil">
           <option value="acak">Acak</option>
@@ -446,7 +491,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
           <option value="family-driver">Family Driver</option>
         </select>
       </div>
-      <div>
+      <div id="wrap-sel-krisis">
         <label style="margin-top:0">Skenario Krisis</label>
         <select id="sel-krisis">
           <option value="acak">Acak</option>
@@ -533,6 +578,22 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   </div></div>
   <div class="actions"><div class="stack">
     <button class="btn btn-ghost" id="adm-back">Keluar dari Panel Admin</button>
+  </div></div>
+</section>
+
+<!-- ============ TIM SAYA (Kacab/atasan) ============ -->
+<section class="screen" id="scr-tim">
+  <header class="app">
+    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
+    <div><div class="app-title">TIM SAYA</div><div class="app-sub">Progres latihan anak buah Anda</div></div>
+  </header>
+  <div class="sbody">
+  <div class="card" id="tim-loading"><div class="empty">Memuat data tim...</div></div>
+  <div id="tim-list" style="display:none"></div>
+  <div class="err" id="err-tim"></div>
+  </div>
+  <div class="actions"><div class="stack">
+    <button class="btn btn-ghost" id="tim-back">Kembali</button>
   </div></div>
 </section>
 
@@ -641,15 +702,15 @@ async function api(action, payload){
   if(!j.ok) throw new Error(j.error||"Permintaan ditolak server.");
   return j;
 }
-const AMBANG_LULUS = 6; /* skor minimum per parameter, setara Level 3 Mandiri */
-const MIN_GILIRAN = 4;  /* minimal giliran bicara peserta agar sesi dapat dinilai */
-
-/* ---------- Rubrik PKT Masterclass (sumber: deck PKT rev2) ---------- */
-const RUBRIK = `
+/* ---------- Rubrik PKT Masterclass (sumber: deck PKT rev2) ----------
+   v3.8 REFACTOR: teks rubrik dipindah ke registry SKENARIO sebagai fungsi dari objek
+   skenario, supaya ambang kelulusan tidak lagi hardcode. ISI TEKS TIDAK DIUBAH SAMA
+   SEKALI - hanya ${AMBANG_LULUS} yang menjadi ${S.kelulusan.ambang} (nilai sama, 6). */
+const RUBRIK_PKT = (S) => `
 RUBRIK PENILAIAN ROLEPLAY PKT MASTERCLASS, PT BOSOWA BERLIAN MOTOR.
 Skala penilaian tiap parameter: 1 sampai 10. Komposisi nilai tiap parameter: Anchor verbatim terucap (bobot 40 persen), kata kunci wajib lengkap (bobot 40 persen), struktur atau urutan benar (bobot 20 persen).
 Pemetaan skor ke level kompetensi: 1-2 Level 1 Awareness (belum mandiri), 3-4 Level 2 Basic (perlu bimbingan), 5-6 Level 3 Intermediate (mandiri), 7-8 Level 4 Advanced (mahir dan rujukan), 9-10 Level 5 Expert (inovator).
-Status LULUS hanya jika SEMUA parameter mencapai skor minimal ${AMBANG_LULUS}. Satu parameter di bawah ambang berarti BELUM LULUS meskipun rata-rata tinggi.
+Status LULUS hanya jika SEMUA parameter mencapai skor minimal ${S.kelulusan.ambang}. Satu parameter di bawah ambang berarti BELUM LULUS meskipun rata-rata tinggi.
 
 PARAMETER 1. PENYAMBUTAN AWAL (Skrip slide 28 dan 29).
 Anchor verbatim: frasa "Welcome Home" dan menyapa pelanggan dengan menyebut nama.
@@ -692,8 +753,8 @@ SKRIP STANDAR PKT MASTERCLASS (gunakan sebagai contoh benar dalam rekomendasi, k
 Gestur standar (slide 30 dan 31): membuka pintu kemudi dengan dua tangan; mempersilakan pelanggan duduk layaknya tamu kenegaraan; sales duduk di kursi penumpang depan; menggunakan sarung tangan; menunjuk fitur dengan gestur tangan terbuka, dilarang keras satu jari telunjuk.
 `;
 
-/* ---------- Profil pelanggan dan krisis ---------- */
-const PROFIL = [
+/* ---------- Profil pelanggan dan krisis (pool milik skenario PKT) ---------- */
+const PROFIL_PKT = [
   { id:"first-timer", label:"First-Timer",
     desc:"pembeli mobil pertama, sedikit gugup, awam teknologi, banyak bertanya hal dasar, khawatir salah pakai fitur",
     namaM:"Bapak Rahman", namaF:"Ibu Ratna" },
@@ -704,12 +765,76 @@ const PROFIL = [
     desc:"orang tua dua anak kecil, fokus pada keamanan anak, kepraktisan, dan kebersihan kabin",
     namaM:"Bapak Ilham", namaF:"Ibu Sari" }
 ];
-const KRISIS = [
-  { id:"baret", note:"KRISIS: Tim menemukan goresan kecil di bumper bawah saat inspeksi akhir beberapa menit lalu. Pelanggan BELUM mengetahuinya. Amati apakah sales menyampaikannya secara proaktif dan transparan. Jika hingga dua giliran berikutnya sales tidak menyampaikan, pelanggan menemukan sendiri goresan itu dan bertanya dengan nada kecewa.",
+const KRISIS_PKT = [
+  { id:"baret", label:"Baret Menit Terakhir", note:"KRISIS: Tim menemukan goresan kecil di bumper bawah saat inspeksi akhir beberapa menit lalu. Pelanggan BELUM mengetahuinya. Amati apakah sales menyampaikannya secara proaktif dan transparan. Jika hingga dua giliran berikutnya sales tidak menyampaikan, pelanggan menemukan sendiri goresan itu dan bertanya dengan nada kecewa.",
     brief:"Beberapa menit sebelum pelanggan tiba, tim inspeksi menemukan goresan kecil di bumper bawah unit." },
-  { id:"blank", note:"KRISIS: Pelanggan menanyakan satu pertanyaan teknis yang sangat spesifik dan sulit tentang modul kelistrikan atau sistem kendaraan, yang kemungkinan besar tidak dikuasai sales. Ajukan pertanyaan itu sekarang dengan rasa ingin tahu yang tinggi dan tuntut jawaban yang meyakinkan.",
+  { id:"blank", label:"Pertanyaan Teknis Sulit (Anti-Blank)", note:"KRISIS: Pelanggan menanyakan satu pertanyaan teknis yang sangat spesifik dan sulit tentang modul kelistrikan atau sistem kendaraan, yang kemungkinan besar tidak dikuasai sales. Ajukan pertanyaan itu sekarang dengan rasa ingin tahu yang tinggi dan tuntut jawaban yang meyakinkan.",
     brief:"Pelanggan Anda dikenal kritis dan gemar mengajukan pertanyaan teknis mendetail." }
 ];
+
+/* ================= REGISTRY SKENARIO (v3.8) =================
+   Satu skenario = satu blok data. Menambah modul baru cukup menambah entry di sini,
+   TANPA menyentuh logic inti (grader AI, flow roleplay, render UI).
+   Aturan kelulusan "semua parameter wajib lolos ambang" berlaku general untuk semua
+   skenario dan sengaja tidak dibuat opsional. */
+const SKENARIO = {
+  "pkt-roleplay": {
+    id: "pkt-roleplay",
+    nama: "PKT Masterclass: Roleplay Hari H",
+    kategori: "SALES",
+    modulLabel: "PKT Roleplay Hari H",        /* dipakai di riwayat sesi */
+    modulLabelVideo: "PKT Video Assessment",  /* varian video dari skenario yang sama */
+    scoring: { anchor:40, kataKunci:40, struktur:20 },
+    kelulusan: { mode:"semua-parameter", ambang:6 },
+    minGiliran: 4,
+    parameter: [
+      { key:"penyambutan", nama:"Penyambutan Awal",             labelRadar:"Penyambutan" },
+      { key:"gestur",      nama:"Gestur Presentasi",            labelRadar:"Gestur" },
+      { key:"profiling",   nama:"Delivery based on Profiling",  labelRadar:"Profiling" },
+      { key:"persuasi",    nama:"Skrip Persuasi Aplikasi",      labelRadar:"Persuasi App" },
+      { key:"krisis",      nama:"Crisis Handling",              labelRadar:"Crisis" }
+    ],
+    profil:  { pool:PROFIL_PKT, acak:true, tampilkanPilihan:false, tampilkanPilihanVideo:true },
+    injeksi: { pool:KRISIS_PKT, acak:true, munculDiGiliran:{ min:5, max:5 },
+               labelUI:"Krisis", tampilkanPilihanVideo:true },
+    rubrik: RUBRIK_PKT,
+    /* Builder prompt milik skenario. Dibungkus arrow supaya dievaluasi saat dipanggil
+       (const builder dideklarasikan di bawah registry, jadi tidak kena TDZ). */
+    sysPelanggan:      (S,st)=>SYS_PELANGGAN_PKT(S,st),
+    sysValidator:      (S,st)=>SYS_VALIDATOR_PKT(S,st),
+    sysValidatorVideo: (S,st)=>SYS_VALIDATOR_VIDEO_PKT(S,st),
+    briefing: (S,st)=>"Hari ini adalah hari penyerahan unit (Hari H). Pelanggan Anda: "+st.profil.nama
+      +", profil "+st.profil.label+". "+st.krisis.brief
+      +" Jalankan seluruh proses PKT sesuai standar Masterclass, mulai dari penyambutan hingga penutupan.",
+    /* Bagian ekor briefing video. Prefiks "SESI UJIAN" dan kalimat profil tetap dirakit
+       di resolveSkenarioVideo() karena bergantung pada pilihan dropdown, bukan skenario. */
+    briefingVideo: (S,st)=>st.krisis.brief
+      +" Jalankan seluruh proses PKT Hari H sesuai standar Masterclass dan pastikan Anda merespons situasi tersebut di dalam rekaman.",
+    pesanMulai: (S,st)=>"Sesi dimulai. Pelanggan "+st.profil.nama+" baru tiba di lobi dealer. Silakan mulai penyambutan Anda."
+  }
+};
+
+/* Skenario aktif. Default PKT supaya perilaku lama tidak berubah. */
+function SK(id){ return SKENARIO[id || (typeof state!=="undefined" && state.skenarioId) || "pkt-roleplay"]; }
+/* Skenario milik satu item riwayat (riwayat lama tanpa skenarioId dianggap PKT). */
+function SKitem(it){
+  /* v3.8 fix (sama pola dengan renderProgress): skenarioId TANPA field sama sekali
+     (data lama) memang default ke pkt-roleplay dan itu benar. Tapi skenarioId yang
+     ADA nilainya namun sudah tidak terdaftar di registry TIDAK BOLEH ikut fallback
+     ke rubrik PKT, sebab paramnya beda -> label radar & warna ambang akan tertukar. */
+  const sid = (it && it.skenarioId) || "pkt-roleplay";
+  return SKENARIO[sid] || (sid==="pkt-roleplay" ? SKENARIO["pkt-roleplay"] : {
+    nama: ((it && it.modul) || sid) + " (skenario tidak dikenal)",
+    kelulusan: SKENARIO["pkt-roleplay"].kelulusan,
+    parameter: ((it && it.hasil && it.hasil.parameter) || []).map(p=>({ nama:p.nama }))
+  });
+}
+/* Skeleton JSON jawaban validator, diturunkan dari daftar parameter skenario. */
+function skeletonJSON(S){
+  return '{"parameter":['
+    + S.parameter.map(p=>'{"nama":"'+p.nama+'","skor":0,"bukti":"","evaluasi":""}').join(",")
+    + '],"skorTotal":0,"level":"","status":"","evaluasiUmum":"","kekuatan":[""],"rekomendasi":[{"materi":"","referensi":"","gap":"","contohBenar":""}]}';
+}
 
 /* ---------- Data Admin (basis pengetahuan & skenario kustom) ---------- */
 function admGet(k,d){ try{ return JSON.parse(localStorage.getItem(k)) || d; }catch(e){ return d; } }
@@ -723,12 +848,14 @@ function admSimpan(){
   localStorage.setItem("ss_adm_profils", JSON.stringify(ADM.profils));
   localStorage.setItem("ss_adm_krisis", JSON.stringify(ADM.krisis));
 }
-function poolProfil(){ return PROFIL.concat(SRV.profils||[], ADM.profils); }
-function poolKrisis(){ return KRISIS.concat(SRV.krisis||[], ADM.krisis); }
+function poolProfil(){ return SK().profil.pool.concat(SRV.profils||[], ADM.profils); }
+function poolKrisis(){ return SK().injeksi.pool.concat(SRV.krisis||[], ADM.krisis); }
 function kbEfektif(){ return ((SRV.kb||"")+"\n"+(ADM.kb||"")).trim(); }
 function namaKrisis(id){
-  if(id==="baret") return "Baret Menit Terakhir";
-  if(id==="blank") return "Pertanyaan Teknis Sulit (Anti-Blank)";
+  /* v3.8: label injeksi diambil dari pool skenario aktif, bukan lagi if hardcode.
+     Label pada pool sengaja dibuat persis sama dengan versi lama supaya prompt identik. */
+  const p = SK().injeksi.pool.find(x=>x.id===id);
+  if(p && p.label) return p.label;
   const k = ADM.krisis.find(x=>x.id===id);
   return k ? k.label : "Skenario Kustom";
 }
@@ -838,9 +965,9 @@ async function gemini(contents, systemText, asJson){
   return parts.map(p=>p.text||"").join("");
 }
 
-/* ---------- Prompt roleplay ---------- */
-function roleplaySystem(){
-  const p = state.profil;
+/* ---------- Prompt roleplay (teks milik skenario, dipanggil lewat registry) ---------- */
+const SYS_PELANGGAN_PKT = (S,st) => {
+  const p = st.profil;
   return `Anda adalah PELANGGAN dealer Mitsubishi Bosowa yang hari ini datang mengambil unit mobil baru (proses PKT, Penyerahan Kendaraan Terjual). Nama Anda ${p.nama}. Profil Anda: ${p.desc}.
 Aturan main:
 1. Anda HANYA berperan sebagai pelanggan. Jangan pernah keluar karakter, jangan memberi pujian, koreksi, evaluasi, atau bimbingan kepada sales dalam bentuk apa pun.
@@ -851,13 +978,15 @@ Aturan main:
 6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
 7. Percakapan dimulai saat Anda baru tiba di lobi dealer bersama keluarga.`
   + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
-}
+};
+/* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
+function roleplaySystem(){ return SK().sysPelanggan(SK(), state); }
 
-/* ---------- Prompt validator ---------- */
-function validatorSystem(){
+/* ---------- Prompt validator (teks milik skenario, dipanggil lewat registry) ---------- */
+const SYS_VALIDATOR_PKT = (S,st) => {
   return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda menilai transkrip roleplay PKT berikut secara ketat, objektif, dan berbasis bukti kutipan dari transkrip. Peserta berperan sebagai Sales, lawan bicara adalah AI pelanggan.
-${RUBRIK}
-Konteks sesi: profil pelanggan ${state.profil.label}; skenario krisis yang disisipkan: ${namaKrisis(state.krisis.id)} (${state.krisis.brief||""}).
+${S.rubrik(S)}
+Konteks sesi: profil pelanggan ${st.profil.label}; skenario krisis yang disisipkan: ${namaKrisis(st.krisis.id)} (${st.krisis.brief||""}).
 ${kbEfektif() ? "KONTEKS TAMBAHAN DARI L&D (pertimbangkan dalam penilaian): "+kbEfektif() : ""}
 Instruksi penilaian:
 1. Nilai HANYA berdasarkan apa yang benar-benar diucapkan peserta di transkrip. Tindakan fisik yang tidak disebutkan secara lisan dianggap tidak dilakukan.
@@ -866,10 +995,12 @@ Instruksi penilaian:
 4. Terapkan aturan auto-fail dengan tegas.
 5. Rekomendasi harus merujuk sesi dan nomor slide PKT Masterclass yang spesifik.
 Balas HANYA dengan JSON valid berstruktur persis:
-{"parameter":[{"nama":"Penyambutan Awal","skor":0,"bukti":"","evaluasi":""},{"nama":"Gestur Presentasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Delivery based on Profiling","skor":0,"bukti":"","evaluasi":""},{"nama":"Skrip Persuasi Aplikasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Crisis Handling","skor":0,"bukti":"","evaluasi":""}],"skorTotal":0,"level":"","status":"","evaluasiUmum":"","kekuatan":[""],"rekomendasi":[{"materi":"","referensi":"","gap":"","contohBenar":""}]}
-Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik berdasarkan skorTotal; status bernilai "LULUS" hanya jika semua parameter minimal ${AMBANG_LULUS}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif menyeluruh; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, masing-masing satu kalimat spesifik beserta buktinya.
+${skeletonJSON(S)}
+Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik berdasarkan skorTotal; status bernilai "LULUS" hanya jika semua parameter minimal ${S.kelulusan.ambang}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif menyeluruh; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, masing-masing satu kalimat spesifik beserta buktinya.
 Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK peserta, kutip ucapan peserta yang keliru atau sebutkan hal wajib yang tidak diucapkan sama sekali; "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan peserta pada momen itu (kutip SKRIP STANDAR yang relevan, sesuaikan nama pelanggan) atau gestur persis yang seharusnya dilakukan, sehingga peserta langsung tahu bentuk benarnya tanpa membuka materi; "materi" dan "referensi" menunjuk sesi dan slide spesifik untuk pendalaman. Dilarang menulis rekomendasi umum seperti "pelajari kembali materi" tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
-}
+};
+/* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
+function validatorSystem(){ return SK().sysValidator(SK(), state); }
 
 /* ---------- Text to Speech ---------- */
 let voiceID = null, voiceGender = "f";
@@ -936,10 +1067,11 @@ async function startSession(){
   state.chat = []; state.turns = 0; state.krisisInjected = false;
   $("chat").innerHTML = "";
   $("sess-profile-badge").textContent = "Pelanggan: "+state.profil.label;
+  $("btn-mic").classList.toggle("gender-f", state.profil.gender === "f");
   show("scr-session");
   state.timerStart = Date.now();
   state.timerInt = setInterval(()=>{ $("sess-timer").textContent = fmtTime(Date.now()-state.timerStart); },500);
-  addBubble("sys","Sesi dimulai. Pelanggan "+state.profil.nama+" baru tiba di lobi dealer. Silakan mulai penyambutan Anda.");
+  addBubble("sys", SK().pesanMulai(SK(), state));
 }
 
 async function sendUtterance(text){
@@ -948,7 +1080,7 @@ async function sendUtterance(text){
   state.busy = true; setMicBusy(true);
   addBubble("me", text);
   const lenSebelum = state.chat.length;
-  const krisisBaru = !state.krisisInjected && (state.turns+1)>=5;
+  const krisisBaru = !state.krisisInjected && (state.turns+1)>=SK().injeksi.munculDiGiliran.min;
   state.chat.push({ role:"user", parts:[{text:text}] });
   state.turns++;
   /* injeksi krisis di giliran ke-5 */
@@ -1055,8 +1187,8 @@ function toggleMic(){
 
 /* ---------- Penilaian ---------- */
 async function endSession(){
-  if(state.turns < MIN_GILIRAN){
-    showErr("err-session","Sesi terlalu singkat untuk dinilai. Lakukan minimal "+MIN_GILIRAN+" giliran bicara.");
+  if(state.turns < SK().minGiliran){
+    showErr("err-session","Sesi terlalu singkat untuk dinilai. Lakukan minimal "+SK().minGiliran+" giliran bicara.");
     return;
   }
   clearInterval(state.timerInt);
@@ -1070,7 +1202,7 @@ async function endSession(){
     const raw = await gemini([{role:"user",parts:[{text:"TRANSKRIP SESI:\n"+transcript+"\n\nNilai transkrip di atas."}]}], validatorSystem(), true);
     const hasil = JSON.parse(raw);
     const item = {
-      tanggal:new Date().toISOString(), modul:"PKT Roleplay Hari H", jenis:"Latihan",
+      tanggal:new Date().toISOString(), skenarioId:SK().id, modul:SK().modulLabel, jenis:"Latihan",
       profil:state.profil.label, krisis:state.krisis.id,
       skor:hasil.skorTotal, status:hasil.status, level:hasil.level,
       durasi:fmtTime(Date.now()-state.timerStart), hasil:hasil
@@ -1085,17 +1217,20 @@ async function endSession(){
   }
 }
 
-function radarSVG(params){
+/* v3.8: label sumbu dan ambang warna diambil dari skenario milik data, bukan array hardcode. */
+function radarSVG(params, S){
+  S = S || SK();
+  const ambang = S.kelulusan.ambang;
   const cx=130, cy=118, R=86, N=params.length;
   const pt=(i,r)=>{ const a=(-90+i*(360/N))*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
   const ring=v=>{ let s=""; for(let i=0;i<N;i++){ const[x,y]=pt(i,R*v/10); s+=(i?"L":"M")+x.toFixed(1)+","+y.toFixed(1);} return s+"Z"; };
-  const label=["Penyambutan","Gestur","Profiling","Persuasi App","Crisis"];
+  const label=params.map((p,i)=>{ const def=S.parameter[i]; return def ? (def.labelRadar||def.nama) : (p.nama||""); });
   let g="";
   [2.5,5,7.5,10].forEach(v=>{ g+='<path d="'+ring(v)+'" fill="none" style="stroke:var(--line)" stroke-width="1"/>'; });
   for(let i=0;i<N;i++){ const[x,y]=pt(i,R); g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" style="stroke:var(--line)" stroke-width="1"/>';
     const[lx,ly]=pt(i,R+20);
     g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="middle" font-size="10.5" style="fill:var(--muted)" font-family="Inter,sans-serif">'+label[i]+'</text>';
-    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+17).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" style="fill:'+(params[i].skor>=AMBANG_LULUS?"var(--pass)":"var(--fail)")+'" font-family="Inter,sans-serif">'+params[i].skor+'</text>';
+    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+17).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" style="fill:'+(params[i].skor>=ambang?"var(--pass)":"var(--fail)")+'" font-family="Inter,sans-serif">'+params[i].skor+'</text>';
   }
   let poly="";
   params.forEach((p,i)=>{ const[x,y]=pt(i,R*Math.max(0.4,p.skor)/10); poly+=(i?"L":"M")+x.toFixed(1)+","+y.toFixed(1); });
@@ -1105,6 +1240,7 @@ function radarSVG(params){
 }
 
 function renderResult(h, metaText){
+  const Sh = SKitem(h); /* skenario milik data ini, bukan skenario yang sedang aktif */
   $("res-meta").textContent = metaText || (identitasAktif().nama+" | "+identitasAktif().cabang);
   $("res-score").textContent = h.skorTotal;
   $("res-level").textContent = h.level;
@@ -1122,7 +1258,7 @@ function renderResult(h, metaText){
   arc.style.stroke = h.status==="LULUS" ? "url(#ggrad-pass)" : (h.skorTotal>=5 ? "url(#ggrad)" : "url(#ggrad-warm)");
   const pb = $("res-params"); pb.innerHTML = "";
   h.parameter.forEach(p=>{
-    const col = p.skor>=AMBANG_LULUS ? "var(--pass)" : (p.skor>=4 ? "var(--warn)" : "var(--fail)");
+    const col = p.skor>=Sh.kelulusan.ambang ? "var(--pass)" : (p.skor>=4 ? "var(--warn)" : "var(--fail)");
     const d = document.createElement("div");
     d.className = "param";
     d.innerHTML = '<div class="param-head"><span>'+esc(p.nama)+'</span><span style="color:'+col+'">'+p.skor+'/10</span></div>'
@@ -1130,7 +1266,7 @@ function renderResult(h, metaText){
       +'<div class="param-note"><strong>Bukti:</strong> '+esc(p.bukti||"tidak ada")+'<br><strong>Evaluasi:</strong> '+esc(p.evaluasi||"")+'</div>';
     pb.appendChild(d);
   });
-  $("res-radar").innerHTML = radarSVG(h.parameter);
+  $("res-radar").innerHTML = radarSVG(h.parameter, Sh);
   const sb = $("res-strengths"); sb.innerHTML = "";
   const kk = (h.kekuatan||[]).filter(Boolean);
   if(kk.length){ kk.forEach(k=>{ const d=document.createElement("div"); d.className="strength-item"; d.textContent=k; sb.appendChild(d); }); }
@@ -1156,6 +1292,7 @@ function renderHome(){
   $("home-meta").textContent = "NIK "+state.nik+" | Cabang "+state.cabang;
   /* v3.7: menu Panel Admin cuma tampil kalau Role dari sheet Users = admin (divalidasi server saat login) */
   $("btn-admin-panel").style.display = (SRV.role === "admin") ? "" : "none";
+  $("btn-tim-saya").style.display = state.isAtasan ? "" : "none";
   const h = history();
   const minggu = h.filter(x=>Date.now()-new Date(x.tanggal).getTime() < 7*24*3600*1000).length;
   $("hero-week").textContent = minggu;
@@ -1185,9 +1322,9 @@ $("btn-save-setup").onclick = async ()=>{
       }
       /* PERBAIKAN KEAMANAN v3.3: backend tidak lagi mengirim geminiKey;
          semua panggilan AI mode server lewat proxy backend. */
-      state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key="";
+      state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key=""; state.isAtasan=!!r.isAtasan;
       SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
-      sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:nik,cabang:r.cabang,srv:SRV}));
+      sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:nik,cabang:r.cabang,isAtasan:state.isAtasan,srv:SRV}));
       renderHome(); show("scr-home");
     }catch(e){ showErr("err-setup", e.message); }
     $("btn-save-setup").disabled = false;
@@ -1234,24 +1371,22 @@ $("btn-gp-simpan").onclick = async ()=>{
   $("btn-gp-simpan").disabled = true;
   try{
     const r = await api("gantiPin", { nik: gpNikAktif, pinLama: pinLama, pinBaru: pinBaru });
-    state.nama=r.nama; state.nik=gpNikAktif; state.cabang=r.cabang; state.key="";
+    state.nama=r.nama; state.nik=gpNikAktif; state.cabang=r.cabang; state.key=""; state.isAtasan=!!r.isAtasan;
     SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
-    sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:gpNikAktif,cabang:r.cabang,srv:SRV}));
+    sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:gpNikAktif,cabang:r.cabang,isAtasan:state.isAtasan,srv:SRV}));
     renderHome(); show("scr-home");
   }catch(e){ showErr("err-gp", e.message); }
   $("btn-gp-simpan").disabled = false;
 };
 $("mod-pkt").onclick = ()=>{
+  state.skenarioId = "pkt-roleplay"; /* tetapkan skenario aktif sebelum akses SK() */
   pickVoice();
   const pp = poolProfil(), pk = poolKrisis();
   const base = pp[Math.floor(Math.random()*pp.length)];
   state.profil = { id:base.id, label:base.label, desc:base.desc,
-    nama: voiceGender==="m" ? (base.namaM||base.nama) : (base.namaF||base.nama) };
+    nama: voiceGender==="m" ? (base.namaM||base.nama) : (base.namaF||base.nama), gender: voiceGender };
   state.krisis = pk[Math.floor(Math.random()*pk.length)];
-  $("brief-scenario").textContent =
-    "Hari ini adalah hari penyerahan unit (Hari H). Pelanggan Anda: "+state.profil.nama
-    +", profil "+state.profil.label+". "+state.krisis.brief
-    +" Jalankan seluruh proses PKT sesuai standar Masterclass, mulai dari penyambutan hingga penutupan.";
+  $("brief-scenario").textContent = SK().briefing(SK(), state);
   show("scr-brief");
 };
 $("btn-brief-back").onclick = ()=>show("scr-home");
@@ -1376,10 +1511,10 @@ async function uploadFilesAPI(file){
   return { file_uri:uri, mime_type:file.type||"video/mp4" };
 }
 
-function validatorVideoSystem(){
+const SYS_VALIDATOR_VIDEO_PKT = (S,st) => {
   return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda MENONTON dan MENDENGARKAN video roleplay PKT berikut, lalu menilai secara ketat, objektif, dan berbasis bukti. Dalam video, peserta adalah orang yang berperan sebagai Sales; lawan mainnya adalah rekan yang berperan sebagai pelanggan.
-${RUBRIK}
-Konteks tugas: profil pelanggan yang seharusnya diperankan ${state.profil.label}; skenario krisis yang seharusnya dimainkan: ${namaKrisis(state.krisis.id)} (${state.krisis.brief||""}).
+${S.rubrik(S)}
+Konteks tugas: profil pelanggan yang seharusnya diperankan ${st.profil.label}; skenario krisis yang seharusnya dimainkan: ${namaKrisis(st.krisis.id)} (${st.krisis.brief||""}).
 ${kbEfektif() ? "KONTEKS TAMBAHAN DARI L&D (pertimbangkan dalam penilaian): "+kbEfektif() : ""}
 Instruksi khusus penilaian VIDEO:
 1. Parameter Gestur Presentasi dinilai secara VISUAL langsung dari video: cara berjalan (tegap atau tidak), senyum dan kontak mata, membuka pintu dengan dua tangan, penggunaan sarung tangan, posisi duduk saat demonstrasi, dan gestur tangan terbuka saat menunjuk fitur (menunjuk dengan satu jari telunjuk adalah pelanggaran).
@@ -1389,10 +1524,12 @@ Instruksi khusus penilaian VIDEO:
 5. Jika isi video bukan roleplay PKT, beri semua parameter skor 1 dan jelaskan di evaluasiUmum.
 6. Jangan murah hati. Skor 9 sampai 10 hanya untuk eksekusi nyaris sempurna. Terapkan aturan auto-fail dengan tegas.
 Balas HANYA dengan JSON valid berstruktur persis:
-{"parameter":[{"nama":"Penyambutan Awal","skor":0,"bukti":"","evaluasi":""},{"nama":"Gestur Presentasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Delivery based on Profiling","skor":0,"bukti":"","evaluasi":""},{"nama":"Skrip Persuasi Aplikasi","skor":0,"bukti":"","evaluasi":""},{"nama":"Crisis Handling","skor":0,"bukti":"","evaluasi":""}],"skorTotal":0,"level":"","status":"","evaluasiUmum":"","kekuatan":[""],"rekomendasi":[{"materi":"","referensi":"","gap":"","contohBenar":""}]}
-Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik; status "LULUS" hanya jika semua parameter minimal ${AMBANG_LULUS}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, satu kalimat spesifik beserta bukti (sertakan perkiraan menit).
+${skeletonJSON(S)}
+Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik; status "LULUS" hanya jika semua parameter minimal ${S.kelulusan.ambang}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, satu kalimat spesifik beserta bukti (sertakan perkiraan menit).
 Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK yang teramati (ucapan keliru, gestur salah, atau hal wajib yang absen, sertakan perkiraan menit); "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan (kutip SKRIP STANDAR, sesuaikan nama) atau gestur persis yang seharusnya dilakukan; "materi" dan "referensi" menunjuk sesi dan slide spesifik. Dilarang menulis rekomendasi umum tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
-}
+};
+/* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
+function validatorVideoSystem(){ return SK().sysValidatorVideo(SK(), state); }
 
 async function analisisVideo(){
   if(!videoFile) return;
@@ -1415,7 +1552,7 @@ async function analisisVideo(){
       validatorVideoSystem(), true);
     const hasil = JSON.parse(raw);
     const item = {
-      tanggal:new Date().toISOString(), modul:"PKT Video Assessment", jenis:state.jenisSesi||"Latihan",
+      tanggal:new Date().toISOString(), skenarioId:SK().id, modul:SK().modulLabelVideo, jenis:state.jenisSesi||"Latihan",
       profil:state.profil.label, krisis:state.krisis.id,
       skor:hasil.skorTotal, status:hasil.status, level:hasil.level,
       durasi:"video", hasil:hasil
@@ -1436,6 +1573,19 @@ function isiDropdownSkenario(){
   $("sel-profil").innerHTML = optP.join("");
   $("sel-krisis").innerHTML = optK.join("");
 }
+/* v3.8: sambungkan flag registry tampilkanPilihanVideo ke tampilan dropdown mode video.
+   Kalau skenario aktif set flag-nya false, picker disembunyikan dan nilai dipaksa "acak"
+   supaya profil/krisis benar-benar tidak bisa dipilih peserta (bukan cuma default acak
+   yang masih bisa diubah manual). */
+function terapkanTampilanPilihanVideo(){
+  const S = SK();
+  const tampilP = !!(S.profil && S.profil.tampilkanPilihanVideo);
+  const tampilK = !!(S.injeksi && S.injeksi.tampilkanPilihanVideo);
+  $("wrap-sel-profil").style.display = tampilP ? "" : "none";
+  $("wrap-sel-krisis").style.display = tampilK ? "" : "none";
+  if(!tampilP){ $("sel-profil").value = "acak"; }
+  if(!tampilK){ $("sel-krisis").value = "acak"; }
+}
 function resolveSkenarioVideo(){
   const ujian = $("chk-ujian").checked;
   state.jenisSesi = ujian ? "Ujian" : "Latihan";
@@ -1450,9 +1600,10 @@ function resolveSkenarioVideo(){
   $("vbrief-scenario").textContent =
     (ujian ? "SESI UJIAN. " : "")
     +"Rekan Anda berperan sebagai pelanggan dengan profil "+base.label+" ("+base.desc+"). "
-    +state.krisis.brief+" Jalankan seluruh proses PKT Hari H sesuai standar Masterclass dan pastikan Anda merespons situasi tersebut di dalam rekaman.";
+    +SK().briefingVideo(SK(), state);
 }
 $("mod-video").onclick = ()=>{
+  state.skenarioId = "pkt-roleplay"; /* varian video dari skenario yang sama */
   videoFile = null;
   $("video-info").textContent = "Belum ada file dipilih.";
   $("btn-analyze-video").disabled = true;
@@ -1462,6 +1613,7 @@ $("mod-video").onclick = ()=>{
   $("sel-profil").value = "acak";
   $("sel-krisis").value = "acak";
   $("chk-ujian").checked = false;
+  terapkanTampilanPilihanVideo();
   resolveSkenarioVideo();
   siapkanModeValidator();
   show("scr-video");
@@ -1508,10 +1660,11 @@ function setLaporanAktif(item){ state.laporan = item; }
 
 function buatLaporanWord(item){
   const h = item.hasil;
+  const Si = SKitem(item); /* skenario milik data laporan ini */
   const tgl = new Date(item.tanggal).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
   const esc2 = s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   const rowsParam = h.parameter.map(p=>
-    "<tr><td>"+esc2(p.nama)+"</td><td style='text-align:center;font-weight:bold;color:"+(p.skor>=AMBANG_LULUS?"#1d7a49":"#c00010")+"'>"+p.skor+"</td><td>"+esc2(p.bukti)+"</td><td>"+esc2(p.evaluasi)+"</td></tr>").join("");
+    "<tr><td>"+esc2(p.nama)+"</td><td style='text-align:center;font-weight:bold;color:"+(p.skor>=Si.kelulusan.ambang?"#1d7a49":"#c00010")+"'>"+p.skor+"</td><td>"+esc2(p.bukti)+"</td><td>"+esc2(p.evaluasi)+"</td></tr>").join("");
   const rowsKekuatan = (h.kekuatan||[]).filter(Boolean).map(k=>"<li>"+esc2(k)+"</li>").join("");
   const rowsRek = (h.rekomendasi||[]).map((r,i)=>
     "<tr><td style='text-align:center'>"+(i+1)+"</td><td><b>"+esc2(r.materi)+"</b></td><td>"+esc2(r.gap)+"</td><td><i>"+esc2(r.contohBenar)+"</i></td><td>"+esc2(r.referensi)+"</td></tr>").join("");
@@ -1545,7 +1698,7 @@ th{background:#E60012;color:#fff;text-align:left}
 <table class="meta">
 <tr><td width="180">Skor Total</td><td>: <span class="skorbesar" style="color:${statusColor}">${h.skorTotal}</span> / 10</td></tr>
 <tr><td>Level Kompetensi</td><td>: <b>${esc2(h.level)}</b></td></tr>
-<tr><td>Status</td><td>: <b style="color:${statusColor}">${esc2(h.status)}</b> (ambang kelulusan: skor minimal ${AMBANG_LULUS} pada setiap parameter)</td></tr>
+<tr><td>Status</td><td>: <b style="color:${statusColor}">${esc2(h.status)}</b> (ambang kelulusan: skor minimal ${Si.kelulusan.ambang} pada setiap parameter)</td></tr>
 </table>
 <p style="margin-top:8pt">${esc2(h.evaluasiUmum)}</p>
 <h2>Kekuatan yang Teramati</h2>
@@ -1610,21 +1763,50 @@ function renderProgress(){
     tr.appendChild(b);
   });
   $("prog-trend-note").textContent = seq.length ? "Urutan dari sesi terlama (kiri) ke terbaru (kanan). Hijau lulus, kuning mendekati, merah jauh dari ambang." : "";
-  /* rata-rata per parameter dari 5 sesi terakhir */
+  /* rata-rata per parameter dari 5 sesi terakhir.
+     v3.8 PERBAIKAN BUG: sebelumnya agregasi memakai indeks array + daftar nama hardcode,
+     tanpa memeriksa sesi itu berasal dari skenario mana. Begitu ada skenario kedua, skor
+     parameter skenario berbeda akan tercampur di bawah label yang salah. Sekarang sesi
+     dikelompokkan per skenario dan label diambil dari registry. */
   const pp = $("prog-params"); pp.innerHTML = "";
-  const namaParam = ["Penyambutan Awal","Gestur Presentasi","Delivery based on Profiling","Skrip Persuasi Aplikasi","Crisis Handling"];
   if(!last5.length){ pp.innerHTML = '<div class="empty">Belum ada data.</div>'; }
-  else namaParam.forEach((np,idx)=>{
-    const vals = last5.map(it=>{ const p=(it.hasil&&it.hasil.parameter||[])[idx]; return p?Number(p.skor||0):null; }).filter(v=>v!==null);
-    if(!vals.length) return;
-    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
-    const col = avg>=AMBANG_LULUS ? "var(--pass)" : (avg>=4 ? "var(--warn)" : "var(--fail)");
-    const d = document.createElement("div");
-    d.className = "pbar-row";
-    d.innerHTML = '<div class="pbar-head"><span>'+np+'</span><span style="color:'+col+'">'+avg.toFixed(1)+'</span></div>'
-      +'<div class="pbar-track"><div class="pbar-fill" style="width:'+(avg*10)+'%;background:'+col+'"></div><div class="pbar-gate"></div></div>';
-    pp.appendChild(d);
-  });
+  else {
+    const perSkenario = {};
+    last5.forEach(it=>{ const sid = (it.skenarioId||"pkt-roleplay"); (perSkenario[sid]=perSkenario[sid]||[]).push(it); });
+    const ids = Object.keys(perSkenario);
+    ids.forEach(sid=>{
+      const grup = perSkenario[sid];
+      /* v3.8 fix lanjutan: skenarioId TANPA field sama sekali (data lama sebelum v3.8)
+         memang default ke pkt-roleplay dan itu benar. Tapi skenarioId yang ADA nilainya
+         namun sudah tidak terdaftar di registry (skenario dihapus/diganti nama) TIDAK BOLEH
+         ikut fallback ke rubrik PKT lagi, sebab paramnya beda -> label & angka akan tertukar,
+         gejala bug yang persis sama yang sedang kita perbaiki. Untuk kasus itu, bangun definisi
+         dari data historis milik sesi itu sendiri. */
+      const S = SKENARIO[sid] || (sid==="pkt-roleplay" ? SKENARIO["pkt-roleplay"] : {
+        nama: (grup[0].modul || sid) + " (skenario tidak dikenal)",
+        kelulusan: SKENARIO["pkt-roleplay"].kelulusan,
+        parameter: ((grup[0].hasil && grup[0].hasil.parameter) || []).map(p=>({ nama:p.nama }))
+      });
+      if(ids.length>1){
+        const hd = document.createElement("div");
+        hd.className = "pbar-group";
+        hd.style.cssText = "font-size:12px;font-weight:700;color:var(--muted);margin:10px 0 4px";
+        hd.textContent = S.nama+" ("+grup.length+" sesi)";
+        pp.appendChild(hd);
+      }
+      S.parameter.forEach((def,idx)=>{
+        const vals = grup.map(it=>{ const p=(it.hasil&&it.hasil.parameter||[])[idx]; return p?Number(p.skor||0):null; }).filter(v=>v!==null);
+        if(!vals.length) return;
+        const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+        const col = avg>=S.kelulusan.ambang ? "var(--pass)" : (avg>=4 ? "var(--warn)" : "var(--fail)");
+        const d = document.createElement("div");
+        d.className = "pbar-row";
+        d.innerHTML = '<div class="pbar-head"><span>'+esc(def.nama)+'</span><span style="color:'+col+'">'+avg.toFixed(1)+'</span></div>'
+          +'<div class="pbar-track"><div class="pbar-fill" style="width:'+(avg*10)+'%;background:'+col+'"></div><div class="pbar-gate"></div></div>';
+        pp.appendChild(d);
+      });
+    });
+  }
   /* riwayat lengkap, klik untuk buka laporan */
   const ph = $("prog-hist"); ph.innerHTML = "";
   if(!h.length){ ph.innerHTML = '<div class="empty">Belum ada sesi.</div>'; return; }
@@ -1644,46 +1826,115 @@ function buatHistItem(it){
 }
 $("btn-progress").onclick = ()=>{ renderProgress(); show("scr-progress"); };
 $("btn-admin-panel").onclick = ()=>{ renderAdmin(); show("scr-admin"); };
+$("btn-tim-saya").onclick = ()=>{ renderTim(); show("scr-tim"); };
+$("tim-back").onclick = ()=>{ renderHome(); show("scr-home"); };
 $("btn-prog-home").onclick = ()=>{ renderHome(); show("scr-home"); };
 
+/* ---------- Tim Saya (Kacab/atasan): progres anak buah, data dari server ---------- */
+async function renderTim(){
+  $("tim-loading").style.display = ""; $("tim-loading").querySelector(".empty").textContent = "Memuat data tim...";
+  $("tim-list").style.display = "none"; $("tim-list").innerHTML = "";
+  $("err-tim").textContent = "";
+  try{
+    const r = await api("getRiwayatTim", { nik: state.nik });
+    const anggota = r.anggota || [];
+    $("tim-loading").style.display = "none";
+    $("tim-list").style.display = "";
+    if(!anggota.length){
+      $("tim-list").innerHTML = '<div class="card"><div class="empty">Belum ada anak buah yang terdaftar di bawah NIK Anda.</div></div>';
+      return;
+    }
+    anggota.forEach(a=>{
+      const div = document.createElement("div");
+      div.className = "card";
+      div.style.marginBottom = "10px";
+      const statusBadge = a.jumlahSesi ? (a.lulus ? '<span class="badge badge-green">LULUS</span>' : '<span class="badge badge-grey">BELUM LULUS</span>') : '<span class="badge badge-grey">BELUM LATIHAN</span>';
+      div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'
+        + '<div><div style="font-weight:700">'+esc(a.nama||"-")+'</div>'
+        + '<div class="hint" style="margin:2px 0 0">NIK '+esc(a.nik||"-")+' | Cabang '+esc(a.cabang||"-")+'</div></div>'
+        + statusBadge + '</div>'
+        + '<div class="hint" style="margin-top:8px">Sesi latihan: '+(a.jumlahSesi||0)+' | Skor terakhir: '+(a.skorTerakhir!=null ? a.skorTerakhir : "-")+'</div>';
+      $("tim-list").appendChild(div);
+    });
+  }catch(e){
+    $("tim-loading").style.display = "none";
+    $("err-tim").textContent = e.message;
+  }
+}
+
 /* ---------- Panel Admin: akses berbasis Role dari sheet Users, divalidasi server saat login ---------- */
-function renderAdmin(){
-  $("adm-kb").value = ADM.kb;
+function renderAdminList(){
   const lp = $("adm-list-p"); lp.innerHTML = "";
-  if(!ADM.profils.length) lp.innerHTML = '<div class="empty">Belum ada profil kustom.</div>';
-  ADM.profils.forEach((p,i)=>{
+  const poolP = BACKEND_URL ? (SRV.profils||[]) : ADM.profils;
+  if(!poolP.length) lp.innerHTML = '<div class="empty">Belum ada profil kustom.</div>';
+  poolP.forEach((p)=>{
     const d = document.createElement("div");
     d.className = "hist-item";
     d.innerHTML = '<div><div style="font-weight:700;font-size:13.5px">'+esc(p.label)+'</div><div style="font-size:11.5px;color:var(--muted)">'+esc(p.nama)+'</div></div><span class="badge badge-red">HAPUS</span>';
-    d.onclick = ()=>{ if(confirm("Hapus profil \""+p.label+"\"?")){ ADM.profils.splice(i,1); admSimpan(); renderAdmin(); } };
+    d.onclick = ()=>{ if(confirm("Hapus profil \""+p.label+"\"?")) admHapus("profil", p); };
     lp.appendChild(d);
   });
   const lk = $("adm-list-k"); lk.innerHTML = "";
-  if(!ADM.krisis.length) lk.innerHTML = '<div class="empty">Belum ada krisis kustom.</div>';
-  ADM.krisis.forEach((k,i)=>{
+  const poolK = BACKEND_URL ? (SRV.krisis||[]) : ADM.krisis;
+  if(!poolK.length) lk.innerHTML = '<div class="empty">Belum ada krisis kustom.</div>';
+  poolK.forEach((k)=>{
     const d = document.createElement("div");
     d.className = "hist-item";
     d.innerHTML = '<div><div style="font-weight:700;font-size:13.5px">'+esc(k.label)+'</div><div style="font-size:11.5px;color:var(--muted)">'+esc((k.brief||"").slice(0,60))+'</div></div><span class="badge badge-red">HAPUS</span>';
-    d.onclick = ()=>{ if(confirm("Hapus krisis \""+k.label+"\"?")){ ADM.krisis.splice(i,1); admSimpan(); renderAdmin(); } };
+    d.onclick = ()=>{ if(confirm("Hapus krisis \""+k.label+"\"?")) admHapus("krisis", k); };
     lk.appendChild(d);
   });
 }
-$("adm-save-kb").onclick = ()=>{ ADM.kb = $("adm-kb").value.trim(); admSimpan(); alert("Basis pengetahuan tersimpan dan langsung aktif di sesi berikutnya."); };
-$("adm-add-p").onclick = ()=>{
+function renderAdmin(){
+  $("adm-kb").value = BACKEND_URL ? (SRV.kb||"") : ADM.kb;
+  renderAdminList();
+}
+async function admHapus(tipe, item){
+  if(!BACKEND_URL){
+    if(tipe==="profil") ADM.profils = ADM.profils.filter(p=>p.id!==item.id);
+    else ADM.krisis = ADM.krisis.filter(k=>k.id!==item.id);
+    admSimpan(); renderAdminList(); return;
+  }
+  try{
+    const r = await api(tipe==="profil" ? "admHapusProfil" : "admHapusKrisis", { nik: state.nik, id: item.id });
+    if(tipe==="profil") SRV.profils = r.profils||[]; else SRV.krisis = r.krisis||[];
+    renderAdminList();
+  }catch(e){ alert(e.message); }
+}
+$("adm-save-kb").onclick = async ()=>{
+  const teks = $("adm-kb").value.trim();
+  if(!BACKEND_URL){ ADM.kb = teks; admSimpan(); alert("Basis pengetahuan tersimpan dan langsung aktif di sesi berikutnya."); return; }
+  try{
+    const r = await api("admSimpanKB", { nik: state.nik, kb: teks });
+    SRV.kb = r.kb||"";
+    alert("Basis pengetahuan tersimpan di server dan langsung aktif di semua perangkat.");
+  }catch(e){ alert(e.message); }
+};
+$("adm-add-p").onclick = async ()=>{
   const label = $("adm-p-label").value.trim(), nama = $("adm-p-nama").value.trim(), desc = $("adm-p-desc").value.trim();
   if(!label || !nama || !desc){ alert("Lengkapi nama profil, nama pelanggan, dan deskripsi."); return; }
-  ADM.profils.push({ id:"cp"+Date.now(), label:label, nama:nama, desc:desc });
-  admSimpan();
+  if(!BACKEND_URL){
+    ADM.profils.push({ id:"cp"+Date.now(), label:label, nama:nama, desc:desc });
+    admSimpan();
+  }else{
+    try{ const r = await api("admTambahProfil", { nik: state.nik, label:label, nama:nama, desc:desc }); SRV.profils = r.profils||[]; }
+    catch(e){ alert(e.message); return; }
+  }
   $("adm-p-label").value = ""; $("adm-p-nama").value = ""; $("adm-p-desc").value = "";
-  renderAdmin();
+  renderAdminList();
 };
-$("adm-add-k").onclick = ()=>{
+$("adm-add-k").onclick = async ()=>{
   const label = $("adm-k-label").value.trim(), brief = $("adm-k-brief").value.trim(), note = $("adm-k-note").value.trim();
   if(!label || !brief || !note){ alert("Lengkapi judul, briefing peserta, dan instruksi rahasia AI."); return; }
-  ADM.krisis.push({ id:"ck"+Date.now(), label:label, brief:brief, note:note });
-  admSimpan();
+  if(!BACKEND_URL){
+    ADM.krisis.push({ id:"ck"+Date.now(), label:label, brief:brief, note:note });
+    admSimpan();
+  }else{
+    try{ const r = await api("admTambahKrisis", { nik: state.nik, label:label, brief:brief, note:note }); SRV.krisis = r.krisis||[]; }
+    catch(e){ alert(e.message); return; }
+  }
   $("adm-k-label").value = ""; $("adm-k-brief").value = ""; $("adm-k-note").value = "";
-  renderAdmin();
+  renderAdminList();
 };
 $("adm-back").onclick = ()=>{ renderHome(); show("scr-home"); };
 
@@ -1710,7 +1961,7 @@ if(BACKEND_URL){
     try{
       const j = JSON.parse(s);
       /* v3.3: key tidak lagi disimpan di sessionStorage mode server */
-      state.nama=j.nama; state.nik=j.nik; state.cabang=j.cabang; state.key=""; SRV=j.srv||SRV;
+      state.nama=j.nama; state.nik=j.nik; state.cabang=j.cabang; state.key=""; state.isAtasan=!!j.isAtasan; SRV=j.srv||SRV;
       renderHome(); show("scr-home");
     }catch(e){ show("scr-setup"); }
   }else show("scr-setup");
