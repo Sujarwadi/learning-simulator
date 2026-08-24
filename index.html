@@ -928,9 +928,31 @@ function resetModeValidator(){
   const st = document.getElementById("val-status"); if(st) st.textContent = "";
 }
 
-function history(){ return JSON.parse(localStorage.getItem("ss_history")||"[]"); }
+/* v4.1 PERBAIKAN BUG KEBOCORAN DATA ANTAR AKUN: sebelumnya riwayat sesi disimpan di
+   localStorage per-BROWSER (kunci "ss_history"), bukan per-akun. Di device yang dipakai
+   bergantian oleh beberapa sales (pola pilot: satu device dioper satu per satu), akun
+   berikutnya yang login akan melihat skor dan riwayat sesi milik akun sebelumnya. Sekarang
+   riwayat diambil dari server (per NIK, sumber kebenaran = sheet Sesi) setiap kali login/
+   ganti PIN/pulih sesi, disimpan hanya di memori (variabel RIWAYAT), tidak pernah ditulis
+   ke localStorage. Mode manual (tanpa BACKEND_URL, satu kunci API milik sendiri) tetap
+   pakai localStorage seperti semula karena memang didesain untuk satu pengguna per browser. */
+let RIWAYAT = [];
+function history(){ return BACKEND_URL ? RIWAYAT : JSON.parse(localStorage.getItem("ss_history")||"[]"); }
+async function muatRiwayatServer(nik){
+  try{
+    const r = await api("getRiwayatSaya", { nik: nik });
+    RIWAYAT = r.riwayat || [];
+  }catch(e){
+    console.warn("Gagal memuat riwayat dari server:", e.message);
+    RIWAYAT = [];
+  }
+}
 function pushHistory(item){
-  const h=history(); h.unshift(item); localStorage.setItem("ss_history",JSON.stringify(h.slice(0,50)));
+  if(BACKEND_URL){
+    RIWAYAT.unshift(item); RIWAYAT = RIWAYAT.slice(0,50);
+  }else{
+    const h=history(); h.unshift(item); localStorage.setItem("ss_history",JSON.stringify(h.slice(0,50)));
+  }
   if(BACKEND_URL && state.nik){
     api("save",{ nik:identitasAktif().nik, item:item }).catch(e=>console.warn("Sinkronisasi server gagal:", e.message));
   }
@@ -1325,6 +1347,7 @@ $("btn-save-setup").onclick = async ()=>{
       state.nama=r.nama; state.nik=nik; state.cabang=r.cabang; state.key=""; state.isAtasan=!!r.isAtasan;
       SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
       sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:nik,cabang:r.cabang,isAtasan:state.isAtasan,srv:SRV}));
+      await muatRiwayatServer(nik);
       renderHome(); show("scr-home");
     }catch(e){ showErr("err-setup", e.message); }
     $("btn-save-setup").disabled = false;
@@ -1374,6 +1397,7 @@ $("btn-gp-simpan").onclick = async ()=>{
     state.nama=r.nama; state.nik=gpNikAktif; state.cabang=r.cabang; state.key=""; state.isAtasan=!!r.isAtasan;
     SRV = { kb:r.kb||"", profils:r.profils||[], krisis:r.krisis||[], role:r.role||"user" };
     sessionStorage.setItem("ss_srv", JSON.stringify({nama:r.nama,nik:gpNikAktif,cabang:r.cabang,isAtasan:state.isAtasan,srv:SRV}));
+    await muatRiwayatServer(gpNikAktif);
     renderHome(); show("scr-home");
   }catch(e){ showErr("err-gp", e.message); }
   $("btn-gp-simpan").disabled = false;
@@ -1950,6 +1974,7 @@ setTheme(localStorage.getItem("ss_theme")||"dark");
 
 /* ---------- Boot ---------- */
 loadStore();
+(async ()=>{
 if(BACKEND_URL){
   $("fld-nama").style.display = "none";
   $("fld-cabang").style.display = "none";
@@ -1962,11 +1987,13 @@ if(BACKEND_URL){
       const j = JSON.parse(s);
       /* v3.3: key tidak lagi disimpan di sessionStorage mode server */
       state.nama=j.nama; state.nik=j.nik; state.cabang=j.cabang; state.key=""; state.isAtasan=!!j.isAtasan; SRV=j.srv||SRV;
+      await muatRiwayatServer(j.nik);
       renderHome(); show("scr-home");
     }catch(e){ show("scr-setup"); }
   }else show("scr-setup");
 }else if(state.key && state.nama){ renderHome(); show("scr-home"); }
 else show("scr-setup");
+})();
 </script>
 </body>
 </html>
