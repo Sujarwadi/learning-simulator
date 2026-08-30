@@ -358,6 +358,14 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     </div>
     <span class="badge badge-red">MULAI</span>
   </div>
+  <div class="card module mod-tile tile-a" id="mod-bst12">
+    <div class="mod-icon">P2</div>
+    <div class="mod-body">
+      <div class="mod-title">BST-12: 7 Selling Process</div>
+      <div class="mod-desc">Probing, Sales Offering, Handling Objection, Closing, dan Creating Experience bersama calon pembeli truk korporat. Minimal 8 giliran bicara, satu skenario keberatan acak.</div>
+    </div>
+    <span class="badge badge-red">MULAI</span>
+  </div>
   <div class="card module mod-tile tile-b" id="mod-video">
     <div class="mod-icon">V1</div>
     <div class="mod-body">
@@ -404,7 +412,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
 <section class="screen" id="scr-brief">
   <header class="app">
     <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">BRIEFING SESI</div><div class="app-sub">PKT Masterclass: Roleplay Hari H</div></div>
+    <div><div class="app-title">BRIEFING SESI</div><div class="app-sub" id="brief-appsub">PKT Masterclass: Roleplay Hari H</div></div>
   </header>
   <div class="sbody">
   <h2 class="sect">Skenario Anda</h2>
@@ -413,7 +421,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   </div>
   <h2 class="sect">Ketentuan Sesi</h2>
   <div class="card">
-    <ul class="brief-list">
+    <ul class="brief-list" id="brief-list">
       <li>Anda berperan sebagai Sales. AI berperan sebagai pelanggan yang datang mengambil unit di dealer.</li>
       <li>Bicaralah persis seperti menghadapi pelanggan sungguhan, mulai dari penyambutan di lobi.</li>
       <li>Sebutkan secara lisan setiap tindakan fisik yang Anda lakukan, misalnya "saya membuka pintu kemudi dengan dua tangan". Tindakan yang tidak disebutkan dianggap tidak dilakukan.</li>
@@ -772,6 +780,88 @@ const KRISIS_PKT = [
     brief:"Pelanggan Anda dikenal kritis dan gemar mengajukan pertanyaan teknis mendetail." }
 ];
 
+/* ---------- Rubrik BST-12: 7 Selling Process (sumber: deck BST-12 rev1, ekstraksi 27 Agu 2026) ----------
+   Struktur mengikuti pola RUBRIK_PKT: Anchor 40% / Kata Kunci 40% / Struktur 20%, kelulusan
+   semua-parameter. 5 parameter dinilai adalah Step 3-7 dari 7 Selling Process (Prospecting dan
+   Approaching di Step 1-2 TIDAK dinilai karena tidak bisa disimulasikan lewat roleplay percakapan). */
+const RUBRIK_BST12 = (S) => `
+RUBRIK PENILAIAN ROLEPLAY BST-12: 7 SELLING PROCESS, PT BOSOWA BERLIAN MOTOR (segmen truk komersial/korporat).
+Skala penilaian tiap parameter: 1 sampai 10. Komposisi nilai tiap parameter: Anchor verbatim atau tindakan kunci (bobot 40 persen), kata kunci wajib lengkap (bobot 40 persen), struktur atau urutan benar (bobot 20 persen).
+Pemetaan skor ke level kompetensi: 1-2 Level 1 Awareness (belum mandiri), 3-4 Level 2 Basic (perlu bimbingan), 5-6 Level 3 Intermediate (mandiri), 7-8 Level 4 Advanced (mahir dan rujukan), 9-10 Level 5 Expert (inovator).
+Status LULUS hanya jika SEMUA parameter mencapai skor minimal ${S.kelulusan.ambang}. Satu parameter di bawah ambang berarti BELUM LULUS meskipun rata-rata tinggi.
+Konteks skenario: peserta berperan sebagai Sales Consultant truk komersial yang sedang menemui calon pembeli korporat atau institusi (bukan pembeli individu). Sesi dimulai dari tahap Probing, BUKAN dari Prospecting atau Approaching (tahapan itu diasumsikan sudah selesai sebelum sesi dimulai).
+
+PARAMETER 1. PROBING (Exploration and Assessment of Potential Customers).
+Anchor verbatim atau tindakan kunci: peserta menggali minimal DUA dari empat elemen Customer 360, yaitu siapa Decision Maker (penentu keputusan akhir), siapa User (yang akan mengoperasikan unit), siapa Technical (yang akan merawat unit), siapa Influencer (pemberi masukan). Peserta menggunakan pola pertanyaan terbuka, misalnya menanyakan untuk apa unit akan digunakan, rute operasional, gambaran spesifikasi yang dibutuhkan, atau rencana pengadaan dan delivery.
+Kata kunci wajib: kebutuhan, spesifikasi, rencana penggunaan atau operasional, siapa yang memutuskan pembelian.
+Struktur: proses probing wajib terjadi SEBELUM peserta masuk ke tahap penawaran (Sales Offering). Menawarkan produk sebelum menggali kebutuhan adalah kesalahan urutan.
+Pelanggaran fatal (skor maksimal 3 jika terjadi): peserta langsung menawarkan produk, harga, atau spesifikasi TANPA menanyakan satu pun kebutuhan pelanggan terlebih dahulu.
+
+PARAMETER 2. SALES OFFERING (Presenting Solution and Benefit to Customer).
+Anchor verbatim atau tindakan kunci: peserta menyampaikan solusi yang terhubung ke kebutuhan yang sudah digali, bukan produk generik, dan menyampaikan kerangka FAB (Fitur, Advantage, Benefit) untuk minimal satu fitur unit yang relevan dengan kebutuhan pelanggan.
+Kata kunci wajib: fitur, keunggulan atau advantage, manfaat atau benefit, solusi.
+Struktur: kerangka FAB yang disampaikan harus nyambung secara logis dengan kebutuhan spesifik yang sudah dikonfirmasi di tahap Probing, bukan penawaran acak yang tidak terhubung.
+PELANGGARAN AUTO-FAIL pada parameter ini (skor maksimal 3 jika terjadi): peserta menyampaikan penawaran generik, hanya menyebut spesifikasi atau harga saja, TANPA kerangka FAB sama sekali.
+
+PARAMETER 3. HANDLING OBJECTION (Negotiation Buying Objection).
+Anchor verbatim atau tindakan kunci: ketika pelanggan mengajukan keberatan, peserta menjalankan urutan lima langkah, yaitu (1) mendengarkan dengan sabar dan penuh perhatian, (2) menyatakan kembali keberatan pelanggan melalui pertanyaan klarifikasi, (3) menjawab dan menjelaskan untuk kepuasan pelanggan, (4) mengonfirmasi apakah jawaban sudah memuaskan, (5) melanjutkan menjelaskan value.
+Kata kunci wajib: keberatan, penjelasan atau klarifikasi, solusi, kesepakatan.
+Struktur: kelima langkah di atas harus muncul secara berurutan, tidak boleh langsung lompat ke solusi tanpa mendengarkan dan klarifikasi dahulu.
+Pelanggaran fatal (skor maksimal 3 jika terjadi): peserta langsung membantah, defensif, atau mengabaikan keberatan pelanggan tanpa mendengarkan dan mengklarifikasi terlebih dahulu.
+
+PARAMETER 4. CLOSING (Closing the Sale).
+Anchor verbatim atau tindakan kunci: peserta menerapkan minimal SATU dari tiga teknik closing yang diajarkan, yaitu Trial Close (menguji kesiapan pelanggan di tengah presentasi), Summary of Benefits (merangkum manfaat paling penting sebelum meminta keputusan), atau Direct Appeal (meminta order secara langsung).
+Kata kunci wajib: closing, keputusan, proses administrasi atau SPK (Surat Pesanan Kendaraan).
+Struktur: upaya closing baru boleh dilakukan SETELAH keberatan pelanggan, jika ada, sudah ditangani tuntas melalui proses Handling Objection.
+Pelanggaran fatal (skor maksimal 3 jika terjadi): peserta memaksakan closing berkali-kali secara terus-menerus tanpa merespons sinyal atau keberatan pelanggan, perilaku high-pressure selling.
+
+PARAMETER 5. CREATING EXPERIENCE (Dimensi RATER).
+Anchor verbatim atau tindakan kunci: peserta menunjukkan minimal TIGA dari lima dimensi RATER melalui SIKAP dan tindakan nyata, bukan sekadar menyebut istilahnya, yaitu Reliability (dapat diandalkan), Assurance (pengetahuan dan kepercayaan diri yang meyakinkan), Tangible (penampilan dan fasilitas layanan), Empathy (perhatian tulus), Responsiveness (kecepatan dan ketepatan respons).
+Kata kunci wajib: dapat diandalkan, perhatian atau empati, cepat tanggap atau responsif.
+Struktur: dimensi RATER harus ditunjukkan di bagian penutup interaksi, bukan hanya di awal lalu diabaikan setelah closing.
+Pelanggaran fatal (skor maksimal 3 jika terjadi): peserta mengabaikan pelanggan sepenuhnya setelah closing tercapai, tanpa satu pun ucapan penutup, follow-up, atau tindak lanjut yang ditawarkan.
+
+REFERENSI MATERI UNTUK REKOMENDASI: BST-12 7 Selling Process, Step 3 Probing (slide 13 sampai 17), Step 4 Sales Offering (slide 18 sampai 23), Step 5 Negotiation Buying Objection (slide 24 sampai 31), Step 6 Closing the Sale (slide 32 sampai 38), Step 7 Creating Customer Experience RATER (slide 39 sampai 40).
+
+SKRIP STANDAR BST-12 (gunakan sebagai contoh benar dalam rekomendasi, kutip apa adanya, sesuaikan konteks pelanggan):
+1. Pertanyaan Probing (slide 16): "Truk yang Bapak butuhkan rencananya akan digunakan untuk apa?" "Kemana operating route truk Bapak yang rencananya akan digunakan untuk mengangkut barang ini nantinya?" "Bagaimana gambaran spesifikasi truk yang Bapak butuhkan untuk mengerjakan proyek ini pak?"
+2. Trial Close (slide 33): "Apakah Bapak berkenan agar mekanik kami memasang aksesoris tanduk di depan kabin truk sekarang?"
+3. Summary of Benefits (slide 33): "Pak, dengan melakukan service berkala maka performa truk akan makin optimal, awet karena terawat dengan baik, umur pakai komponen mesin menjadi lebih lama, konsumsi BBM menjadi lebih hemat, harga jual kembali pun jadi lebih tinggi. Jadi, apakah kami sudah dapat memproses administrasi pembeliannya pak?"
+4. Direct Appeal (slide 33): "Pak, jadi besok Bapak sudah bisa berikan data keuangan untuk proses leasing dan uang muka untuk booking unit ya pak?"
+`;
+
+/* ---------- Profil pelanggan dan keberatan (pool milik skenario BST-12) ----------
+   Tipologi pembeli diambil dari slide 11-12 materi asli (elemen penentu keputusan pembelian
+   dan spektrum gaya komunikasi Modern-Formal / Modern-Tradisional / Tradisional). */
+const PROFIL_BST12 = [
+  { id:"owner-formal", label:"Owner/Direktur Korporat",
+    desc:"pemilik atau direktur perusahaan besar berbadan formal seperti logistik nasional, BUMN, atau kontraktor besar, gaya komunikasi formal cenderung kaku, selalu minta data dan fakta empiris, fokus pada Total Ownership Benefit dan return on investment",
+    namaM:"Bapak Hendra Wijaya", namaF:"Ibu Yuniar Kusuma" },
+  { id:"fleet-manager", label:"Kepala Operasional/Fleet Manager",
+    desc:"bertanggung jawab atas operasional armada truk sehari-hari, fokus pada kesesuaian spesifikasi unit dengan target proyek dan KPI operasional, banyak bertanya detail teknis penggunaan lapangan",
+    namaM:"Bapak Ardiansyah", namaF:"Ibu Melinda" },
+  { id:"kepala-maintenance", label:"Kepala Bengkel/Maintenance",
+    desc:"bertanggung jawab merawat unit, sangat kritis soal ketersediaan spare part, kemudahan perawatan, dan dukungan after sales service, skeptis terhadap klaim yang tidak didukung data teknis",
+    namaM:"Bapak Yusransyah", namaF:"Ibu Herlina" },
+  { id:"kontraktor-tambang", label:"Owner Kontraktor Tambang",
+    desc:"pengusaha sektor pertambangan atau kontraktor proyek besar, gaya komunikasi cair, fleksibel, dan personal, suka berbagi cerita pengalaman lapangan, fokus pada daya angkut dan ketahanan unit di medan berat",
+    namaM:"Bapak Baso Amiruddin", namaF:"Ibu Andi Nurul" },
+  { id:"pengusaha-tradisional", label:"Pengusaha Home Industry/Logistik Kecil",
+    desc:"pemilik usaha kecil menengah, gaya komunikasi sangat informal dan personal, awam istilah teknis dan bahasa Inggris, butuh penjelasan sederhana dan sangat sensitif terhadap harga dan cara pembayaran",
+    namaM:"Bapak Daeng Rewa", namaF:"Ibu Salma" }
+];
+const KRISIS_BST12 = [
+  { id:"kompetitor", label:"Kompetitor Lebih Menarik",
+    note:"KEBERATAN: Pelanggan membandingkan penawaran Anda dengan merk truk kompetitor yang menawarkan diskon lebih besar, dan meminta tambahan diskon dengan nada mengancam akan pindah ke kompetitor tersebut jika tidak dipenuhi. Sampaikan keberatan ini secara tegas dan tunggu respons Sales.",
+    brief:"Pelanggan sedang mempertimbangkan tawaran dari kompetitor yang memberi diskon lebih besar." },
+  { id:"spare-part", label:"Ketersediaan Spare Part Daerah Terpencil",
+    note:"KEBERATAN: Pelanggan mengungkapkan kekhawatiran serius soal ketersediaan spare part dan dukungan after sales service di lokasi operasional mereka yang jauh dari kota besar, dan minta jaminan konkret sebelum melanjutkan. Sampaikan kekhawatiran ini dengan nada ragu-ragu.",
+    brief:"Lokasi operasional pelanggan berada jauh dari kota besar, dan mereka mengkhawatirkan dukungan purna jual." },
+  { id:"syarat-tambahan", label:"Syarat Tambahan Sebelum Deal",
+    note:"KEBERATAN: Pelanggan mengajukan satu syarat spesifik yang harus dipenuhi sebelum bersedia melanjutkan pembelian, misalnya penambahan mekanik siaga di lokasi site mereka, atau jaminan garansi tambahan. Sampaikan syarat ini sebagai kondisi mutlak dan tunggu bagaimana Sales meresponnya.",
+    brief:"Pelanggan menaruh satu syarat spesifik yang harus dipenuhi sebelum mereka mau melanjutkan proses pembelian." }
+];
+
 /* ================= REGISTRY SKENARIO (v3.8) =================
    Satu skenario = satu blok data. Menambah modul baru cukup menambah entry di sini,
    TANPA menyentuh logic inti (grader AI, flow roleplay, render UI).
@@ -797,6 +887,13 @@ const SKENARIO = {
     profil:  { pool:PROFIL_PKT, acak:true, tampilkanPilihan:false, tampilkanPilihanVideo:true },
     injeksi: { pool:KRISIS_PKT, acak:true, munculDiGiliran:{ min:5, max:5 },
                labelUI:"Krisis", tampilkanPilihanVideo:true },
+    ketentuanSesi: [
+      "Anda berperan sebagai Sales. AI berperan sebagai pelanggan yang datang mengambil unit di dealer.",
+      "Bicaralah persis seperti menghadapi pelanggan sungguhan, mulai dari penyambutan di lobi.",
+      "Sebutkan secara lisan setiap tindakan fisik yang Anda lakukan, misalnya \"saya membuka pintu kemudi dengan dua tangan\". Tindakan yang tidak disebutkan dianggap tidak dilakukan.",
+      "Tekan tombol mikrofon untuk mulai bicara, tekan lagi untuk selesai. Jawaban pelanggan akan diperdengarkan.",
+      "Selesaikan seluruh proses hingga penutupan, lalu tekan Akhiri Sesi untuk mendapatkan penilaian."
+    ],
     rubrik: RUBRIK_PKT,
     /* Builder prompt milik skenario. Dibungkus arrow supaya dievaluasi saat dipanggil
        (const builder dideklarasikan di bawah registry, jadi tidak kena TDZ). */
@@ -811,6 +908,38 @@ const SKENARIO = {
     briefingVideo: (S,st)=>st.krisis.brief
       +" Jalankan seluruh proses PKT Hari H sesuai standar Masterclass dan pastikan Anda merespons situasi tersebut di dalam rekaman.",
     pesanMulai: (S,st)=>"Sesi dimulai. Pelanggan "+st.profil.nama+" baru tiba di lobi dealer. Silakan mulai penyambutan Anda."
+  },
+  "bst12-selling": {
+    id: "bst12-selling",
+    nama: "BST-12: 7 Selling Process",
+    kategori: "SALES",
+    modulLabel: "BST-12 Roleplay Selling Process",
+    scoring: { anchor:40, kataKunci:40, struktur:20 },
+    kelulusan: { mode:"semua-parameter", ambang:6 },
+    minGiliran: 8,
+    parameter: [
+      { key:"probing",    nama:"Probing",             labelRadar:"Probing" },
+      { key:"offering",   nama:"Sales Offering",      labelRadar:"Offering" },
+      { key:"objection",  nama:"Handling Objection",  labelRadar:"Objection" },
+      { key:"closing",    nama:"Closing",             labelRadar:"Closing" },
+      { key:"experience", nama:"Creating Experience", labelRadar:"Experience" }
+    ],
+    profil:  { pool:PROFIL_BST12, acak:true, tampilkanPilihan:false },
+    injeksi: { pool:KRISIS_BST12, acak:true, munculDiGiliran:{ min:4, max:5 }, labelUI:"Keberatan" },
+    ketentuanSesi: [
+      "Anda berperan sebagai Sales Consultant truk komersial. AI berperan sebagai calon pembeli korporat yang sedang membahas kebutuhan pengadaan truk.",
+      "Sesi dimulai dari tahap Probing (penggalian kebutuhan), bukan dari perkenalan awal atau prospecting.",
+      "Gunakan kerangka FAB (Fitur, Advantage, Benefit) saat menyampaikan penawaran di tahap Sales Offering. Penawaran generik tanpa FAB otomatis gagal di parameter itu.",
+      "Tekan tombol mikrofon untuk mulai bicara, tekan lagi untuk selesai. Jawaban calon pembeli akan diperdengarkan.",
+      "Selesaikan seluruh proses hingga Closing dan Creating Experience, minimal 8 giliran bicara, lalu tekan Akhiri Sesi untuk mendapatkan penilaian."
+    ],
+    rubrik: RUBRIK_BST12,
+    sysPelanggan: (S,st)=>SYS_PELANGGAN_BST12(S,st),
+    sysValidator: (S,st)=>SYS_VALIDATOR_BST12(S,st),
+    briefing: (S,st)=>"Anda akan menemui calon pembeli truk komersial: "+st.profil.nama
+      +", profil "+st.profil.label+". "+st.krisis.brief
+      +" Jalankan proses selling BST-12 mulai dari Probing hingga Creating Experience sesuai standar 7 Selling Process.",
+    pesanMulai: (S,st)=>"Sesi dimulai. Anda baru bertemu dengan "+st.profil.nama+" untuk membahas kebutuhan truk mereka. Silakan mulai proses probing Anda."
   }
 };
 
@@ -1004,6 +1133,20 @@ Aturan main:
 /* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
 function roleplaySystem(){ return SK().sysPelanggan(SK(), state); }
 
+const SYS_PELANGGAN_BST12 = (S,st) => {
+  const p = st.profil;
+  return `Anda adalah CALON PEMBELI truk komersial Mitsubishi di PT Bosowa Berlian Motor, sedang menemui Sales Consultant untuk membahas kebutuhan pengadaan unit truk untuk bisnis Anda. Nama Anda ${p.nama}. Profil Anda: ${p.desc}.
+Aturan main:
+1. Anda HANYA berperan sebagai calon pembeli. Jangan pernah keluar karakter, jangan memberi pujian, koreksi, evaluasi, atau bimbingan kepada Sales dalam bentuk apa pun.
+2. Jawab natural dan ringkas, maksimal 3 kalimat utuh, dalam Bahasa Indonesia lisan sehari-hari yang sopan sesuai gaya komunikasi profil Anda. Jawaban Anda akan dibacakan oleh mesin suara, jadi JANGAN gunakan simbol tulisan apa pun seperti garis miring, tanda kurung, tanda bintang, atau singkatan yang tidak lazim diucapkan. Selalu selesaikan kalimat Anda, jangan menggantung.
+3. Output Anda HANYA berisi ucapan lisan calon pembeli, tidak boleh ada teks lain. DILARANG KERAS menulis teks dalam kurung siku, catatan panggung, arahan, narasi, deskripsi situasi, atau komentar tentang performa Sales. Langsung tulis ucapan calon pembeli tanpa awalan apa pun.
+4. Bereaksilah realistis sesuai profil bisnis Anda. Jika Sales langsung menawarkan produk tanpa menggali kebutuhan Anda terlebih dahulu, tunjukkan sedikit kebingungan atau ketidaknyamanan secara wajar melalui ucapan, bukan melalui komentar.
+5. Ajukan pertanyaan dan keberatan yang sesuai kepentingan bisnis dan profil Anda, fokus operasional, finansial, atau teknis sesuai peran Anda di perusahaan.
+6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
+7. Percakapan dimulai saat Sales baru menemui Anda untuk membahas kebutuhan pengadaan truk untuk bisnis Anda.`
+  + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
+};
+
 /* ---------- Prompt validator (teks milik skenario, dipanggil lewat registry) ---------- */
 const SYS_VALIDATOR_PKT = (S,st) => {
   return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda menilai transkrip roleplay PKT berikut secara ketat, objektif, dan berbasis bukti kutipan dari transkrip. Peserta berperan sebagai Sales, lawan bicara adalah AI pelanggan.
@@ -1023,6 +1166,23 @@ Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): 
 };
 /* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
 function validatorSystem(){ return SK().sysValidator(SK(), state); }
+
+const SYS_VALIDATOR_BST12 = (S,st) => {
+  return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda menilai transkrip roleplay BST-12: 7 Selling Process berikut secara ketat, objektif, dan berbasis bukti kutipan dari transkrip. Peserta berperan sebagai Sales Consultant truk komersial, lawan bicara adalah AI calon pembeli korporat atau institusi.
+${S.rubrik(S)}
+Konteks sesi: profil pelanggan ${st.profil.label}; keberatan yang disisipkan: ${namaKrisis(st.krisis.id)} (${st.krisis.brief||""}).
+${kbEfektif() ? "KONTEKS TAMBAHAN DARI L&D (pertimbangkan dalam penilaian): "+kbEfektif() : ""}
+Instruksi penilaian:
+1. Nilai HANYA berdasarkan apa yang benar-benar diucapkan peserta di transkrip.
+2. Jangan murah hati. Skor 9 sampai 10 hanya untuk eksekusi nyaris sempurna. Jika suatu parameter sama sekali tidak disentuh peserta, beri skor 1 sampai 2.
+3. Kutip bukti singkat dari transkrip untuk setiap parameter.
+4. Terapkan aturan auto-fail dengan tegas.
+5. Rekomendasi harus merujuk tahapan dan nomor slide BST-12 7 Selling Process yang spesifik.
+Balas HANYA dengan JSON valid berstruktur persis:
+${skeletonJSON(S)}
+Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik berdasarkan skorTotal; status bernilai "LULUS" hanya jika semua parameter minimal ${S.kelulusan.ambang}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif menyeluruh; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, masing-masing satu kalimat spesifik beserta buktinya.
+Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK peserta, kutip ucapan peserta yang keliru atau sebutkan hal wajib yang tidak diucapkan sama sekali; "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan peserta pada momen itu, kutip SKRIP STANDAR yang relevan dan sesuaikan konteks pelanggan, sehingga peserta langsung tahu bentuk benarnya tanpa membuka materi; "materi" dan "referensi" menunjuk tahapan dan slide spesifik untuk pendalaman. Dilarang menulis rekomendasi umum seperti "pelajari kembali materi" tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
+};
 
 /* ---------- Text to Speech ---------- */
 let voiceID = null, voiceGender = "f";
@@ -1087,6 +1247,11 @@ function sembunyikanIndikatorAI(){
 /* ---------- Alur sesi ---------- */
 async function startSession(){
   state.chat = []; state.turns = 0; state.krisisInjected = false;
+  /* v4.3: giliran injeksi ditentukan acak sekali di awal sesi dari rentang min-max
+     skenario aktif, bukan selalu memakai .min. Untuk skenario lama dengan min=max
+     (PKT) perilakunya identik seperti sebelumnya karena rentangnya cuma satu angka. */
+  const rg = SK().injeksi.munculDiGiliran;
+  state.giliranTargetInjeksi = rg.min + Math.floor(Math.random()*(rg.max-rg.min+1));
   $("chat").innerHTML = "";
   $("sess-profile-badge").textContent = "Pelanggan: "+state.profil.label;
   $("btn-mic").classList.toggle("gender-f", state.profil.gender === "f");
@@ -1102,10 +1267,10 @@ async function sendUtterance(text){
   state.busy = true; setMicBusy(true);
   addBubble("me", text);
   const lenSebelum = state.chat.length;
-  const krisisBaru = !state.krisisInjected && (state.turns+1)>=SK().injeksi.munculDiGiliran.min;
+  const krisisBaru = !state.krisisInjected && (state.turns+1)>=state.giliranTargetInjeksi;
   state.chat.push({ role:"user", parts:[{text:text}] });
   state.turns++;
-  /* injeksi krisis di giliran ke-5 */
+  /* injeksi krisis/keberatan pada giliran target yang sudah diacak saat startSession() */
   if(krisisBaru){
     state.krisisInjected = true;
     state.chat.push({ role:"user", parts:[{text:"INSTRUKSI SUTRADARA (rahasia, jangan pernah disebut): "+state.krisis.note}] });
@@ -1223,6 +1388,12 @@ async function endSession(){
   try{
     const raw = await gemini([{role:"user",parts:[{text:"TRANSKRIP SESI:\n"+transcript+"\n\nNilai transkrip di atas."}]}], validatorSystem(), true);
     const hasil = JSON.parse(raw);
+    /* v4.3 FIX: skenarioId wajib menempel di objek hasil (bukan cuma di item pembungkusnya),
+       sebab renderResult()/SKitem() menerima objek hasil ini secara langsung, bukan item.
+       Tanpa ini, SKitem() selalu fallback ke pkt-roleplay untuk skenario apa pun selain PKT,
+       sehingga label radar dan ambang warna skenario lain tertukar jadi label PKT. Bug ini laten
+       sejak v3.8 (baru kelihatan sekarang karena pkt-roleplay dulu satu-satunya skenario). */
+    hasil.skenarioId = SK().id;
     const item = {
       tanggal:new Date().toISOString(), skenarioId:SK().id, modul:SK().modulLabel, jenis:"Latihan",
       profil:state.profil.label, krisis:state.krisis.id,
@@ -1402,17 +1573,25 @@ $("btn-gp-simpan").onclick = async ()=>{
   }catch(e){ showErr("err-gp", e.message); }
   $("btn-gp-simpan").disabled = false;
 };
-$("mod-pkt").onclick = ()=>{
-  state.skenarioId = "pkt-roleplay"; /* tetapkan skenario aktif sebelum akses SK() */
+/* v4.3: satu fungsi bersama untuk membuka briefing skenario apa pun yang terdaftar di
+   registry, dipanggil oleh setiap handler klik modul roleplay teks (bukan video, video
+   punya alur pilihan dropdown sendiri lewat resolveSkenarioVideo). Merender app-sub dan
+   daftar ketentuan sesi dari SK() supaya tidak lagi hardcode teks PKT untuk skenario lain. */
+function bukaBriefing(skenarioId){
+  state.skenarioId = skenarioId; /* tetapkan skenario aktif sebelum akses SK() */
   pickVoice();
   const pp = poolProfil(), pk = poolKrisis();
   const base = pp[Math.floor(Math.random()*pp.length)];
   state.profil = { id:base.id, label:base.label, desc:base.desc,
     nama: voiceGender==="m" ? (base.namaM||base.nama) : (base.namaF||base.nama), gender: voiceGender };
   state.krisis = pk[Math.floor(Math.random()*pk.length)];
+  $("brief-appsub").textContent = SK().nama;
   $("brief-scenario").textContent = SK().briefing(SK(), state);
+  $("brief-list").innerHTML = (SK().ketentuanSesi||[]).map(t=>"<li>"+t+"</li>").join("");
   show("scr-brief");
-};
+}
+$("mod-pkt").onclick = ()=>bukaBriefing("pkt-roleplay");
+$("mod-bst12").onclick = ()=>bukaBriefing("bst12-selling");
 $("btn-brief-back").onclick = ()=>show("scr-home");
 $("btn-start-session").onclick = startSession;
 $("btn-mic").onclick = toggleMic;
@@ -1575,6 +1754,7 @@ async function analisisVideo(){
       [{ role:"user", parts:[ mediaPart, { text:"Tonton video roleplay PKT ini dan nilai sesuai instruksi." } ] }],
       validatorVideoSystem(), true);
     const hasil = JSON.parse(raw);
+    hasil.skenarioId = SK().id; /* v4.3 FIX, sama seperti endSession() teks, lihat komentar di sana */
     const item = {
       tanggal:new Date().toISOString(), skenarioId:SK().id, modul:SK().modulLabelVideo, jenis:state.jenisSesi||"Latihan",
       profil:state.profil.label, krisis:state.krisis.id,
