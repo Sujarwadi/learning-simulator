@@ -1204,7 +1204,20 @@ function speak(text){
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
-    u.onend = resolve; u.onerror = resolve;
+    /* v4.4 FIX: speechSynthesis di beberapa kombinasi Chrome+Windows kadang HANG,
+       tidak pernah memanggil onend atau onerror sama sekali (bug dikenal di mesin TTS
+       Windows). Sebelum ada batas waktu ini, sendUtterance() akan macet permanen di
+       "await speak(reply)" -> state.busy tidak pernah kembali false -> mic dan Mode
+       Ketik disable selamanya sampai peserta reload halaman. Ini persis gejala yang
+       dilaporkan tim Urip (AI berhasil menjawab, lalu semua kontrol terkunci).
+       Perkiraan durasi bicara dari panjang teks, dengan lantai minimum, dipakai
+       sebagai jaring pengaman: begitu waktu itu lewat tanpa sinyal selesai/error dari
+       browser, paksa lanjut supaya sesi tidak pernah terkunci permanen. */
+    let selesai = false;
+    const selesaikan = () => { if(!selesai){ selesai = true; resolve(); } };
+    u.onend = selesaikan; u.onerror = selesaikan;
+    const batasWaktuMs = Math.max(6000, text.length * 120);
+    setTimeout(selesaikan, batasWaktuMs);
     speechSynthesis.speak(u);
   });
 }
