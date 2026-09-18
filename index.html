@@ -1198,27 +1198,106 @@ if("speechSynthesis" in window){
   pickVoice();
   speechSynthesis.onvoiceschanged = pickVoice;
 }
+/* v4.5: nama suara prebuilt Gemini TTS. Dipilih dari awalan nama profil aktif
+   ("Bapak"/"Pak"/"Bang" -> suara pria, "Ibu"/"Bu" -> suara wanita, mengikuti
+   konvensi penamaan namaM/namaF di semua PROFIL_*), fallback ke voiceGender
+   hasil deteksi voice browser (dipakai juga oleh jalur fallback speechSynthesis). */
+function namaVoiceGemini(){
+  const nm = (state.profil && state.profil.nama) ? state.profil.nama : "";
+  if(/^(bapak|pak|bang)\b/i.test(nm)) return "Puck";
+  if(/^(ibu|bu)\b/i.test(nm)) return "Aoede";
+  return voiceGender==="m" ? "Puck" : "Aoede";
+}
+
+/* Bungkus PCM 16-bit mentah (base64) dari Gemini TTS jadi Blob WAV supaya bisa
+   diputar lewat elemen <audio> standar. */
+function pcmKeWav(base64Pcm, sampleRate){
+  const bin = atob(base64Pcm);
+  const len = bin.length;
+  const pcm = new Uint8Array(len);
+  for(let i=0;i<len;i++) pcm[i] = bin.charCodeAt(i);
+  const buf = new ArrayBuffer(44+len);
+  const view = new DataView(buf);
+  const tulisString = (offset,str) => { for(let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
+  tulisString(0,"RIFF"); view.setUint32(4,36+len,true); tulisString(8,"WAVE");
+  tulisString(12,"fmt "); view.setUint32(16,16,true); view.setUint16(20,1,true);
+  view.setUint16(22,1,true); view.setUint32(24,sampleRate,true); view.setUint32(28,sampleRate*2,true);
+  view.setUint16(32,2,true); view.setUint16(34,16,true);
+  tulisString(36,"data"); view.setUint32(40,len,true);
+  new Uint8Array(buf,44).set(pcm);
+  return new Blob([buf],{type:"audio/wav"});
+}
+
+/* Ambil audio dari Gemini TTS (model gemini-2.5-flash-preview-tts). Mode server
+   lewat proxy backend "aiSpeak" (kunci tidak pernah ke browser); mode manual
+   panggil langsung pakai kunci milik pengguna, sama seperti fungsi gemini(). */
+async function ambilAudioGemini(promptText){
+  const voiceName = namaVoiceGemini();
+  if(BACKEND_URL && state.nik){
+    const r = await api("aiSpeak", { nik: state.nik, text: promptText, voiceName: voiceName });
+    if(!r.audioBase64) throw new Error("Audio TTS kosong.");
+    return { base64: r.audioBase64, sampleRate: r.sampleRate || 24000 };
+  }
+  const body = {
+    contents: [{ parts:[{ text: promptText }] }],
+    generationConfig: { responseModalities:["AUDIO"], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName: voiceName } } } }
+  };
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key="+encodeURIComponent(state.key);
+  const res = await fetch(url,{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
+  if(!res.ok) throw new Error("Panggilan TTS gagal (kode "+res.status+").");
+  const data = await res.json();
+  const part = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0];
+  const inline = part && part.inlineData;
+  if(!inline || !inline.data) throw new Error("Audio TTS kosong.");
+  const m = /rate=(\d+)/.exec(inline.mimeType||"");
+  return { base64: inline.data, sampleRate: m ? parseInt(m[1],10) : 24000 };
+}
+
 function speak(text){
   return new Promise(resolve=>{
-    if(!("speechSynthesis" in window)){ resolve(); return; }
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
-    /* v4.4 FIX: speechSynthesis di beberapa kombinasi Chrome+Windows kadang HANG,
-       tidak pernah memanggil onend atau onerror sama sekali (bug dikenal di mesin TTS
-       Windows). Sebelum ada batas waktu ini, sendUtterance() akan macet permanen di
-       "await speak(reply)" -> state.busy tidak pernah kembali false -> mic dan Mode
-       Ketik disable selamanya sampai peserta reload halaman. Ini persis gejala yang
-       dilaporkan tim Urip (AI berhasil menjawab, lalu semua kontrol terkunci).
-       Perkiraan durasi bicara dari panjang teks, dengan lantai minimum, dipakai
-       sebagai jaring pengaman: begitu waktu itu lewat tanpa sinyal selesai/error dari
-       browser, paksa lanjut supaya sesi tidak pernah terkunci permanen. */
+    /* v4.4 FIX (tetap dipertahankan sebagai jaring pengaman terakhir): tanpa batas
+       waktu ini, kalau TTS macet total (jaringan hang, atau di jalur fallback
+       speechSynthesis browser yang kadang tidak pernah memanggil onend/onerror
+       sama sekali - bug dikenal di mesin TTS Windows), sendUtterance() akan macet
+       permanen di "await speak(reply)" -> state.busy tidak pernah kembali false ->
+       mic dan Mode Ketik disable selamanya sampai peserta reload halaman. Ini
+       persis gejala yang dilaporkan tim Urip (AI berhasil menjawab, lalu semua
+       kontrol terkunci). Perkiraan durasi bicara dari panjang teks, dengan lantai
+       minimum, dipakai sebagai jaring pengaman: begitu waktu itu lewat tanpa
+       sinyal selesai dari audio, paksa lanjut supaya sesi tidak pernah terkunci
+       permanen. Floor dan pengali lebih besar dari v4.4 karena jalur utama
+       sekarang lewat panggilan jaringan (generate + unduh audio), bukan API lokal. */
     let selesai = false;
     const selesaikan = () => { if(!selesai){ selesai = true; resolve(); } };
-    u.onend = selesaikan; u.onerror = selesaikan;
-    const batasWaktuMs = Math.max(6000, text.length * 120);
-    setTimeout(selesaikan, batasWaktuMs);
-    speechSynthesis.speak(u);
+    const batasWaktuMs = Math.max(12000, text.length * 200);
+    const timer = setTimeout(selesaikan, batasWaktuMs);
+
+    // Jaring pengaman TERPISAH untuk jalur fallback (v4.4 asli): speechSynthesis
+    // browser sendiri kadang tidak pernah memanggil onend/onerror. Timer utama
+    // di atas dimatikan begitu kita pindah ke fallback supaya tidak tabrakan.
+    const fallbackBrowserTTS = () => {
+      clearTimeout(timer);
+      if(!("speechSynthesis" in window)){ selesaikan(); return; }
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
+      u.onend = selesaikan; u.onerror = selesaikan;
+      setTimeout(selesaikan, Math.max(6000, text.length*120));
+      speechSynthesis.speak(u);
+    };
+
+    const gayaBicara = "Ucapkan dengan nada hangat, natural, dan hidup seperti orang sungguhan sedang mengobrol langsung, jangan monoton: ";
+    ambilAudioGemini(gayaBicara+text).then(({base64, sampleRate})=>{
+      const blob = pcmKeWav(base64, sampleRate);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.onended = () => { clearTimeout(timer); URL.revokeObjectURL(url); selesaikan(); };
+      audio.onerror = () => { URL.revokeObjectURL(url); fallbackBrowserTTS(); };
+      audio.play().catch(()=>{ URL.revokeObjectURL(url); fallbackBrowserTTS(); });
+    }).catch((e)=>{
+      console.warn("TTS Gemini gagal, fallback ke suara browser:", e.message);
+      fallbackBrowserTTS();
+    });
   });
 }
 
