@@ -980,6 +980,109 @@ function admSimpan(){
 function poolProfil(){ return SK().profil.pool.concat(SRV.profils||[], ADM.profils); }
 function poolKrisis(){ return SK().injeksi.pool.concat(SRV.krisis||[], ADM.krisis); }
 function kbEfektif(){ return ((SRV.kb||"")+"\n"+(ADM.kb||"")).trim(); }
+
+/* ---------- v4.6: Dialek & Nuansa Budaya Pelanggan (Indonesia Timur) ----------
+   Latar: cabang BBM tersebar di Sulawesi, Maluku, dan Papua. Kalau AI pelanggan
+   selalu bicara Bahasa Indonesia baku, latihan jadi tidak mencerminkan lawan
+   bicara asli yang akan dihadapi sales di lapangan (sales di Jayapura akan
+   ketemu logat Papua asli, bukan Jakarta). Tiap entri dialek punya DUA lapis:
+   - teks: kosakata/partikel khas yang diselipkan ke instruksi AI pelanggan
+     (mempengaruhi APA yang diucapkan), dipakai di sysPelanggan.
+   - suara: instruksi gaya untuk Gemini TTS (aksen, emosi, tempo, napas -
+     mempengaruhi BAGAIMANA itu diucapkan), dipakai di speak().
+   CATATAN VALIDASI: kosakata/pola bicara di bawah disusun dari pengetahuan
+   umum, BELUM divalidasi native speaker tiap daerah. Sebelum dipakai luas ke
+   pilot cabang tertentu, minta Kacab/sales asli daerah situ dengar sample
+   suaranya dan koreksi kalau ada yang kurang pas atau terasa stereotip. */
+const DIALEK = {
+  nasional: {
+    label: "Nasional",
+    teks: "Gunakan Bahasa Indonesia baku santai, tanpa partikel atau kosakata daerah tertentu.",
+    suara: "Ucapkan dengan nada hangat, natural, dan hidup seperti orang sungguhan sedang mengobrol langsung, jangan monoton."
+  },
+  makassar: {
+    label: "Sulawesi Selatan (Makassar/Bugis)",
+    teks: "Selipkan kosakata dan partikel khas Makassar secara wajar (tidak berlebihan): 'ki', 'mi', 'ji', 'pale', 'tawwa', 'kodong', 'sombere'. Gaya bicara ceplas-ceplos, terus terang, akrab, dan cepat.",
+    suara: "Ucapkan dengan logat Makassar yang kental dan otentik: intonasi naik-turun tegas, tempo bicara cepat, emosi terbuka dan ekspresif (bisa terdengar tegas walau sebenarnya ramah), sesekali ada decak lidah singkat atau helaan napas pendek kalau menunjukkan ragu, jangan datar."
+  },
+  sulteng: {
+    label: "Sulawesi Tengah (Palu/Kaili)",
+    teks: "Selipkan kosakata khas Sulawesi Tengah secara wajar: 'ngana' (kamu), 'kita' (saya, dalam konteks santai), 'mo' (mau). Gaya bicara santai, hangat, dan ramah, tempo sedang.",
+    suara: "Ucapkan dengan logat Sulawesi Tengah (Palu) yang santai dan bersahabat, tempo sedang, nada hangat, sesekali ada jeda santai di antara kalimat seperti sedang berbincang santai."
+  },
+  manado: {
+    label: "Sulawesi Utara (Manado/Minahasa)",
+    teks: "Selipkan kosakata dan partikel khas Manado secara wajar: 'kita' (saya/aku), 'ngoni' (kalian), 'dorang' (mereka), 'mo' (mau), 'jo', 'kwa'. Gaya bicara ceria, cepat, dan ekspresif seperti mengobrol dengan sahabat lama.",
+    suara: "Ucapkan dengan logat Manado yang khas: nada riang dan cepat, irama naik-turun seperti bernyanyi, penuh semangat dan santai, sesekali diselingi tawa kecil atau helaan napas ringan di sela kalimat, terdengar akrab dan hangat."
+  },
+  papua: {
+    label: "Papua & Maluku",
+    teks: "Selipkan kosakata khas Papua/Maluku secara wajar: 'sa' (saya), 'ko' (kamu), panggilan 'bosku'/'pace'/'mace'. Gaya bicara tegas, terus terang, hangat, dan penuh rasa persaudaraan.",
+    suara: "Ucapkan dengan logat Papua yang khas: tegas, lantang, ritmis dengan penekanan kuat di akhir kalimat, hangat dan penuh rasa persaudaraan, sesekali ada jeda napas dalam yang menunjukkan ketegasan atau emosi, ekspresif dan blak-blakan, jangan lembut berlebihan."
+  },
+  sultra: {
+    label: "Sulawesi Tenggara (Kendari/Buton)",
+    teks: "Selipkan kosakata khas Sulawesi Tenggara secara wajar: 'mo' (mau), 'ndaumo' (sudahlah), partikel penegas 'e' di akhir kalimat. Gaya bicara santai, ramah, dan melodis, tidak seceplas-ceplos Makassar tapi tetap akrab.",
+    suara: "Ucapkan dengan logat Sulawesi Tenggara (Kendari) yang santai dan melodis, tempo sedang, nada ramah dan hangat, sesekali ada jeda lembut di antara kalimat, tidak terlalu keras."
+  },
+  kupang: {
+    label: "Nusa Tenggara Timur (Kupang)",
+    teks: "Selipkan kosakata khas Melayu Kupang secara wajar: 'beta' (saya), 'lu'/'lo' (kamu), 'sonde' (tidak/tidak mau), 'ini kapa' (gaya bicara santai apa adanya). Gaya bicara blak-blakan, lantang, jenaka, dan cepat.",
+    suara: "Ucapkan dengan logat Kupang (Melayu Kupang/NTT) yang khas: lantang, cepat, blak-blakan, penuh humor dan ekspresif, penekanan kuat di suku kata tertentu, sesekali ada tawa kecil atau helaan napas santai, jangan terdengar formal/kaku."
+  }
+};
+/* Pemetaan cabang -> kunci DIALEK, disusun dari "Data Karyawan 04-09-2026.xlsx"
+   (32 cabang riil, per cabang, diambil dari Google Drive 20 Sep 2026). Cabang
+   yang tidak ketemu di tabel ini jatuh ke DIALEK_DEFAULT. Beberapa keputusan
+   pengelompokan (bukan hasil validasi native speaker, lihat catatan di atas):
+   - BONE/BULUKUMBA/MAROS/PALOPO/PARE-PARE/SOPPENG/MAMUJU/KIMA/PETTARANI/
+     TANJUNG BUNGA/KANTOR PUSAT/FLEET & GSO -> dikelompokkan "makassar" (semua
+     berbasis budaya Bugis-Makassar Sulsel/Sulbar, atau berlokasi di kota
+     Makassar/kantor pusat).
+   - TERNATE -> dikelompokkan "papua" (Papua & Maluku) mengikuti pengelompokan
+     umum, walau logat Ternate/Maluku Utara sebenarnya punya ciri sendiri yang
+     beda dari Ambon - perlu dicek ulang kalau ada Kacab Ternate.
+   - JAKARTA & SURABAYA -> "nasional" (di luar Indonesia Timur, logatnya
+     memang seharusnya baku/Jawa, bukan salah satu dialek Timur di atas). */
+const CABANG_KE_DIALEK = {
+  "AMBON": "papua",
+  "BAU-BAU": "sultra",
+  "BONE": "makassar",
+  "BULUKUMBA": "makassar",
+  "FLEET & GSO": "makassar",
+  "JAKARTA": "nasional",
+  "JAYAPURA": "papua",
+  "KANTOR PUSAT": "makassar",
+  "KENDARI": "sultra",
+  "KIMA": "makassar",
+  "KOLAKA": "sultra",
+  "KOTAMOBAGU": "manado",
+  "KUPANG": "kupang",
+  "LUWUK BANGGAI": "sulteng",
+  "MAMUJU": "makassar",
+  "MANADO KAIRAGI": "manado",
+  "MANADO RINGROAD": "manado",
+  "MANOKWARI": "papua",
+  "MAROS": "makassar",
+  "MERAUKE": "papua",
+  "MOROWALI": "sulteng",
+  "PALOPO": "makassar",
+  "PALU": "sulteng",
+  "PARE-PARE": "makassar",
+  "PARIGI": "sulteng",
+  "PETTARANI": "makassar",
+  "SOPPENG": "makassar",
+  "SORONG": "papua",
+  "SURABAYA": "nasional",
+  "TANJUNG BUNGA": "makassar",
+  "TERNATE": "papua",
+  "URIP": "makassar"
+};
+const DIALEK_DEFAULT = "makassar"; // mayoritas cabang berbasis di Sulawesi Selatan
+function dialekAktif(){
+  const kunci = CABANG_KE_DIALEK[String(state.cabang||"").trim().toUpperCase()] || DIALEK_DEFAULT;
+  return DIALEK[kunci] || DIALEK.nasional;
+}
 function namaKrisis(id){
   /* v3.8: label injeksi diambil dari pool skenario aktif, bukan lagi if hardcode.
      Label pada pool sengaja dibuat persis sama dengan versi lama supaya prompt identik. */
@@ -1127,7 +1230,8 @@ Aturan main:
 4. Bereaksilah realistis. Jika sales melewatkan tahapan penting (tidak menyambut, tidak memperkenalkan tim, langsung menyerahkan kunci), tunjukkan kebingungan atau sedikit kekecewaan secara wajar melalui ucapan pelanggan, bukan melalui komentar.
 5. Ajukan pertanyaan yang sesuai profil Anda. Tunjukkan emosi yang wajar: antusias, ragu, atau khawatir.
 6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
-7. Percakapan dimulai saat Anda baru tiba di lobi dealer bersama keluarga.`
+7. Percakapan dimulai saat Anda baru tiba di lobi dealer bersama keluarga.
+8. Gaya bicara Anda mengikuti nuansa budaya daerah berikut: ${dialekAktif().teks}`
   + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
 };
 /* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
@@ -1143,7 +1247,8 @@ Aturan main:
 4. Bereaksilah realistis sesuai profil bisnis Anda. Jika Sales langsung menawarkan produk tanpa menggali kebutuhan Anda terlebih dahulu, tunjukkan sedikit kebingungan atau ketidaknyamanan secara wajar melalui ucapan, bukan melalui komentar.
 5. Ajukan pertanyaan dan keberatan yang sesuai kepentingan bisnis dan profil Anda, fokus operasional, finansial, atau teknis sesuai peran Anda di perusahaan.
 6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
-7. Percakapan dimulai saat Sales baru menemui Anda untuk membahas kebutuhan pengadaan truk untuk bisnis Anda.`
+7. Percakapan dimulai saat Sales baru menemui Anda untuk membahas kebutuhan pengadaan truk untuk bisnis Anda.
+8. Gaya bicara Anda mengikuti nuansa budaya daerah berikut: ${dialekAktif().teks}`
   + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
 };
 
@@ -1198,15 +1303,19 @@ if("speechSynthesis" in window){
   pickVoice();
   speechSynthesis.onvoiceschanged = pickVoice;
 }
-/* v4.5: nama suara prebuilt Gemini TTS. Dipilih dari awalan nama profil aktif
+/* v4.5.1: nama suara prebuilt Gemini TTS. Dipilih dari awalan nama profil aktif
    ("Bapak"/"Pak"/"Bang" -> suara pria, "Ibu"/"Bu" -> suara wanita, mengikuti
-   konvensi penamaan namaM/namaF di semua PROFIL_*), fallback ke voiceGender
-   hasil deteksi voice browser (dipakai juga oleh jalur fallback speechSynthesis). */
+   konvensi penamaan namaM/namaF di semua PROFIL_* termasuk profil custom dari
+   Panel Admin), fallback ke voiceGender hasil deteksi voice browser (dipakai
+   juga oleh jalur fallback speechSynthesis). Voice awal v4.5 (Puck/Aoede)
+   ternyata terdengar terlalu muda/upbeat untuk karakter pelanggan dealer yang
+   rata-rata bapak/ibu paruh baya ke atas - diganti ke Charon/Kore yang lebih
+   dewasa dan wibawa, sesuai laporan langsung dari lapangan. */
 function namaVoiceGemini(){
   const nm = (state.profil && state.profil.nama) ? state.profil.nama : "";
-  if(/^(bapak|pak|bang)\b/i.test(nm)) return "Puck";
-  if(/^(ibu|bu)\b/i.test(nm)) return "Aoede";
-  return voiceGender==="m" ? "Puck" : "Aoede";
+  if(/^(bapak|pak|bang)\b/i.test(nm)) return "Charon";
+  if(/^(ibu|bu)\b/i.test(nm)) return "Kore";
+  return voiceGender==="m" ? "Charon" : "Kore";
 }
 
 /* Bungkus PCM 16-bit mentah (base64) dari Gemini TTS jadi Blob WAV supaya bisa
@@ -1253,7 +1362,8 @@ async function ambilAudioGemini(promptText){
   return { base64: inline.data, sampleRate: m ? parseInt(m[1],10) : 24000 };
 }
 
-function speak(text){
+function speak(text, onMulai){
+  const tandaiMulai = () => { if(onMulai) try{ onMulai(); }catch(e){} };
   return new Promise(resolve=>{
     /* v4.4 FIX (tetap dipertahankan sebagai jaring pengaman terakhir): tanpa batas
        waktu ini, kalau TTS macet total (jaringan hang, atau di jalur fallback
@@ -1270,7 +1380,17 @@ function speak(text){
     let selesai = false;
     const selesaikan = () => { if(!selesai){ selesai = true; resolve(); } };
     const batasWaktuMs = Math.max(12000, text.length * 200);
-    const timer = setTimeout(selesaikan, batasWaktuMs);
+    let timer = setTimeout(selesaikan, batasWaktuMs);
+    // v4.6.1 FIX: timer di atas cuma jaring pengaman untuk fase TUNGGU JARINGAN
+    // (generate + unduh audio, bisa 5-10 detik). Begitu audio BENERAN mulai
+    // main, reset timer-nya supaya durasi puternya sendiri tidak ikut kepotong
+    // batas waktu yang sama - sebelum fix ini, audio yang baru mulai di detik
+    // ke-7 bisa kepotong paksa di detik ke-12 walau belum selesai bicara.
+    const perpanjangSaatMulai = () => {
+      clearTimeout(timer);
+      timer = setTimeout(selesaikan, Math.max(4000, text.length*150));
+      tandaiMulai();
+    };
 
     // Jaring pengaman TERPISAH untuk jalur fallback (v4.4 asli): speechSynthesis
     // browser sendiri kadang tidak pernah memanggil onend/onerror. Timer utama
@@ -1281,16 +1401,24 @@ function speak(text){
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
+      u.onstart = perpanjangSaatMulai;
       u.onend = selesaikan; u.onerror = selesaikan;
-      setTimeout(selesaikan, Math.max(6000, text.length*120));
+      // Jaring pengaman TERPISAH v4.4 asli: kalau speechSynthesis browser sendiri
+      // tidak pernah memanggil onstart/onend/onerror sama sekali (bug dikenal di
+      // mesin TTS Windows), timer ini tetap jalan tanpa bergantung pada onstart.
+      timer = setTimeout(selesaikan, Math.max(6000, text.length*120));
       speechSynthesis.speak(u);
     };
 
-    const gayaBicara = "Ucapkan dengan nada hangat, natural, dan hidup seperti orang sungguhan sedang mengobrol langsung, jangan monoton: ";
+    // v4.6: gaya bicara TTS ikut dialek daerah cabang aktif (lihat DIALEK), bukan
+    // instruksi generik lagi, supaya nuansa suara (aksen/emosi/tempo/napas) sesuai
+    // dengan pelanggan asli yang bakal dihadapi sales di cabang tersebut.
+    const gayaBicara = dialekAktif().suara + " ";
     ambilAudioGemini(gayaBicara+text).then(({base64, sampleRate})=>{
       const blob = pcmKeWav(base64, sampleRate);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
+      audio.onplay = perpanjangSaatMulai;
       audio.onended = () => { clearTimeout(timer); URL.revokeObjectURL(url); selesaikan(); };
       audio.onerror = () => { URL.revokeObjectURL(url); fallbackBrowserTTS(); };
       audio.play().catch(()=>{ URL.revokeObjectURL(url); fallbackBrowserTTS(); });
@@ -1335,6 +1463,24 @@ function sembunyikanIndikatorAI(){
   const el = document.getElementById("ai-typing-indicator");
   if(el) el.remove();
 }
+/* v4.5.1: indikator "menyiapkan suara" selagi menunggu audio TTS Gemini datang
+   dari jaringan (biasanya 3-8 detik). Tanpa ini teks AI muncul lalu terasa diam
+   beberapa detik seperti macet - dilaporkan langsung sebagai "ngelag" oleh tim
+   lapangan. Dihilangkan begitu audio benar-benar mulai diputar (bukan begitu
+   selesai), supaya jeda yang terlihat cuma waktu tunggu jaringan, bukan durasi
+   ngobrolnya. */
+function tampilkanIndikatorSuara(){
+  const c = $("chat");
+  const b = document.createElement("div");
+  b.className = "bubble ai typing";
+  b.id = "ai-suara-indikator";
+  b.innerHTML = '<span>🔊 Menyiapkan suara</span><span class="dots"><span></span><span></span><span></span></span>';
+  c.appendChild(b); c.scrollTop = c.scrollHeight;
+}
+function sembunyikanIndikatorSuara(){
+  const el = document.getElementById("ai-suara-indikator");
+  if(el) el.remove();
+}
 
 /* ---------- Alur sesi ---------- */
 async function startSession(){
@@ -1375,7 +1521,9 @@ async function sendUtterance(text){
     state.chat.push({ role:"model", parts:[{text:reply}] });
     sembunyikanIndikatorAI();
     addBubble("ai", reply);
-    await speak(reply);
+    tampilkanIndikatorSuara();
+    await speak(reply, sembunyikanIndikatorSuara);
+    sembunyikanIndikatorSuara();
     autoListen();
   }catch(e){
     sembunyikanIndikatorAI();
