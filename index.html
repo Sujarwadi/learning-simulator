@@ -429,6 +429,11 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
       <li>Selesaikan seluruh proses hingga penutupan, lalu tekan Akhiri Sesi untuk mendapatkan penilaian.</li>
     </ul>
   </div>
+  <h2 class="sect">Dialek &amp; Nuansa Pelanggan</h2>
+  <div class="card">
+    <p style="font-size:13px;color:var(--muted,#888);margin-top:0">Pilih nuansa bicara pelanggan yang mau Anda latih. Pilihan ini berlaku tetap sampai sesi ini selesai.</p>
+    <select id="brief-dialek" style="width:100%;padding:10px;border-radius:8px"></select>
+  </div>
   </div>
   <div class="actions"><div class="stack">
     <button class="btn btn-red" id="btn-start-session">Mulai Sesi</button>
@@ -1079,8 +1084,18 @@ const CABANG_KE_DIALEK = {
   "URIP": "makassar"
 };
 const DIALEK_DEFAULT = "makassar"; // mayoritas cabang berbasis di Sulawesi Selatan
+/* Saran dialek dari cabang sales (dipakai buat pre-select dropdown di briefing). */
+function dialekSaranDariCabang(){
+  return CABANG_KE_DIALEK[String(state.cabang||"").trim().toUpperCase()] || DIALEK_DEFAULT;
+}
+/* v4.7: dialek TIDAK lagi otomatis mengikuti cabang begitu saja - peserta yang
+   pilih sendiri di layar briefing (state.dialekId), supaya dia yang menentukan
+   nuansa pelanggan yang mau dilatih, bukan dipaksa satu pilihan. Begitu dipilih,
+   berlaku tetap sepanjang sesi (state.dialekId tidak berubah sampai sesi baru
+   dibuka lagi). Saran dari cabang tetap dipakai sebagai default terpilih di
+   dropdown supaya tidak perlu pilih manual tiap kali kalau memang pas. */
 function dialekAktif(){
-  const kunci = CABANG_KE_DIALEK[String(state.cabang||"").trim().toUpperCase()] || DIALEK_DEFAULT;
+  const kunci = state.dialekId || dialekSaranDariCabang();
   return DIALEK[kunci] || DIALEK.nasional;
 }
 function namaKrisis(id){
@@ -1094,7 +1109,7 @@ function namaKrisis(id){
 
 /* ---------- State ---------- */
 let state = {
-  key:"", nama:"", nik:"", cabang:"",
+  key:"", nama:"", nik:"", cabang:"", dialekId:null,
   profil:null, krisis:null, krisisInjected:false,
   chat:[], turns:0, timerStart:0, timerInt:null,
   listening:false, busy:false
@@ -1484,6 +1499,7 @@ function sembunyikanIndikatorSuara(){
 
 /* ---------- Alur sesi ---------- */
 async function startSession(){
+  state.dialekId = $("brief-dialek").value; // v4.7: kunci pilihan dialek sepanjang sesi ini
   state.chat = []; state.turns = 0; state.krisisInjected = false;
   /* v4.3: giliran injeksi ditentukan acak sekali di awal sesi dari rentang min-max
      skenario aktif, bukan selalu memakai .min. Untuk skenario lama dengan min=max
@@ -1491,7 +1507,7 @@ async function startSession(){
   const rg = SK().injeksi.munculDiGiliran;
   state.giliranTargetInjeksi = rg.min + Math.floor(Math.random()*(rg.max-rg.min+1));
   $("chat").innerHTML = "";
-  $("sess-profile-badge").textContent = "Pelanggan: "+state.profil.label;
+  $("sess-profile-badge").textContent = "Pelanggan: "+state.profil.label+" ("+DIALEK[state.dialekId].label+")";
   $("btn-mic").classList.toggle("gender-f", state.profil.gender === "f");
   show("scr-session");
   state.timerStart = Date.now();
@@ -1828,6 +1844,12 @@ function bukaBriefing(skenarioId){
   $("brief-appsub").textContent = SK().nama;
   $("brief-scenario").textContent = SK().briefing(SK(), state);
   $("brief-list").innerHTML = (SK().ketentuanSesi||[]).map(t=>"<li>"+t+"</li>").join("");
+  /* v4.7: dropdown dialek diisi ulang tiap buka briefing, pre-select saran dari
+     cabang sales tapi tetap bisa diganti manual sebelum mulai sesi. */
+  const saran = dialekSaranDariCabang();
+  $("brief-dialek").innerHTML = Object.keys(DIALEK).map(k=>
+    `<option value="${k}"${k===saran?" selected":""}>${esc(DIALEK[k].label)}${k===saran?" (disarankan)":""}</option>`
+  ).join("");
   show("scr-brief");
 }
 $("mod-pkt").onclick = ()=>bukaBriefing("pkt-roleplay");
