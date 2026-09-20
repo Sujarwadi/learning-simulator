@@ -257,6 +257,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     <div><div class="app-title">LEARNING SIMULATOR</div><div class="app-sub">Bosowa Berlian Learning Center</div></div>
   </header>
   <div class="sbody">
+  <div id="peringatan-webview" style="display:none;background:#5a1a1a;border:1px solid #b91c1c;border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;line-height:1.5"></div>
   <h2 class="sect">Pengaturan Awal</h2>
   <div class="card">
     <div id="fld-nama">
@@ -2439,6 +2440,24 @@ function setTheme(t){
 }
 $("btn-theme").onclick = ()=>setTheme((localStorage.getItem("ss_theme")||"dark")==="dark" ? "light" : "dark");
 setTheme(localStorage.getItem("ss_theme")||"dark");
+
+/* v4.7.4: deteksi in-app browser (WebView WhatsApp/Instagram/Facebook/Line dll).
+   Browser-browser ini sering membatasi izin mikrofon dan/atau autoplay audio
+   secara diam-diam - dari luar terlihat seperti "aplikasi tidak merespons
+   sama sekali" padahal sebenarnya browser-nya yang menahan mic/suara sebelum
+   sempat sampai ke kode kita. Tidak menghalangi pemakaian (barangkali tetap
+   berhasil di sebagian perangkat), cuma kasih peringatan supaya peserta tahu
+   harus buka di Chrome/Safari asli kalau ada yang tidak berfungsi. */
+function cekWebView(){
+  const ua = navigator.userAgent || "";
+  const tandaWebView = /FBAN|FBAV|Instagram|Line\/|; wv\)|MicroMessenger|TikTok/i.test(ua);
+  if(tandaWebView){
+    const el = $("peringatan-webview");
+    el.innerHTML = "⚠️ <b>Terdeteksi dibuka dari dalam aplikasi lain</b> (WhatsApp/Instagram/dll), bukan browser langsung. Mikrofon dan suara AI sering TIDAK BERFUNGSI di mode ini. Ketuk titik tiga di pojok kanan atas lalu pilih <b>\"Buka di browser\"</b> (Chrome/Safari) sebelum mulai latihan.";
+    el.style.display = "block";
+  }
+}
+cekWebView();
 
 /* ---------- Boot ---------- */
 loadStore();
