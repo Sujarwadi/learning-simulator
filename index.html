@@ -1554,7 +1554,7 @@ async function sendUtterance(text){
 }
 
 /* ---------- Mikrofon ---------- */
-let interimEl = null, finalBuf = "", userStopped = false, lastActivity = 0, silenceInt = null;
+let interimEl = null, finalBuf = "", userStopped = false, lastActivity = 0, silenceInt = null, percobaanRestartKosong = 0;
 const JEDA_KIRIM_MS = 2200; /* hening selama ini berarti ucapan selesai dan otomatis terkirim */
 function setMicBusy(b){
   const btn = $("btn-mic");
@@ -1569,7 +1569,7 @@ function autoListen(){
 }
 function startListening(){
   recog = initRecog();
-  finalBuf = ""; userStopped = false; lastActivity = Date.now();
+  finalBuf = ""; userStopped = false; lastActivity = Date.now(); percobaanRestartKosong = 0;
   recog.onresult = ev=>{
     lastActivity = Date.now();
     let interim = "";
@@ -1584,9 +1584,28 @@ function startListening(){
   recog.onend = ()=>{
     /* Chrome berhenti sendiri saat hening. Jika belum ada ucapan dan
        peserta belum menekan jeda, nyalakan kembali. Jika sudah ada
-       ucapan, kirim otomatis. */
+       ucapan, kirim otomatis.
+       v4.7.2 FIX: sebelum ini, kalau recognition terus-menerus tidak
+       menangkap ucapan apa pun (finalBuf selalu kosong), sistem restart
+       diam-diam TANPA BATAS dan TANPA PESAN - persis gejala "sudah bicara
+       tapi tidak ada respon" yang dilaporkan dari lapangan. Sekarang dibatasi
+       maksimal beberapa kali percobaan restart, dan kalau recog.start() itu
+       sendiri gagal (error InvalidState, umum terjadi di Web Speech API),
+       peserta diberi tahu secara eksplisit, bukan dibiarkan mengira mic
+       masih aktif mendengarkan padahal sebenarnya sudah mati diam-diam. */
     if(state.listening && !userStopped && !finalBuf.trim()){
-      try{ recog.start(); return; }catch(e){}
+      percobaanRestartKosong++;
+      if(percobaanRestartKosong <= 6){
+        try{ recog.start(); return; }
+        catch(e){
+          stopListenUI();
+          showErr("err-session","Pengenalan suara berhenti tak terduga. Silakan tekan mikrofon lagi, atau gunakan Mode Ketik.");
+          return;
+        }
+      }
+      stopListenUI();
+      showErr("err-session","Tidak ada ucapan yang terdeteksi setelah beberapa saat. Pastikan mikrofon aktif dan coba lagi, atau gunakan Mode Ketik.");
+      return;
     }
     stopListenUI();
     const t = finalBuf.trim();
