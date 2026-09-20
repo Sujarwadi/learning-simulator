@@ -1377,22 +1377,21 @@ async function ambilAudioGemini(promptText){
   return { base64: inline.data, sampleRate: m ? parseInt(m[1],10) : 24000 };
 }
 
-/* v4.7.1 FIX MENYELURUH setelah insiden "menyiapkan suara 1 menit + suara
-   berubah-ubah tiap giliran" dilaporkan langsung dari lapangan. Ditemukan DUA
-   bug nyata:
-   1. Timer tunggu-jaringan ikut diskalakan dari panjang teks balasan AI
-      (text.length*200). Balasan wajar ~300 karakter -> 60.000ms alias SATU
-      MENIT PENUH sebelum dianggap gagal dan pindah ke suara cadangan. Timer
-      tunggu jaringan sekarang TETAP (BATAS_TUNGGU_JARINGAN_MS), tidak lagi
-      ikut skala teks - realistiknya panggilan TTS Gemini selesai dalam
-      hitungan detik, bukan menit.
-   2. Tidak ada penanda "giliran keberapa" pada tiap panggilan speak(). Kalau
-      satu panggilan telat balik (misal kena rate-limit lalu API akhirnya
-      merespons lama setelah giliran berikutnya sudah mulai), audio dari
-      giliran LAMA tetap diputar menimpa giliran BARU - persis gejala "suara
-      berubah-ubah". AUDIO_GEN sekarang jadi penanda global: begitu speak()
-      dipanggil lagi (giliran baru), hasil dari panggilan sebelumnya yang
-      masih menggantung otomatis dibuang, tidak pernah diputar. */
+/* v4.7.1: fix timer tunggu-jaringan yang dulu ikut diskalakan dari panjang
+   teks (bisa sampai 1 menit) - sekarang tetap (BATAS_TUNGGU_JARINGAN_MS).
+   AUDIO_GEN mencegah audio dari GILIRAN LAMA diputar menimpa GILIRAN BARU.
+
+   v4.7.3 HOTFIX SUSULAN: v4.7.1 ternyata masih bolong untuk kasus DALAM
+   giliran YANG SAMA - dilaporkan sebagai "suara tumpang tindih antara robot
+   dan karakter lain". Kronologinya: jaringan lambat -> timer 9 detik habis
+   -> pindah ke suara robot (fallbackBrowserTTS) -> TAPI panggilan Gemini asli
+   yang masih menggantung di background ternyata akhirnya BALIK JUGA (telat,
+   bukan basi menurut AUDIO_GEN karena masih giliran yang sama) -> kode lama
+   tetap memutarnya di atas suara robot yang sudah lebih dulu jalan -> dua
+   suara numpuk. Flag sudahFallback di bawah menutup celah ini: begitu suatu
+   giliran sudah pindah ke suara cadangan (lewat jalur apa pun - timeout,
+   error audio, atau .catch), balasan Gemini yang belakangan datang untuk
+   giliran itu SELALU dibuang, tidak pernah diputar lagi. */
 let AUDIO_GEN = 0;
 const BATAS_TUNGGU_JARINGAN_MS = 9000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
 
@@ -1401,13 +1400,18 @@ function speak(text){
   const masihBerlaku = () => gen === AUDIO_GEN; // false kalau giliran baru sudah mulai duluan
   return new Promise(resolve=>{
     let selesai = false;
+    let sudahFallback = false; // giliran INI sudah pindah ke suara cadangan - cegah dobel/tumpang tindih
     const selesaikan = () => { if(!selesai){ selesai = true; sembunyikanIndikatorSuara(); resolve(); } };
     tampilkanIndikatorSuara();
 
     // Jaring pengaman v4.4 asli (tetap dipertahankan): kalau speechSynthesis
     // browser sendiri tidak pernah memanggil onstart/onend/onerror sama sekali
     // (bug dikenal di mesin TTS Windows), timer ini tetap jalan sendiri.
+    // idempoten (dijaga sudahFallback) supaya tidak pernah restart/dobel main
+    // untuk giliran yang sama walau dipanggil dari beberapa jalur berbeda.
     const fallbackBrowserTTS = () => {
+      if(sudahFallback){ return; }
+      sudahFallback = true;
       if(!masihBerlaku()){ selesaikan(); return; }
       if(!("speechSynthesis" in window)){ selesaikan(); return; }
       speechSynthesis.cancel();
@@ -1427,17 +1431,18 @@ function speak(text){
     const gayaBicara = dialekAktif().suara + " ";
     ambilAudioGemini(gayaBicara+text).then(({base64, sampleRate})=>{
       clearTimeout(timerJaringan);
-      // Giliran ini sudah basi (ada giliran baru yang mulai duluan) - buang
-      // hasilnya, JANGAN diputar (itu penyebab "suara berubah-ubah" di v4.7),
-      // tapi promise-nya sendiri tetap WAJIB di-resolve supaya tidak menggantung.
-      if(!masihBerlaku()){ selesaikan(); return; }
+      // Buang hasil ini (jangan pernah diputar) kalau giliran sudah basi
+      // (giliran baru sudah mulai) ATAU giliran INI sendiri sudah kadung
+      // pindah ke suara cadangan - itu penyebab "suara tumpang tindih".
+      // Promise tetap WAJIB di-resolve supaya tidak menggantung.
+      if(!masihBerlaku() || sudahFallback){ selesaikan(); return; }
       const blob = pcmKeWav(base64, sampleRate);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audio.onplay = sembunyikanIndikatorSuara;
       audio.onended = () => { URL.revokeObjectURL(url); selesaikan(); };
-      audio.onerror = () => { URL.revokeObjectURL(url); if(masihBerlaku()) fallbackBrowserTTS(); else selesaikan(); };
-      audio.play().catch(()=>{ URL.revokeObjectURL(url); if(masihBerlaku()) fallbackBrowserTTS(); else selesaikan(); });
+      audio.onerror = () => { URL.revokeObjectURL(url); fallbackBrowserTTS(); };
+      audio.play().catch(()=>{ URL.revokeObjectURL(url); fallbackBrowserTTS(); });
     }).catch((e)=>{
       clearTimeout(timerJaringan);
       if(!masihBerlaku()){ selesaikan(); return; }
