@@ -1377,67 +1377,70 @@ async function ambilAudioGemini(promptText){
   return { base64: inline.data, sampleRate: m ? parseInt(m[1],10) : 24000 };
 }
 
-function speak(text, onMulai){
-  const tandaiMulai = () => { if(onMulai) try{ onMulai(); }catch(e){} };
-  return new Promise(resolve=>{
-    /* v4.4 FIX (tetap dipertahankan sebagai jaring pengaman terakhir): tanpa batas
-       waktu ini, kalau TTS macet total (jaringan hang, atau di jalur fallback
-       speechSynthesis browser yang kadang tidak pernah memanggil onend/onerror
-       sama sekali - bug dikenal di mesin TTS Windows), sendUtterance() akan macet
-       permanen di "await speak(reply)" -> state.busy tidak pernah kembali false ->
-       mic dan Mode Ketik disable selamanya sampai peserta reload halaman. Ini
-       persis gejala yang dilaporkan tim Urip (AI berhasil menjawab, lalu semua
-       kontrol terkunci). Perkiraan durasi bicara dari panjang teks, dengan lantai
-       minimum, dipakai sebagai jaring pengaman: begitu waktu itu lewat tanpa
-       sinyal selesai dari audio, paksa lanjut supaya sesi tidak pernah terkunci
-       permanen. Floor dan pengali lebih besar dari v4.4 karena jalur utama
-       sekarang lewat panggilan jaringan (generate + unduh audio), bukan API lokal. */
-    let selesai = false;
-    const selesaikan = () => { if(!selesai){ selesai = true; resolve(); } };
-    const batasWaktuMs = Math.max(12000, text.length * 200);
-    let timer = setTimeout(selesaikan, batasWaktuMs);
-    // v4.6.1 FIX: timer di atas cuma jaring pengaman untuk fase TUNGGU JARINGAN
-    // (generate + unduh audio, bisa 5-10 detik). Begitu audio BENERAN mulai
-    // main, reset timer-nya supaya durasi puternya sendiri tidak ikut kepotong
-    // batas waktu yang sama - sebelum fix ini, audio yang baru mulai di detik
-    // ke-7 bisa kepotong paksa di detik ke-12 walau belum selesai bicara.
-    const perpanjangSaatMulai = () => {
-      clearTimeout(timer);
-      timer = setTimeout(selesaikan, Math.max(4000, text.length*150));
-      tandaiMulai();
-    };
+/* v4.7.1 FIX MENYELURUH setelah insiden "menyiapkan suara 1 menit + suara
+   berubah-ubah tiap giliran" dilaporkan langsung dari lapangan. Ditemukan DUA
+   bug nyata:
+   1. Timer tunggu-jaringan ikut diskalakan dari panjang teks balasan AI
+      (text.length*200). Balasan wajar ~300 karakter -> 60.000ms alias SATU
+      MENIT PENUH sebelum dianggap gagal dan pindah ke suara cadangan. Timer
+      tunggu jaringan sekarang TETAP (BATAS_TUNGGU_JARINGAN_MS), tidak lagi
+      ikut skala teks - realistiknya panggilan TTS Gemini selesai dalam
+      hitungan detik, bukan menit.
+   2. Tidak ada penanda "giliran keberapa" pada tiap panggilan speak(). Kalau
+      satu panggilan telat balik (misal kena rate-limit lalu API akhirnya
+      merespons lama setelah giliran berikutnya sudah mulai), audio dari
+      giliran LAMA tetap diputar menimpa giliran BARU - persis gejala "suara
+      berubah-ubah". AUDIO_GEN sekarang jadi penanda global: begitu speak()
+      dipanggil lagi (giliran baru), hasil dari panggilan sebelumnya yang
+      masih menggantung otomatis dibuang, tidak pernah diputar. */
+let AUDIO_GEN = 0;
+const BATAS_TUNGGU_JARINGAN_MS = 9000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
 
-    // Jaring pengaman TERPISAH untuk jalur fallback (v4.4 asli): speechSynthesis
-    // browser sendiri kadang tidak pernah memanggil onend/onerror. Timer utama
-    // di atas dimatikan begitu kita pindah ke fallback supaya tidak tabrakan.
+function speak(text){
+  const gen = ++AUDIO_GEN;
+  const masihBerlaku = () => gen === AUDIO_GEN; // false kalau giliran baru sudah mulai duluan
+  return new Promise(resolve=>{
+    let selesai = false;
+    const selesaikan = () => { if(!selesai){ selesai = true; sembunyikanIndikatorSuara(); resolve(); } };
+    tampilkanIndikatorSuara();
+
+    // Jaring pengaman v4.4 asli (tetap dipertahankan): kalau speechSynthesis
+    // browser sendiri tidak pernah memanggil onstart/onend/onerror sama sekali
+    // (bug dikenal di mesin TTS Windows), timer ini tetap jalan sendiri.
     const fallbackBrowserTTS = () => {
-      clearTimeout(timer);
+      if(!masihBerlaku()){ selesaikan(); return; }
       if(!("speechSynthesis" in window)){ selesaikan(); return; }
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
-      u.onstart = perpanjangSaatMulai;
+      u.onstart = sembunyikanIndikatorSuara;
       u.onend = selesaikan; u.onerror = selesaikan;
-      // Jaring pengaman TERPISAH v4.4 asli: kalau speechSynthesis browser sendiri
-      // tidak pernah memanggil onstart/onend/onerror sama sekali (bug dikenal di
-      // mesin TTS Windows), timer ini tetap jalan tanpa bergantung pada onstart.
-      timer = setTimeout(selesaikan, Math.max(6000, text.length*120));
+      setTimeout(selesaikan, Math.max(6000, text.length*120));
       speechSynthesis.speak(u);
     };
 
-    // v4.6: gaya bicara TTS ikut dialek daerah cabang aktif (lihat DIALEK), bukan
-    // instruksi generik lagi, supaya nuansa suara (aksen/emosi/tempo/napas) sesuai
-    // dengan pelanggan asli yang bakal dihadapi sales di cabang tersebut.
+    const timerJaringan = setTimeout(fallbackBrowserTTS, BATAS_TUNGGU_JARINGAN_MS);
+
+    // v4.6: gaya bicara TTS ikut dialek yang dipilih peserta (lihat DIALEK),
+    // supaya nuansa suara (aksen/emosi/tempo/napas) sesuai pelanggan yang
+    // sedang dilatih.
     const gayaBicara = dialekAktif().suara + " ";
     ambilAudioGemini(gayaBicara+text).then(({base64, sampleRate})=>{
+      clearTimeout(timerJaringan);
+      // Giliran ini sudah basi (ada giliran baru yang mulai duluan) - buang
+      // hasilnya, JANGAN diputar (itu penyebab "suara berubah-ubah" di v4.7),
+      // tapi promise-nya sendiri tetap WAJIB di-resolve supaya tidak menggantung.
+      if(!masihBerlaku()){ selesaikan(); return; }
       const blob = pcmKeWav(base64, sampleRate);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
-      audio.onplay = perpanjangSaatMulai;
-      audio.onended = () => { clearTimeout(timer); URL.revokeObjectURL(url); selesaikan(); };
-      audio.onerror = () => { URL.revokeObjectURL(url); fallbackBrowserTTS(); };
-      audio.play().catch(()=>{ URL.revokeObjectURL(url); fallbackBrowserTTS(); });
+      audio.onplay = sembunyikanIndikatorSuara;
+      audio.onended = () => { URL.revokeObjectURL(url); selesaikan(); };
+      audio.onerror = () => { URL.revokeObjectURL(url); if(masihBerlaku()) fallbackBrowserTTS(); else selesaikan(); };
+      audio.play().catch(()=>{ URL.revokeObjectURL(url); if(masihBerlaku()) fallbackBrowserTTS(); else selesaikan(); });
     }).catch((e)=>{
+      clearTimeout(timerJaringan);
+      if(!masihBerlaku()){ selesaikan(); return; }
       console.warn("TTS Gemini gagal, fallback ke suara browser:", e.message);
       fallbackBrowserTTS();
     });
@@ -1485,6 +1488,7 @@ function sembunyikanIndikatorAI(){
    selesai), supaya jeda yang terlihat cuma waktu tunggu jaringan, bukan durasi
    ngobrolnya. */
 function tampilkanIndikatorSuara(){
+  sembunyikanIndikatorSuara(); // idempoten - cegah dobel elemen id sama kalau ada giliran tumpang tindih
   const c = $("chat");
   const b = document.createElement("div");
   b.className = "bubble ai typing";
@@ -1537,9 +1541,7 @@ async function sendUtterance(text){
     state.chat.push({ role:"model", parts:[{text:reply}] });
     sembunyikanIndikatorAI();
     addBubble("ai", reply);
-    tampilkanIndikatorSuara();
-    await speak(reply, sembunyikanIndikatorSuara);
-    sembunyikanIndikatorSuara();
+    await speak(reply);
     autoListen();
   }catch(e){
     sembunyikanIndikatorAI();
