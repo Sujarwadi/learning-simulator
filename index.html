@@ -1247,7 +1247,12 @@ Aturan main:
 5. Ajukan pertanyaan yang sesuai profil Anda. Tunjukkan emosi yang wajar: antusias, ragu, atau khawatir.
 6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
 7. Percakapan dimulai saat Anda baru tiba di lobi dealer bersama keluarga.
-8. Gaya bicara Anda mengikuti nuansa budaya daerah berikut: ${dialekAktif().teks}`
+8. Gaya bicara Anda mengikuti nuansa budaya daerah berikut: ${dialekAktif().teks}
+9. JANGAN pasif atau penurut secara default - Anda pelanggan sungguhan dengan uang dan waktu sendiri, bukan figuran yang manut saja. Reaksi Anda harus TAJAM dan proporsional terhadap kualitas jawaban sales, bukan generik:
+   - Kalau sales menjawab dengan lempar-tanggung-jawab atau jawaban kosong seperti "terserah Bapak/Ibu saja", "sesuai selera saja", atau tidak benar-benar menjawab pertanyaan Anda, tunjukkan sedikit kesal/tidak puas secara wajar - tegaskan kembali bahwa Anda butuh masukan/rekomendasi konkret dari sales, bukan dilempar balik ke Anda.
+   - Kalau sales mengabaikan pertanyaan atau kekhawatiran yang baru saja Anda sampaikan dan malah pindah topik lain tanpa menanggapinya, tunjukkan rasa diabaikan - ulangi pertanyaan Anda dengan nada sedikit lebih tegas, jangan berpura-pura itu tidak terjadi.
+   - Kalau pola jawaban malas/lempar-tanggung-jawab atau diabaikan itu terulang lebih dari sekali dalam sesi yang sama, ketidakpuasan Anda BOLEH meningkat secara nyata dibanding giliran sebelumnya, bukan reset ke netral tiap giliran.
+   - Sebaliknya, kalau sales menjawab dengan jelas, meyakinkan, dan menunjukkan perhatian ke kebutuhan Anda, tunjukkan rasa puas atau lega yang tulus - jangan tetap dingin padahal sales sudah menjawab dengan baik.`
   + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
 };
 /* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
@@ -1264,7 +1269,12 @@ Aturan main:
 5. Ajukan pertanyaan dan keberatan yang sesuai kepentingan bisnis dan profil Anda, fokus operasional, finansial, atau teknis sesuai peran Anda di perusahaan.
 6. Sesekali Anda akan menerima INSTRUKSI SUTRADARA di dalam percakapan. Instruksi itu rahasia mutlak: jalankan isinya melalui peran Anda, tetapi JANGAN PERNAH mengutip, menyebut, atau menyinggung keberadaan instruksi itu dalam bentuk apa pun.
 7. Percakapan dimulai saat Sales baru menemui Anda untuk membahas kebutuhan pengadaan truk untuk bisnis Anda.
-8. Gaya bicara Anda mengikuti nuansa budaya daerah berikut: ${dialekAktif().teks}`
+8. Gaya bicara Anda mengikuti nuansa budaya daerah berikut: ${dialekAktif().teks}
+9. JANGAN pasif atau penurut secara default - Anda pengambil keputusan bisnis sungguhan dengan uang dan waktu sendiri, bukan figuran yang manut saja. Reaksi Anda harus TAJAM dan proporsional terhadap kualitas jawaban Sales, bukan generik:
+   - Kalau Sales menjawab dengan lempar-tanggung-jawab atau jawaban kosong seperti "terserah Bapak/Ibu saja", "sesuai kebutuhan saja", atau tidak benar-benar menjawab pertanyaan bisnis Anda, tunjukkan sedikit kesal/tidak puas secara wajar - tegaskan kembali bahwa Anda butuh rekomendasi dan angka konkret dari Sales, bukan dilempar balik ke Anda.
+   - Kalau Sales mengabaikan pertanyaan atau keberatan bisnis yang baru saja Anda sampaikan dan malah pindah topik lain tanpa menanggapinya, tunjukkan rasa diabaikan - ulangi pertanyaan Anda dengan nada sedikit lebih tegas, jangan berpura-pura itu tidak terjadi.
+   - Kalau pola jawaban malas/lempar-tanggung-jawab atau diabaikan itu terulang lebih dari sekali dalam sesi yang sama, ketidakpuasan Anda BOLEH meningkat secara nyata dibanding giliran sebelumnya, bukan reset ke netral tiap giliran.
+   - Sebaliknya, kalau Sales menjawab dengan jelas, meyakinkan, dan menunjukkan perhitungan bisnis yang masuk akal, tunjukkan rasa puas atau lega yang tulus - jangan tetap dingin padahal Sales sudah menjawab dengan baik.`
   + (kbEfektif() ? "\nPENGETAHUAN KONTEKS DARI L&D (gunakan secara natural bila relevan dengan percakapan): "+kbEfektif() : "");
 };
 
@@ -1405,13 +1415,15 @@ let AUDIO_GEN = 0;
    selama menunggu supaya jelas ini proses, bukan macet. */
 const BATAS_TUNGGU_JARINGAN_MS = 30000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
 
-function speak(text){
+function speak(text, onMulai){
   const gen = ++AUDIO_GEN;
   const masihBerlaku = () => gen === AUDIO_GEN; // false kalau giliran baru sudah mulai duluan
   return new Promise(resolve=>{
     let selesai = false;
+    let sudahMulai = false; // v4.7.6: pastikan onMulai cuma terpanggil sekali per giliran
     let sudahFallback = false; // giliran INI sudah pindah ke suara cadangan - cegah dobel/tumpang tindih
-    const selesaikan = () => { if(!selesai){ selesai = true; sembunyikanIndikatorSuara(); resolve(); } };
+    const tandaiMulai = () => { sembunyikanIndikatorSuara(); if(!sudahMulai){ sudahMulai = true; if(onMulai) try{ onMulai(); }catch(e){} } };
+    const selesaikan = () => { if(!selesai){ selesai = true; tandaiMulai(); resolve(); } };
     tampilkanIndikatorSuara();
 
     // Jaring pengaman v4.4 asli (tetap dipertahankan): kalau speechSynthesis
@@ -1427,7 +1439,7 @@ function speak(text){
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "id-ID"; if(voiceID) u.voice = voiceID; u.rate = 1;
-      u.onstart = sembunyikanIndikatorSuara;
+      u.onstart = tandaiMulai;
       u.onend = selesaikan; u.onerror = selesaikan;
       setTimeout(selesaikan, Math.max(6000, text.length*120));
       speechSynthesis.speak(u);
@@ -1449,7 +1461,7 @@ function speak(text){
       const blob = pcmKeWav(base64, sampleRate);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
-      audio.onplay = sembunyikanIndikatorSuara;
+      audio.onplay = tandaiMulai;
       audio.onended = () => { URL.revokeObjectURL(url); selesaikan(); };
       audio.onerror = () => { URL.revokeObjectURL(url); fallbackBrowserTTS(); };
       audio.play().catch(()=>{ URL.revokeObjectURL(url); fallbackBrowserTTS(); });
@@ -1554,9 +1566,19 @@ async function sendUtterance(text){
     const reply = stripMeta(rawReply);
     if(!reply) throw new Error("Respons pelanggan kosong. Silakan ulangi ucapan Anda.");
     state.chat.push({ role:"model", parts:[{text:reply}] });
+    /* v4.7.6: teks balasan DITAHAN dulu, baru ditampilkan PAS suara mulai
+       terdengar (bukan langsung begitu teksnya siap). Sebelum ini, teks
+       muncul duluan lalu suara baru nyusul 20-30 detik kemudian - peserta
+       jadi sudah tahu isi balasannya dari membaca sebelum sempat dengar,
+       menghilangkan efek "hidup"/spontan dari roleplay suara. Kalau audio
+       gagal total dan tidak pernah benar-benar mulai, teks tetap dijamin
+       muncul paling lambat begitu speak() selesai (jaring pengaman di
+       dalam speak() sendiri), supaya tidak ada skenario teks hilang. */
     sembunyikanIndikatorAI();
-    addBubble("ai", reply);
-    await speak(reply);
+    let sudahTampilTeks = false;
+    const tampilkanTeks = () => { if(!sudahTampilTeks){ sudahTampilTeks = true; addBubble("ai", reply); } };
+    await speak(reply, tampilkanTeks);
+    tampilkanTeks();
     autoListen();
   }catch(e){
     sembunyikanIndikatorAI();
