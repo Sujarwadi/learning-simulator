@@ -1241,7 +1241,7 @@ const SYS_PELANGGAN_PKT = (S,st) => {
   return `Anda adalah PELANGGAN dealer Mitsubishi Bosowa yang hari ini datang mengambil unit mobil baru (proses PKT, Penyerahan Kendaraan Terjual). Nama Anda ${p.nama}. Profil Anda: ${p.desc}.
 Aturan main:
 1. Anda HANYA berperan sebagai pelanggan. Jangan pernah keluar karakter, jangan memberi pujian, koreksi, evaluasi, atau bimbingan kepada sales dalam bentuk apa pun.
-2. Jawab natural dan ringkas, maksimal 3 kalimat utuh, dalam Bahasa Indonesia lisan sehari-hari yang sopan. Jawaban Anda akan dibacakan oleh mesin suara, jadi JANGAN gunakan simbol tulisan apa pun seperti garis miring, tanda kurung, tanda bintang, atau singkatan yang tidak lazim diucapkan. Selalu selesaikan kalimat Anda, jangan menggantung.
+2. Jawab natural dan ringkas, maksimal 2 kalimat PENDEK (bukan 2 kalimat panjang), dalam Bahasa Indonesia lisan sehari-hari yang sopan. Ini penting: jawaban Anda dibacakan oleh mesin suara AI, dan makin panjang teksnya makin lama peserta menunggu suaranya keluar - jadi padat dan tajam, jangan bertele-tele. Jangan gunakan simbol tulisan apa pun seperti garis miring, tanda kurung, tanda bintang, atau singkatan yang tidak lazim diucapkan. Selalu selesaikan kalimat Anda, jangan menggantung.
 3. Output Anda HANYA berisi ucapan lisan pelanggan, tidak boleh ada teks lain. DILARANG KERAS menulis teks dalam kurung siku, catatan panggung, arahan, narasi, deskripsi situasi, atau komentar tentang performa sales. Langsung tulis ucapan pelanggan tanpa awalan apa pun.
 4. Bereaksilah realistis. Jika sales melewatkan tahapan penting (tidak menyambut, tidak memperkenalkan tim, langsung menyerahkan kunci), tunjukkan kebingungan atau sedikit kekecewaan secara wajar melalui ucapan pelanggan, bukan melalui komentar.
 5. Ajukan pertanyaan yang sesuai profil Anda. Tunjukkan emosi yang wajar: antusias, ragu, atau khawatir.
@@ -1263,7 +1263,7 @@ const SYS_PELANGGAN_BST12 = (S,st) => {
   return `Anda adalah CALON PEMBELI truk komersial Mitsubishi di PT Bosowa Berlian Motor, sedang menemui Sales Consultant untuk membahas kebutuhan pengadaan unit truk untuk bisnis Anda. Nama Anda ${p.nama}. Profil Anda: ${p.desc}.
 Aturan main:
 1. Anda HANYA berperan sebagai calon pembeli. Jangan pernah keluar karakter, jangan memberi pujian, koreksi, evaluasi, atau bimbingan kepada Sales dalam bentuk apa pun.
-2. Jawab natural dan ringkas, maksimal 3 kalimat utuh, dalam Bahasa Indonesia lisan sehari-hari yang sopan sesuai gaya komunikasi profil Anda. Jawaban Anda akan dibacakan oleh mesin suara, jadi JANGAN gunakan simbol tulisan apa pun seperti garis miring, tanda kurung, tanda bintang, atau singkatan yang tidak lazim diucapkan. Selalu selesaikan kalimat Anda, jangan menggantung.
+2. Jawab natural dan ringkas, maksimal 2 kalimat PENDEK (bukan 2 kalimat panjang), dalam Bahasa Indonesia lisan sehari-hari yang sopan sesuai gaya komunikasi profil Anda. Ini penting: jawaban Anda dibacakan oleh mesin suara AI, dan makin panjang teksnya makin lama peserta menunggu suaranya keluar - jadi padat dan tajam, jangan bertele-tele. Jangan gunakan simbol tulisan apa pun seperti garis miring, tanda kurung, tanda bintang, atau singkatan yang tidak lazim diucapkan. Selalu selesaikan kalimat Anda, jangan menggantung.
 3. Output Anda HANYA berisi ucapan lisan calon pembeli, tidak boleh ada teks lain. DILARANG KERAS menulis teks dalam kurung siku, catatan panggung, arahan, narasi, deskripsi situasi, atau komentar tentang performa Sales. Langsung tulis ucapan calon pembeli tanpa awalan apa pun.
 4. Bereaksilah realistis sesuai profil bisnis Anda. Jika Sales langsung menawarkan produk tanpa menggali kebutuhan Anda terlebih dahulu, tunjukkan sedikit kebingungan atau ketidaknyamanan secara wajar melalui ucapan, bukan melalui komentar.
 5. Ajukan pertanyaan dan keberatan yang sesuai kepentingan bisnis dan profil Anda, fokus operasional, finansial, atau teknis sesuai peran Anda di perusahaan.
@@ -1404,16 +1404,18 @@ async function ambilAudioGemini(promptText){
    error audio, atau .catch), balasan Gemini yang belakangan datang untuk
    giliran itu SELALU dibuang, tidak pernah diputar lagi. */
 let AUDIO_GEN = 0;
-/* v4.7.5 HOTFIX: 9 detik ternyata KETAT SEKALI untuk teks realistis. Diukur
-   langsung ke backend produksi pakai teks sepanjang balasan pelanggan asli
-   (3 kalimat + instruksi gaya dialek): 14s, 13.8s, 29.6s, 20s. Dengan batas
-   9 detik, MAYORITAS giliran nyerah duluan ke suara robot SEBELUM suara asli
-   sempat selesai dibikin - persis laporan "cuma 1 dari 4 yang keluar suara
-   asli, sisanya robot". Bukan API-nya gagal, cuma keburu di-give-up sama
-   klien sendiri. Dinaikkan ke 30 detik supaya generasi wajar dikasih
-   kesempatan selesai, dengan indikator "Menyiapkan suara" tetap tampil
-   selama menunggu supaya jelas ini proses, bukan macet. */
-const BATAS_TUNGGU_JARINGAN_MS = 30000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
+/* v4.7.5: 9 detik ternyata ketat untuk teks 3 kalimat (diukur 14-30 detik),
+   dinaikkan ke 30 detik supaya tidak keburu nyerah ke suara robot.
+   v4.7.7 HOTFIX SUSULAN: 30 detik ternyata bikin JEDA TOTAL kerasa parah -
+   dikeluhkan langsung sebagai pengalaman yang buruk, walau secara teknis
+   suaranya konsisten natural. Solusi yang tepat bukan naik-turunin timeout
+   lagi, tapi memendekkan AKAR masalahnya: PANJANG TEKS yang harus dibacakan.
+   Diukur langsung ke backend produksi: 1 kalimat = 6.5-8.9 detik, 2 kalimat
+   = 8.5-12.7 detik, 3 kalimat = 14-30 detik. Jadi balasan AI pelanggan
+   sekarang dibatasi maksimal 2 kalimat PENDEK (lihat aturan #2 di
+   SYS_PELANGGAN_PKT/BST12), dan timeout diturunkan mengikuti data itu -
+   tetap dikasih margin aman, bukan dipepetkan pas-pasan. */
+const BATAS_TUNGGU_JARINGAN_MS = 16000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
 
 function speak(text, onMulai){
   const gen = ++AUDIO_GEN;
