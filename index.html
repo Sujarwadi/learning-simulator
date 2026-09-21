@@ -1394,7 +1394,16 @@ async function ambilAudioGemini(promptText){
    error audio, atau .catch), balasan Gemini yang belakangan datang untuk
    giliran itu SELALU dibuang, tidak pernah diputar lagi. */
 let AUDIO_GEN = 0;
-const BATAS_TUNGGU_JARINGAN_MS = 9000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
+/* v4.7.5 HOTFIX: 9 detik ternyata KETAT SEKALI untuk teks realistis. Diukur
+   langsung ke backend produksi pakai teks sepanjang balasan pelanggan asli
+   (3 kalimat + instruksi gaya dialek): 14s, 13.8s, 29.6s, 20s. Dengan batas
+   9 detik, MAYORITAS giliran nyerah duluan ke suara robot SEBELUM suara asli
+   sempat selesai dibikin - persis laporan "cuma 1 dari 4 yang keluar suara
+   asli, sisanya robot". Bukan API-nya gagal, cuma keburu di-give-up sama
+   klien sendiri. Dinaikkan ke 30 detik supaya generasi wajar dikasih
+   kesempatan selesai, dengan indikator "Menyiapkan suara" tetap tampil
+   selama menunggu supaya jelas ini proses, bukan macet. */
+const BATAS_TUNGGU_JARINGAN_MS = 30000; // waktu tunggu maksimal panggilan TTS Gemini sebelum menyerah ke suara cadangan
 
 function speak(text){
   const gen = ++AUDIO_GEN;
