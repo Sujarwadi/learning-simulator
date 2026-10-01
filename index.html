@@ -339,7 +339,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   <div class="card hero" style="margin-top:22px">
     <div class="hero-top">
       <div>
-        <div class="hero-hi">Selamat datang kembali</div>
+        <div class="hero-hi" id="home-hi">Selamat datang kembali</div>
         <div class="profile-name" id="home-nama">-</div>
         <div class="profile-meta" id="home-meta">-</div>
       </div>
@@ -1707,7 +1707,15 @@ async function endSession(){
     .map(m=>(m.role==="user"?"SALES: ":"PELANGGAN: ")+m.parts[0].text).join("\n");
   try{
     const raw = await gemini([{role:"user",parts:[{text:"TRANSKRIP SESI:\n"+transcript+"\n\nNilai transkrip di atas."}]}], validatorSystem(), true);
-    const hasil = JSON.parse(raw);
+    let hasil;
+    try{ hasil = JSON.parse(raw); }
+    catch(parseErr){
+      /* v4.9 FIX: tanpa try/catch ini, SyntaxError JS mentah (mis. "Unexpected
+         token < in JSON at position 0") bisa langsung tampil ke peserta lewat
+         showErr di bawah - istilah teknis yang tidak informatif buat sales,
+         ditemukan lewat audit UI. Diganti pesan yang jelas dan actionable. */
+      throw new Error("Respons penilaian dari AI tidak valid.");
+    }
     /* v4.3 FIX: skenarioId wajib menempel di objek hasil (bukan cuma di item pembungkusnya),
        sebab renderResult()/SKitem() menerima objek hasil ini secara langsung, bukan item.
        Tanpa ini, SKitem() selalu fallback ke pkt-roleplay untuk skenario apa pun selain PKT,
@@ -1811,6 +1819,13 @@ function renderHome(){
   $("hero-week").textContent = minggu;
   $("hero-last").textContent = h.length ? h[0].skor : "-";
   $("hero-best").textContent = h.length ? Math.max(...h.map(x=>Number(x.skor||0))).toFixed(1) : "-";
+  /* v4.9: sapaan generic "Selamat datang kembali" diganti info nyata soal
+     kapan terakhir latihan, supaya baris ini bawa informasi, bukan basa-basi. */
+  const hariSelisih = h.length ? Math.floor((Date.now()-new Date(h[0].tanggal).getTime())/(24*3600*1000)) : null;
+  $("home-hi").textContent = !h.length ? "Belum pernah latihan"
+    : hariSelisih<=0 ? "Sudah latihan hari ini"
+    : hariSelisih===1 ? "Latihan terakhir kemarin"
+    : "Latihan terakhir "+hariSelisih+" hari lalu";
   const box = $("hist-box");
   if(!h.length){ box.innerHTML = '<div class="empty">Belum ada sesi latihan. Mulailah sesi pertama Anda.</div>'; return; }
   box.innerHTML = "";
