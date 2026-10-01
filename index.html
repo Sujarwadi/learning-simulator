@@ -86,6 +86,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);outline-off
 .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.4px}
 .badge-red{background:rgba(139,92,246,.18);color:#C4B5FD}
 .badge-green{background:rgba(52,211,153,.16);color:var(--pass)}
+/* v4.9: badge semantik "gagal" sungguhan (bukan badge-red yang sebenarnya ungu/
+   aksen, dipakai juga oleh badge CTA "MULAI" - tabrakan warna yang bikin status
+   BELUM LULUS kelihatan sama kayak elemen CTA biasa). */
+.badge-fail{background:rgba(251,113,133,.16);color:var(--fail)}
 .badge-grey{background:var(--surface2);color:var(--muted)}
 .badge-warn{background:rgba(251,191,36,.16);color:var(--warn)}
 /* ===== HERO BERANDA ===== */
@@ -1755,7 +1759,7 @@ function renderResult(h, metaText){
   $("res-level").textContent = h.level;
   const st = $("res-status");
   st.textContent = h.status;
-  st.className = "badge "+(h.status==="LULUS"?"badge-green":"badge-red");
+  st.className = "badge "+(h.status==="LULUS"?"badge-green":"badge-fail");
   const arc = $("gauge-arc");
   const frac = Math.max(0,Math.min(1,h.skorTotal/10));
   arc.style.transition = "none";
