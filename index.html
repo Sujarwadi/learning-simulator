@@ -2015,52 +2015,112 @@ function fileKeBase64(file){
 }
 
 /* v4.10.2 FIX: video 90 MB sebelumnya dikirim dalam SATU request raksasa
-   (xhr.send(file) utuh). Kalau koneksi sempat putus-nyambung sedetik saja di
-   tengah unggahan panjang itu, SELURUH unggahan gagal dan harus diulang dari
-   nol - cocok dengan laporan Brader "gagal di ujung, 2x". Dikonfirmasi lewat
-   log Eksekusi Apps Script: tidak ada panggilan aiGenerate (analisis AI) yang
-   sempat jalan lama untuk percobaan itu, jadi gagalnya murni di tahap unggah,
-   bukan di tahap penilaian. Sekarang video dikirim per klip 8 MB (mengikuti
-   protokol resumable upload Google: X-Goog-Upload-Command "upload" untuk klip
-   tengah, "upload, finalize" untuk klip terakhir), tiap klip dicoba ulang
-   sendiri-sendiri (maks 4x dengan jeda) kalau gagal - jadi satu blip jaringan
-   cuma mengulang klip yang gagal, bukan 90 MB dari awal lagi. */
+   (xhr.send(file) utuh), jadi satu blip jaringan bikin SELURUH unggahan gagal
+   dari nol. Diubah ke kirim per klip 8 MB.
+   v4.10.3 FIX: klip per klip ternyata BELUM cukup - laporan Brader setelah
+   v4.10.2: selalu gagal tepat di sekitar 98% dan balik ke nol lagi, bukan
+   acak. Pola gagal di TITIK YANG SAMA berulang kali menunjukkan ini BUKAN
+   sekadar koneksi lambat, tapi celah protokol: kalau klip terakhir SEBENARNYA
+   sudah diterima server tapi konfirmasinya (response body) tidak sempat
+   sampai balik ke browser (putus tepat setelah data terkirim), kode lama
+   langsung kirim ulang klip yang sama dari offset yang sama - server
+   menganggap ini data yang sudah diterima dan menolaknya, gagal lagi di
+   titik yang sama persis, berulang terus.
+   Sesuai dokumentasi resmi protokol resumable upload Google: sebelum kirim
+   ulang klip yang gagal, klien WAJIB kirim perintah "query" dulu untuk tanya
+   ke server sudah menerima sampai byte berapa, baru lanjutkan dari situ -
+   bukan asumsi sendiri. Kalau query menunjukkan server ternyata sudah
+   menerima semua byte (video sudah selesai terunggah, cuma konfirmasinya yang
+   hilang), minta ulang konfirmasi finalisasi tanpa mengirim ulang data video
+   sama sekali. Pesan error sekarang juga menyertakan kode status dan potongan
+   respons server, supaya kalau tetap gagal, langsung ketahuan persis
+   penyebabnya alih-alih generik lagi. */
 async function unggahVideoPerKlip(uploadUrl, file){
   const UKURAN_KLIP = 8*1024*1024;
-  const MAKS_PERCOBAAN = 4;
+  const MAKS_PERCOBAAN = 5;
+
+  function kirim(offset, blob, command){
+    return new Promise((res,rej)=>{
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", uploadUrl);
+      xhr.setRequestHeader("X-Goog-Upload-Command", command);
+      xhr.setRequestHeader("X-Goog-Upload-Offset", String(offset));
+      xhr.upload.onprogress = e=>{
+        if(e.lengthComputable){
+          const total = offset+e.loaded;
+          vprog(Math.round(total/file.size*70), "Mengunggah video: "+Math.round(total/file.size*100)+"%");
+        }
+      };
+      xhr.onload = ()=>{
+        if(xhr.status<200||xhr.status>=300){ rej({pesan:"status "+xhr.status, status:xhr.status, body:(xhr.responseText||"").slice(0,200)}); return; }
+        res({ uploadStatus: xhr.getResponseHeader("X-Goog-Upload-Status")||"", body: xhr.responseText||"" });
+      };
+      xhr.onerror = ()=>rej({pesan:"jaringan terputus", status:0, body:""});
+      xhr.send(blob);
+    });
+  }
+
+  function tanyaOffsetServer(){
+    return new Promise((res,rej)=>{
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", uploadUrl);
+      xhr.setRequestHeader("X-Goog-Upload-Command","query");
+      xhr.onload = ()=>{
+        if(xhr.status<200||xhr.status>=300){ rej(new Error("query status "+xhr.status)); return; }
+        const diterima = Number(xhr.getResponseHeader("X-Goog-Upload-Size-Received"));
+        res({ diterima: isNaN(diterima)?null:diterima, uploadStatus: xhr.getResponseHeader("X-Goog-Upload-Status")||"", body: xhr.responseText||"" });
+      };
+      xhr.onerror = ()=>rej(new Error("query jaringan gagal"));
+      xhr.send();
+    });
+  }
+
   let offset = 0;
   while(offset < file.size){
-    const akhirKlip = Math.min(offset+UKURAN_KLIP, file.size);
-    const klip = file.slice(offset, akhirKlip);
-    const final = akhirKlip >= file.size;
-    const basisOffset = offset;
-    let responsTeks = "";
+    let berhasil = false, detailTerakhir = "tidak diketahui";
     for(let percobaan=1; percobaan<=MAKS_PERCOBAAN; percobaan++){
-      if(percobaan>1) await new Promise(r=>setTimeout(r, 1500*(percobaan-1)));
+      if(percobaan>1){
+        await new Promise(r=>setTimeout(r, 1500*(percobaan-1)));
+        try{
+          const q = await tanyaOffsetServer();
+          if(q.uploadStatus==="final" && q.body){
+            try{ const j=JSON.parse(q.body); if(j && j.file && j.file.uri) return j; }catch(e){ /* lanjut coba finalize eksplisit di bawah */ }
+          }
+          if(typeof q.diterima==="number" && q.diterima>offset) offset = Math.min(q.diterima, file.size);
+        }catch(e){ detailTerakhir = "cek status server gagal: "+e.message; }
+      }
+      if(offset>=file.size){
+        /* Server sudah menerima semua byte video (kemungkinan konfirmasi klip
+           terakhir yang hilang sebelumnya) - minta finalisasi ulang TANPA
+           mengirim data lagi, supaya tidak dianggap duplikat dan ditolak. */
+        try{
+          const hasilFinal = await kirim(file.size, new Blob([]), "finalize");
+          try{ return JSON.parse(hasilFinal.body); }
+          catch(e){ throw new Error("Video sudah selesai terunggah tapi respons konfirmasi akhir dari server tidak terbaca: "+hasilFinal.body.slice(0,200)); }
+        }catch(e){
+          if(e instanceof Error) throw e;
+          throw new Error("Video sudah selesai terunggah di sisi server tapi konfirmasi akhir gagal diambil (" + e.pesan + "). Coba lagi.");
+        }
+      }
+      const akhir = Math.min(offset+UKURAN_KLIP, file.size);
+      const final = akhir>=file.size;
+      const potong = file.slice(offset, akhir);
       try{
-        responsTeks = await new Promise((res,rej)=>{
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", uploadUrl);
-          xhr.setRequestHeader("X-Goog-Upload-Command", final ? "upload, finalize" : "upload");
-          xhr.setRequestHeader("X-Goog-Upload-Offset", String(basisOffset));
-          xhr.upload.onprogress = e=>{
-            if(e.lengthComputable){
-              const total = basisOffset + e.loaded;
-              vprog(Math.round(total/file.size*70), "Mengunggah video: "+Math.round(total/file.size*100)+"%");
-            }
-          };
-          xhr.onload = ()=>{ if(xhr.status<200||xhr.status>=300) rej(new Error("status "+xhr.status)); else res(xhr.responseText); };
-          xhr.onerror = ()=>rej(new Error("jaringan terputus"));
-          xhr.send(klip);
-        });
+        const hasil = await kirim(offset, potong, final?"upload, finalize":"upload");
+        offset = akhir;
+        berhasil = true;
+        if(final){
+          try{ return JSON.parse(hasil.body); }
+          catch(e){ throw new Error("Respons unggahan tidak valid: "+hasil.body.slice(0,200)); }
+        }
         break;
       }catch(e){
-        if(percobaan===MAKS_PERCOBAAN) throw new Error("Unggahan terputus setelah "+MAKS_PERCOBAAN+" kali percobaan, berhenti sekitar "+Math.round(basisOffset/file.size*100)+"% dari total video. Periksa koneksi internet lalu coba lagi (unggahan akan dimulai dari awal).");
+        if(e instanceof Error) throw e;
+        detailTerakhir = e.pesan + (e.status?(" kode "+e.status):"") + (e.body?(" - "+e.body):"");
       }
     }
-    offset = akhirKlip;
-    if(final){
-      try{ return JSON.parse(responsTeks); }catch(e){ throw new Error("Respons unggahan tidak valid."); }
+    if(!berhasil && offset<file.size){
+      throw new Error("Unggahan terputus setelah "+MAKS_PERCOBAAN+" kali percobaan, berhenti sekitar "+Math.round(offset/file.size*100)+"% dari total video. Detail teknis: "+detailTerakhir+". Periksa koneksi internet lalu coba lagi.");
     }
   }
 }
