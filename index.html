@@ -379,6 +379,14 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
     </div>
     <span class="badge badge-red">MULAI</span>
   </div>
+  <div class="card module mod-tile tile-b" id="mod-video-bst12">
+    <div class="mod-icon">V2</div>
+    <div class="mod-body">
+      <div class="mod-title">BST-12 Video Assessment</div>
+      <div class="mod-desc">Rekam roleplay penjualan truk bersama rekan yang berperan sebagai calon pembeli, unggah videonya, dan AI menilai kelima parameter termasuk Creating Experience secara visual. Maksimal 10 menit.</div>
+    </div>
+    <span class="badge badge-red">MULAI</span>
+  </div>
   </div>
   <div>
   <h2 class="sect">Perkembangan</h2>
@@ -493,7 +501,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
 <section class="screen" id="scr-video">
   <header class="app">
     <div class="logo-mark"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 8 9h8L12 2zM8 9l-4 7h8l-4-7zm8 0-4 7h8l-4-7z"/></svg></div>
-    <div><div class="app-title">VIDEO ASSESSMENT</div><div class="app-sub">PKT Masterclass: Roleplay Fisik</div></div>
+    <div><div class="app-title">VIDEO ASSESSMENT</div><div class="app-sub" id="video-appsub">PKT Masterclass: Roleplay Fisik</div></div>
   </header>
   <div class="sbody"><div class="grid2">
   <div>
@@ -529,12 +537,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
   <div>
   <h2 class="sect">Ketentuan Rekaman</h2>
   <div class="card">
-    <ul class="brief-list">
-      <li>Minta satu rekan berperan sebagai pelanggan sesuai profil pada skenario di atas. Rekan cukup merespons natural, tidak perlu naskah.</li>
-      <li>Rekam dengan HP dalam posisi landscape. Seluruh badan Anda harus terlihat dan suara terdengar jelas.</li>
-      <li>Durasi maksimal 10 menit. Rekam di resolusi 720p agar file tidak terlalu besar dan unggahan cepat.</li>
-      <li>Jalankan proses selengkap mungkin: penyambutan, perkenalan tim, demonstrasi unit, aktivasi aplikasi, hingga penutupan, termasuk merespons krisis pada skenario.</li>
-      <li>Gestur dinilai secara visual: cara berjalan, senyum, membuka pintu, penggunaan sarung tangan, dan gestur tangan saat menunjuk fitur.</li>
+    <ul class="brief-list" id="vketentuan-list">
     </ul>
   </div>
   <h2 class="sect">Unggah Video</h2>
@@ -904,6 +907,14 @@ const SKENARIO = {
       "Tekan tombol mikrofon untuk mulai bicara, tekan lagi untuk selesai. Jawaban pelanggan akan diperdengarkan.",
       "Selesaikan seluruh proses hingga penutupan, lalu tekan Akhiri Sesi untuk mendapatkan penilaian."
     ],
+    /* v4.10: dipindah dari HTML hardcode ke registry supaya ikut skenario aktif. */
+    ketentuanRekamanVideo: [
+      "Minta satu rekan berperan sebagai pelanggan sesuai profil pada skenario di atas. Rekan cukup merespons natural, tidak perlu naskah.",
+      "Rekam dengan HP dalam posisi landscape. Seluruh badan Anda harus terlihat dan suara terdengar jelas.",
+      "Durasi maksimal 10 menit. Rekam di resolusi 720p agar file tidak terlalu besar dan unggahan cepat.",
+      "Jalankan proses selengkap mungkin: penyambutan, perkenalan tim, demonstrasi unit, aktivasi aplikasi, hingga penutupan, termasuk merespons krisis pada skenario.",
+      "Gestur dinilai secara visual: cara berjalan, senyum, membuka pintu, penggunaan sarung tangan, dan gestur tangan saat menunjuk fitur."
+    ],
     rubrik: RUBRIK_PKT,
     /* Builder prompt milik skenario. Dibungkus arrow supaya dievaluasi saat dipanggil
        (const builder dideklarasikan di bawah registry, jadi tidak kena TDZ). */
@@ -924,6 +935,8 @@ const SKENARIO = {
     nama: "BST-12: 7 Selling Process",
     kategori: "SALES",
     modulLabel: "BST-12 Roleplay Selling Process",
+    modulLabelVideo: "BST-12 Video Assessment",
+    sebutanLawan: "calon pembeli",
     scoring: { anchor:40, kataKunci:40, struktur:20 },
     kelulusan: { mode:"semua-parameter", ambang:6 },
     minGiliran: 8,
@@ -934,8 +947,8 @@ const SKENARIO = {
       { key:"closing",    nama:"Closing",             labelRadar:"Closing" },
       { key:"experience", nama:"Creating Experience", labelRadar:"Experience" }
     ],
-    profil:  { pool:PROFIL_BST12, acak:true, tampilkanPilihan:false },
-    injeksi: { pool:KRISIS_BST12, acak:true, munculDiGiliran:{ min:4, max:5 }, labelUI:"Keberatan" },
+    profil:  { pool:PROFIL_BST12, acak:true, tampilkanPilihan:false, tampilkanPilihanVideo:true },
+    injeksi: { pool:KRISIS_BST12, acak:true, munculDiGiliran:{ min:4, max:5 }, labelUI:"Keberatan", tampilkanPilihanVideo:true },
     ketentuanSesi: [
       "Anda berperan sebagai Sales Consultant truk komersial. AI berperan sebagai calon pembeli korporat yang sedang membahas kebutuhan pengadaan truk.",
       "Sesi dimulai dari tahap Probing (penggalian kebutuhan), bukan dari perkenalan awal atau prospecting.",
@@ -943,12 +956,22 @@ const SKENARIO = {
       "Tekan tombol mikrofon untuk mulai bicara, tekan lagi untuk selesai. Jawaban calon pembeli akan diperdengarkan.",
       "Selesaikan seluruh proses hingga Closing dan Creating Experience, minimal 8 giliran bicara, lalu tekan Akhiri Sesi untuk mendapatkan penilaian."
     ],
+    ketentuanRekamanVideo: [
+      "Minta satu rekan berperan sebagai calon pembeli truk komersial sesuai profil pada skenario di atas. Rekan cukup merespons natural, tidak perlu naskah.",
+      "Rekam dengan HP dalam posisi landscape. Seluruh badan Anda harus terlihat dan suara terdengar jelas.",
+      "Durasi maksimal 10 menit. Rekam di resolusi 720p agar file tidak terlalu besar dan unggahan cepat.",
+      "Jalankan proses selengkap mungkin: Probing kebutuhan, Sales Offering dengan kerangka FAB, Handling Objection, Closing, hingga Creating Experience, termasuk merespons keberatan pada skenario.",
+      "Creating Experience dinilai secara visual: bahasa tubuh, kontak mata, antusiasme, dan sikap profesional sepanjang pertemuan, bukan cuma dari kata-kata penutup."
+    ],
     rubrik: RUBRIK_BST12,
     sysPelanggan: (S,st)=>SYS_PELANGGAN_BST12(S,st),
     sysValidator: (S,st)=>SYS_VALIDATOR_BST12(S,st),
+    sysValidatorVideo: (S,st)=>SYS_VALIDATOR_VIDEO_BST12(S,st),
     briefing: (S,st)=>"Anda akan menemui calon pembeli truk komersial: "+st.profil.nama
       +", profil "+st.profil.label+". "+st.krisis.brief
       +" Jalankan proses selling BST-12 mulai dari Probing hingga Creating Experience sesuai standar 7 Selling Process.",
+    briefingVideo: (S,st)=>st.krisis.brief
+      +" Jalankan proses selling BST-12 mulai dari Probing hingga Creating Experience sesuai standar 7 Selling Process dan pastikan Anda merespons keberatan tersebut di dalam rekaman.",
     pesanMulai: (S,st)=>"Sesi dimulai. Anda baru bertemu dengan "+st.profil.nama+" untuk membahas kebutuhan truk mereka. Silakan mulai proses probing Anda."
   }
 };
@@ -2072,6 +2095,23 @@ ${skeletonJSON(S)}
 Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik; status "LULUS" hanya jika semua parameter minimal ${S.kelulusan.ambang}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, satu kalimat spesifik beserta bukti (sertakan perkiraan menit).
 Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK yang teramati (ucapan keliru, gestur salah, atau hal wajib yang absen, sertakan perkiraan menit); "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan (kutip SKRIP STANDAR, sesuaikan nama) atau gestur persis yang seharusnya dilakukan; "materi" dan "referensi" menunjuk sesi dan slide spesifik. Dilarang menulis rekomendasi umum tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
 };
+const SYS_VALIDATOR_VIDEO_BST12 = (S,st) => {
+  return `Anda adalah VALIDATOR kompetensi Learning & Development PT Bosowa Berlian Motor. Tugas Anda MENONTON dan MENDENGARKAN video roleplay BST-12: 7 Selling Process berikut, lalu menilai secara ketat, objektif, dan berbasis bukti. Dalam video, peserta adalah orang yang berperan sebagai Sales Consultant truk komersial; lawan mainnya adalah rekan yang berperan sebagai calon pembeli korporat.
+${S.rubrik(S)}
+Konteks tugas: profil calon pembeli yang seharusnya diperankan ${st.profil.label}; keberatan yang seharusnya dimainkan: ${namaKrisis(st.krisis.id)} (${st.krisis.brief||""}).
+${kbEfektif() ? "KONTEKS TAMBAHAN DARI L&D (pertimbangkan dalam penilaian): "+kbEfektif() : ""}
+Instruksi khusus penilaian VIDEO:
+1. Parameter Probing, Sales Offering, Handling Objection, dan Closing dinilai dari apa yang DIUCAPKAN peserta di video, dengan aturan anchor, kata kunci, dan struktur pada rubrik - sama seperti menilai transkrip teks.
+2. Parameter Creating Experience (RATER) dinilai secara VISUAL langsung dari video sepanjang pertemuan, bukan cuma dari kata-kata penutup: bahasa tubuh dan postur yang terbuka, kontak mata dengan lawan bicara, antusiasme dan nada percaya diri, sikap profesional (cara duduk/berdiri, penampilan), serta kecepatan dan ketepatan merespons pertanyaan atau keberatan.
+3. Kutip bukti berupa perkiraan menit dan detik kejadian beserta ucapan atau sikap yang teramati, contoh format bukti: "menit 2:10, peserta langsung menawarkan harga tanpa menggali kebutuhan terlebih dahulu".
+4. Jika kualitas video menghalangi penilaian (peserta tidak terlihat utuh, suara tidak terdengar), nilai hanya dari yang dapat diamati dan sebutkan keterbatasannya di evaluasi parameter terkait.
+5. Jika isi video bukan roleplay BST-12 (bukan tentang penjualan truk komersial), beri semua parameter skor 1 dan jelaskan di evaluasiUmum.
+6. Jangan murah hati. Skor 9 sampai 10 hanya untuk eksekusi nyaris sempurna. Terapkan aturan auto-fail dengan tegas.
+Balas HANYA dengan JSON valid berstruktur persis:
+${skeletonJSON(S)}
+Ketentuan JSON: skorTotal adalah rata-rata lima parameter dibulatkan satu desimal; level mengikuti pemetaan skor pada rubrik; status "LULUS" hanya jika semua parameter minimal ${S.kelulusan.ambang}, selain itu "BELUM LULUS"; evaluasiUmum berisi 3 sampai 5 kalimat ringkasan eksekutif; kekuatan berisi 2 sampai 3 butir hal terbaik yang ditunjukkan peserta, satu kalimat spesifik beserta bukti (sertakan perkiraan menit).
+Ketentuan rekomendasi (2 sampai 4 butir, urutkan dari kelemahan paling kritis): "gap" wajib menyebut kesalahan SPESIFIK yang teramati (ucapan keliru, sikap kurang tepat, atau hal wajib yang absen, sertakan perkiraan menit); "contohBenar" wajib berisi kalimat persis yang seharusnya diucapkan (kutip SKRIP STANDAR, sesuaikan konteks pelanggan) atau sikap persis yang seharusnya ditunjukkan; "materi" dan "referensi" menunjuk tahapan dan slide spesifik. Dilarang menulis rekomendasi umum tanpa gap dan contoh konkret. Seluruh teks dalam Bahasa Indonesia formal.`;
+};
 /* Dispatcher: logic inti memanggil ini, isinya ditentukan registry skenario aktif. */
 function validatorVideoSystem(){ return SK().sysValidatorVideo(SK(), state); }
 
@@ -2092,7 +2132,7 @@ async function analisisVideo(){
     vprog(96,"Validator sedang menonton video Anda.");
     show("scr-scoring");
     const raw = await gemini(
-      [{ role:"user", parts:[ mediaPart, { text:"Tonton video roleplay PKT ini dan nilai sesuai instruksi." } ] }],
+      [{ role:"user", parts:[ mediaPart, { text:"Tonton video roleplay "+SK().nama+" ini dan nilai sesuai instruksi." } ] }],
       validatorVideoSystem(), true);
     const hasil = JSON.parse(raw);
     hasil.skenarioId = SK().id; /* v4.3 FIX, sama seperti endSession() teks, lihat komentar di sana */
@@ -2144,16 +2184,22 @@ function resolveSkenarioVideo(){
   state.krisis = kid==="acak" ? pk[Math.floor(Math.random()*pk.length)] : pk.find(k=>k.id===kid);
   $("vbrief-scenario").textContent =
     (ujian ? "SESI UJIAN. " : "")
-    +"Rekan Anda berperan sebagai pelanggan dengan profil "+base.label+" ("+base.desc+"). "
+    +"Rekan Anda berperan sebagai "+(SK().sebutanLawan||"pelanggan")+" dengan profil "+base.label+" ("+base.desc+"). "
     +SK().briefingVideo(SK(), state);
 }
-$("mod-video").onclick = ()=>{
-  state.skenarioId = "pkt-roleplay"; /* varian video dari skenario yang sama */
+/* v4.10: satu fungsi dipakai bersama oleh semua kartu modul Video Assessment,
+   dibedakan lewat skenarioId - menambah modul video baru cukup satu kartu HTML
+   + satu baris wiring di bawah, tanpa duplikasi logic (pola yang sama dengan
+   bukaBriefing() untuk mode teks). */
+function bukaVideoAssessment(skenarioId){
+  state.skenarioId = skenarioId;
   videoFile = null;
   $("video-info").textContent = "Belum ada file dipilih.";
   $("btn-analyze-video").disabled = true;
   $("vprog-wrap").style.display = "none";
   $("vprog-label").style.display = "none";
+  $("video-appsub").textContent = SK().nama+": Roleplay Fisik";
+  $("vketentuan-list").innerHTML = (SK().ketentuanRekamanVideo||[]).map(t=>"<li>"+t+"</li>").join("");
   isiDropdownSkenario();
   $("sel-profil").value = "acak";
   $("sel-krisis").value = "acak";
@@ -2162,7 +2208,9 @@ $("mod-video").onclick = ()=>{
   resolveSkenarioVideo();
   siapkanModeValidator();
   show("scr-video");
-};
+}
+$("mod-video").onclick = ()=>bukaVideoAssessment("pkt-roleplay");
+$("mod-video-bst12").onclick = ()=>bukaVideoAssessment("bst12-selling");
 $("sel-profil").onchange = resolveSkenarioVideo;
 $("sel-krisis").onchange = resolveSkenarioVideo;
 $("chk-ujian").onchange = resolveSkenarioVideo;
