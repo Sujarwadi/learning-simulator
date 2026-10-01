@@ -2060,8 +2060,14 @@ async function uploadFilesAPI(file){
   /* tunggu pemrosesan video di sisi Google */
   let st = f.state, uri = f.uri, name = f.name;
   let tries = 0;
-  while(st==="PROCESSING" && tries<60){
-    vprog(70+Math.min(25,tries), "Video sedang diproses server. Mohon tunggu.");
+  /* v4.10.1 FIX: batas lama 60x3dtk=180dtk (3 menit) ternyata pas-pasan untuk
+     video 10 menit 720p - pemrosesan di server Google untuk video sepanjang
+     itu bisa lebih lama dari itu, bikin sesi dianggap "gagal/terlalu lama"
+     padahal cuma butuh waktu lebih. Dinaikkan ke 120x3dtk=360dtk (6 menit),
+     dan label sekarang kasih hitungan detik berjalan supaya terlihat jelas
+     ini masih proses, bukan macet diam. */
+  while(st==="PROCESSING" && tries<120){
+    vprog(70+Math.min(25,Math.floor(tries/2)), "Video sedang diproses server Google ("+(tries*3)+" detik). Video panjang bisa butuh beberapa menit, mohon tunggu.");
     await new Promise(r=>setTimeout(r,3000));
     if(BACKEND_URL && state.nik){
       try{
@@ -2074,7 +2080,7 @@ async function uploadFilesAPI(file){
     }
     tries++;
   }
-  if(st!=="ACTIVE") throw new Error("Pemrosesan video gagal atau terlalu lama. Coba video yang lebih pendek atau resolusi lebih rendah.");
+  if(st!=="ACTIVE") throw new Error("Pemrosesan video di server Google gagal atau melebihi 6 menit. Coba lagi, atau gunakan video yang lebih pendek/resolusi lebih rendah.");
   return { file_uri:uri, mime_type:file.type||"video/mp4" };
 }
 
@@ -2147,6 +2153,14 @@ async function analisisVideo(){
     pushHistory(item);
   }catch(e){
     show("scr-video");
+    /* v4.10.1 FIX: sebelum ini progress bar dibiarkan nyangkut di angka
+       terakhir (mis. "Mengunggah video: 100%") kalau gagalnya di tahap
+       SETELAH upload (pemrosesan server atau analisis AI) - kelihatan macet
+       padahal sebenarnya sudah error, pesannya cuma kalah posisi dengan
+       progress bar yang masih nampang. Sekarang disembunyikan lagi supaya
+       pesan error jadi fokus utama yang terlihat. */
+    $("vprog-wrap").style.display = "none";
+    $("vprog-label").style.display = "none";
     showErr("err-video","Analisis gagal: "+e.message);
     $("btn-analyze-video").disabled = false;
   }
