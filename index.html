@@ -2014,6 +2014,57 @@ function fileKeBase64(file){
   });
 }
 
+/* v4.10.2 FIX: video 90 MB sebelumnya dikirim dalam SATU request raksasa
+   (xhr.send(file) utuh). Kalau koneksi sempat putus-nyambung sedetik saja di
+   tengah unggahan panjang itu, SELURUH unggahan gagal dan harus diulang dari
+   nol - cocok dengan laporan Brader "gagal di ujung, 2x". Dikonfirmasi lewat
+   log Eksekusi Apps Script: tidak ada panggilan aiGenerate (analisis AI) yang
+   sempat jalan lama untuk percobaan itu, jadi gagalnya murni di tahap unggah,
+   bukan di tahap penilaian. Sekarang video dikirim per klip 8 MB (mengikuti
+   protokol resumable upload Google: X-Goog-Upload-Command "upload" untuk klip
+   tengah, "upload, finalize" untuk klip terakhir), tiap klip dicoba ulang
+   sendiri-sendiri (maks 4x dengan jeda) kalau gagal - jadi satu blip jaringan
+   cuma mengulang klip yang gagal, bukan 90 MB dari awal lagi. */
+async function unggahVideoPerKlip(uploadUrl, file){
+  const UKURAN_KLIP = 8*1024*1024;
+  const MAKS_PERCOBAAN = 4;
+  let offset = 0;
+  while(offset < file.size){
+    const akhirKlip = Math.min(offset+UKURAN_KLIP, file.size);
+    const klip = file.slice(offset, akhirKlip);
+    const final = akhirKlip >= file.size;
+    const basisOffset = offset;
+    let responsTeks = "";
+    for(let percobaan=1; percobaan<=MAKS_PERCOBAAN; percobaan++){
+      if(percobaan>1) await new Promise(r=>setTimeout(r, 1500*(percobaan-1)));
+      try{
+        responsTeks = await new Promise((res,rej)=>{
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", uploadUrl);
+          xhr.setRequestHeader("X-Goog-Upload-Command", final ? "upload, finalize" : "upload");
+          xhr.setRequestHeader("X-Goog-Upload-Offset", String(basisOffset));
+          xhr.upload.onprogress = e=>{
+            if(e.lengthComputable){
+              const total = basisOffset + e.loaded;
+              vprog(Math.round(total/file.size*70), "Mengunggah video: "+Math.round(total/file.size*100)+"%");
+            }
+          };
+          xhr.onload = ()=>{ if(xhr.status<200||xhr.status>=300) rej(new Error("status "+xhr.status)); else res(xhr.responseText); };
+          xhr.onerror = ()=>rej(new Error("jaringan terputus"));
+          xhr.send(klip);
+        });
+        break;
+      }catch(e){
+        if(percobaan===MAKS_PERCOBAAN) throw new Error("Unggahan terputus setelah "+MAKS_PERCOBAAN+" kali percobaan, berhenti sekitar "+Math.round(basisOffset/file.size*100)+"% dari total video. Periksa koneksi internet lalu coba lagi (unggahan akan dimulai dari awal).");
+      }
+    }
+    offset = akhirKlip;
+    if(final){
+      try{ return JSON.parse(responsTeks); }catch(e){ throw new Error("Respons unggahan tidak valid."); }
+    }
+  }
+}
+
 /* Unggah resumable ke Gemini Files API untuk file besar, dengan progres.
    PERBAIKAN KEAMANAN v3.3: mode server membuka sesi unggahan lewat proxy
    backend (aksi "aiFileUploadStart"); browser hanya menerima uploadUrl sesi
@@ -2045,16 +2096,7 @@ async function uploadFilesAPI(file){
     uploadUrl = startRes.headers.get("x-goog-upload-url");
   }
   if(!uploadUrl) throw new Error("Server tidak memberikan alamat unggahan. Coba lagi beberapa saat.");
-  const info = await new Promise((res,rej)=>{
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", uploadUrl);
-    xhr.setRequestHeader("X-Goog-Upload-Command","upload, finalize");
-    xhr.setRequestHeader("X-Goog-Upload-Offset","0");
-    xhr.upload.onprogress = e=>{ if(e.lengthComputable) vprog(Math.round(e.loaded/e.total*70), "Mengunggah video: "+Math.round(e.loaded/e.total*100)+"%"); };
-    xhr.onload = ()=>{ try{ res(JSON.parse(xhr.responseText)); }catch(e){ rej(new Error("Respons unggahan tidak valid.")); } };
-    xhr.onerror = ()=>rej(new Error("Unggahan terputus. Periksa koneksi internet."));
-    xhr.send(file);
-  });
+  const info = await unggahVideoPerKlip(uploadUrl, file);
   const f = info.file;
   if(!f || !f.uri) throw new Error("Unggahan tidak menghasilkan berkas yang valid.");
   /* tunggu pemrosesan video di sisi Google */
