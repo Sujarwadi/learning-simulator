@@ -1,4 +1,4 @@
-<!-- BBM TalentCore v1.0 — competency engine: JD -> hierarchical task breakdown -> Technical/Managerial competencies -> assessment -> gap -> training matrix -> career path. Backend: Google Apps Script + Google Sheet "TalentCore DB", terpisah dari Learning Simulator DB. -->
+<!-- BBM TalentCore v1.1 — competency engine: JD -> hierarchical task breakdown -> Technical/Managerial competencies -> review/edit -> assessment -> gap -> training matrix -> career path -> individual profile. Backend: Google Apps Script + Google Sheet "TalentCore DB", terpisah dari Learning Simulator DB. Session-token based (lihat Code.gs). -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -81,6 +81,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .comp-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
 .comp-card .name{font-weight:700;font-size:14.5px}
 .comp-card .def{font-size:13px;color:var(--muted);margin-top:4px}
+.comp-card textarea{min-height:52px}
 .score-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .score-row:last-child{border-bottom:none}
 .score-row select{width:80px}
@@ -88,6 +89,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .gap-0{background:var(--green-soft);color:var(--green)}
 .gap-1{background:var(--amber-soft);color:var(--amber)}
 .gap-2{background:var(--red-soft);color:var(--red)}
+.inline-link{background:none;border:none;color:var(--navy2);font-size:12.5px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -127,6 +129,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <button class="tab-btn" data-tab="dict">2. Kamus Kompetensi</button>
         <button class="tab-btn" data-tab="matrix">3. Training Matrix</button>
         <button class="tab-btn" data-tab="path">4. Career Path</button>
+        <button class="tab-btn" data-tab="profile">5. Profil Karyawan</button>
       </div>
 
       <div id="panel-generate">
@@ -170,6 +173,17 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         </div>
         <div id="path-result"></div>
       </div>
+
+      <div id="panel-profile" style="display:none">
+        <h2 class="sect">Profil &amp; Riwayat Kompetensi Karyawan</h2>
+        <div class="card">
+          <label>Pilih / Cari Karyawan</label>
+          <input type="text" id="inp-profile-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-profile">Tampilkan Riwayat</button></div>
+          <div class="err" id="err-profile"></div>
+        </div>
+        <div id="profile-result"></div>
+      </div>
     </div>
     <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
   </section>
@@ -184,33 +198,49 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     <div class="body-wrap">
       <h2 class="sect">Asesmen Kompetensi</h2>
       <div class="card">
-        <label>NIK Karyawan yang Dinilai</label>
-        <input type="text" id="inp-assess-nik" placeholder="NIK bawahan">
+        <label>Karyawan yang Dinilai (bawahan langsung Anda)</label>
+        <input type="text" id="inp-assess-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
         <label style="margin-top:12px">Jabatan</label>
         <select id="sel-assess-jabatan"><option value="">Memuat&hellip;</option></select>
         <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-assess">Muat Kompetensi</button></div>
         <div class="err" id="err-assess"></div>
       </div>
       <div id="assess-form"></div>
+      <div id="assess-profile-result"></div>
     </div>
     <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
   </section>
+
+  <datalist id="dl-employees"></datalist>
 
 </div>
 
 <script>
 var $ = function(id){ return document.getElementById(id); };
-var state = { nik:null, nama:null, role:null, jabatanOptions:[] };
+var state = { nik:null, nama:null, role:null, token:null, jabatanOptions:[], employeeOptions:[] };
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function show(id){ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); }); $(id).classList.add('active'); }
 function showErr(id,msg){ var e=$(id); e.textContent=msg; e.classList.add('show'); }
 function clearErr(id){ var e=$(id); e.textContent=''; e.classList.remove('show'); }
+function fmtDate(d){ if(!d) return '-'; var dt=new Date(d); return isNaN(dt)?String(d):dt.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
 
 function api(action, payload){
-  return fetch(window.BACKEND_URL, { method:'POST', body: JSON.stringify({action:action, payload:payload||{}}) })
+  var p = payload || {};
+  if (state.token) p.token = state.token;
+  return fetch(window.BACKEND_URL, { method:'POST', body: JSON.stringify({action:action, payload:p}) })
     .then(function(r){ return r.json(); })
     .then(function(r){ if(!r.ok) throw new Error(r.error); return r.data; });
+}
+
+/* Cari NIK dari input yang boleh diisi "NIK" ATAU "Nama" (dicocokkan ke employeeOptions yang sudah dimuat) */
+function resolveNik(inputVal){
+  var v = String(inputVal||'').trim();
+  if(!v) return null;
+  var hit = state.employeeOptions.filter(function(e){ return e.nik===v; })[0];
+  if(hit) return hit.nik;
+  hit = state.employeeOptions.filter(function(e){ return (e.nik+' - '+e.nama)===v || e.nama===v; })[0];
+  return hit ? hit.nik : null;
 }
 
 /* ---------- LOGIN ---------- */
@@ -219,27 +249,37 @@ $('btn-login').onclick = function(){
   var nik = $('inp-nik').value.trim(), pin = $('inp-pin').value.trim();
   if(!nik || !pin){ showErr('err-login','NIK dan PIN wajib diisi.'); return; }
   api('login', {nik:nik, pin:pin}).then(function(u){
-    state.nik=u.nik; state.nama=u.nama; state.role=u.role;
+    state.nik=u.nik; state.nama=u.nama; state.role=u.role; state.token=u.token;
     if(u.role === 'admin' || u.role === 'ld'){
       $('admin-nama').textContent = u.nama;
-      show('scr-admin'); loadJabatanOptions();
+      show('scr-admin'); loadJabatanOptions(); loadEmployeeOptions();
     } else {
       $('atasan-nama').textContent = u.nama;
-      show('scr-atasan'); loadJabatanOptions();
+      show('scr-atasan'); loadJabatanOptions(); loadEmployeeOptions();
     }
   }).catch(function(e){ showErr('err-login', e.message); });
 };
-$('btn-admin-logout').onclick = function(){ show('scr-login'); };
-$('btn-atasan-logout').onclick = function(){ show('scr-login'); };
+$('btn-admin-logout').onclick = function(){ state.token=null; show('scr-login'); };
+$('btn-atasan-logout').onclick = function(){ state.token=null; show('scr-login'); };
 
 /* ---------- TABS ---------- */
 document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
-    ['generate','dict','matrix','path'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
+    ['generate','dict','matrix','path','profile'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
   });
 });
+
+/* ---------- EMPLOYEE DIRECTORY (autocomplete, lintas tab) ---------- */
+function loadEmployeeOptions(){
+  api('getUsersList', {}).then(function(list){
+    state.employeeOptions = list;
+    $('dl-employees').innerHTML = list.map(function(e){
+      return '<option value="'+esc(e.nik)+'">'+esc(e.nama)+' &middot; '+esc(e.jabatan||'-')+'</option>';
+    }).join('');
+  });
+}
 
 /* ---------- GENERATE ---------- */
 var previewData = null;
@@ -257,10 +297,13 @@ $('btn-generate').onclick = function(){
 };
 
 function renderGeneratePreview(r){
-  var html = '<div class="card"><h2 class="sect">Terdeteksi oleh AI</h2>'+
-    '<p><b>Jabatan:</b> '+esc(r.jabatan)+' &nbsp;&middot;&nbsp; <b>Tier:</b> '+esc(r.tier)+'</p></div>';
+  var html = '<div class="card"><h2 class="sect">Tinjau &amp; Edit Sebelum Disimpan</h2>'+
+    '<div class="hint" style="margin-bottom:10px">Hasil AI di bawah BELUM resmi. Periksa dan betulkan nama/definisi/perilaku kunci yang kurang pas sebelum menekan Simpan — begitu disimpan, ini jadi standar penilaian jabatan ini.</div>'+
+    '<label>Nama Jabatan</label><input type="text" id="edit-jabatan" value="'+esc(r.jabatan)+'">'+
+    '<label>Tier</label><input type="text" id="edit-tier" value="'+esc(r.tier)+'"></div>';
 
-  html += '<div class="card"><h2 class="sect">Breakdown Aktivitas (Hierarchical Task Analysis)</h2>';
+  html += '<div class="card"><h2 class="sect">Breakdown Aktivitas (Hierarchical Task Analysis)</h2>'+
+    '<div class="hint" style="margin-bottom:8px">Breakdown ini referensi/konteks, belum bisa diedit di sini — kalau salah signifikan, ulangi Generate dengan teks JD yang lebih lengkap.</div>';
   (r.taskBreakdown||[]).forEach(function(t){
     html += '<div class="task-item"><div class="head">'+esc(t.tugasUtama)+'</div><ul class="tree-list">';
     (t.subAktivitas||[]).forEach(function(sa){
@@ -272,14 +315,40 @@ function renderGeneratePreview(r){
   });
   html += '</div>';
 
-  html += '<div class="card"><h2 class="sect">Kompetensi ('+(r.kompetensi||[]).length+') &mdash; Belum Tersimpan</h2>';
-  (r.kompetensi||[]).forEach(function(k){
-    html += '<div class="comp-card"><div class="name">'+esc(k.nama)+' <span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span></div>'+
-      '<div class="def">'+esc(k.definisi)+'</div><div class="hint">Diturunkan dari: '+esc(k.sumberTugas||'-')+' &middot; Level target: '+k.levelTarget+'</div></div>';
+  html += '<div class="card"><h2 class="sect">Kompetensi ('+(r.kompetensi||[]).length+') &mdash; Edit di Sini</h2>';
+  (r.kompetensi||[]).forEach(function(k, i){
+    html += '<div class="comp-card" data-idx="'+i+'">'+
+      '<label>Nama Kompetensi <span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span></label>'+
+      '<input type="text" class="edit-komp-nama" value="'+esc(k.nama)+'">'+
+      '<label>Definisi</label><textarea class="edit-komp-def">'+esc(k.definisi)+'</textarea>'+
+      '<label>Level Target</label><select class="edit-komp-target">'+
+      [1,2,3,4,5].map(function(n){ return '<option value="'+n+'"'+(n===k.levelTarget?' selected':'')+'>'+n+'</option>'; }).join('')+'</select>';
+    (k.levels||[]).forEach(function(lv, li){
+      html += '<label>Perilaku Kunci &mdash; Level '+(li+1)+'</label>'+
+        '<textarea class="edit-komp-pk" data-level="'+(li+1)+'">'+esc((lv.perilakuKunci||[]).join('\n'))+'</textarea>';
+    });
+    html += '<div class="hint">Diturunkan dari: '+esc(k.sumberTugas||'-')+'</div></div>';
   });
   html += '<div class="err" id="err-simpan"></div><div style="margin-top:16px"><button class="btn btn-primary" id="btn-simpan">Simpan ke Kamus Kompetensi</button></div></div>';
   $('generate-result').innerHTML = html;
-  $('btn-simpan').onclick = function(){ simpanMatrix(false); };
+  $('btn-simpan').onclick = function(){ collectEditedPreview(); simpanMatrix(false); };
+}
+
+function collectEditedPreview(){
+  previewData.jabatan = $('edit-jabatan').value.trim();
+  previewData.tier = $('edit-tier').value.trim();
+  document.querySelectorAll('#generate-result .comp-card').forEach(function(card){
+    var idx = parseInt(card.dataset.idx,10);
+    var k = previewData.kompetensi[idx];
+    k.nama = card.querySelector('.edit-komp-nama').value.trim();
+    k.definisi = card.querySelector('.edit-komp-def').value.trim();
+    k.levelTarget = parseInt(card.querySelector('.edit-komp-target').value,10);
+    if(!k.levels) k.levels = [];
+    card.querySelectorAll('.edit-komp-pk').forEach(function(ta){
+      var lv = parseInt(ta.dataset.level,10);
+      k.levels[lv-1] = { perilakuKunci: ta.value.split('\n').map(function(s){return s.trim();}).filter(Boolean) };
+    });
+  });
 }
 
 function simpanMatrix(overwrite){
@@ -352,20 +421,55 @@ $('btn-path-go').onclick = function(){
   var from = $('sel-path-from').value, to = $('sel-path-to').value;
   if(!from || !to || from===to) return;
   api('careerPath', {fromJabatanId: from, toJabatanId: to}).then(function(r){
-    var html = '<div class="card"><h2 class="sect">Transferable ('+r.transferable.length+')</h2>';
-    r.transferable.forEach(function(k){ html += '<div class="hint">&bull; '+esc(k.nama)+'</div>'; });
+    var methodNote = r.method==='ai'
+      ? '<div class="hint">Dicocokkan AI berdasarkan kesamaan substansi skill (bukan sekadar kata).</div>'
+      : '<div class="hint">Dicocokkan dengan kata kunci sederhana (AI tidak tersedia) — anggap sebagai perkiraan awal, bukan final.</div>';
+    var html = '<div class="card"><h2 class="sect">Transferable ('+r.transferable.length+')</h2>'+methodNote;
+    r.transferable.forEach(function(k){ html += '<div class="hint">&bull; '+esc(k.nama)+(k.alasan?' — '+esc(k.alasan):'')+'</div>'; });
     html += '</div><div class="card"><h2 class="sect">Perlu Dipelajari ('+r.toLearn.length+')</h2>';
-    r.toLearn.forEach(function(k){ html += '<div class="hint">&bull; '+esc(k.nama)+'</div>'; });
+    r.toLearn.forEach(function(k){
+      var modBadge = k.statusModul==='ada' ? 'badge-green' : (k.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
+      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b>'+(k.alasan?'<div class="hint">'+esc(k.alasan)+'</div>':'')+
+        '<div class="hint">'+esc(k.catatanModul)+'</div></div><span class="badge '+modBadge+'">'+esc(k.statusModul)+'</span></div>';
+    });
     html += '</div>';
     $('path-result').innerHTML = html;
   });
 };
 
+/* ---------- PROFIL KARYAWAN (admin/L&D) ---------- */
+$('btn-load-profile').onclick = function(){
+  clearErr('err-profile');
+  var nik = resolveNik($('inp-profile-nik').value);
+  if(!nik){ showErr('err-profile','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('getProfile', {nik: nik}).then(function(p){
+    $('profile-result').innerHTML = renderProfileHtml(p);
+  }).catch(function(e){ showErr('err-profile', e.message); });
+};
+
+function renderProfileHtml(p){
+  if(!p.items.length) return '<div class="empty">Belum ada riwayat asesmen untuk '+esc(p.nama)+'.</div>';
+  var html = '<div class="card"><h2 class="sect">'+esc(p.nama)+' &middot; '+esc(p.jabatan||'-')+'</h2>'+
+    '<table><tr><th>Kompetensi</th><th>Level Awal &rarr; Terakhir</th><th>Target</th><th>Gap Terakhir</th><th>Jumlah Siklus Asesmen</th></tr>';
+  p.items.forEach(function(it){
+    var cls = it.gapTerakhir<=0 ? 'gap-0' : (it.gapTerakhir===1 ? 'gap-1' : 'gap-2');
+    var trend = it.levelTerakhir > it.levelAwal ? ' &uarr;' : (it.levelTerakhir < it.levelAwal ? ' &darr;' : '');
+    html += '<tr><td><b>'+esc(it.nama)+'</b><div class="hint">'+esc(it.tipe)+'</div></td>'+
+      '<td>'+it.levelAwal+' &rarr; '+it.levelTerakhir+trend+'</td><td>'+it.levelTarget+'</td>'+
+      '<td><span class="gap-pill '+cls+'">Gap '+Math.max(it.gapTerakhir,0)+'</span></td>'+
+      '<td>'+it.history.length+' kali, terakhir '+fmtDate(it.history[it.history.length-1].tanggal)+'</td></tr>';
+  });
+  html += '</table></div>';
+  return html;
+}
+
 /* ---------- ASSESSMENT (ATASAN) ---------- */
 $('btn-load-assess').onclick = function(){
   clearErr('err-assess');
-  var nik = $('inp-assess-nik').value.trim(), jid = $('sel-assess-jabatan').value;
-  if(!nik || !jid){ showErr('err-assess','Isi NIK dan pilih jabatan dulu.'); return; }
+  var nik = resolveNik($('inp-assess-nik').value), jid = $('sel-assess-jabatan').value;
+  if(!nik){ showErr('err-assess','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  if(!jid){ showErr('err-assess','Pilih jabatan dulu.'); return; }
+  $('assess-profile-result').innerHTML = '';
   api('getKompetensiByJabatan', {jabatanId: jid}).then(function(list){
     if(!list.length){ $('assess-form').innerHTML = '<div class="empty">Jabatan ini belum punya kompetensi tersimpan.</div>'; return; }
     var html = '<div class="card"><h2 class="sect">Beri Skor Level Aktual (1-5)</h2>';
@@ -374,13 +478,19 @@ $('btn-load-assess').onclick = function(){
         '<select class="inp-score" data-komp="'+esc(k.kompId)+'" data-target="'+k.levelTarget+'">'+
         [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div>';
     });
-    html += '<div style="margin-top:16px"><button class="btn btn-primary" id="btn-submit-assess">Simpan Asesmen</button></div></div><div id="assess-gap-result"></div>';
+    html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn btn-primary" id="btn-submit-assess">Simpan Asesmen</button>'+
+      '<button class="btn btn-ghost" id="btn-view-riwayat" style="width:auto;white-space:nowrap">Lihat Riwayat</button></div></div><div id="assess-gap-result"></div>';
     $('assess-form').innerHTML = html;
+    $('btn-view-riwayat').onclick = function(){
+      api('getProfile', {nik: nik}).then(function(p){
+        $('assess-profile-result').innerHTML = renderProfileHtml(p);
+      }).catch(function(e){ showErr('err-assess', e.message); });
+    };
     $('btn-submit-assess').onclick = function(){
       var scores = Array.prototype.map.call(document.querySelectorAll('.inp-score'), function(sel){
         return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10) };
       });
-      api('submitAssessment', {nik: nik, jabatanId: jid, asesorNik: state.nik, scores: scores}).then(function(r){
+      api('submitAssessment', {nik: nik, jabatanId: jid, scores: scores}).then(function(r){
         var html2 = '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
         r.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
@@ -389,7 +499,7 @@ $('btn-load-assess').onclick = function(){
         });
         html2 += '</div>';
         $('assess-gap-result').innerHTML = html2;
-      });
+      }).catch(function(e){ showErr('err-assess', e.message); });
     };
   });
 };

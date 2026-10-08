@@ -6,10 +6,18 @@
  * 2. Buka Extensions > Apps Script dari Sheet itu, hapus isi default, tempel seluruh file ini.
  * 3. Project Settings > Script Properties, tambah key "CLAUDE_API_KEY" isi API key Anthropic.
  * 4. Jalankan fungsi setupTabTalentCore() sekali lewat menu Run (pilih fungsinya dulu di dropdown atas).
+ *    (Kalau sheet sudah ada dari versi sebelumnya, aman dijalankan ulang — cuma nambah sheet "Sessions"
+ *    yang belum ada, tidak menghapus data lama.)
  * 5. Deploy > New deployment > Web app > Execute as: Me, Who has access: Anyone.
  * 6. Salin URL yang diberikan, tempel ke window.BACKEND_URL di frontend talentcore/index.html.
  * 7. Setiap ubah kode di sini, ULANGI Deploy > Manage deployments > pensil > Version: New version > Deploy,
  *    atau Web App akan tetap pakai kode versi lama.
+ *
+ * Catatan keamanan (audit 2026-10-08): login sekarang mengeluarkan session token (tabel "Sessions"),
+ * dan setiap action selain "login" WAJIB membawa token itu. Server menentukan identitas & role dari
+ * token tersimpan, BUKAN dari field nik/role yang dikirim klien — supaya klien tidak bisa mengaku-aku
+ * jadi admin atau menilai NIK siapa pun seenaknya. PIN di-hash SHA-256 begitu login pertama kali
+ * (baris lama yang masih plaintext otomatis di-upgrade saat user itu login).
  */
 
 var SHEET_USERS = 'Users';
@@ -19,6 +27,9 @@ var SHEET_LEVEL = 'Level';
 var SHEET_TASKBREAKDOWN = 'TaskBreakdown';
 var SHEET_ASSESSMENT = 'Assessment';
 var SHEET_TRAININGMODULE = 'TrainingModule';
+var SHEET_SESSIONS = 'Sessions';
+
+var SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 jam
 
 var LEVEL_HEAD_TECHNICAL = [
   'Sekedar tahu akan pengetahuan dan keterampilan yang diperlukan di pekerjaannya',
@@ -46,7 +57,8 @@ function setupTabTalentCore() {
   createTabIfMissing_(ss, SHEET_TASKBREAKDOWN, ['JabatanID', 'TugasUtama', 'SubAktivitas', 'SubSubAktivitas']);
   createTabIfMissing_(ss, SHEET_ASSESSMENT, ['AssessmentID', 'NIK', 'JabatanID', 'KompID', 'LevelAktual', 'AsesorNIK', 'Tanggal']);
   createTabIfMissing_(ss, SHEET_TRAININGMODULE, ['NamaKompetensi', 'StatusModul', 'CatatanSumber']);
-  SpreadsheetApp.getUi().alert('Setup selesai. 7 sheet sudah siap.');
+  createTabIfMissing_(ss, SHEET_SESSIONS, ['Token', 'NIK', 'Role', 'ExpiresAt']);
+  SpreadsheetApp.getUi().alert('Setup selesai. 8 sheet sudah siap.');
 }
 
 function createTabIfMissing_(ss, name, headers) {
@@ -66,15 +78,22 @@ function doPost(e) {
     var body = JSON.parse(e.postData.contents);
     var action = body.action;
     var payload = body.payload || {};
+
+    if (action === 'login') {
+      return jsonResponse_({ ok: true, data: actionLogin_(payload) });
+    }
+
+    var session = requireSession_(payload);
     switch (action) {
-      case 'login': out = actionLogin_(payload); break;
-      case 'generateMatriks': out = actionGenerateMatriks_(payload); break;
-      case 'simpanMatrix': out = actionSimpanMatrix_(payload); break;
-      case 'getJabatanList': out = actionGetJabatanList_(payload); break;
-      case 'getKompetensiByJabatan': out = actionGetKompetensiByJabatan_(payload); break;
-      case 'submitAssessment': out = actionSubmitAssessment_(payload); break;
-      case 'getTrainingMatrix': out = actionGetTrainingMatrix_(payload); break;
-      case 'careerPath': out = actionCareerPath_(payload); break;
+      case 'generateMatriks': out = actionGenerateMatriks_(payload, session); break;
+      case 'simpanMatrix': out = actionSimpanMatrix_(payload, session); break;
+      case 'getJabatanList': out = actionGetJabatanList_(payload, session); break;
+      case 'getKompetensiByJabatan': out = actionGetKompetensiByJabatan_(payload, session); break;
+      case 'submitAssessment': out = actionSubmitAssessment_(payload, session); break;
+      case 'getTrainingMatrix': out = actionGetTrainingMatrix_(payload, session); break;
+      case 'careerPath': out = actionCareerPath_(payload, session); break;
+      case 'getUsersList': out = actionGetUsersList_(payload, session); break;
+      case 'getProfile': out = actionGetProfile_(payload, session); break;
       default: throw new Error('Action tidak dikenal: ' + action);
     }
     return jsonResponse_({ ok: true, data: out });
@@ -87,22 +106,67 @@ function jsonResponse_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-/* ================= AUTH ================= */
+/* ================= AUTH & SESSION ================= */
+
+function hashPin_(pin) {
+  var raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(pin), Utilities.Charset.UTF_8);
+  return raw.map(function (b) {
+    var v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? '0' + v : v;
+  }).join('');
+}
 
 function actionLogin_(payload) {
-  var rows = sheetRows_(SHEET_USERS);
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    if (String(r.NIK) === String(payload.nik) && String(r.PIN) === String(payload.pin)) {
-      return { nik: r.NIK, nama: r.Nama, role: r.Role, cabang: r.Cabang, jabatan: r.Jabatan, atasanNik: r.AtasanNIK };
-    }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_USERS);
+  var values = sh.getDataRange().getValues();
+  var headers = values[0];
+  var nikIdx = headers.indexOf('NIK'), pinIdx = headers.indexOf('PIN');
+
+  for (var i = 1; i < values.length; i++) {
+    if (String(values[i][nikIdx]) !== String(payload.nik)) continue;
+    var stored = String(values[i][pinIdx]);
+    var inputHash = hashPin_(payload.pin);
+    var isHashed = /^[0-9a-f]{64}$/.test(stored);
+    var matched = isHashed ? (stored === inputHash) : (stored === String(payload.pin));
+    if (!matched) throw new Error('NIK atau PIN salah.');
+    if (!isHashed) sh.getRange(i + 1, pinIdx + 1).setValue(inputHash); // upgrade PIN lama ke hash otomatis
+
+    var obj = {};
+    headers.forEach(function (h, idx) { obj[h] = values[i][idx]; });
+    var token = createSession_(obj.NIK, obj.Role);
+    return { token: token, nik: obj.NIK, nama: obj.Nama, role: obj.Role, cabang: obj.Cabang, jabatan: obj.Jabatan, atasanNik: obj.AtasanNIK };
   }
   throw new Error('NIK atau PIN salah.');
 }
 
+function createSession_(nik, role) {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_SESSIONS);
+  var token = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+  sh.appendRow([token, nik, role, new Date(Date.now() + SESSION_TTL_MS)]);
+  return token;
+}
+
+function requireSession_(payload) {
+  var token = payload && payload.token;
+  if (!token) throw new Error('Sesi tidak valid, silakan login ulang.');
+  var rows = sheetRows_(SHEET_SESSIONS);
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i].Token) !== String(token)) continue;
+    if (new Date(rows[i].ExpiresAt).getTime() < Date.now()) throw new Error('Sesi kedaluwarsa, silakan login ulang.');
+    return { nik: rows[i].NIK, role: rows[i].Role };
+  }
+  throw new Error('Sesi tidak valid, silakan login ulang.');
+}
+
+function requireRole_(session, roles) {
+  if (roles.indexOf(session.role) === -1) throw new Error('Role Anda tidak punya akses untuk aksi ini.');
+}
+
 /* ================= GENERATE MATRIKS (AI) ================= */
 
-function actionGenerateMatriks_(payload) {
+function actionGenerateMatriks_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
   var jdText = payload.jdText;
   if (!jdText || jdText.length < 30) throw new Error('Teks JD terlalu pendek atau kosong.');
   var prompt = buildGeneratePrompt_(jdText);
@@ -175,8 +239,12 @@ function extractJson_(text) {
 }
 
 /* ================= SIMPAN MATRIX ================= */
+/* Dipanggil setelah admin mengedit hasil generate di layar (lihat index.html) — StatusReview
+   ditandai 'reviewed', bukan 'draft', karena pada titik ini manusia sudah meninjau/mengedit
+   sebelum menekan Simpan (bukan AI auto-publish). */
 
-function actionSimpanMatrix_(payload) {
+function actionSimpanMatrix_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var jabatanId = slugify_(payload.jabatan);
   var shJabatan = ss.getSheetByName(SHEET_JABATAN);
@@ -189,13 +257,13 @@ function actionSimpanMatrix_(payload) {
     removeRowsByValue_(ss.getSheetByName(SHEET_TASKBREAKDOWN), 'JabatanID', jabatanId);
     shJabatan.deleteRow(existingRow.rowIndex);
   }
-  shJabatan.appendRow([jabatanId, payload.jabatan, payload.tier || '', payload.divisi || '', payload.departemen || '', 'draft', new Date()]);
+  shJabatan.appendRow([jabatanId, payload.jabatan, payload.tier || '', payload.divisi || '', payload.departemen || '', 'reviewed', new Date()]);
 
   var shKomp = ss.getSheetByName(SHEET_KOMPETENSI);
   var shLevel = ss.getSheetByName(SHEET_LEVEL);
   (payload.kompetensi || []).forEach(function (k, idx) {
     var kompId = jabatanId + '_k' + idx;
-    shKomp.appendRow([kompId, jabatanId, k.nama, k.tipe, k.definisi, k.sumberTugas || '', k.levelTarget || 3, 'draft']);
+    shKomp.appendRow([kompId, jabatanId, k.nama, k.tipe, k.definisi, k.sumberTugas || '', k.levelTarget || 3, 'reviewed']);
     var heads = k.tipe === 'managerial' ? LEVEL_HEAD_MANAGERIAL : LEVEL_HEAD_TECHNICAL;
     (k.levels || []).forEach(function (lv, li) {
       shLevel.appendRow([kompId, li + 1, heads[li], (lv.perilakuKunci || []).join(' | ')]);
@@ -215,11 +283,11 @@ function actionSimpanMatrix_(payload) {
 
 /* ================= LOOKUP ================= */
 
-function actionGetJabatanList_() {
+function actionGetJabatanList_(payload, session) {
   return sheetRows_(SHEET_JABATAN).map(function (r) { return { jabatanId: r.JabatanID, nama: r.NamaJabatan, tier: r.Tier }; });
 }
 
-function actionGetKompetensiByJabatan_(payload) {
+function actionGetKompetensiByJabatan_(payload, session) {
   var komp = sheetRows_(SHEET_KOMPETENSI).filter(function (r) { return r.JabatanID === payload.jabatanId; });
   var levels = sheetRows_(SHEET_LEVEL);
   return komp.map(function (k) {
@@ -230,16 +298,72 @@ function actionGetKompetensiByJabatan_(payload) {
   });
 }
 
-/* ================= ASSESSMENT & GAP ================= */
+/* ================= EMPLOYEE DIRECTORY (P1) ================= */
+/* Admin/L&D lihat semua karyawan; atasan cuma lihat bawahan langsungnya sendiri (AtasanNIK cocok) —
+   ini juga jadi lapisan least-privilege tambahan, bukan cuma kemudahan cari NIK. */
 
-function actionSubmitAssessment_(payload) {
+function actionGetUsersList_(payload, session) {
+  var rows = sheetRows_(SHEET_USERS);
+  if (session.role !== 'admin' && session.role !== 'ld') {
+    rows = rows.filter(function (r) { return String(r.AtasanNIK) === String(session.nik); });
+  }
+  return rows.map(function (r) { return { nik: r.NIK, nama: r.Nama, jabatan: r.Jabatan }; });
+}
+
+/* ================= PROFIL / RIWAYAT INDIVIDU (P1) ================= */
+/* Data histori multi-siklus sebenarnya SUDAH ada sejak awal (setiap submitAssessment menambah
+   baris baru bertimestamp, tidak menimpa), cuma belum pernah divisualisasikan. Ini agregasi +
+   penyajiannya. */
+
+function actionGetProfile_(payload, session) {
+  var nik = payload.nik;
+  if (!nik) throw new Error('NIK wajib diisi.');
+  if (session.role !== 'admin' && session.role !== 'ld') {
+    var target = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
+    if (!target || String(target.AtasanNIK) !== String(session.nik)) {
+      throw new Error('Anda tidak punya akses melihat profil karyawan ini.');
+    }
+  }
+  var user = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
+  var assessments = sheetRows_(SHEET_ASSESSMENT).filter(function (a) { return String(a.NIK) === String(nik); });
+  var komp = sheetRows_(SHEET_KOMPETENSI);
+  var byKomp = {};
+  assessments.forEach(function (a) {
+    var k = komp.filter(function (r) { return r.KompID === a.KompID; })[0];
+    if (!k) return;
+    if (!byKomp[a.KompID]) byKomp[a.KompID] = { kompId: a.KompID, nama: k.NamaKompetensi, tipe: k.Tipe, levelTarget: k.LevelTarget, history: [] };
+    byKomp[a.KompID].history.push({ levelAktual: a.LevelAktual, tanggal: a.Tanggal, asesorNik: a.AsesorNIK });
+  });
+  var items = Object.keys(byKomp).map(function (id) {
+    var row = byKomp[id];
+    row.history.sort(function (x, y) { return new Date(x.tanggal) - new Date(y.tanggal); });
+    var last = row.history[row.history.length - 1];
+    row.levelAwal = row.history[0].levelAktual;
+    row.levelTerakhir = last.levelAktual;
+    row.gapTerakhir = row.levelTarget - last.levelAktual;
+    return row;
+  });
+  return { nik: nik, nama: user ? user.Nama : nik, jabatan: user ? user.Jabatan : '', items: items };
+}
+
+/* ================= ASSESSMENT & GAP ================= */
+/* asesorNik TIDAK LAGI dipercaya dari klien — diambil dari session. Atasan hanya boleh menilai
+   NIK yang AtasanNIK-nya memang dia (kecuali admin/ld, yang boleh menilai siapa pun). */
+
+function actionSubmitAssessment_(payload, session) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var targetUser = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(payload.nik); })[0];
+  if (!targetUser) throw new Error('NIK karyawan tidak ditemukan di Users.');
+  if (session.role !== 'admin' && session.role !== 'ld' && String(targetUser.AtasanNIK) !== String(session.nik)) {
+    throw new Error('Anda bukan atasan langsung karyawan ini, tidak bisa memberi asesmen.');
+  }
+
   var sh = ss.getSheetByName(SHEET_ASSESSMENT);
   var komp = sheetRows_(SHEET_KOMPETENSI).filter(function (r) { return r.JabatanID === payload.jabatanId; });
   var results = [];
   (payload.scores || []).forEach(function (s) {
     var id = payload.nik + '_' + s.kompId + '_' + new Date().getTime();
-    sh.appendRow([id, payload.nik, payload.jabatanId, s.kompId, s.levelAktual, payload.asesorNik, new Date()]);
+    sh.appendRow([id, payload.nik, payload.jabatanId, s.kompId, s.levelAktual, session.nik, new Date()]);
     var k = komp.filter(function (r) { return r.KompID === s.kompId; })[0];
     var target = k ? k.LevelTarget : 3;
     var gap = target - s.levelAktual;
@@ -258,7 +382,8 @@ function rekomendasiGap_(gap, tipe) {
 
 /* ================= TRAINING NEEDS MATRIX ================= */
 
-function actionGetTrainingMatrix_() {
+function actionGetTrainingMatrix_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
   var assessments = sheetRows_(SHEET_ASSESSMENT);
   var komp = sheetRows_(SHEET_KOMPETENSI);
   var modules = sheetRows_(SHEET_TRAININGMODULE);
@@ -286,21 +411,74 @@ function actionGetTrainingMatrix_() {
 }
 
 /* ================= CAREER PATH ================= */
+/* P2: pencocokan transferable/perlu-dipelajari sekarang coba pakai AI (kesamaan SUBSTANSI skill
+   dari nama+definisi), bukan cuma keyword overlap. Kalau API key tidak ada / gagal, fallback ke
+   keyword matching lama supaya fitur tetap jalan. Hasil "perlu dipelajari" dilengkapi status modul
+   training (actionable, bukan cuma daftar nama). */
 
-function actionCareerPath_(payload) {
-  var fromKomp = actionGetKompetensiByJabatan_({ jabatanId: payload.fromJabatanId });
-  var toKomp = actionGetKompetensiByJabatan_({ jabatanId: payload.toJabatanId });
+function actionCareerPath_(payload, session) {
+  var fromKomp = actionGetKompetensiByJabatan_({ jabatanId: payload.fromJabatanId }, session);
+  var toKomp = actionGetKompetensiByJabatan_({ jabatanId: payload.toJabatanId }, session);
+  var result;
+  var apiKey = PropertiesService.getScriptProperties().getProperty('CLAUDE_API_KEY');
+  if (apiKey && fromKomp.length && toKomp.length) {
+    try {
+      result = aiCareerPathMatch_(fromKomp, toKomp);
+    } catch (e) {
+      result = keywordCareerPathMatch_(fromKomp, toKomp);
+    }
+  } else {
+    result = keywordCareerPathMatch_(fromKomp, toKomp);
+  }
+  result.toLearn = enrichWithModule_(result.toLearn);
+  return result;
+}
+
+function keywordCareerPathMatch_(fromKomp, toKomp) {
   var fromNames = fromKomp.map(function (k) { return k.nama.toLowerCase(); });
   var transferable = [], toLearn = [];
   toKomp.forEach(function (k) {
     var match = fromNames.some(function (n) { return shareWord_(n, k.nama.toLowerCase()); });
     (match ? transferable : toLearn).push(k);
   });
-  return { transferable: transferable, toLearn: toLearn };
+  return { transferable: transferable, toLearn: toLearn, method: 'keyword' };
+}
+
+function aiCareerPathMatch_(fromKomp, toKomp) {
+  var prompt = [
+    'Anda ahli competency mapping untuk talent mobility. Diberi daftar kompetensi jabatan ASAL dan jabatan TUJUAN (nama + definisi singkat).',
+    'Untuk setiap kompetensi TUJUAN, tentukan TRANSFERABLE (orang dari jabatan asal sudah menguasai skill yang SUBSTANSINYA sama/sangat mirip, bukan cuma namanya mirip) atau PERLU_DIPELAJARI (skill baru/beda signifikan meski namanya mungkin terdengar mirip).',
+    'Keluarkan HANYA JSON valid, tanpa teks lain: {"hasil":[{"nama":"...","status":"transferable|perlu_dipelajari","alasan":"1 kalimat singkat"}]}',
+    '',
+    '=== KOMPETENSI JABATAN ASAL ===',
+    fromKomp.map(function (k) { return '- ' + k.nama + ': ' + k.definisi; }).join('\n'),
+    '',
+    '=== KOMPETENSI JABATAN TUJUAN ===',
+    toKomp.map(function (k) { return '- ' + k.nama + ': ' + k.definisi; }).join('\n')
+  ].join('\n');
+  var raw = callClaude_(prompt);
+  var parsed = extractJson_(raw);
+  var byName = {};
+  (parsed.hasil || []).forEach(function (h) { byName[h.nama] = h; });
+  var transferable = [], toLearn = [];
+  toKomp.forEach(function (k) {
+    var h = byName[k.nama];
+    var withReason = Object.assign({}, k, { alasan: h ? h.alasan : '' });
+    (h && h.status === 'transferable' ? transferable : toLearn).push(withReason);
+  });
+  return { transferable: transferable, toLearn: toLearn, method: 'ai' };
+}
+
+function enrichWithModule_(items) {
+  var modules = sheetRows_(SHEET_TRAININGMODULE);
+  return items.map(function (k) {
+    var mod = modules.filter(function (m) { return m.NamaKompetensi === k.nama; })[0];
+    return Object.assign({}, k, { statusModul: mod ? mod.StatusModul : 'belum', catatanModul: mod ? mod.CatatanSumber : 'Belum ada data modul.' });
+  });
 }
 
 function shareWord_(a, b) {
-  var stop = ['dan', 'di', 'ke', 'yang', 'untuk', 'pada', 'manajemen', 'kemampuan'];
+  var stop = ['dan', 'di', 'ke', 'yang', 'untuk', 'pada', 'manajemen', 'kemampuan', 'operasional'];
   var wa = a.split(/\s+/), wb = b.split(/\s+/);
   return wa.some(function (w) { return w.length > 4 && stop.indexOf(w) === -1 && wb.indexOf(w) !== -1; });
 }
