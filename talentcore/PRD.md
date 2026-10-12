@@ -48,10 +48,21 @@ modul training, asesmen atasan ke bawahan, dan IDP (Individual Development Plan)
 
 ## 4. Pengguna & Alur
 
+**Koreksi model (2026-10-12, dari klarifikasi Brader — ini model yang benar, bukan asumsi awal):**
+
+Asesmen kompetensi **BUKAN** aktivitas kontinu/kapan saja oleh atasan langsung. Realitasnya:
+- Dilakukan oleh **tim asesor** (bisa L&D, bisa panel internal/eksternal), **bukan otomatis atasan langsung**.
+- Siklusnya **~2 tahun**, bukan bulanan/triwulanan. Setiap siklus punya nama (mis. "Siklus 2026") supaya hasil satu kohort bisa dilihat bersama (talent pool).
+- Hasilnya untuk SEMUA yang diases: **talent pool** (klasifikasi). Untuk talent yang disiapkan jadi future leader: hasil asesmen jadi **competency gap**, yang diturunkan jadi **IDP** sekaligus input ke bench strength & succession planning.
+- **Yang dimonitor SETELAH asesmen adalah implementasi IDP-nya** — bukan re-asesmen berulang. Re-asesmen baru terjadi di siklus berikutnya (~2 tahun lagi).
+- **Self-rating ditambahkan** (2026-10-12, disetujui) — orang yang diases mengisi rating dirinya sendiri, dicatat berdampingan dengan rating asesor. Gap resmi tetap dihitung dari rating asesor; selisih self vs asesor jadi sinyal kalibrasi (over/under-confidence), bukan dipakai buat skor resmi.
+
+Implikasi ke RBAC: **tidak perlu role baru**. Role `admin`/`ld` sudah bisa menilai siapa saja (lihat `actionSubmitAssessment_`) — tim asesor cukup diberi role `ld` di sheet Users. Role "Atasan Langsung" (dibatasi ke bawahan langsungnya sendiri) tetap ada untuk kasus di luar siklus formal (mis. supervisor ingin cek kesiapan bawahannya sendiri kapan saja) — itu use case yang berbeda dari siklus asesor resmi, keduanya dipertahankan.
+
 | Role | Siapa | Ngapain di app |
 |---|---|---|
-| Admin / L&D | Sujarwadi dkk | Generate kompetensi dari JD, **tinjau & edit sebelum simpan**, lihat Kamus Kompetensi, Training Matrix, Career Path, Profil Karyawan siapa pun |
-| Atasan Langsung | Dept Head / Kepala Cabang / Spv | Asesmen kompetensi **hanya untuk bawahan langsungnya sendiri**, lihat riwayat/gap bawahan itu |
+| Admin / L&D / Tim Asesor | Sujarwadi, tim asesor siklus formal | Generate kompetensi dari JD, **tinjau & edit sebelum simpan**, jalankan asesmen siklus (siapa saja, bukan cuma bawahannya), kelola IDP, lihat Kamus Kompetensi, Training Matrix, Career Path, Profil Karyawan, monitoring implementasi IDP lintas organisasi |
+| Atasan Langsung | Dept Head / Kepala Cabang / Spv | Asesmen ad-hoc **hanya untuk bawahan langsungnya sendiri** (di luar siklus formal), update progress IDP bawahannya |
 
 Login pakai NIK + PIN (PIN di-hash, session berbasis token — lihat §7 Keamanan).
 
@@ -73,6 +84,9 @@ Login pakai NIK + PIN (PIN di-hash, session berbasis token — lihat §7 Keamana
 | **Bench Strength / status Ready Now–6-12bln–>1thn** | Tab "Suksesi & Bench": breakdown kesiapan kandidat per jabatan target — **rule-based dari Gap Engine, bukan ML**, lihat §6 untuk batasan | P1 (future-plan, dimajukan) | Selesai (2026-10-12) |
 | **HAV Map = 9-box Kinerja × Kesiapan Kompetensi** | Grid 3×3 dengan nama sel baku (Bintang, Inti Organisasi, Perlu Perhatian, dst) + tindakan per sel. Sumbu kinerja diinput manual dari penilaian kinerja yang sudah berjalan (sheet `Performance`), sumbu kesiapan dari Gap Engine — **sengaja dua sumber berbeda**. Versi scatter sebelumnya dibuang: kedua sumbunya sama-sama turunan gap kompetensi, jadi secara statistik bukan 9-box | P1 | Selesai (2026-10-12, hasil benchmark) |
 | **Talent Card** | Satu halaman per orang untuk rapat talent review: identitas, kinerja, kesiapan, posisi 9-box + tindakannya, 3 gap prioritas dengan status modul, seluruh kompetensi, siap dicetak/PDF | P1 | Selesai (2026-10-12, hasil benchmark) |
+| **Siklus Asesmen** | Setiap asesmen ditag nama siklus (mis. "Siklus 2026") supaya satu kohort talent pool bisa dilihat bersama, selaras model asesmen ~2 tahunan oleh tim asesor | P0 (koreksi model) | Selesai (2026-10-12) |
+| **Self-Rating** | Orang yang diases mengisi rating dirinya sendiri berdampingan dengan rating asesor. Gap resmi tetap dari rating asesor; selisih jadi sinyal kalibrasi | P1 | Selesai (2026-10-12) |
+| **IDP sebagai objek terlacak** | Draft IDP otomatis dibuat untuk tiap kompetensi dengan gap>0 setelah asesmen disimpan (PIC, target tanggal, status Belum Mulai/Berjalan/Selesai, catatan progress bisa diupdate). Tab monitoring lintas organisasi untuk lihat yang terlambat. **Simplifikasi yang diakui**: draft dibuat untuk SEMUA gap>0, bukan cuma untuk talent yang secara sadar disiapkan jadi future leader — L&D harus menyaring/menghapus entri yang tidak relevan. Ini yang dimaksud Brader sebagai "yang dimonitor setelah asesmen", bukan re-asesmen berulang | P0 (koreksi model, paling penting) | Selesai (2026-10-12) |
 
 **Belum dikerjakan sama sekali (bukan bug, keputusan sadar menunda):**
 - Deploy ke Google Sheet + Script Properties produksi (butuh aksi manual Sujarwadi — lihat `README.md` § Setup Deploy).

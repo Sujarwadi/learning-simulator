@@ -29,6 +29,7 @@ var SHEET_ASSESSMENT = 'Assessment';
 var SHEET_TRAININGMODULE = 'TrainingModule';
 var SHEET_SESSIONS = 'Sessions';
 var SHEET_PERFORMANCE = 'Performance';
+var SHEET_IDP = 'IDP';
 
 var SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 jam
 
@@ -56,11 +57,12 @@ function setupTabTalentCore() {
   createTabIfMissing_(ss, SHEET_KOMPETENSI, ['KompID', 'JabatanID', 'NamaKompetensi', 'Tipe', 'Definisi', 'SumberTugas', 'LevelTarget', 'StatusReview']);
   createTabIfMissing_(ss, SHEET_LEVEL, ['KompID', 'Level', 'DeskripsiLevel', 'PerilakuKunci']);
   createTabIfMissing_(ss, SHEET_TASKBREAKDOWN, ['JabatanID', 'TugasUtama', 'SubAktivitas', 'SubSubAktivitas']);
-  createTabIfMissing_(ss, SHEET_ASSESSMENT, ['AssessmentID', 'NIK', 'JabatanID', 'KompID', 'LevelAktual', 'AsesorNIK', 'Tanggal']);
+  createTabIfMissing_(ss, SHEET_ASSESSMENT, ['AssessmentID', 'NIK', 'JabatanID', 'KompID', 'LevelAktual', 'LevelSelfRating', 'AsesorNIK', 'Siklus', 'Tanggal']);
   createTabIfMissing_(ss, SHEET_TRAININGMODULE, ['NamaKompetensi', 'StatusModul', 'CatatanSumber']);
   createTabIfMissing_(ss, SHEET_SESSIONS, ['Token', 'NIK', 'Role', 'ExpiresAt']);
   createTabIfMissing_(ss, SHEET_PERFORMANCE, ['NIK', 'Periode', 'RatingKinerja', 'Catatan', 'DiinputOleh', 'Tanggal']);
-  SpreadsheetApp.getUi().alert('Setup selesai. 9 sheet sudah siap.');
+  createTabIfMissing_(ss, SHEET_IDP, ['IdpID', 'NIK', 'KompID', 'NamaKompetensi', 'Tindakan', 'PIC', 'TargetTanggal', 'Status', 'CatatanProgress', 'Siklus', 'DibuatPada']);
+  SpreadsheetApp.getUi().alert('Setup selesai. 10 sheet sudah siap.');
 }
 
 function createTabIfMissing_(ss, name, headers) {
@@ -100,6 +102,9 @@ function doPost(e) {
       case 'savePerformance': out = actionSavePerformance_(payload, session); break;
       case 'getNineBox': out = actionGetNineBox_(payload, session); break;
       case 'getTalentCard': out = actionGetTalentCard_(payload, session); break;
+      case 'getIdpList': out = actionGetIdpList_(payload, session); break;
+      case 'updateIdp': out = actionUpdateIdp_(payload, session); break;
+      case 'getIdpMonitoring': out = actionGetIdpMonitoring_(payload, session); break;
       default: throw new Error('Action tidak dikenal: ' + action);
     }
     return jsonResponse_({ ok: true, data: out });
@@ -365,17 +370,32 @@ function actionSubmitAssessment_(payload, session) {
   }
 
   var sh = ss.getSheetByName(SHEET_ASSESSMENT);
+  var shIdp = ss.getSheetByName(SHEET_IDP);
   var komp = sheetRows_(SHEET_KOMPETENSI).filter(function (r) { return r.JabatanID === payload.jabatanId; });
-  var results = [];
+  var siklus = payload.siklus || 'Tanpa Siklus';
+  var now = new Date();
+  var results = [], idpDibuat = 0;
   (payload.scores || []).forEach(function (s) {
-    var id = payload.nik + '_' + s.kompId + '_' + new Date().getTime();
-    sh.appendRow([id, payload.nik, payload.jabatanId, s.kompId, s.levelAktual, session.nik, new Date()]);
+    var id = payload.nik + '_' + s.kompId + '_' + now.getTime();
+    var selfRating = (s.levelSelfRating === undefined || s.levelSelfRating === null || s.levelSelfRating === '') ? '' : s.levelSelfRating;
+    sh.appendRow([id, payload.nik, payload.jabatanId, s.kompId, s.levelAktual, selfRating, session.nik, siklus, now]);
     var k = komp.filter(function (r) { return r.KompID === s.kompId; })[0];
     var target = k ? k.LevelTarget : 3;
     var gap = target - s.levelAktual;
-    results.push({ kompId: s.kompId, nama: k ? k.NamaKompetensi : s.kompId, tipe: k ? k.Tipe : 'technical', target: target, aktual: s.levelAktual, gap: gap, rekomendasi: rekomendasiGap_(gap, k ? k.Tipe : 'technical') });
+    var nama = k ? k.NamaKompetensi : s.kompId;
+    var tipe = k ? k.Tipe : 'technical';
+    var rekomendasi = rekomendasiGap_(gap, tipe);
+    var selisihSelf = selfRating === '' ? null : (Number(selfRating) - s.levelAktual);
+    results.push({ kompId: s.kompId, nama: nama, tipe: tipe, target: target, aktual: s.levelAktual, selfRating: selfRating === '' ? null : Number(selfRating), selisihSelf: selisihSelf, gap: gap, rekomendasi: rekomendasi });
+    if (gap > 0) {
+      shIdp.appendRow([
+        payload.nik + '_idp_' + s.kompId + '_' + now.getTime(), payload.nik, s.kompId, nama,
+        rekomendasi, '', '', 'Belum Mulai', '', siklus, now
+      ]);
+      idpDibuat++;
+    }
   });
-  return { nik: payload.nik, results: results };
+  return { nik: payload.nik, results: results, siklus: siklus, idpDibuat: idpDibuat };
 }
 
 function rekomendasiGap_(gap, tipe) {
@@ -699,6 +719,84 @@ function actionGetTalentCard_(payload, session) {
     jumlahSiklusAsesmen: tanggalList.length,
     asesmenTerakhir: tanggalList.length ? tanggalList[tanggalList.length - 1] : null
   };
+}
+
+/* ================= IDP (yang dimonitor SETELAH asesmen, bukan re-asesmen) =================
+ * Draft dibuat otomatis oleh actionSubmitAssessment_ untuk tiap kompetensi dengan gap>0.
+ * Simplifikasi yang diakui (lihat PRD.md): draft dibuat untuk SEMUA gap>0, bukan hanya untuk
+ * talent yang sengaja disiapkan jadi future leader — L&D menyaring/menghapus yang tidak relevan.
+ */
+
+function actionGetIdpList_(payload, session) {
+  var nik = payload.nik;
+  if (!nik) throw new Error('Pilih karyawan dulu.');
+  if (session.role !== 'admin' && session.role !== 'ld') {
+    var target = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
+    if (!target || String(target.AtasanNIK) !== String(session.nik)) {
+      throw new Error('Anda tidak punya akses melihat IDP karyawan ini.');
+    }
+  }
+  var rows = sheetRows_(SHEET_IDP).filter(function (r) { return String(r.NIK) === String(nik); });
+  return rows.map(function (r) {
+    return {
+      idpId: r.IdpID, kompId: r.KompID, nama: r.NamaKompetensi, tindakan: r.Tindakan,
+      pic: r.PIC, targetTanggal: r.TargetTanggal, status: r.Status || 'Belum Mulai',
+      catatanProgress: r.CatatanProgress, siklus: r.Siklus, dibuatPada: r.DibuatPada,
+      terlambat: !!(r.TargetTanggal && r.Status !== 'Selesai' && new Date(r.TargetTanggal) < new Date())
+    };
+  });
+}
+
+function actionUpdateIdp_(payload, session) {
+  var idpId = payload.idpId;
+  if (!idpId) throw new Error('IDP tidak ditemukan.');
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_IDP);
+  var found = findRowByValue_(sh, 'IdpID', idpId);
+  if (!found) throw new Error('IDP tidak ditemukan.');
+  var headers = sh.getDataRange().getValues()[0];
+  var nik = found.values[headers.indexOf('NIK')];
+
+  if (session.role !== 'admin' && session.role !== 'ld') {
+    var target = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
+    if (!target || String(target.AtasanNIK) !== String(session.nik)) {
+      throw new Error('Anda tidak punya akses mengubah IDP ini.');
+    }
+  }
+
+  var allowedStatus = ['Belum Mulai', 'Berjalan', 'Selesai'];
+  if (payload.status && allowedStatus.indexOf(payload.status) === -1) throw new Error('Status tidak valid.');
+
+  function setCol(colName, value) {
+    if (value === undefined) return;
+    sh.getRange(found.rowIndex, headers.indexOf(colName) + 1).setValue(value);
+  }
+  setCol('Status', payload.status);
+  setCol('PIC', payload.pic);
+  setCol('TargetTanggal', payload.targetTanggal);
+  setCol('CatatanProgress', payload.catatanProgress);
+  return { idpId: idpId, ok: true };
+}
+
+function actionGetIdpMonitoring_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
+  var rows = sheetRows_(SHEET_IDP);
+  var users = sheetRows_(SHEET_USERS);
+  var now = new Date();
+  var summary = { 'Belum Mulai': 0, 'Berjalan': 0, 'Selesai': 0 };
+  var terlambat = [];
+  rows.forEach(function (r) {
+    var status = r.Status || 'Belum Mulai';
+    summary[status] = (summary[status] || 0) + 1;
+    var isTerlambat = r.TargetTanggal && status !== 'Selesai' && new Date(r.TargetTanggal) < now;
+    if (isTerlambat) {
+      var u = users.filter(function (x) { return String(x.NIK) === String(r.NIK); })[0];
+      terlambat.push({
+        idpId: r.IdpID, nik: r.NIK, nama: u ? u.Nama : r.NIK, kompetensi: r.NamaKompetensi,
+        pic: r.PIC, targetTanggal: r.TargetTanggal, status: status
+      });
+    }
+  });
+  return { total: rows.length, summary: summary, terlambat: terlambat };
 }
 
 function shareWord_(a, b) {

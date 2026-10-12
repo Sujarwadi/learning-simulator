@@ -97,6 +97,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .bench-tile{flex:1;min-width:140px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center}
 .bench-tile .n{font-size:26px;font-weight:800;line-height:1}
 .bench-tile .lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.score-row .self-wrap{display:flex;align-items:center;gap:8px}
+.score-row .self-wrap small{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.idp-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.idp-row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.idp-row .nama{font-weight:700;font-size:14px}
+.idp-row .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.idp-row .grid .full{grid-column:1 / -1}
+@media (max-width:520px){.idp-row .grid{grid-template-columns:1fr}}
+.badge-overdue{background:var(--red-soft);color:var(--red);font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px}
 /* 9-box grid */
 .nb-scroll{overflow-x:auto}
 .ninebox{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;min-width:560px}
@@ -176,6 +185,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <button class="tab-btn" data-tab="path">4. Career Path</button>
         <button class="tab-btn" data-tab="profile">5. Profil Karyawan</button>
         <button class="tab-btn" data-tab="succession">6. Suksesi &amp; Bench</button>
+        <button class="tab-btn" data-tab="idp">7. IDP &amp; Monitoring</button>
       </div>
 
       <div id="panel-generate">
@@ -270,6 +280,22 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <div id="bench-result"></div>
         <div id="talentcard-result" style="margin-top:20px"></div>
       </div>
+
+      <div id="panel-idp" style="display:none">
+        <h2 class="sect">Monitoring IDP Lintas Organisasi</h2>
+        <div class="hint" style="margin-bottom:10px">Yang dipantau setelah siklus asesmen adalah implementasi IDP ini — bukan asesmen ulang (siklus berikutnya ~2 tahun lagi).</div>
+        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-idp-monitor">Muat Monitoring</button></div>
+        <div id="idp-monitor-result"></div>
+
+        <h2 class="sect" style="margin-top:28px">IDP per Karyawan</h2>
+        <div class="card">
+          <label>Karyawan</label>
+          <input type="text" id="inp-idp-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-idp">Tampilkan IDP</button></div>
+          <div class="err" id="err-idp"></div>
+        </div>
+        <div id="idp-result"></div>
+      </div>
     </div>
     <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
   </section>
@@ -359,7 +385,7 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
-    ['generate','dict','matrix','path','profile','succession'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
+    ['generate','dict','matrix','path','profile','succession','idp'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
   });
 });
 
@@ -469,21 +495,28 @@ function loadInlineAssessment(jabatanId){
   if(!nik){ showErr('err-gen-assess','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
   api('getKompetensiByJabatan', {jabatanId: jabatanId}).then(function(list){
     if(!list.length){ $('gen-assess-form').innerHTML = '<div class="empty">Jabatan ini belum punya kompetensi tersimpan.</div>'; return; }
-    var html = '<div class="card"><h2 class="sect">Beri Skor Level Aktual (1-5)</h2>';
+    var html = '<div class="card"><h2 class="sect">Siklus Asesmen</h2>'+
+      '<input type="text" id="gen-inp-siklus" placeholder="Contoh: Siklus 2026" value="Siklus '+new Date().getFullYear()+'"></div>';
+    html += '<div class="card"><h2 class="sect">Beri Skor (1-5)</h2>'+
+      '<div class="hint" style="margin-bottom:6px">Self-Rating opsional (diisi karyawan sendiri) &middot; Rating Asesor yang menentukan gap resmi.</div>';
     list.forEach(function(k){
       html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b><div class="hint">'+esc(k.tipe)+' &middot; target: level '+k.levelTarget+'</div></div>'+
-        '<select class="gen-inp-score" data-komp="'+esc(k.kompId)+'">'+
-        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div>';
+        '<div class="self-wrap"><small>Self</small><select class="gen-inp-self" data-komp="'+esc(k.kompId)+'"><option value="">-</option>'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select>'+
+        '<small>Asesor</small><select class="gen-inp-score" data-komp="'+esc(k.kompId)+'">'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div></div>';
     });
     html += '<div style="margin-top:16px"><button class="btn btn-primary" id="btn-gen-submit-assess">Simpan Asesmen</button></div></div><div id="gen-assess-gap-result"></div>';
     $('gen-assess-form').innerHTML = html;
     $('btn-gen-submit-assess').onclick = function(){
       var scores = Array.prototype.map.call(document.querySelectorAll('.gen-inp-score'), function(sel){
-        return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10) };
+        var selfEl = document.querySelector('.gen-inp-self[data-komp="'+sel.dataset.komp+'"]');
+        return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10), levelSelfRating: selfEl && selfEl.value ? parseInt(selfEl.value,10) : null };
       });
-      api('submitAssessment', {nik: nik, jabatanId: jabatanId, scores: scores}).then(function(r2){
+      api('submitAssessment', {nik: nik, jabatanId: jabatanId, siklus: $('gen-inp-siklus').value.trim(), scores: scores}).then(function(r2){
         var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap-gen" height="220"></canvas></div></div>';
         html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
+        if(r2.idpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r2.idpDibuat+' rencana pengembangan (IDP) otomatis dibuat untuk kompetensi yang gap &mdash; buka tab "IDP & Monitoring" untuk isi PIC dan target tanggal.</div>';
         r2.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
           html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+'</div></div>'+
@@ -639,11 +672,17 @@ $('btn-load-assess').onclick = function(){
   $('assess-profile-result').innerHTML = '';
   api('getKompetensiByJabatan', {jabatanId: jid}).then(function(list){
     if(!list.length){ $('assess-form').innerHTML = '<div class="empty">Jabatan ini belum punya kompetensi tersimpan.</div>'; return; }
-    var html = '<div class="card"><h2 class="sect">Beri Skor Level Aktual (1-5)</h2>';
+    var html = '<div class="card"><h2 class="sect">Siklus Asesmen</h2>'+
+      '<div class="hint" style="margin-bottom:8px">Asesmen formal berjalan per siklus (&plusmn;2 tahun), bukan kontinu. Beri nama siklus supaya hasilnya bisa dilihat satu kohort.</div>'+
+      '<input type="text" id="inp-siklus" placeholder="Contoh: Siklus 2026" value="Siklus '+new Date().getFullYear()+'"></div>';
+    html += '<div class="card"><h2 class="sect">Beri Skor (1-5)</h2>'+
+      '<div class="hint" style="margin-bottom:6px">Self-Rating diisi oleh karyawan sendiri (opsional, buat sinyal kalibrasi) &middot; Rating Asesor yang menentukan gap resmi.</div>';
     list.forEach(function(k){
       html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b><div class="hint">'+esc(k.tipe)+' &middot; target: level '+k.levelTarget+'</div></div>'+
-        '<select class="inp-score" data-komp="'+esc(k.kompId)+'" data-target="'+k.levelTarget+'">'+
-        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div>';
+        '<div class="self-wrap"><small>Self</small><select class="inp-self" data-komp="'+esc(k.kompId)+'"><option value="">-</option>'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select>'+
+        '<small>Asesor</small><select class="inp-score" data-komp="'+esc(k.kompId)+'" data-target="'+k.levelTarget+'">'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div></div>';
     });
     html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn btn-primary" id="btn-submit-assess">Simpan Asesmen</button>'+
       '<button class="btn btn-ghost" id="btn-view-riwayat" style="width:auto;white-space:nowrap">Lihat Riwayat</button></div></div><div id="assess-gap-result"></div>';
@@ -655,14 +694,17 @@ $('btn-load-assess').onclick = function(){
     };
     $('btn-submit-assess').onclick = function(){
       var scores = Array.prototype.map.call(document.querySelectorAll('.inp-score'), function(sel){
-        return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10) };
+        var selfEl = document.querySelector('.inp-self[data-komp="'+sel.dataset.komp+'"]');
+        return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10), levelSelfRating: selfEl && selfEl.value ? parseInt(selfEl.value,10) : null };
       });
-      api('submitAssessment', {nik: nik, jabatanId: jid, scores: scores}).then(function(r){
+      api('submitAssessment', {nik: nik, jabatanId: jid, siklus: $('inp-siklus').value.trim(), scores: scores}).then(function(r){
         var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap" height="220"></canvas></div></div>';
         html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
+        if(r.idpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r.idpDibuat+' rencana pengembangan (IDP) otomatis dibuat untuk kompetensi yang gap &mdash; buka tab "IDP & Monitoring" untuk isi PIC dan target tanggal.</div>';
         r.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
-          html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+'</div></div>'+
+          var selisihTxt = res.selisihSelf===null ? '' : (res.selisihSelf===0 ? ' &middot; self-rating selaras' : (res.selisihSelf>0 ? ' &middot; self-rating lebih tinggi '+res.selisihSelf : ' &middot; self-rating lebih rendah '+Math.abs(res.selisihSelf)));
+          html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+selisihTxt+'</div></div>'+
             '<span class="gap-pill '+cls+'">Gap '+Math.max(res.gap,0)+'</span></div>';
         });
         html2 += '</div>';
@@ -833,6 +875,71 @@ $('btn-load-bench').onclick = function(){
     html += '</table>';
     $('bench-result').innerHTML = html;
   }).catch(function(e){ showErr('err-bench', e.message); });
+};
+
+/* ---------- IDP & MONITORING ---------- */
+$('btn-load-idp-monitor').onclick = function(){
+  api('getIdpMonitoring', {}).then(function(r){
+    var s = r.summary;
+    var html = '<div class="bench-row">'+
+      '<div class="bench-tile"><div class="n">'+r.total+'</div><div class="lbl">Total IDP</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--muted)">'+(s['Belum Mulai']||0)+'</div><div class="lbl">Belum Mulai</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--amber)">'+(s['Berjalan']||0)+'</div><div class="lbl">Berjalan</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--green)">'+(s['Selesai']||0)+'</div><div class="lbl">Selesai</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--red)">'+r.terlambat.length+'</div><div class="lbl">Lewat Tenggat</div></div>'+
+      '</div>';
+    if(r.terlambat.length){
+      html += '<div class="card"><h2 class="sect" style="color:var(--red)">Lewat Tenggat</h2><table><tr><th>Nama</th><th>Kompetensi</th><th>PIC</th><th>Target</th><th>Status</th></tr>';
+      r.terlambat.forEach(function(t){
+        html += '<tr><td>'+esc(t.nama)+'</td><td>'+esc(t.kompetensi)+'</td><td>'+esc(t.pic||'-')+'</td><td>'+fmtDate(t.targetTanggal)+'</td><td><span class="badge-overdue">'+esc(t.status)+'</span></td></tr>';
+      });
+      html += '</table></div>';
+    }
+    $('idp-monitor-result').innerHTML = html;
+  });
+};
+
+$('btn-load-idp').onclick = function(){
+  clearErr('err-idp');
+  var nik = resolveNik($('inp-idp-nik').value);
+  if(!nik){ showErr('err-idp','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('getIdpList', {nik: nik}).then(function(list){
+    if(!list.length){ $('idp-result').innerHTML = '<div class="empty">Belum ada IDP untuk karyawan ini (artinya tidak ada gap pada asesmen terakhir, atau belum pernah diases).</div>'; return; }
+    var html = '';
+    list.forEach(function(idp){
+      html += '<div class="idp-row" data-idp="'+esc(idp.idpId)+'">'+
+        '<div class="top"><span class="nama">'+esc(idp.nama)+'</span>'+(idp.terlambat?'<span class="badge-overdue">Lewat Tenggat</span>':'')+'</div>'+
+        '<div class="hint">'+esc(idp.tindakan)+' &middot; Siklus: '+esc(idp.siklus||'-')+'</div>'+
+        '<div class="grid">'+
+          '<div><label>Status</label><select class="idp-status">'+
+            ['Belum Mulai','Berjalan','Selesai'].map(function(s){ return '<option value="'+s+'"'+(s===idp.status?' selected':'')+'>'+s+'</option>'; }).join('')+
+          '</select></div>'+
+          '<div><label>PIC</label><input type="text" class="idp-pic" value="'+esc(idp.pic||'')+'" placeholder="Nama PIC"></div>'+
+          '<div><label>Target Tanggal</label><input type="date" class="idp-target" value="'+esc(idp.targetTanggal?String(idp.targetTanggal).slice(0,10):'')+'"></div>'+
+          '<div><label>&nbsp;</label><button class="btn btn-ghost idp-save" style="margin-top:0">Simpan</button></div>'+
+          '<div class="full"><label>Catatan Progress</label><textarea class="idp-catatan" style="min-height:50px">'+esc(idp.catatanProgress||'')+'</textarea></div>'+
+        '</div><div class="err idp-err" style="margin-top:6px"></div></div>';
+    });
+    $('idp-result').innerHTML = html;
+    document.querySelectorAll('#idp-result .idp-save').forEach(function(btn){
+      btn.onclick = function(){
+        var row = btn.closest('.idp-row');
+        var errEl = row.querySelector('.idp-err');
+        errEl.classList.remove('show'); errEl.textContent='';
+        api('updateIdp', {
+          idpId: row.dataset.idp,
+          status: row.querySelector('.idp-status').value,
+          pic: row.querySelector('.idp-pic').value.trim(),
+          targetTanggal: row.querySelector('.idp-target').value,
+          catatanProgress: row.querySelector('.idp-catatan').value.trim()
+        }).then(function(){
+          errEl.textContent = 'Tersimpan.'; errEl.style.color='var(--green)'; errEl.classList.add('show');
+        }).catch(function(e){
+          errEl.style.color='#8A1620'; errEl.textContent = e.message; errEl.classList.add('show');
+        });
+      };
+    });
+  }).catch(function(e){ showErr('err-idp', e.message); });
 };
 </script>
 </body>
