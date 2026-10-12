@@ -70,13 +70,23 @@ Login pakai NIK + PIN (PIN di-hash, session berbasis token — lihat §7 Keamana
 | Career Path Explorer | Diff kompetensi dua jabatan, dibantu AI (fallback keyword), dilengkapi status modul | P2 | Selesai (hasil audit) |
 | **Visualisasi di tiap tahap** | Chart.js: radar profil level target (Kamus), bar target-vs-aktual (hasil asesmen), bar urgency/kesiapan modul (Training Matrix) — bukan cuma tabel/narasi | P1 | Selesai (2026-10-12) |
 | **Alur generate → asesmen jadi satu rangkaian** | Begitu kompetensi tersimpan, form asesmen untuk jabatan itu langsung tersedia di layar yang sama (admin/L&D tidak perlu pindah layar atau re-pilih jabatan) | P1 | Selesai (2026-10-12) |
-| **HAV Map (9-box proxy)** & **Bench Strength / status Ready Now–6-12bln–>1thn** | Tab baru "Suksesi & Bench": scatter 2 sumbu (Kesiapan vs Potensi) dan breakdown kesiapan kandidat per jabatan target — **rule-based dari Gap Engine, bukan ML**, lihat §6 untuk batasan | P1 (future-plan, dimajukan) | Selesai (2026-10-12) |
+| **Bench Strength / status Ready Now–6-12bln–>1thn** | Tab "Suksesi & Bench": breakdown kesiapan kandidat per jabatan target — **rule-based dari Gap Engine, bukan ML**, lihat §6 untuk batasan | P1 (future-plan, dimajukan) | Selesai (2026-10-12) |
+| **HAV Map = 9-box Kinerja × Kesiapan Kompetensi** | Grid 3×3 dengan nama sel baku (Bintang, Inti Organisasi, Perlu Perhatian, dst) + tindakan per sel. Sumbu kinerja diinput manual dari penilaian kinerja yang sudah berjalan (sheet `Performance`), sumbu kesiapan dari Gap Engine — **sengaja dua sumber berbeda**. Versi scatter sebelumnya dibuang: kedua sumbunya sama-sama turunan gap kompetensi, jadi secara statistik bukan 9-box | P1 | Selesai (2026-10-12, hasil benchmark) |
+| **Talent Card** | Satu halaman per orang untuk rapat talent review: identitas, kinerja, kesiapan, posisi 9-box + tindakannya, 3 gap prioritas dengan status modul, seluruh kompetensi, siap dicetak/PDF | P1 | Selesai (2026-10-12, hasil benchmark) |
 
 **Belum dikerjakan sama sekali (bukan bug, keputusan sadar menunda):**
 - Deploy ke Google Sheet + Script Properties produksi (butuh aksi manual Sujarwadi — lihat `README.md` § Setup Deploy).
 - Logout server-side / revoke token instan.
 - IDP yang menyatukan skor Behavioral (Kamus 2022) + Technical/Managerial (TalentCore) dalam satu layar.
 - **Persen probabilitas sukses rotasi/promosi** — sengaja TIDAK dibangun (keputusan 2026-10-12): belum ada data historis outcome untuk divalidasi, lihat §6.
+
+**Hasil benchmark pasar (2026-10-12) — gap yang DIAKUI tapi belum dikerjakan:**
+1. **Taksonomi kompetensi kanonik** (seperti Huneety 1.700+ skill, Workday Skills Cloud, Lightcast/SkyHive). Saat ini TalentCore bikin baris kompetensi BARU per jabatan, jadi "Coaching" di Branch Head dan di Sales SPV adalah dua entitas terpisah tanpa relasi — itulah sebabnya Career Path Explorer harus mencocokkan pakai kata kunci/AI. Perbaikannya: satu entitas skill dipakai ulang banyak jabatan dengan level target berbeda. Ini refactor skema, bukan tambalan.
+2. **Self-assessment + multi-rater** — hampir semua produk pembanding punya penilaian diri berdampingan dengan penilaian atasan; selisihnya sendiri adalah sinyal (over/under-confidence). TalentCore masih single-rater (atasan saja) = rawan bias satu penilai.
+3. **Mode kalibrasi / talent review session** (Lattice, PerformYard, SuccessFactors) — forum moderasi antar atasan sebelum skor difinalkan, dengan jejak audit.
+4. **IDP sebagai objek yang dilacak** (Mekari Talenta punya ini) — rekomendasi saat ini hanya teks di layar, tidak jadi rencana dengan penanggung jawab, tenggat, dan status.
+5. **Inferensi skill dari artefak kerja** (TechWolf dari Jira/Asana, Eightfold dari profil) — butuh sumber data perilaku kerja; di BBM padanannya BAMS/Learning Simulator (Fase 3).
+6. **Benchmark pasar eksternal** (SkyHive) — tidak relevan jangka pendek untuk konteks dealer Mitsubishi regional.
 
 ## 6. Roadmap Jangka Panjang
 

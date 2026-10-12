@@ -28,6 +28,7 @@ var SHEET_TASKBREAKDOWN = 'TaskBreakdown';
 var SHEET_ASSESSMENT = 'Assessment';
 var SHEET_TRAININGMODULE = 'TrainingModule';
 var SHEET_SESSIONS = 'Sessions';
+var SHEET_PERFORMANCE = 'Performance';
 
 var SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 jam
 
@@ -58,7 +59,8 @@ function setupTabTalentCore() {
   createTabIfMissing_(ss, SHEET_ASSESSMENT, ['AssessmentID', 'NIK', 'JabatanID', 'KompID', 'LevelAktual', 'AsesorNIK', 'Tanggal']);
   createTabIfMissing_(ss, SHEET_TRAININGMODULE, ['NamaKompetensi', 'StatusModul', 'CatatanSumber']);
   createTabIfMissing_(ss, SHEET_SESSIONS, ['Token', 'NIK', 'Role', 'ExpiresAt']);
-  SpreadsheetApp.getUi().alert('Setup selesai. 8 sheet sudah siap.');
+  createTabIfMissing_(ss, SHEET_PERFORMANCE, ['NIK', 'Periode', 'RatingKinerja', 'Catatan', 'DiinputOleh', 'Tanggal']);
+  SpreadsheetApp.getUi().alert('Setup selesai. 9 sheet sudah siap.');
 }
 
 function createTabIfMissing_(ss, name, headers) {
@@ -95,7 +97,9 @@ function doPost(e) {
       case 'getUsersList': out = actionGetUsersList_(payload, session); break;
       case 'getProfile': out = actionGetProfile_(payload, session); break;
       case 'getBenchStrength': out = actionGetBenchStrength_(payload, session); break;
-      case 'getHavMap': out = actionGetHavMap_(payload, session); break;
+      case 'savePerformance': out = actionSavePerformance_(payload, session); break;
+      case 'getNineBox': out = actionGetNineBox_(payload, session); break;
+      case 'getTalentCard': out = actionGetTalentCard_(payload, session); break;
       default: throw new Error('Action tidak dikenal: ' + action);
     }
     return jsonResponse_({ ok: true, data: out });
@@ -498,16 +502,9 @@ function actionGetBenchStrength_(payload, session) {
   var targetKomp = actionGetKompetensiByJabatan_({ jabatanId: targetJabatanId }, session);
   if (!targetKomp.length) throw new Error('Jabatan target ini belum punya kompetensi tersimpan.');
 
-  var assessments = sheetRows_(SHEET_ASSESSMENT);
   var komp = sheetRows_(SHEET_KOMPETENSI);
   var users = sheetRows_(SHEET_USERS);
-
-  var latestByNik = {};
-  assessments.forEach(function (a) {
-    latestByNik[a.NIK] = latestByNik[a.NIK] || {};
-    var cur = latestByNik[a.NIK][a.KompID];
-    if (!cur || new Date(a.Tanggal) > new Date(cur.Tanggal)) latestByNik[a.NIK][a.KompID] = a;
-  });
+  var latestByNik = latestAssessmentByNik_();
 
   var candidates = Object.keys(latestByNik).map(function (nik) {
     var u = users.filter(function (r) { return String(r.NIK) === nik; })[0];
@@ -547,39 +544,161 @@ function actionGetBenchStrength_(payload, session) {
   return { targetJabatanId: targetJabatanId, totalKandidat: candidates.length, summary: summary, kandidat: candidates };
 }
 
-function actionGetHavMap_(payload, session) {
+/* ================= HELPER BERSAMA (dipakai bench strength, 9-box, talent card) ================= */
+
+function latestAssessmentByNik_() {
+  var out = {};
+  sheetRows_(SHEET_ASSESSMENT).forEach(function (a) {
+    out[a.NIK] = out[a.NIK] || {};
+    var cur = out[a.NIK][a.KompID];
+    if (!cur || new Date(a.Tanggal) > new Date(cur.Tanggal)) out[a.NIK][a.KompID] = a;
+  });
+  return out;
+}
+
+function latestPerformanceByNik_() {
+  var out = {};
+  sheetRows_(SHEET_PERFORMANCE).forEach(function (r) {
+    var cur = out[r.NIK];
+    if (!cur || new Date(r.Tanggal) > new Date(cur.Tanggal)) out[r.NIK] = r;
+  });
+  return out;
+}
+
+function readinessProfile_(nik, latestMap, kompRows) {
+  var perKomp = latestMap[nik] || {};
+  var total = 0, ready = 0, items = [];
+  Object.keys(perKomp).forEach(function (kid) {
+    var k = kompRows.filter(function (r) { return r.KompID === kid; })[0];
+    if (!k) return;
+    total++;
+    var aktual = Number(perKomp[kid].LevelAktual), target = Number(k.LevelTarget);
+    if (aktual >= target) ready++;
+    items.push({
+      kompId: kid, nama: k.NamaKompetensi, tipe: k.Tipe,
+      target: target, aktual: aktual, gap: target - aktual, tanggal: perKomp[kid].Tanggal
+    });
+  });
+  return { total: total, readiness: total ? Math.round(ready / total * 100) : 0, items: items };
+}
+
+/* ================= 9-BOX / HAV MAP =================
+ * Sumbu Y = Kinerja (rating 1-5 yang DIINPUT MANUAL oleh L&D/HC, bukan dihitung AI).
+ * Sumbu X = Kesiapan Kompetensi (% kompetensi yang sudah >= target, dari Gap Engine).
+ * Dua sumbu ini sengaja datang dari SUMBER BERBEDA — versi sebelumnya memakai dua ukuran
+ * yang sama-sama diturunkan dari gap kompetensi, jadi sebenarnya bukan 9-box (kedua sumbu
+ * saling berkorelasi). Catatan jujur: sumbu X ini "kesiapan kompetensi", BUKAN "potensi"
+ * dalam arti 9-box klasik (learning agility/aspirasi) — itu butuh instrumen terpisah yang
+ * belum ada di BBM. Jangan ganti label sumbunya jadi "Potensi" tanpa instrumen itu.
+ */
+
+var NINE_BOX_CELLS = {
+  '3_3': { nama: 'Bintang', aksi: 'Prioritas suksesi — siapkan untuk peran lebih besar sekarang.' },
+  '3_2': { nama: 'Performer Tinggi', aksi: 'Kinerja kuat, tutup sisa gap kompetensi — kandidat 6-12 bulan.' },
+  '3_1': { nama: 'Spesialis Andal', aksi: 'Pertahankan di perannya, dalamkan keahlian; belum siap pindah jalur.' },
+  '2_3': { nama: 'Calon Kuat', aksi: 'Kompetensi sudah siap — dorong kinerja lewat target lebih menantang.' },
+  '2_2': { nama: 'Inti Organisasi', aksi: 'Tulang punggung tim — jaga retensi, kembangkan bertahap.' },
+  '2_1': { nama: 'Pekerja Solid', aksi: 'Stabil di peran sekarang; fokus tutup gap kompetensi dasar.' },
+  '1_3': { nama: 'Belum Tergali', aksi: 'Kompetensi ada tapi kinerja rendah — cek kecocokan peran/hambatan, bukan training.' },
+  '1_2': { nama: 'Belum Konsisten', aksi: 'Coaching intensif atasan langsung + target jangka pendek yang jelas.' },
+  '1_1': { nama: 'Perlu Perhatian', aksi: 'Rencana perbaikan kinerja terstruktur dengan tenggat jelas.' }
+};
+
+function bucketPerf_(rating) { return rating >= 4 ? 3 : (rating === 3 ? 2 : 1); }
+function bucketReady_(pct) { return pct >= 85 ? 3 : (pct >= 50 ? 2 : 1); }
+
+function actionSavePerformance_(payload, session) {
   requireRole_(session, ['admin', 'ld']);
-  var assessments = sheetRows_(SHEET_ASSESSMENT);
-  var komp = sheetRows_(SHEET_KOMPETENSI);
+  var nik = payload.nik, rating = parseInt(payload.rating, 10);
+  if (!nik) throw new Error('Pilih karyawan dulu.');
+  if (!(rating >= 1 && rating <= 5)) throw new Error('Rating kinerja harus angka 1-5.');
+  var user = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
+  if (!user) throw new Error('NIK tidak ditemukan di Users.');
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PERFORMANCE)
+    .appendRow([nik, payload.periode || '', rating, payload.catatan || '', session.nik, new Date()]);
+  return { nik: nik, nama: user.Nama, rating: rating };
+}
+
+function actionGetNineBox_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
+  var latest = latestAssessmentByNik_();
+  var perf = latestPerformanceByNik_();
+  var kompRows = sheetRows_(SHEET_KOMPETENSI);
   var users = sheetRows_(SHEET_USERS);
+  var placed = [], tanpaKinerja = [];
 
-  var byNik = {};
-  assessments.forEach(function (a) { (byNik[a.NIK] = byNik[a.NIK] || []).push(a); });
+  Object.keys(latest).forEach(function (nik) {
+    var prof = readinessProfile_(nik, latest, kompRows);
+    if (!prof.total) return;
+    var u = users.filter(function (r) { return String(r.NIK) === String(nik); })[0];
+    var orang = {
+      nik: nik, nama: u ? u.Nama : nik, jabatan: u ? u.Jabatan : '-', cabang: u ? u.Cabang : '-',
+      readiness: prof.readiness, totalKompetensi: prof.total
+    };
+    var p = perf[nik];
+    if (!p) { tanpaKinerja.push(orang); return; }
+    orang.kinerja = Number(p.RatingKinerja);
+    orang.periodeKinerja = p.Periode || '-';
+    var key = bucketPerf_(orang.kinerja) + '_' + bucketReady_(prof.readiness);
+    orang.cellKey = key;
+    orang.cellNama = NINE_BOX_CELLS[key].nama;
+    orang.cellAksi = NINE_BOX_CELLS[key].aksi;
+    placed.push(orang);
+  });
 
-  var points = Object.keys(byNik).map(function (nik) {
-    var latest = {};
-    byNik[nik].forEach(function (a) {
-      var cur = latest[a.KompID];
-      if (!cur || new Date(a.Tanggal) > new Date(cur.Tanggal)) latest[a.KompID] = a;
-    });
-    var list = Object.keys(latest).map(function (kid) { return latest[kid]; });
-    var total = list.length, readyCount = 0, overCount = 0;
-    list.forEach(function (a) {
-      var k = komp.filter(function (r) { return r.KompID === a.KompID; })[0];
-      if (!k) return;
-      if (a.LevelAktual >= k.LevelTarget) readyCount++;
-      if (a.LevelAktual > k.LevelTarget) overCount++;
-    });
-    var u = users.filter(function (r) { return String(r.NIK) === nik; })[0];
+  return { cells: NINE_BOX_CELLS, placed: placed, tanpaRatingKinerja: tanpaKinerja };
+}
+
+/* ================= TALENT CARD (satu halaman per orang, buat rapat talent review) ================= */
+
+function actionGetTalentCard_(payload, session) {
+  var nik = payload.nik;
+  if (!nik) throw new Error('Pilih karyawan dulu.');
+  var users = sheetRows_(SHEET_USERS);
+  var u = users.filter(function (r) { return String(r.NIK) === String(nik); })[0];
+  if (session.role !== 'admin' && session.role !== 'ld') {
+    if (!u || String(u.AtasanNIK) !== String(session.nik)) {
+      throw new Error('Anda tidak punya akses melihat talent card karyawan ini.');
+    }
+  }
+
+  var kompRows = sheetRows_(SHEET_KOMPETENSI);
+  var prof = readinessProfile_(nik, latestAssessmentByNik_(), kompRows);
+  var p = latestPerformanceByNik_()[nik];
+  var modules = sheetRows_(SHEET_TRAININGMODULE);
+
+  var urut = prof.items.slice().sort(function (a, b) { return b.gap - a.gap; });
+  var prioritas = urut.filter(function (i) { return i.gap > 0; }).slice(0, 3).map(function (i) {
+    var mod = modules.filter(function (m) { return m.NamaKompetensi === i.nama; })[0];
     return {
-      nik: nik, nama: u ? u.Nama : nik, jabatan: u ? u.Jabatan : '-',
-      readiness: total ? Math.round(readyCount / total * 100) : 0,
-      potential: total ? Math.round(overCount / total * 100) : 0,
-      totalKompetensiDiases: total
+      nama: i.nama, tipe: i.tipe, target: i.target, aktual: i.aktual, gap: i.gap,
+      rekomendasi: rekomendasiGap_(i.gap, i.tipe),
+      statusModul: mod ? mod.StatusModul : 'belum',
+      catatanModul: mod ? mod.CatatanSumber : 'Belum ada data modul untuk kompetensi ini di katalog.'
     };
   });
 
-  return { points: points };
+  var nineBox = null;
+  if (p) {
+    var key = bucketPerf_(Number(p.RatingKinerja)) + '_' + bucketReady_(prof.readiness);
+    nineBox = { key: key, nama: NINE_BOX_CELLS[key].nama, aksi: NINE_BOX_CELLS[key].aksi };
+  }
+
+  var tanggalUnik = {};
+  sheetRows_(SHEET_ASSESSMENT).forEach(function (a) {
+    if (String(a.NIK) === String(nik)) tanggalUnik[new Date(a.Tanggal).toISOString().slice(0, 10)] = true;
+  });
+  var tanggalList = Object.keys(tanggalUnik).sort();
+
+  return {
+    nik: nik, nama: u ? u.Nama : nik, jabatan: u ? u.Jabatan : '-', cabang: u ? u.Cabang : '-',
+    kinerja: p ? Number(p.RatingKinerja) : null,
+    periodeKinerja: p ? (p.Periode || '-') : null,
+    readiness: prof.readiness, totalKompetensi: prof.total,
+    kompetensi: prof.items, prioritasPengembangan: prioritas, nineBox: nineBox,
+    jumlahSiklusAsesmen: tanggalList.length,
+    asesmenTerakhir: tanggalList.length ? tanggalList[tanggalList.length - 1] : null
+  };
 }
 
 function shareWord_(a, b) {

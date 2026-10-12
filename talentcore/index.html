@@ -97,6 +97,43 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .bench-tile{flex:1;min-width:140px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center}
 .bench-tile .n{font-size:26px;font-weight:800;line-height:1}
 .bench-tile .lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+/* 9-box grid */
+.nb-scroll{overflow-x:auto}
+.ninebox{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;min-width:560px}
+.nb-rowlbl{display:flex;align-items:center;justify-content:flex-end;text-align:right;font-size:10.5px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-right:4px;max-width:92px}
+.nb-collbl{text-align:center;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-top:2px}
+.nb-cell{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:118px}
+.nb-cell.g{background:var(--green-soft);border-color:#BCE3D0}
+.nb-cell.a{background:var(--amber-soft);border-color:#F3D9A8}
+.nb-cell.r{background:var(--red-soft);border-color:#F3B9BD}
+.nb-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.nb-name{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--text)}
+.nb-count{font-size:19px;font-weight:800;line-height:1}
+.nb-aksi{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.nb-chip{display:block;width:100%;text-align:left;font-size:11.5px;background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06);
+  border-radius:6px;padding:4px 7px;margin-top:5px;cursor:pointer;font-family:inherit}
+.nb-chip:hover{background:#fff}
+/* Talent card */
+.tc{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:22px;box-shadow:var(--shadow)}
+.tc-top{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px}
+.tc-nama{font-size:20px;font-weight:800;color:var(--navy);line-height:1.2}
+.tc-meta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.tc-stats{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+.tc-stat{text-align:center;min-width:86px;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.tc-stat .v{font-size:19px;font-weight:800;line-height:1}
+.tc-stat .l{font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
+.tc-box{border-left:3px solid var(--navy);background:#F7F9FC;padding:10px 12px;border-radius:0 9px 9px 0;margin-bottom:14px}
+.tc-box .t{font-weight:800;font-size:13px;color:var(--navy)}
+.tc-box .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.tc-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);margin:16px 0 8px}
+@media print{
+  body.printing{background:#fff}
+  body.printing *{visibility:hidden}
+  body.printing .tc, body.printing .tc *{visibility:visible}
+  body.printing .tc{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none;padding:0}
+  body.printing .no-print{display:none !important}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 </head>
@@ -188,20 +225,40 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <div class="card">
           <label>Pilih / Cari Karyawan</label>
           <input type="text" id="inp-profile-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
-          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-profile">Tampilkan Riwayat</button></div>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="btn-load-profile" style="width:auto">Tampilkan Riwayat</button>
+            <button class="btn btn-primary" id="btn-load-tc" style="width:auto">Buka Talent Card</button>
+          </div>
           <div class="err" id="err-profile"></div>
         </div>
         <div id="profile-result"></div>
       </div>
 
       <div id="panel-succession" style="display:none">
-        <h2 class="sect">HAV Map &mdash; Kesiapan vs Potensi</h2>
-        <div class="disclaimer"><b>Catatan metodologi:</b> sumbu di bawah ini murni proxy dari gap kompetensi (belum ada data performa/KPI riil &mdash; itu baru masuk begitu BAMS/Database Sales terintegrasi, lihat roadmap Fase 3). Ini heuristik rule-based, <b>bukan</b> model prediktif/ML, dan belum divalidasi terhadap hasil kerja nyata.</div>
-        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-hav">Muat HAV Map</button></div>
-        <div class="card"><div class="chart-wrap"><canvas id="chart-hav" height="260"></canvas></div>
-          <div class="hint">Sumbu X: Kesiapan (% kompetensi saat ini yang sudah &ge; target) &middot; Sumbu Y: Potensi (% kompetensi yang levelnya di ATAS target). Arahkan kursor ke titik untuk lihat nama.</div>
+        <h2 class="sect">Input Rating Kinerja</h2>
+        <div class="card">
+          <div class="hint" style="margin-bottom:10px">9-box butuh dua sumbu dari sumber berbeda. Kompetensi sudah dihitung otomatis dari asesmen; <b>rating kinerja diinput manual di sini</b> (dari penilaian kinerja yang sudah berjalan), bukan ditebak sistem.</div>
+          <label>Karyawan</label>
+          <input type="text" id="inp-perf-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <label style="margin-top:12px">Rating Kinerja (1&ndash;5)</label>
+          <select id="sel-perf-rating">
+            <option value="5">5 &mdash; Jauh melampaui target</option>
+            <option value="4">4 &mdash; Melampaui target</option>
+            <option value="3" selected>3 &mdash; Sesuai target</option>
+            <option value="2">2 &mdash; Di bawah target</option>
+            <option value="1">1 &mdash; Jauh di bawah target</option>
+          </select>
+          <label style="margin-top:12px">Periode</label>
+          <input type="text" id="inp-perf-periode" placeholder="Contoh: Semester 1 2026">
+          <div style="margin-top:14px"><button class="btn btn-primary" id="btn-save-perf">Simpan Rating Kinerja</button></div>
+          <div class="err" id="err-perf"></div>
+          <div id="perf-ok" class="hint" style="display:none;color:var(--green);font-weight:700"></div>
         </div>
-        <div id="hav-empty" class="empty" style="display:none">Belum ada data asesmen untuk dipetakan.</div>
+
+        <h2 class="sect" style="margin-top:28px">HAV Map &mdash; 9-Box Kinerja &times; Kesiapan Kompetensi</h2>
+        <div class="disclaimer"><b>Baca ini dulu:</b> sumbu mendatar adalah <b>Kesiapan Kompetensi</b> (% kompetensi yang sudah mencapai target), <b>bukan "potensi"</b> dalam arti 9-box klasik (learning agility/aspirasi) &mdash; BBM belum punya instrumen untuk mengukur itu. Penempatan di sini hasil aturan baku yang bisa ditelusuri, bukan prediksi AI.</div>
+        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-ninebox">Muat / Refresh 9-Box</button></div>
+        <div id="ninebox-result"></div>
 
         <h2 class="sect" style="margin-top:28px">Bench Strength &amp; Kesiapan Suksesi</h2>
         <div class="card">
@@ -211,6 +268,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
           <div class="err" id="err-bench"></div>
         </div>
         <div id="bench-result"></div>
+        <div id="talentcard-result" style="margin-top:20px"></div>
       </div>
     </div>
     <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
@@ -549,6 +607,13 @@ $('btn-load-profile').onclick = function(){
   }).catch(function(e){ showErr('err-profile', e.message); });
 };
 
+$('btn-load-tc').onclick = function(){
+  clearErr('err-profile');
+  var nik = resolveNik($('inp-profile-nik').value);
+  if(!nik){ showErr('err-profile','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  loadTalentCard(nik, 'profile-result');
+};
+
 function renderProfileHtml(p){
   if(!p.items.length) return '<div class="empty">Belum ada riwayat asesmen untuk '+esc(p.nama)+'.</div>';
   var html = '<div class="card"><h2 class="sect">'+esc(p.nama)+' &middot; '+esc(p.jabatan||'-')+'</h2>'+
@@ -616,31 +681,131 @@ $('btn-load-assess').onclick = function(){
   });
 };
 
-/* ---------- SUCCESSION: HAV MAP & BENCH STRENGTH ---------- */
-$('btn-load-hav').onclick = function(){
-  api('getHavMap', {}).then(function(r){
-    if(!r.points.length){ $('hav-empty').style.display='block'; drawChart('chart-hav', {type:'scatter', data:{datasets:[]}, options:{}}); return; }
-    $('hav-empty').style.display='none';
-    drawChart('chart-hav', {
-      type:'scatter',
-      data:{ datasets:[{
-        label:'Karyawan',
-        data: r.points.map(function(p){ return {x:p.readiness, y:p.potential, nama:p.nama, jabatan:p.jabatan}; }),
-        backgroundColor: r.points.map(function(p){
-          var score = p.readiness*0.6 + p.potential*0.4;
-          return score>=70 ? '#0E8A5F' : (score>=40 ? '#B45309' : '#C00010');
-        }),
-        pointRadius:7, pointHoverRadius:9
-      }] },
-      options:{
-        scales:{ x:{ min:0, max:100, title:{display:true,text:'Kesiapan (%)'} }, y:{ min:0, max:100, title:{display:true,text:'Potensi (%)'} } },
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(ctx){
-          var p = ctx.raw; return p.nama+' ('+p.jabatan+') — Kesiapan '+p.x+'%, Potensi '+p.y+'%';
-        } } } }
-      }
-    });
-  });
+/* ---------- INPUT RATING KINERJA ---------- */
+$('btn-save-perf').onclick = function(){
+  clearErr('err-perf'); $('perf-ok').style.display='none';
+  var nik = resolveNik($('inp-perf-nik').value);
+  if(!nik){ showErr('err-perf','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('savePerformance', {
+    nik: nik,
+    rating: parseInt($('sel-perf-rating').value,10),
+    periode: $('inp-perf-periode').value.trim()
+  }).then(function(r){
+    $('perf-ok').textContent = 'Tersimpan: '+r.nama+' — rating kinerja '+r.rating+'. Klik "Muat / Refresh 9-Box" untuk lihat posisinya.';
+    $('perf-ok').style.display='block';
+  }).catch(function(e){ showErr('err-perf', e.message); });
 };
+
+/* ---------- 9-BOX / HAV MAP ---------- */
+$('btn-load-ninebox').onclick = function(){
+  api('getNineBox', {}).then(function(r){
+    if(!r.placed.length && !r.tanpaRatingKinerja.length){
+      $('ninebox-result').innerHTML = '<div class="empty">Belum ada data asesmen kompetensi untuk dipetakan.</div>';
+      return;
+    }
+    var byCell = {};
+    r.placed.forEach(function(p){ (byCell[p.cellKey] = byCell[p.cellKey] || []).push(p); });
+
+    var rowLbl = {3:'Kinerja Tinggi', 2:'Kinerja Sedang', 1:'Kinerja Rendah'};
+    var colLbl = {1:'Kesiapan Rendah', 2:'Kesiapan Sedang', 3:'Kesiapan Tinggi'};
+    var html = '<div class="card"><div class="nb-scroll"><div class="ninebox">';
+    [3,2,1].forEach(function(perf){
+      html += '<div class="nb-rowlbl">'+rowLbl[perf]+'</div>';
+      [1,2,3].forEach(function(ready){
+        var key = perf+'_'+ready;
+        var sum = perf+ready;
+        var tone = sum>=5 ? 'g' : (sum===4 ? 'a' : 'r');
+        var members = byCell[key] || [];
+        var meta = r.cells[key];
+        html += '<div class="nb-cell '+tone+'">'+
+          '<div class="nb-head"><span class="nb-name">'+esc(meta.nama)+'</span><span class="nb-count">'+members.length+'</span></div>'+
+          '<div class="nb-aksi">'+esc(meta.aksi)+'</div>';
+        members.forEach(function(m){
+          html += '<button class="nb-chip" data-nik="'+esc(m.nik)+'">'+esc(m.nama)+' &middot; '+esc(m.jabatan)+'</button>';
+        });
+        html += '</div>';
+      });
+    });
+    html += '<div></div>';
+    [1,2,3].forEach(function(c){ html += '<div class="nb-collbl">'+colLbl[c]+'</div>'; });
+    html += '</div></div><div class="hint" style="margin-top:10px">Klik nama untuk buka Talent Card-nya.</div></div>';
+
+    if(r.tanpaRatingKinerja.length){
+      html += '<div class="card"><h2 class="sect">Belum Bisa Dipetakan ('+r.tanpaRatingKinerja.length+')</h2>'+
+        '<div class="hint" style="margin-bottom:8px">Sudah ada asesmen kompetensi, tapi rating kinerjanya belum diinput — jadi belum punya sumbu kedua.</div>';
+      r.tanpaRatingKinerja.forEach(function(p){
+        html += '<div class="score-row"><div><b>'+esc(p.nama)+'</b><div class="hint">'+esc(p.jabatan)+' &middot; kesiapan kompetensi '+p.readiness+'%</div></div>'+
+          '<span class="badge badge-grey">perlu rating kinerja</span></div>';
+      });
+      html += '</div>';
+    }
+    $('ninebox-result').innerHTML = html;
+    document.querySelectorAll('#ninebox-result .nb-chip').forEach(function(btn){
+      btn.onclick = function(){ loadTalentCard(btn.dataset.nik, 'talentcard-result'); };
+    });
+  }).catch(function(e){ $('ninebox-result').innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+};
+
+/* ---------- TALENT CARD ---------- */
+function loadTalentCard(nik, containerId){
+  api('getTalentCard', {nik: nik}).then(function(c){
+    $(containerId).innerHTML = renderTalentCardHtml(c);
+    $(containerId).scrollIntoView({behavior:'smooth', block:'start'});
+    var btn = document.querySelector('#'+containerId+' .btn-print-tc');
+    if(btn) btn.onclick = function(){
+      document.body.classList.add('printing');
+      window.print();
+      setTimeout(function(){ document.body.classList.remove('printing'); }, 500);
+    };
+  }).catch(function(e){ $(containerId).innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+function renderTalentCardHtml(c){
+  var kinerjaTxt = c.kinerja ? c.kinerja+'/5' : '—';
+  var h = '<div class="tc"><div class="tc-top">'+
+    '<div><div class="tc-nama">'+esc(c.nama)+'</div>'+
+    '<div class="tc-meta">'+esc(c.jabatan)+' &middot; '+esc(c.cabang)+' &middot; NIK '+esc(c.nik)+'</div></div>'+
+    '<div class="tc-stats">'+
+      '<div class="tc-stat"><div class="v">'+kinerjaTxt+'</div><div class="l">Kinerja</div></div>'+
+      '<div class="tc-stat"><div class="v">'+c.readiness+'%</div><div class="l">Kesiapan Komp.</div></div>'+
+      '<div class="tc-stat"><div class="v">'+c.jumlahSiklusAsesmen+'</div><div class="l">Siklus Asesmen</div></div>'+
+    '</div></div>';
+
+  if(c.nineBox){
+    h += '<div class="tc-box"><div class="t">Posisi 9-Box: '+esc(c.nineBox.nama)+'</div>'+
+      '<div class="d">'+esc(c.nineBox.aksi)+'</div></div>';
+  } else {
+    h += '<div class="tc-box"><div class="t">Posisi 9-Box: belum bisa ditentukan</div>'+
+      '<div class="d">Rating kinerja belum diinput, jadi sumbu kedua 9-box belum ada.</div></div>';
+  }
+
+  h += '<div class="tc-h">Prioritas Pengembangan (3 gap terbesar)</div>';
+  if(!c.prioritasPengembangan.length){
+    h += '<div class="hint">Tidak ada gap &mdash; seluruh kompetensi sudah memenuhi atau melampaui target. Kandidat talent pool / calon mentor.</div>';
+  } else {
+    h += '<table><tr><th>Kompetensi</th><th>Target</th><th>Aktual</th><th>Tindakan</th><th>Modul</th></tr>';
+    c.prioritasPengembangan.forEach(function(p){
+      var modBadge = p.statusModul==='ada' ? 'badge-green' : (p.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
+      h += '<tr><td><b>'+esc(p.nama)+'</b></td><td>'+p.target+'</td><td>'+p.aktual+'</td>'+
+        '<td>'+esc(p.rekomendasi)+'</td><td><span class="badge '+modBadge+'">'+esc(p.statusModul)+'</span></td></tr>';
+    });
+    h += '</table>';
+  }
+
+  h += '<div class="tc-h">Seluruh Kompetensi</div><table><tr><th>Kompetensi</th><th>Tipe</th><th>Target</th><th>Aktual</th><th>Gap</th></tr>';
+  c.kompetensi.forEach(function(k){
+    var cls = k.gap<=0 ? 'gap-0' : (k.gap===1 ? 'gap-1' : 'gap-2');
+    h += '<tr><td>'+esc(k.nama)+'</td><td>'+esc(k.tipe)+'</td><td>'+k.target+'</td><td>'+k.aktual+'</td>'+
+      '<td><span class="gap-pill '+cls+'">'+Math.max(k.gap,0)+'</span></td></tr>';
+  });
+  h += '</table>';
+  h += '<div class="hint" style="margin-top:14px">Asesmen terakhir: '+(c.asesmenTerakhir?fmtDate(c.asesmenTerakhir):'—')+
+    (c.periodeKinerja?' &middot; Periode kinerja: '+esc(c.periodeKinerja):'')+
+    '. Kesiapan kompetensi = % kompetensi yang sudah mencapai target jabatan saat ini; bukan ukuran potensi/learning agility.</div>';
+  h += '<div class="no-print" style="margin-top:16px"><button class="btn btn-ghost btn-print-tc">Cetak / Simpan PDF</button></div>';
+  h += '</div>';
+  return h;
+}
 
 $('btn-load-bench').onclick = function(){
   clearErr('err-bench');
