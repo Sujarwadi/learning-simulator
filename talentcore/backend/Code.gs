@@ -94,6 +94,8 @@ function doPost(e) {
       case 'careerPath': out = actionCareerPath_(payload, session); break;
       case 'getUsersList': out = actionGetUsersList_(payload, session); break;
       case 'getProfile': out = actionGetProfile_(payload, session); break;
+      case 'getBenchStrength': out = actionGetBenchStrength_(payload, session); break;
+      case 'getHavMap': out = actionGetHavMap_(payload, session); break;
       default: throw new Error('Action tidak dikenal: ' + action);
     }
     return jsonResponse_({ ok: true, data: out });
@@ -475,6 +477,109 @@ function enrichWithModule_(items) {
     var mod = modules.filter(function (m) { return m.NamaKompetensi === k.nama; })[0];
     return Object.assign({}, k, { statusModul: mod ? mod.StatusModul : 'belum', catatanModul: mod ? mod.CatatanSumber : 'Belum ada data modul.' });
   });
+}
+
+/* ================= BENCH STRENGTH & HAV MAP (rule-based, bukan ML) =================
+ * Keputusan 2026-10-12: HAV Map, Bench Strength, dan status Ready Now/6-12bln/>1thn
+ * dibangun SEKARANG sebagai heuristik rule-based dari Gap Engine yang sudah ada —
+ * BUKAN model prediktif, TIDAK butuh data historis. Persen probabilitas sukses
+ * rotasi/promosi SENGAJA TIDAK dibangun (lihat PRD/roadmap: "diagnostic dulu,
+ * dibuktikan dulu, baru prediktif" — belum ada data outcome untuk divalidasi).
+ * Kedua fungsi ini JUGA proxy: readiness & potential dihitung murni dari gap
+ * kompetensi, BELUM menggabungkan data performa/KPI riil (itu baru masuk begitu
+ * BAMS/Database Sales terintegrasi — Fase 3). Frontend WAJIB menampilkan disclaimer
+ * ini, jangan dihilangkan.
+ */
+
+function actionGetBenchStrength_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
+  var targetJabatanId = payload.targetJabatanId;
+  if (!targetJabatanId) throw new Error('Pilih jabatan target dulu.');
+  var targetKomp = actionGetKompetensiByJabatan_({ jabatanId: targetJabatanId }, session);
+  if (!targetKomp.length) throw new Error('Jabatan target ini belum punya kompetensi tersimpan.');
+
+  var assessments = sheetRows_(SHEET_ASSESSMENT);
+  var komp = sheetRows_(SHEET_KOMPETENSI);
+  var users = sheetRows_(SHEET_USERS);
+
+  var latestByNik = {};
+  assessments.forEach(function (a) {
+    latestByNik[a.NIK] = latestByNik[a.NIK] || {};
+    var cur = latestByNik[a.NIK][a.KompID];
+    if (!cur || new Date(a.Tanggal) > new Date(cur.Tanggal)) latestByNik[a.NIK][a.KompID] = a;
+  });
+
+  var candidates = Object.keys(latestByNik).map(function (nik) {
+    var u = users.filter(function (r) { return String(r.NIK) === nik; })[0];
+    if (u && slugify_(u.Jabatan || '') === targetJabatanId) return null; // sudah di jabatan target, bukan kandidat suksesi
+
+    var byName = {};
+    Object.keys(latestByNik[nik]).forEach(function (kid) {
+      var k = komp.filter(function (r) { return r.KompID === kid; })[0];
+      if (k) byName[k.NamaKompetensi.toLowerCase()] = latestByNik[nik][kid].LevelAktual;
+    });
+
+    var maxGap = 0, kompetensiTercakup = 0;
+    targetKomp.forEach(function (tk) {
+      var tname = tk.nama.toLowerCase();
+      var level = byName[tname];
+      if (level === undefined) {
+        var fuzzyKey = Object.keys(byName).filter(function (n) { return shareWord_(n, tname); })[0];
+        if (fuzzyKey !== undefined) level = byName[fuzzyKey];
+      }
+      if (level !== undefined) kompetensiTercakup++;
+      var assumed = level === undefined ? 1 : level; // worst-case: belum pernah diasesmen di kompetensi ini/sejenis
+      var gap = tk.levelTarget - assumed;
+      if (gap > maxGap) maxGap = gap;
+    });
+
+    var readiness = maxGap <= 0 ? 'ready_now' : (maxGap === 1 ? 'ready_6_12' : 'ready_1yr');
+    return {
+      nik: nik, nama: u ? u.Nama : nik, jabatanSaatIni: u ? u.Jabatan : '-',
+      maxGap: maxGap, readiness: readiness,
+      kompetensiTercakup: kompetensiTercakup, totalKompetensiTarget: targetKomp.length
+    };
+  }).filter(Boolean);
+
+  var summary = { ready_now: 0, ready_6_12: 0, ready_1yr: 0 };
+  candidates.forEach(function (c) { summary[c.readiness]++; });
+
+  return { targetJabatanId: targetJabatanId, totalKandidat: candidates.length, summary: summary, kandidat: candidates };
+}
+
+function actionGetHavMap_(payload, session) {
+  requireRole_(session, ['admin', 'ld']);
+  var assessments = sheetRows_(SHEET_ASSESSMENT);
+  var komp = sheetRows_(SHEET_KOMPETENSI);
+  var users = sheetRows_(SHEET_USERS);
+
+  var byNik = {};
+  assessments.forEach(function (a) { (byNik[a.NIK] = byNik[a.NIK] || []).push(a); });
+
+  var points = Object.keys(byNik).map(function (nik) {
+    var latest = {};
+    byNik[nik].forEach(function (a) {
+      var cur = latest[a.KompID];
+      if (!cur || new Date(a.Tanggal) > new Date(cur.Tanggal)) latest[a.KompID] = a;
+    });
+    var list = Object.keys(latest).map(function (kid) { return latest[kid]; });
+    var total = list.length, readyCount = 0, overCount = 0;
+    list.forEach(function (a) {
+      var k = komp.filter(function (r) { return r.KompID === a.KompID; })[0];
+      if (!k) return;
+      if (a.LevelAktual >= k.LevelTarget) readyCount++;
+      if (a.LevelAktual > k.LevelTarget) overCount++;
+    });
+    var u = users.filter(function (r) { return String(r.NIK) === nik; })[0];
+    return {
+      nik: nik, nama: u ? u.Nama : nik, jabatan: u ? u.Jabatan : '-',
+      readiness: total ? Math.round(readyCount / total * 100) : 0,
+      potential: total ? Math.round(overCount / total * 100) : 0,
+      totalKompetensiDiases: total
+    };
+  });
+
+  return { points: points };
 }
 
 function shareWord_(a, b) {

@@ -5,7 +5,7 @@ bukan sebelumnya — jadi dokumen ini berfungsi dobel: (1) baseline resmi apa ya
 kenapa, (2) gerbang keputusan untuk Fase 2 dan seterusnya, supaya fase-fase berikutnya TIDAK lagi dikerjakan
 tanpa PRD di depan seperti Fase 1.
 
-Pemilik: Sujarwadi (L&D Department Head, Bosowa Berlian Motor). Terakhir diperbarui: 2026-10-09.
+Pemilik: Sujarwadi (L&D Department Head, Bosowa Berlian Motor). Terakhir diperbarui: 2026-10-12.
 
 ---
 
@@ -68,11 +68,15 @@ Login pakai NIK + PIN (PIN di-hash, session berbasis token — lihat §7 Keamana
 | Training Needs Matrix | Agregat gap → Mandatory/Development, cross-check ke katalog "Kurikulum & Modul" riil | P1 | Selesai |
 | Employee lookup + Profil/riwayat individu | Autocomplete NIK, tab riwayat kompetensi lintas siklus asesmen | P1 | Selesai (hasil audit) |
 | Career Path Explorer | Diff kompetensi dua jabatan, dibantu AI (fallback keyword), dilengkapi status modul | P2 | Selesai (hasil audit) |
+| **Visualisasi di tiap tahap** | Chart.js: radar profil level target (Kamus), bar target-vs-aktual (hasil asesmen), bar urgency/kesiapan modul (Training Matrix) — bukan cuma tabel/narasi | P1 | Selesai (2026-10-12) |
+| **Alur generate → asesmen jadi satu rangkaian** | Begitu kompetensi tersimpan, form asesmen untuk jabatan itu langsung tersedia di layar yang sama (admin/L&D tidak perlu pindah layar atau re-pilih jabatan) | P1 | Selesai (2026-10-12) |
+| **HAV Map (9-box proxy)** & **Bench Strength / status Ready Now–6-12bln–>1thn** | Tab baru "Suksesi & Bench": scatter 2 sumbu (Kesiapan vs Potensi) dan breakdown kesiapan kandidat per jabatan target — **rule-based dari Gap Engine, bukan ML**, lihat §6 untuk batasan | P1 (future-plan, dimajukan) | Selesai (2026-10-12) |
 
 **Belum dikerjakan sama sekali (bukan bug, keputusan sadar menunda):**
 - Deploy ke Google Sheet + Script Properties produksi (butuh aksi manual Sujarwadi — lihat `README.md` § Setup Deploy).
 - Logout server-side / revoke token instan.
 - IDP yang menyatukan skor Behavioral (Kamus 2022) + Technical/Managerial (TalentCore) dalam satu layar.
+- **Persen probabilitas sukses rotasi/promosi** — sengaja TIDAK dibangun (keputusan 2026-10-12): belum ada data historis outcome untuk divalidasi, lihat §6.
 
 ## 6. Roadmap Jangka Panjang
 
@@ -82,6 +86,14 @@ Learning Simulator lewat NIK), dan Fase 4 (model prediktif, dengan syarat back-t
 
 **Keputusan sudah diambil (2026-10-08 → 2026-10-09):** Fase 2 (analytics) dikerjakan dulu, koordinasi akses
 BAMS untuk Fase 3 ditunda sampai Fase 2 matang/ada kebutuhan jelas.
+
+**Keputusan baru (2026-10-12):** HAV Map, Bench Strength, dan status Ready Now/6-12bln/>1thn dimajukan dari
+Fase 2 ke sekarang (Fase 1), tapi HANYA versi **rule-based** dari Gap Engine (gap=0 → Ready Now, gap=1 →
+6-12bln, gap≥2 → >1thn; readiness/potential di HAV Map = % kompetensi di/atas target, bukan skor performa
+riil). Ini proxy murni dari data kompetensi — BELUM menggabungkan performa/KPI aktual (itu baru masuk saat
+BAMS/Database Sales terintegrasi, Fase 3). Persen probabilitas sukses rotasi/promosi TETAP ditunda — itu
+butuh data historis outcome (siapa yang dipromosikan/dirotasi, berhasil atau tidak) untuk divalidasi
+statistik, dan itu belum ada di mana pun saat ini.
 
 Tiga prinsip yang mengikat semua fase (dari roadmap, tidak diulang di sini secara penuh):
 1. Satu Pintu, Banyak Mesin.
