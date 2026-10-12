@@ -8,8 +8,10 @@ Ekosistem pembelajaran berbasis AI bernama "Learning Flywheel", terdiri dari beb
 
 **Komponen yang sudah LIVE dan dipakai nyata:**
 - **Learning Simulator** (frontend: root repo, `index.html`) — roleplay AI suara + Video Assessment berskor, PWA installable di HP, notifikasi WhatsApp (kode siap, tinggal aktifkan Fonnte).
-- **BBLC Competency Development Studio** (frontend: `/kompetensi/index.html`) — generator matriks kompetensi dari JD (plus opsi transkrip wawancara SME), kamus 5 level, checklist asesmen, form asesmen untuk atasan, ekspor Excel format standar BBM.
-- **Backend tunggal** (Google Apps Script "Code.gs", terhubung ke spreadsheet Learning Simulator DB) — melayani KEDUA frontend di atas lewat satu Web App URL yang sama.
+- **Backend Learning Simulator** (Google Apps Script "Code.gs", terhubung ke spreadsheet Learning Simulator DB) — melayani `index.html` di atas.
+
+**Komponen BARU, belum di-deploy (lihat `/talentcore/README.md` untuk setup lengkap):**
+- **BBM TalentCore** (frontend: `/talentcore/index.html`, backend: `/talentcore/backend/Code.gs`) — pengganti BBLC Competency Development Studio lama (dihapus 2026-10-08, belum pernah dipakai nyata jadi aman didrop). Satu engine: JD → breakdown aktivitas hierarkis → kompetensi Technical + Managerial 5-level → form asesmen atasan → gap otomatis → training needs matrix (Mandatory/Development, cross-check ke folder Drive "Kurikulum & Modul") → career path explorer. Backend &amp; Sheet-nya SENGAJA dipisah dari Learning Simulator DB (lihat alasan di README TalentCore) — jadi dua Apps Script project berbeda untuk sekarang, bukan lagi "satu backend untuk dua frontend" seperti sebelumnya.
 
 **Yang BELUM ada / masih simulasi presentasi:**
 - Integrasi nyata dengan BBM-LMS (Single Sign-On, embed, API baca data LMS) — baru berupa spesifikasi teknis dan file simulasi visual, BELUM ada kode sungguhan.
@@ -20,11 +22,11 @@ Ekosistem pembelajaran berbasis AI bernama "Learning Flywheel", terdiri dari beb
 
 ```
 /index.html              -> Learning Simulator (root domain GitHub Pages)
-/kompetensi/index.html   -> BBLC Competency Development Studio
+/talentcore/index.html   -> BBM TalentCore (belum di-deploy, lihat /talentcore/README.md)
 /docs/                   -> dokumen perencanaan (lihat bagian 5)
 ```
 
-Domain live: `https://sujarwadi.github.io/learning-simulator/` dan `.../kompetensi/`
+Domain live: `https://sujarwadi.github.io/learning-simulator/` (Learning Simulator). TalentCore belum punya backend yang deploy, jadi belum live di `.../talentcore/`.
 
 ## 3. Backend (Google Apps Script, terpisah dari repo git ini)
 

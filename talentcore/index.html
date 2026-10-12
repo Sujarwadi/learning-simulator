@@ -1,0 +1,1011 @@
+<!-- BBM TalentCore v1.1 — competency engine: JD -> hierarchical task breakdown -> Technical/Managerial competencies -> review/edit -> assessment -> gap -> training matrix -> career path -> individual profile. Backend: Google Apps Script + Google Sheet "TalentCore DB", terpisah dari Learning Simulator DB. Session-token based (lihat Code.gs). -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BBM TalentCore</title>
+<script>
+/* Tempel URL Web App dari deployment Apps Script backend/Code.gs di sini. */
+window.BACKEND_URL = "TEMPEL_URL_WEB_APP_DI_SINI";
+</script>
+<style>
+:root{
+  --navy:#102A43; --navy2:#1E3A5F; --red:#C00010; --red-soft:#FBE9EA;
+  --bg:#F4F6F9; --surface:#FFFFFF; --line:#DCE3ED; --text:#1A2433; --muted:#5B6472;
+  --green:#0E8A5F; --green-soft:#E6F6EF; --amber:#B45309; --amber-soft:#FEF3E2;
+  --blue:#2C5AA0; --blue-soft:#E8EFFA; --radius:14px; --shadow:0 8px 26px rgba(16,42,67,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.55}
+#app{display:flex;flex-direction:column;min-height:100vh}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex}
+header.app{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px}
+.logo-mark{width:38px;height:38px;border-radius:9px;background:var(--red);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:14px}
+.app-title{font-weight:800;font-size:15.5px;letter-spacing:.5px}
+.app-sub{font-size:11px;color:#9FB3C8;margin-top:1px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#C7D2E0}
+.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;
+  border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}
+.body-wrap{flex:1;padding:24px 20px 60px;max-width:860px;width:100%;margin:0 auto}
+h2.sect{font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);
+  margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h2.sect::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--red)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);margin-bottom:16px}
+label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 5px}
+label:first-child{margin-top:0}
+input[type=text],input[type=password],input[type=number],select,textarea{
+  width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  color:var(--text);font-size:14.5px;font-family:inherit}
+textarea{resize:vertical;min-height:140px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;
+  border-radius:10px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2)}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.err{background:var(--red-soft);border:1px solid #F3B9BD;color:#8A1620;border-radius:9px;padding:9px 12px;
+  font-size:13px;margin-top:10px;display:none}
+.err.show{display:block}
+.badge{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+.badge-green{background:var(--green-soft);color:var(--green)}
+.badge-amber{background:var(--amber-soft);color:var(--amber)}
+.badge-red{background:var(--red-soft);color:var(--red)}
+.badge-blue{background:var(--blue-soft);color:var(--blue)}
+.badge-grey{background:#EEF1F6;color:var(--muted)}
+.badge-purple{background:#F1E9FB;color:#6B3FA0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tab-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{flex:1;min-width:110px;padding:10px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:12.5px;
+  font-weight:700;color:var(--muted);cursor:pointer}
+.tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 0;color:var(--muted)}
+.spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--navy);border-radius:50%;
+  animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0}
+.credit{text-align:center;font-size:10.5px;color:#9AA5B4;padding:16px 0;letter-spacing:.3px}
+.tree-list{list-style:none;margin:0;padding-left:0}
+.tree-list .lvl2{padding-left:18px;margin-top:6px;border-left:2px solid var(--line)}
+.tree-list li{padding:4px 0 4px 12px;font-size:13.5px}
+.task-item{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.task-item .head{font-weight:700;font-size:13.5px;color:var(--navy)}
+.comp-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+.comp-card .name{font-weight:700;font-size:14.5px}
+.comp-card .def{font-size:13px;color:var(--muted);margin-top:4px}
+.comp-card textarea{min-height:52px}
+.score-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.score-row:last-child{border-bottom:none}
+.score-row select{width:80px}
+.gap-pill{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px}
+.gap-0{background:var(--green-soft);color:var(--green)}
+.gap-1{background:var(--amber-soft);color:var(--amber)}
+.gap-2{background:var(--red-soft);color:var(--red)}
+.inline-link{background:none;border:none;color:var(--navy2);font-size:12.5px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.chart-wrap{position:relative;margin:10px 0 16px;background:#fff}
+.chart-wrap canvas{max-width:100%}
+.disclaimer{background:var(--amber-soft);border:1px solid #F3D9A8;color:#6B4A12;border-radius:9px;padding:10px 12px;font-size:12px;margin-bottom:14px;line-height:1.55}
+.bench-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.bench-tile{flex:1;min-width:140px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center}
+.bench-tile .n{font-size:26px;font-weight:800;line-height:1}
+.bench-tile .lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.score-row .self-wrap{display:flex;align-items:center;gap:8px}
+.score-row .self-wrap small{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.itp-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.itp-row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.itp-row .nama{font-weight:700;font-size:14px}
+.itp-row .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.itp-row .grid .full{grid-column:1 / -1}
+@media (max-width:520px){.itp-row .grid{grid-template-columns:1fr}}
+.badge-overdue{background:var(--red-soft);color:var(--red);font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px}
+/* 9-box grid */
+.nb-scroll{overflow-x:auto}
+.ninebox{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;min-width:560px}
+.nb-rowlbl{display:flex;align-items:center;justify-content:flex-end;text-align:right;font-size:10.5px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-right:4px;max-width:92px}
+.nb-collbl{text-align:center;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-top:2px}
+.nb-cell{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:118px}
+.nb-cell.g{background:var(--green-soft);border-color:#BCE3D0}
+.nb-cell.a{background:var(--amber-soft);border-color:#F3D9A8}
+.nb-cell.r{background:var(--red-soft);border-color:#F3B9BD}
+.nb-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.nb-name{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--text)}
+.nb-count{font-size:19px;font-weight:800;line-height:1}
+.nb-aksi{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.nb-chip{display:block;width:100%;text-align:left;font-size:11.5px;background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06);
+  border-radius:6px;padding:4px 7px;margin-top:5px;cursor:pointer;font-family:inherit}
+.nb-chip:hover{background:#fff}
+/* Talent card */
+.tc{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:22px;box-shadow:var(--shadow)}
+.tc-top{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px}
+.tc-nama{font-size:20px;font-weight:800;color:var(--navy);line-height:1.2}
+.tc-meta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.tc-stats{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+.tc-stat{text-align:center;min-width:86px;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.tc-stat .v{font-size:19px;font-weight:800;line-height:1}
+.tc-stat .l{font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
+.tc-box{border-left:3px solid var(--navy);background:#F7F9FC;padding:10px 12px;border-radius:0 9px 9px 0;margin-bottom:14px}
+.tc-box .t{font-weight:800;font-size:13px;color:var(--navy)}
+.tc-box .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.tc-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);margin:16px 0 8px}
+@media print{
+  body.printing{background:#fff}
+  body.printing *{visibility:hidden}
+  body.printing .tc, body.printing .tc *{visibility:visible}
+  body.printing .tc{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none;padding:0}
+  body.printing .no-print{display:none !important}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ LOGIN ============ -->
+  <section class="screen active" id="scr-login">
+    <header class="app">
+      <div class="logo-mark">TC</div>
+      <div><div class="app-title">BBM TALENTCORE</div><div class="app-sub">Competency &amp; Development Engine</div></div>
+    </header>
+    <div class="body-wrap" style="max-width:420px;padding-top:60px">
+      <div class="card">
+        <h2 class="sect">Masuk</h2>
+        <label>NIK</label>
+        <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
+        <label>PIN</label>
+        <input type="password" id="inp-pin" placeholder="PIN">
+        <div class="hint">Khusus L&amp;D Admin dan Atasan (Dept Head/Kepala Cabang).</div>
+        <div class="err" id="err-login"></div>
+        <div style="margin-top:16px"><button class="btn btn-primary" id="btn-login">Masuk</button></div>
+      </div>
+    </div>
+    <div class="credit">BBM TalentCore &middot; backend terpisah dari Learning Simulator DB</div>
+  </section>
+
+  <!-- ============ ADMIN HOME ============ -->
+  <section class="screen" id="scr-admin">
+    <header class="app">
+      <div class="logo-mark">TC</div>
+      <div><div class="app-title">BBM TALENTCORE</div><div class="app-sub" id="admin-nama">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-admin-logout">Keluar</button></div>
+    </header>
+    <div class="body-wrap">
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="generate">1. Generate dari JD</button>
+        <button class="tab-btn" data-tab="dict">2. Kamus Kompetensi</button>
+        <button class="tab-btn" data-tab="matrix">3. Training Matrix</button>
+        <button class="tab-btn" data-tab="path">4. Career Path</button>
+        <button class="tab-btn" data-tab="profile">5. Profil Karyawan</button>
+        <button class="tab-btn" data-tab="succession">6. Suksesi &amp; Bench</button>
+        <button class="tab-btn" data-tab="itp">7. Individual Training Plan</button>
+      </div>
+
+      <div id="panel-generate">
+        <h2 class="sect">Generate dari Deskripsi Jabatan</h2>
+        <div class="card">
+          <label>Upload File JD (.docx, .pdf, atau .txt)</label>
+          <input type="file" id="inp-jd-file" accept=".docx,.pdf,.txt">
+          <div class="hint" id="jd-file-status">Pilih file JD, isinya otomatis terbaca ke kotak teks di bawah untuk ditinjau sebelum di-generate. File .doc lama (bukan .docx) harus disimpan ulang jadi .docx/.pdf/.txt dulu.</div>
+          <label style="margin-top:14px">Atau Tempel Teks Deskripsi Jabatan (JD) Langsung</label>
+          <textarea id="inp-jd" placeholder="Tempel seluruh isi JD di sini: Identitas Jabatan, Fungsi Jabatan, Tugas Utama & Proses Kerja, Wewenang, Bawahan Langsung, dst."></textarea>
+          <div class="hint">Nama jabatan, tier, dan breakdown tugas dibaca otomatis oleh AI. Kompetensi Managerial hanya digenerate jika JD punya Bawahan Langsung.</div>
+          <div class="err" id="err-generate"></div>
+          <div style="margin-top:16px"><button class="btn btn-red" id="btn-generate">Generate (Tinjau Dulu)</button></div>
+        </div>
+        <div id="generate-loading" style="display:none"><div class="loading"><div class="spinner"></div>AI sedang membaca JD, memecah aktivitas, dan menyusun kompetensi&hellip;</div></div>
+        <div id="generate-result"></div>
+      </div>
+
+      <div id="panel-dict" style="display:none">
+        <h2 class="sect">Kamus Kompetensi Tersimpan</h2>
+        <div class="card">
+          <label>Pilih Jabatan</label>
+          <select id="sel-dict-jabatan"><option value="">Memuat&hellip;</option></select>
+          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-dict">Tampilkan</button></div>
+        </div>
+        <div id="dict-result"></div>
+      </div>
+
+      <div id="panel-matrix" style="display:none">
+        <h2 class="sect">Training Needs Matrix</h2>
+        <div class="hint" style="margin-bottom:12px">Agregat otomatis dari seluruh hasil asesmen atasan. <b>Mandatory</b> = gap pada standar jabatan saat ini. <b>Development</b> = sudah memenuhi standar, calon talent pool.</div>
+        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-matrix">Muat / Refresh</button></div>
+        <div id="matrix-result"></div>
+      </div>
+
+      <div id="panel-path" style="display:none">
+        <h2 class="sect">Career Path Explorer</h2>
+        <div class="card">
+          <label>Dari Jabatan</label>
+          <select id="sel-path-from"></select>
+          <label style="margin-top:12px">Ke Jabatan</label>
+          <select id="sel-path-to"></select>
+          <div style="margin-top:14px"><button class="btn btn-ghost" id="btn-path-go">Lihat Path</button></div>
+        </div>
+        <div id="path-result"></div>
+      </div>
+
+      <div id="panel-profile" style="display:none">
+        <h2 class="sect">Profil &amp; Riwayat Kompetensi Karyawan</h2>
+        <div class="card">
+          <label>Pilih / Cari Karyawan</label>
+          <input type="text" id="inp-profile-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="btn-load-profile" style="width:auto">Tampilkan Riwayat</button>
+            <button class="btn btn-primary" id="btn-load-tc" style="width:auto">Buka Talent Card</button>
+          </div>
+          <div class="err" id="err-profile"></div>
+        </div>
+        <div id="profile-result"></div>
+      </div>
+
+      <div id="panel-succession" style="display:none">
+        <h2 class="sect">Input Rating Kinerja</h2>
+        <div class="card">
+          <div class="hint" style="margin-bottom:10px">9-box butuh dua sumbu dari sumber berbeda. Kompetensi sudah dihitung otomatis dari asesmen; <b>rating kinerja diinput manual di sini</b> (dari penilaian kinerja yang sudah berjalan), bukan ditebak sistem.</div>
+          <label>Karyawan</label>
+          <input type="text" id="inp-perf-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <label style="margin-top:12px">Rating Kinerja (1&ndash;5)</label>
+          <select id="sel-perf-rating">
+            <option value="5">5 &mdash; Jauh melampaui target</option>
+            <option value="4">4 &mdash; Melampaui target</option>
+            <option value="3" selected>3 &mdash; Sesuai target</option>
+            <option value="2">2 &mdash; Di bawah target</option>
+            <option value="1">1 &mdash; Jauh di bawah target</option>
+          </select>
+          <label style="margin-top:12px">Periode</label>
+          <input type="text" id="inp-perf-periode" placeholder="Contoh: Semester 1 2026">
+          <div style="margin-top:14px"><button class="btn btn-primary" id="btn-save-perf">Simpan Rating Kinerja</button></div>
+          <div class="err" id="err-perf"></div>
+          <div id="perf-ok" class="hint" style="display:none;color:var(--green);font-weight:700"></div>
+        </div>
+
+        <h2 class="sect" style="margin-top:28px">HAV Map &mdash; 9-Box Kinerja &times; Kesiapan Kompetensi</h2>
+        <div class="disclaimer"><b>Baca ini dulu:</b> sumbu mendatar adalah <b>Kesiapan Kompetensi</b> (% kompetensi yang sudah mencapai target), <b>bukan "potensi"</b> dalam arti 9-box klasik (learning agility/aspirasi) &mdash; BBM belum punya instrumen untuk mengukur itu. Penempatan di sini hasil aturan baku yang bisa ditelusuri, bukan prediksi AI.</div>
+        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-ninebox">Muat / Refresh 9-Box</button></div>
+        <div id="ninebox-result"></div>
+
+        <h2 class="sect" style="margin-top:28px">Bench Strength &amp; Kesiapan Suksesi</h2>
+        <div class="card">
+          <label>Jabatan Target (yang mau disiapkan penggantinya)</label>
+          <select id="sel-bench-jabatan"></select>
+          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-bench">Analisa Kesiapan</button></div>
+          <div class="err" id="err-bench"></div>
+        </div>
+        <div id="bench-result"></div>
+        <div id="talentcard-result" style="margin-top:20px"></div>
+      </div>
+
+      <div id="panel-itp" style="display:none">
+        <h2 class="sect">Monitoring ITP Lintas Organisasi</h2>
+        <div class="hint" style="margin-bottom:10px">Yang dipantau setelah siklus asesmen adalah implementasi ITP ini — bukan asesmen ulang (siklus berikutnya ~2 tahun lagi).</div>
+        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-itp-monitor">Muat Monitoring</button></div>
+        <div id="itp-monitor-result"></div>
+
+        <h2 class="sect" style="margin-top:28px">ITP per Karyawan</h2>
+        <div class="card">
+          <label>Karyawan</label>
+          <input type="text" id="inp-itp-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-itp">Tampilkan ITP</button></div>
+          <div class="err" id="err-itp"></div>
+        </div>
+        <div id="itp-result"></div>
+      </div>
+    </div>
+    <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
+  </section>
+
+  <!-- ============ ATASAN HOME ============ -->
+  <section class="screen" id="scr-atasan">
+    <header class="app">
+      <div class="logo-mark">TC</div>
+      <div><div class="app-title">BBM TALENTCORE</div><div class="app-sub" id="atasan-nama">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-atasan-logout">Keluar</button></div>
+    </header>
+    <div class="body-wrap">
+      <h2 class="sect">Asesmen Kompetensi</h2>
+      <div class="card">
+        <label>Karyawan yang Dinilai (bawahan langsung Anda)</label>
+        <input type="text" id="inp-assess-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+        <label style="margin-top:12px">Jabatan</label>
+        <select id="sel-assess-jabatan"><option value="">Memuat&hellip;</option></select>
+        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-assess">Muat Kompetensi</button></div>
+        <div class="err" id="err-assess"></div>
+      </div>
+      <div id="assess-form"></div>
+      <div id="assess-profile-result"></div>
+    </div>
+    <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
+  </section>
+
+  <datalist id="dl-employees"></datalist>
+
+</div>
+
+<script>
+var $ = function(id){ return document.getElementById(id); };
+var state = { nik:null, nama:null, role:null, token:null, jabatanOptions:[], employeeOptions:[] };
+var charts = {}; /* canvasId -> Chart instance, so we can .destroy() before re-render */
+function drawChart(canvasId, config){
+  if(charts[canvasId]){ charts[canvasId].destroy(); }
+  charts[canvasId] = new Chart($(canvasId).getContext('2d'), config);
+  return charts[canvasId];
+}
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function show(id){ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); }); $(id).classList.add('active'); }
+function showErr(id,msg){ var e=$(id); e.textContent=msg; e.classList.add('show'); }
+function clearErr(id){ var e=$(id); e.textContent=''; e.classList.remove('show'); }
+function fmtDate(d){ if(!d) return '-'; var dt=new Date(d); return isNaN(dt)?String(d):dt.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+
+function api(action, payload){
+  var p = payload || {};
+  if (state.token) p.token = state.token;
+  return fetch(window.BACKEND_URL, { method:'POST', body: JSON.stringify({action:action, payload:p}) })
+    .then(function(r){ return r.json(); })
+    .then(function(r){ if(!r.ok) throw new Error(r.error); return r.data; });
+}
+
+/* Cari NIK dari input yang boleh diisi "NIK" ATAU "Nama" (dicocokkan ke employeeOptions yang sudah dimuat) */
+function resolveNik(inputVal){
+  var v = String(inputVal||'').trim();
+  if(!v) return null;
+  var hit = state.employeeOptions.filter(function(e){ return e.nik===v; })[0];
+  if(hit) return hit.nik;
+  hit = state.employeeOptions.filter(function(e){ return (e.nik+' - '+e.nama)===v || e.nama===v; })[0];
+  return hit ? hit.nik : null;
+}
+
+/* ---------- LOGIN ---------- */
+$('btn-login').onclick = function(){
+  clearErr('err-login');
+  var nik = $('inp-nik').value.trim(), pin = $('inp-pin').value.trim();
+  if(!nik || !pin){ showErr('err-login','NIK dan PIN wajib diisi.'); return; }
+  api('login', {nik:nik, pin:pin}).then(function(u){
+    state.nik=u.nik; state.nama=u.nama; state.role=u.role; state.token=u.token;
+    if(u.role === 'admin' || u.role === 'ld'){
+      $('admin-nama').textContent = u.nama;
+      show('scr-admin'); loadJabatanOptions(); loadEmployeeOptions();
+    } else {
+      $('atasan-nama').textContent = u.nama;
+      show('scr-atasan'); loadJabatanOptions(); loadEmployeeOptions();
+    }
+  }).catch(function(e){ showErr('err-login', e.message); });
+};
+$('btn-admin-logout').onclick = function(){ state.token=null; show('scr-login'); };
+$('btn-atasan-logout').onclick = function(){ state.token=null; show('scr-login'); };
+
+/* ---------- TABS ---------- */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    ['generate','dict','matrix','path','profile','succession','itp'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
+  });
+});
+
+/* ---------- EMPLOYEE DIRECTORY (autocomplete, lintas tab) ---------- */
+function loadEmployeeOptions(){
+  api('getUsersList', {}).then(function(list){
+    state.employeeOptions = list;
+    $('dl-employees').innerHTML = list.map(function(e){
+      return '<option value="'+esc(e.nik)+'">'+esc(e.nama)+' &middot; '+esc(e.jabatan||'-')+'</option>';
+    }).join('');
+  });
+}
+
+/* ---------- UPLOAD FILE JD ---------- */
+if(window.pdfjsLib){ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js'; }
+
+function extractTextFromFile_(file){
+  var ext = file.name.split('.').pop().toLowerCase();
+  if(ext === 'txt'){
+    return file.text();
+  }
+  if(ext === 'docx'){
+    return file.arrayBuffer().then(function(buf){
+      return mammoth.extractRawText({ arrayBuffer: buf }).then(function(result){ return result.value; });
+    });
+  }
+  if(ext === 'pdf'){
+    return file.arrayBuffer().then(function(buf){
+      return pdfjsLib.getDocument({ data: buf }).promise.then(function(pdf){
+        var pageNums = []; for(var i=1;i<=pdf.numPages;i++) pageNums.push(i);
+        return pageNums.reduce(function(chainPromise, pageNum){
+          return chainPromise.then(function(textSoFar){
+            return pdf.getPage(pageNum).then(function(page){
+              return page.getTextContent().then(function(content){
+                var pageText = content.items.map(function(it){ return it.str; }).join(' ');
+                return textSoFar + pageText + '\n';
+              });
+            });
+          });
+        }, Promise.resolve(''));
+      });
+    });
+  }
+  return Promise.reject(new Error('Format file tidak didukung. Gunakan .docx, .pdf, atau .txt.'));
+}
+
+$('inp-jd-file').onchange = function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  $('jd-file-status').textContent = 'Membaca "'+file.name+'"…';
+  extractTextFromFile_(file).then(function(text){
+    text = text.trim();
+    if(!text){ $('jd-file-status').textContent = 'File terbaca tapi tidak ada teks di dalamnya (kemungkinan hasil scan/gambar) — tempel manual saja.'; return; }
+    $('inp-jd').value = text;
+    $('jd-file-status').textContent = 'Terbaca dari "'+file.name+'" ('+text.length+' karakter). Periksa dulu di kotak teks di bawah sebelum klik Generate.';
+  }).catch(function(err){
+    $('jd-file-status').textContent = 'Gagal membaca file: ' + err.message;
+  });
+};
+
+/* ---------- GENERATE ---------- */
+var previewData = null;
+$('btn-generate').onclick = function(){
+  clearErr('err-generate');
+  var jd = $('inp-jd').value.trim();
+  if(jd.length < 30){ showErr('err-generate','Tempel teks JD yang lebih lengkap.'); return; }
+  $('generate-loading').style.display='block'; $('generate-result').innerHTML='';
+  api('generateMatriks', {jdText: jd}).then(function(r){
+    previewData = r;
+    renderGeneratePreview(r);
+  }).catch(function(e){ showErr('err-generate', e.message); }).finally(function(){
+    $('generate-loading').style.display='none';
+  });
+};
+
+function renderGeneratePreview(r){
+  var html = '<div class="card"><h2 class="sect">Tinjau &amp; Edit Sebelum Disimpan</h2>'+
+    '<div class="hint" style="margin-bottom:10px">Hasil AI di bawah BELUM resmi. Periksa dan betulkan nama/definisi/perilaku kunci yang kurang pas sebelum menekan Simpan — begitu disimpan, ini jadi standar penilaian jabatan ini.</div>'+
+    '<label>Nama Jabatan</label><input type="text" id="edit-jabatan" value="'+esc(r.jabatan)+'">'+
+    '<label>Tier</label><input type="text" id="edit-tier" value="'+esc(r.tier)+'"></div>';
+
+  html += '<div class="card"><h2 class="sect">Breakdown Aktivitas (Hierarchical Task Analysis)</h2>'+
+    '<div class="hint" style="margin-bottom:8px">Breakdown ini referensi/konteks, belum bisa diedit di sini — kalau salah signifikan, ulangi Generate dengan teks JD yang lebih lengkap.</div>';
+  (r.taskBreakdown||[]).forEach(function(t){
+    html += '<div class="task-item"><div class="head">'+esc(t.tugasUtama)+'</div><ul class="tree-list">';
+    (t.subAktivitas||[]).forEach(function(sa){
+      html += '<li>'+esc(sa.label)+'<ul class="tree-list lvl2">';
+      (sa.subSubAktivitas||[]).forEach(function(ss){ html += '<li>'+esc(ss)+'</li>'; });
+      html += '</ul></li>';
+    });
+    html += '</ul></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="card"><h2 class="sect">Kompetensi ('+(r.kompetensi||[]).length+') &mdash; Edit di Sini</h2>';
+  (r.kompetensi||[]).forEach(function(k, i){
+    html += '<div class="comp-card" data-idx="'+i+'">'+
+      '<label>Nama Kompetensi <span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span></label>'+
+      '<input type="text" class="edit-komp-nama" value="'+esc(k.nama)+'">'+
+      '<label>Definisi</label><textarea class="edit-komp-def">'+esc(k.definisi)+'</textarea>'+
+      '<label>Level Target</label><select class="edit-komp-target">'+
+      [1,2,3,4,5].map(function(n){ return '<option value="'+n+'"'+(n===k.levelTarget?' selected':'')+'>'+n+'</option>'; }).join('')+'</select>';
+    (k.levels||[]).forEach(function(lv, li){
+      html += '<label>Perilaku Kunci &mdash; Level '+(li+1)+'</label>'+
+        '<textarea class="edit-komp-pk" data-level="'+(li+1)+'">'+esc((lv.perilakuKunci||[]).join('\n'))+'</textarea>';
+    });
+    html += '<div class="hint">Diturunkan dari: '+esc(k.sumberTugas||'-')+'</div></div>';
+  });
+  html += '<div class="err" id="err-simpan"></div><div style="margin-top:16px"><button class="btn btn-primary" id="btn-simpan">Simpan ke Kamus Kompetensi</button></div></div>';
+  $('generate-result').innerHTML = html;
+  $('btn-simpan').onclick = function(){ collectEditedPreview(); simpanMatrix(false); };
+}
+
+function collectEditedPreview(){
+  previewData.jabatan = $('edit-jabatan').value.trim();
+  previewData.tier = $('edit-tier').value.trim();
+  document.querySelectorAll('#generate-result .comp-card').forEach(function(card){
+    var idx = parseInt(card.dataset.idx,10);
+    var k = previewData.kompetensi[idx];
+    k.nama = card.querySelector('.edit-komp-nama').value.trim();
+    k.definisi = card.querySelector('.edit-komp-def').value.trim();
+    k.levelTarget = parseInt(card.querySelector('.edit-komp-target').value,10);
+    if(!k.levels) k.levels = [];
+    card.querySelectorAll('.edit-komp-pk').forEach(function(ta){
+      var lv = parseInt(ta.dataset.level,10);
+      k.levels[lv-1] = { perilakuKunci: ta.value.split('\n').map(function(s){return s.trim();}).filter(Boolean) };
+    });
+  });
+}
+
+function simpanMatrix(overwrite){
+  clearErr('err-simpan');
+  var payload = Object.assign({}, previewData, {overwrite: overwrite});
+  api('simpanMatrix', payload).then(function(r){
+    if(r.needsConfirm){
+      if(confirm(r.message)) simpanMatrix(true);
+      return;
+    }
+    $('generate-result').innerHTML = '<div class="card"><h2 class="sect" style="color:var(--green)">Tersimpan</h2><p>'+esc(r.catatan)+'</p></div>'+
+      '<div class="card"><h2 class="sect">Lanjut: Isi Asesmen Langsung</h2>'+
+      '<div class="hint" style="margin-bottom:10px">Biar satu alur: generate &rarr; simpan &rarr; nilai orangnya &rarr; lihat gap. Jabatan sudah terisi otomatis ('+esc(r.jabatan)+').</div>'+
+      '<label>Karyawan yang Dinilai</label><input type="text" id="gen-assess-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">'+
+      '<div style="margin-top:12px"><button class="btn btn-ghost" id="btn-gen-load-assess">Muat Form Asesmen</button></div>'+
+      '<div class="err" id="err-gen-assess"></div></div><div id="gen-assess-form"></div>';
+    $('btn-gen-load-assess').onclick = function(){ loadInlineAssessment(r.jabatanId); };
+    loadJabatanOptions();
+    loadEmployeeOptions();
+  }).catch(function(e){ showErr('err-simpan', e.message); });
+}
+
+function loadInlineAssessment(jabatanId){
+  clearErr('err-gen-assess');
+  var nik = resolveNik($('gen-assess-nik').value);
+  if(!nik){ showErr('err-gen-assess','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('getKompetensiByJabatan', {jabatanId: jabatanId}).then(function(list){
+    if(!list.length){ $('gen-assess-form').innerHTML = '<div class="empty">Jabatan ini belum punya kompetensi tersimpan.</div>'; return; }
+    var html = '<div class="card"><h2 class="sect">Siklus Asesmen</h2>'+
+      '<input type="text" id="gen-inp-siklus" placeholder="Contoh: Siklus 2026" value="Siklus '+new Date().getFullYear()+'"></div>';
+    html += '<div class="card"><h2 class="sect">Beri Skor (1-5)</h2>'+
+      '<div class="hint" style="margin-bottom:6px">Self-Rating opsional (diisi karyawan sendiri) &middot; Rating Asesor yang menentukan gap resmi.</div>';
+    list.forEach(function(k){
+      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b> '+kompBadgeHtml(k)+'<div class="hint">target: level '+k.levelTarget+(k.tipe==='wajib'?(k.aktifSekarang===false?' &middot; wajib mulai '+esc(k.efektifMulai):' &middot; wajib semua jabatan'):'')+'</div></div>'+
+        '<div class="self-wrap"><small>Self</small><select class="gen-inp-self" data-komp="'+esc(k.kompId)+'"><option value="">-</option>'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select>'+
+        '<small>Asesor</small><select class="gen-inp-score" data-komp="'+esc(k.kompId)+'">'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div></div>';
+    });
+    html += '<div style="margin-top:16px"><button class="btn btn-primary" id="btn-gen-submit-assess">Simpan Asesmen</button></div></div><div id="gen-assess-gap-result"></div>';
+    $('gen-assess-form').innerHTML = html;
+    $('btn-gen-submit-assess').onclick = function(){
+      var scores = Array.prototype.map.call(document.querySelectorAll('.gen-inp-score'), function(sel){
+        var selfEl = document.querySelector('.gen-inp-self[data-komp="'+sel.dataset.komp+'"]');
+        return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10), levelSelfRating: selfEl && selfEl.value ? parseInt(selfEl.value,10) : null };
+      });
+      api('submitAssessment', {nik: nik, jabatanId: jabatanId, siklus: $('gen-inp-siklus').value.trim(), scores: scores}).then(function(r2){
+        var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap-gen" height="220"></canvas></div></div>';
+        html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
+        if(r2.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r2.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini &mdash; buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
+        r2.results.forEach(function(res){
+          var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
+          html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+'</div></div>'+
+            '<span class="gap-pill '+cls+'">Gap '+Math.max(res.gap,0)+'</span></div>';
+        });
+        html2 += '</div>';
+        $('gen-assess-gap-result').innerHTML = html2;
+        drawChart('chart-gap-gen', {
+          type:'bar',
+          data:{ labels: r2.results.map(function(res){ return res.nama.length>24? res.nama.slice(0,22)+'…' : res.nama; }),
+            datasets:[
+              { label:'Target', data:r2.results.map(function(res){return res.target;}), backgroundColor:'#9FB3C8' },
+              { label:'Aktual', data:r2.results.map(function(res){return res.aktual;}), backgroundColor:function(ctx){ var g=r2.results[ctx.dataIndex].gap; return g<=0?'#0E8A5F':(g===1?'#B45309':'#C00010'); } }
+            ] },
+          options:{ scales:{ y:{ beginAtZero:true, max:5, ticks:{stepSize:1} } }, plugins:{legend:{position:'bottom'}} }
+        });
+      }).catch(function(e){ showErr('err-gen-assess', e.message); });
+    };
+  }).catch(function(e){ showErr('err-gen-assess', e.message); });
+}
+
+/* ---------- JABATAN OPTIONS (shared) ---------- */
+function loadJabatanOptions(){
+  api('getJabatanList', {}).then(function(list){
+    state.jabatanOptions = list;
+    fillSelect('sel-dict-jabatan', list);
+    fillSelect('sel-path-from', list);
+    fillSelect('sel-path-to', list);
+    fillSelect('sel-assess-jabatan', list);
+    fillSelect('sel-bench-jabatan', list);
+  });
+}
+function fillSelect(id, list){
+  var el = $(id); if(!el) return;
+  el.innerHTML = '<option value="">Pilih jabatan&hellip;</option>' + list.map(function(j){
+    return '<option value="'+esc(j.jabatanId)+'">'+esc(j.nama)+'</option>';
+  }).join('');
+}
+
+/* ---------- BADGE KOMPETENSI WAJIB (dipakai dict, form asesmen) ---------- */
+function kompBadgeHtml(k){
+  if(k.tipe==='wajib') return '<span class="badge badge-purple">wajib perusahaan</span>';
+  return '<span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span>';
+}
+function kompWajibNoteHtml(k){
+  if(k.tipe!=='wajib') return '';
+  if(k.aktifSekarang===false) return '<div class="hint" style="color:var(--amber);font-weight:700">Berlaku wajib mulai '+esc(k.efektifMulai)+' &mdash; tetap tampil di form asesmen sekarang supaya organisasi siap lebih dulu.</div>';
+  return '<div class="hint" style="color:var(--navy2);font-weight:700">Wajib untuk semua jabatan.</div>';
+}
+
+/* ---------- DICTIONARY ---------- */
+$('btn-load-dict').onclick = function(){
+  var jid = $('sel-dict-jabatan').value;
+  if(!jid) return;
+  api('getKompetensiByJabatan', {jabatanId: jid}).then(function(list){
+    if(!list.length){ $('dict-result').innerHTML = '<div class="empty">Belum ada kompetensi tersimpan untuk jabatan ini.</div>'; return; }
+    var html = '<div class="card"><h2 class="sect">Profil Level Target (sekilas)</h2><div class="chart-wrap"><canvas id="chart-proficiency" height="260"></canvas></div></div>';
+    list.forEach(function(k){
+      html += '<div class="comp-card"><div class="name">'+esc(k.nama)+' '+kompBadgeHtml(k)+'</div>'+
+        '<div class="def">'+esc(k.definisi||'')+'</div>'+kompWajibNoteHtml(k)+'<table style="margin-top:8px"><tr><th>Lvl</th><th>Deskripsi</th><th>Perilaku Kunci</th></tr>';
+      k.levels.forEach(function(lv){
+        html += '<tr><td>'+lv.level+'</td><td style="color:var(--muted);font-style:italic">'+esc(lv.deskripsi)+'</td><td>'+lv.perilakuKunci.map(esc).join('<br>')+'</td></tr>';
+      });
+      html += '</table></div>';
+    });
+    $('dict-result').innerHTML = html;
+    drawChart('chart-proficiency', {
+      type:'radar',
+      data:{ labels: list.map(function(k){ return k.nama.length>28? k.nama.slice(0,26)+'…' : k.nama; }),
+        datasets:[{ label:'Level Target', data:list.map(function(k){return k.levelTarget;}),
+          backgroundColor:'rgba(16,42,67,.15)', borderColor:'#102A43', pointBackgroundColor:'#102A43' }] },
+      options:{ scales:{ r:{ min:0, max:5, ticks:{stepSize:1} } }, plugins:{ legend:{display:false} } }
+    });
+  });
+};
+
+/* ---------- TRAINING MATRIX ---------- */
+$('btn-load-matrix').onclick = function(){
+  api('getTrainingMatrix', {}).then(function(rows){
+    if(!rows.length){ $('matrix-result').innerHTML = '<div class="empty">Belum ada data asesmen untuk diagregasi.</div>'; return; }
+    var html = '<div class="card"><h2 class="sect">Urgency &amp; Kesiapan Modul (sekilas)</h2><div class="chart-wrap"><canvas id="chart-tna" height="220"></canvas></div></div>';
+    html += '<table><tr><th>Kompetensi</th><th>Kategori</th><th>Jumlah</th><th>Urgency</th><th>Status Modul</th></tr>';
+    rows.forEach(function(r){
+      var urgBadge = r.urgency==='tinggi' ? 'badge-red' : (r.urgency==='sedang' ? 'badge-amber' : 'badge-green');
+      var modBadge = r.statusModul==='ada' ? 'badge-green' : (r.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
+      html += '<tr><td>'+esc(r.kompetensi)+(r.wajibPerusahaan?' <span class="badge badge-purple">wajib perusahaan</span>':'')+'</td>'+
+        '<td><span class="badge '+(r.kategori==='mandatory'?'badge-red':'badge-blue')+'">'+r.kategori+'</span></td>'+
+        '<td>'+r.jumlahButuh+' orang</td><td><span class="badge '+urgBadge+'">'+r.urgency+'</span></td>'+
+        '<td><span class="badge '+modBadge+'">'+r.statusModul+'</span><div class="hint">'+esc(r.catatanModul)+'</div></td></tr>';
+    });
+    html += '</table>';
+    $('matrix-result').innerHTML = html;
+    var urgCount = {tinggi:0, sedang:0, aman:0}, modCount = {ada:0, sebagian:0, belum:0};
+    rows.forEach(function(r){ urgCount[r.urgency]++; modCount[r.statusModul]++; });
+    drawChart('chart-tna', {
+      type:'bar',
+      data:{ labels:['Urgency Tinggi','Urgency Sedang','Urgency Aman','Modul Ada','Modul Sebagian','Modul Belum'],
+        datasets:[{ data:[urgCount.tinggi,urgCount.sedang,urgCount.aman,modCount.ada,modCount.sebagian,modCount.belum],
+          backgroundColor:['#C00010','#B45309','#0E8A5F','#0E8A5F','#B45309','#C00010'] }] },
+      options:{ plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
+    });
+  });
+};
+
+/* ---------- CAREER PATH ---------- */
+$('btn-path-go').onclick = function(){
+  var from = $('sel-path-from').value, to = $('sel-path-to').value;
+  if(!from || !to || from===to) return;
+  api('careerPath', {fromJabatanId: from, toJabatanId: to}).then(function(r){
+    var methodNote = r.method==='ai'
+      ? '<div class="hint">Dicocokkan AI berdasarkan kesamaan substansi skill (bukan sekadar kata).</div>'
+      : '<div class="hint">Dicocokkan dengan kata kunci sederhana (AI tidak tersedia) — anggap sebagai perkiraan awal, bukan final.</div>';
+    var html = '<div class="card"><h2 class="sect">Transferable ('+r.transferable.length+')</h2>'+methodNote;
+    r.transferable.forEach(function(k){ html += '<div class="hint">&bull; '+esc(k.nama)+(k.alasan?' — '+esc(k.alasan):'')+'</div>'; });
+    html += '</div><div class="card"><h2 class="sect">Perlu Dipelajari ('+r.toLearn.length+')</h2>';
+    r.toLearn.forEach(function(k){
+      var modBadge = k.statusModul==='ada' ? 'badge-green' : (k.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
+      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b>'+(k.alasan?'<div class="hint">'+esc(k.alasan)+'</div>':'')+
+        '<div class="hint">'+esc(k.catatanModul)+'</div></div><span class="badge '+modBadge+'">'+esc(k.statusModul)+'</span></div>';
+    });
+    html += '</div>';
+    $('path-result').innerHTML = html;
+  });
+};
+
+/* ---------- PROFIL KARYAWAN (admin/L&D) ---------- */
+$('btn-load-profile').onclick = function(){
+  clearErr('err-profile');
+  var nik = resolveNik($('inp-profile-nik').value);
+  if(!nik){ showErr('err-profile','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('getProfile', {nik: nik}).then(function(p){
+    $('profile-result').innerHTML = renderProfileHtml(p);
+  }).catch(function(e){ showErr('err-profile', e.message); });
+};
+
+$('btn-load-tc').onclick = function(){
+  clearErr('err-profile');
+  var nik = resolveNik($('inp-profile-nik').value);
+  if(!nik){ showErr('err-profile','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  loadTalentCard(nik, 'profile-result');
+};
+
+function renderProfileHtml(p){
+  if(!p.items.length) return '<div class="empty">Belum ada riwayat asesmen untuk '+esc(p.nama)+'.</div>';
+  var html = '<div class="card"><h2 class="sect">'+esc(p.nama)+' &middot; '+esc(p.jabatan||'-')+'</h2>'+
+    '<table><tr><th>Kompetensi</th><th>Level Awal &rarr; Terakhir</th><th>Target</th><th>Gap Terakhir</th><th>Jumlah Siklus Asesmen</th></tr>';
+  p.items.forEach(function(it){
+    var cls = it.gapTerakhir<=0 ? 'gap-0' : (it.gapTerakhir===1 ? 'gap-1' : 'gap-2');
+    var trend = it.levelTerakhir > it.levelAwal ? ' &uarr;' : (it.levelTerakhir < it.levelAwal ? ' &darr;' : '');
+    html += '<tr><td><b>'+esc(it.nama)+'</b><div class="hint">'+esc(it.tipe)+'</div></td>'+
+      '<td>'+it.levelAwal+' &rarr; '+it.levelTerakhir+trend+'</td><td>'+it.levelTarget+'</td>'+
+      '<td><span class="gap-pill '+cls+'">Gap '+Math.max(it.gapTerakhir,0)+'</span></td>'+
+      '<td>'+it.history.length+' kali, terakhir '+fmtDate(it.history[it.history.length-1].tanggal)+'</td></tr>';
+  });
+  html += '</table></div>';
+  return html;
+}
+
+/* ---------- ASSESSMENT (ATASAN) ---------- */
+$('btn-load-assess').onclick = function(){
+  clearErr('err-assess');
+  var nik = resolveNik($('inp-assess-nik').value), jid = $('sel-assess-jabatan').value;
+  if(!nik){ showErr('err-assess','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  if(!jid){ showErr('err-assess','Pilih jabatan dulu.'); return; }
+  $('assess-profile-result').innerHTML = '';
+  api('getKompetensiByJabatan', {jabatanId: jid}).then(function(list){
+    if(!list.length){ $('assess-form').innerHTML = '<div class="empty">Jabatan ini belum punya kompetensi tersimpan.</div>'; return; }
+    var html = '<div class="card"><h2 class="sect">Siklus Asesmen</h2>'+
+      '<div class="hint" style="margin-bottom:8px">Asesmen formal berjalan per siklus (&plusmn;2 tahun), bukan kontinu. Beri nama siklus supaya hasilnya bisa dilihat satu kohort.</div>'+
+      '<input type="text" id="inp-siklus" placeholder="Contoh: Siklus 2026" value="Siklus '+new Date().getFullYear()+'"></div>';
+    html += '<div class="card"><h2 class="sect">Beri Skor (1-5)</h2>'+
+      '<div class="hint" style="margin-bottom:6px">Self-Rating diisi oleh karyawan sendiri (opsional, buat sinyal kalibrasi) &middot; Rating Asesor yang menentukan gap resmi.</div>';
+    list.forEach(function(k){
+      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b> '+kompBadgeHtml(k)+'<div class="hint">target: level '+k.levelTarget+(k.tipe==='wajib'?(k.aktifSekarang===false?' &middot; wajib mulai '+esc(k.efektifMulai):' &middot; wajib semua jabatan'):'')+'</div></div>'+
+        '<div class="self-wrap"><small>Self</small><select class="inp-self" data-komp="'+esc(k.kompId)+'"><option value="">-</option>'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select>'+
+        '<small>Asesor</small><select class="inp-score" data-komp="'+esc(k.kompId)+'" data-target="'+k.levelTarget+'">'+
+        [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div></div>';
+    });
+    html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn btn-primary" id="btn-submit-assess">Simpan Asesmen</button>'+
+      '<button class="btn btn-ghost" id="btn-view-riwayat" style="width:auto;white-space:nowrap">Lihat Riwayat</button></div></div><div id="assess-gap-result"></div>';
+    $('assess-form').innerHTML = html;
+    $('btn-view-riwayat').onclick = function(){
+      api('getProfile', {nik: nik}).then(function(p){
+        $('assess-profile-result').innerHTML = renderProfileHtml(p);
+      }).catch(function(e){ showErr('err-assess', e.message); });
+    };
+    $('btn-submit-assess').onclick = function(){
+      var scores = Array.prototype.map.call(document.querySelectorAll('.inp-score'), function(sel){
+        var selfEl = document.querySelector('.inp-self[data-komp="'+sel.dataset.komp+'"]');
+        return { kompId: sel.dataset.komp, levelAktual: parseInt(sel.value,10), levelSelfRating: selfEl && selfEl.value ? parseInt(selfEl.value,10) : null };
+      });
+      api('submitAssessment', {nik: nik, jabatanId: jid, siklus: $('inp-siklus').value.trim(), scores: scores}).then(function(r){
+        var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap" height="220"></canvas></div></div>';
+        html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
+        if(r.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini &mdash; buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
+        r.results.forEach(function(res){
+          var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
+          var selisihTxt = res.selisihSelf===null ? '' : (res.selisihSelf===0 ? ' &middot; self-rating selaras' : (res.selisihSelf>0 ? ' &middot; self-rating lebih tinggi '+res.selisihSelf : ' &middot; self-rating lebih rendah '+Math.abs(res.selisihSelf)));
+          html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+selisihTxt+'</div></div>'+
+            '<span class="gap-pill '+cls+'">Gap '+Math.max(res.gap,0)+'</span></div>';
+        });
+        html2 += '</div>';
+        $('assess-gap-result').innerHTML = html2;
+        drawChart('chart-gap', {
+          type:'bar',
+          data:{ labels: r.results.map(function(res){ return res.nama.length>24? res.nama.slice(0,22)+'…' : res.nama; }),
+            datasets:[
+              { label:'Target', data:r.results.map(function(res){return res.target;}), backgroundColor:'#9FB3C8' },
+              { label:'Aktual', data:r.results.map(function(res){return res.aktual;}), backgroundColor:function(ctx){ var g=r.results[ctx.dataIndex].gap; return g<=0?'#0E8A5F':(g===1?'#B45309':'#C00010'); } }
+            ] },
+          options:{ scales:{ y:{ beginAtZero:true, max:5, ticks:{stepSize:1} } }, plugins:{legend:{position:'bottom'}} }
+        });
+      }).catch(function(e){ showErr('err-assess', e.message); });
+    };
+  });
+};
+
+/* ---------- INPUT RATING KINERJA ---------- */
+$('btn-save-perf').onclick = function(){
+  clearErr('err-perf'); $('perf-ok').style.display='none';
+  var nik = resolveNik($('inp-perf-nik').value);
+  if(!nik){ showErr('err-perf','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('savePerformance', {
+    nik: nik,
+    rating: parseInt($('sel-perf-rating').value,10),
+    periode: $('inp-perf-periode').value.trim()
+  }).then(function(r){
+    $('perf-ok').textContent = 'Tersimpan: '+r.nama+' — rating kinerja '+r.rating+'. Klik "Muat / Refresh 9-Box" untuk lihat posisinya.';
+    $('perf-ok').style.display='block';
+  }).catch(function(e){ showErr('err-perf', e.message); });
+};
+
+/* ---------- 9-BOX / HAV MAP ---------- */
+$('btn-load-ninebox').onclick = function(){
+  api('getNineBox', {}).then(function(r){
+    if(!r.placed.length && !r.tanpaRatingKinerja.length){
+      $('ninebox-result').innerHTML = '<div class="empty">Belum ada data asesmen kompetensi untuk dipetakan.</div>';
+      return;
+    }
+    var byCell = {};
+    r.placed.forEach(function(p){ (byCell[p.cellKey] = byCell[p.cellKey] || []).push(p); });
+
+    var rowLbl = {3:'Kinerja Tinggi', 2:'Kinerja Sedang', 1:'Kinerja Rendah'};
+    var colLbl = {1:'Kesiapan Rendah', 2:'Kesiapan Sedang', 3:'Kesiapan Tinggi'};
+    var html = '<div class="card"><div class="nb-scroll"><div class="ninebox">';
+    [3,2,1].forEach(function(perf){
+      html += '<div class="nb-rowlbl">'+rowLbl[perf]+'</div>';
+      [1,2,3].forEach(function(ready){
+        var key = perf+'_'+ready;
+        var sum = perf+ready;
+        var tone = sum>=5 ? 'g' : (sum===4 ? 'a' : 'r');
+        var members = byCell[key] || [];
+        var meta = r.cells[key];
+        html += '<div class="nb-cell '+tone+'">'+
+          '<div class="nb-head"><span class="nb-name">'+esc(meta.nama)+'</span><span class="nb-count">'+members.length+'</span></div>'+
+          '<div class="nb-aksi">'+esc(meta.aksi)+'</div>';
+        members.forEach(function(m){
+          html += '<button class="nb-chip" data-nik="'+esc(m.nik)+'">'+esc(m.nama)+' &middot; '+esc(m.jabatan)+'</button>';
+        });
+        html += '</div>';
+      });
+    });
+    html += '<div></div>';
+    [1,2,3].forEach(function(c){ html += '<div class="nb-collbl">'+colLbl[c]+'</div>'; });
+    html += '</div></div><div class="hint" style="margin-top:10px">Klik nama untuk buka Talent Card-nya.</div></div>';
+
+    if(r.tanpaRatingKinerja.length){
+      html += '<div class="card"><h2 class="sect">Belum Bisa Dipetakan ('+r.tanpaRatingKinerja.length+')</h2>'+
+        '<div class="hint" style="margin-bottom:8px">Sudah ada asesmen kompetensi, tapi rating kinerjanya belum diinput — jadi belum punya sumbu kedua.</div>';
+      r.tanpaRatingKinerja.forEach(function(p){
+        html += '<div class="score-row"><div><b>'+esc(p.nama)+'</b><div class="hint">'+esc(p.jabatan)+' &middot; kesiapan kompetensi '+p.readiness+'%</div></div>'+
+          '<span class="badge badge-grey">perlu rating kinerja</span></div>';
+      });
+      html += '</div>';
+    }
+    $('ninebox-result').innerHTML = html;
+    document.querySelectorAll('#ninebox-result .nb-chip').forEach(function(btn){
+      btn.onclick = function(){ loadTalentCard(btn.dataset.nik, 'talentcard-result'); };
+    });
+  }).catch(function(e){ $('ninebox-result').innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+};
+
+/* ---------- TALENT CARD ---------- */
+function loadTalentCard(nik, containerId){
+  api('getTalentCard', {nik: nik}).then(function(c){
+    $(containerId).innerHTML = renderTalentCardHtml(c);
+    $(containerId).scrollIntoView({behavior:'smooth', block:'start'});
+    var btn = document.querySelector('#'+containerId+' .btn-print-tc');
+    if(btn) btn.onclick = function(){
+      document.body.classList.add('printing');
+      window.print();
+      setTimeout(function(){ document.body.classList.remove('printing'); }, 500);
+    };
+  }).catch(function(e){ $(containerId).innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+function renderTalentCardHtml(c){
+  var kinerjaTxt = c.kinerja ? c.kinerja+'/5' : '—';
+  var h = '<div class="tc"><div class="tc-top">'+
+    '<div><div class="tc-nama">'+esc(c.nama)+'</div>'+
+    '<div class="tc-meta">'+esc(c.jabatan)+' &middot; '+esc(c.cabang)+' &middot; NIK '+esc(c.nik)+'</div></div>'+
+    '<div class="tc-stats">'+
+      '<div class="tc-stat"><div class="v">'+kinerjaTxt+'</div><div class="l">Kinerja</div></div>'+
+      '<div class="tc-stat"><div class="v">'+c.readiness+'%</div><div class="l">Kesiapan Komp.</div></div>'+
+      '<div class="tc-stat"><div class="v">'+c.jumlahSiklusAsesmen+'</div><div class="l">Siklus Asesmen</div></div>'+
+    '</div></div>';
+
+  if(c.nineBox){
+    h += '<div class="tc-box"><div class="t">Posisi 9-Box: '+esc(c.nineBox.nama)+'</div>'+
+      '<div class="d">'+esc(c.nineBox.aksi)+'</div></div>';
+  } else {
+    h += '<div class="tc-box"><div class="t">Posisi 9-Box: belum bisa ditentukan</div>'+
+      '<div class="d">Rating kinerja belum diinput, jadi sumbu kedua 9-box belum ada.</div></div>';
+  }
+
+  h += '<div class="tc-h">Prioritas Pengembangan (3 gap terbesar)</div>';
+  if(!c.prioritasPengembangan.length){
+    h += '<div class="hint">Tidak ada gap &mdash; seluruh kompetensi sudah memenuhi atau melampaui target. Kandidat talent pool / calon mentor.</div>';
+  } else {
+    h += '<table><tr><th>Kompetensi</th><th>Target</th><th>Aktual</th><th>Tindakan</th><th>Modul</th></tr>';
+    c.prioritasPengembangan.forEach(function(p){
+      var modBadge = p.statusModul==='ada' ? 'badge-green' : (p.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
+      h += '<tr><td><b>'+esc(p.nama)+'</b></td><td>'+p.target+'</td><td>'+p.aktual+'</td>'+
+        '<td>'+esc(p.rekomendasi)+'</td><td><span class="badge '+modBadge+'">'+esc(p.statusModul)+'</span></td></tr>';
+    });
+    h += '</table>';
+  }
+
+  h += '<div class="tc-h">Seluruh Kompetensi</div><table><tr><th>Kompetensi</th><th>Tipe</th><th>Target</th><th>Aktual</th><th>Gap</th></tr>';
+  c.kompetensi.forEach(function(k){
+    var cls = k.gap<=0 ? 'gap-0' : (k.gap===1 ? 'gap-1' : 'gap-2');
+    h += '<tr><td>'+esc(k.nama)+'</td><td>'+esc(k.tipe)+'</td><td>'+k.target+'</td><td>'+k.aktual+'</td>'+
+      '<td><span class="gap-pill '+cls+'">'+Math.max(k.gap,0)+'</span></td></tr>';
+  });
+  h += '</table>';
+  h += '<div class="hint" style="margin-top:14px">Asesmen terakhir: '+(c.asesmenTerakhir?fmtDate(c.asesmenTerakhir):'—')+
+    (c.periodeKinerja?' &middot; Periode kinerja: '+esc(c.periodeKinerja):'')+
+    '. Kesiapan kompetensi = % kompetensi yang sudah mencapai target jabatan saat ini; bukan ukuran potensi/learning agility.</div>';
+  h += '<div class="no-print" style="margin-top:16px"><button class="btn btn-ghost btn-print-tc">Cetak / Simpan PDF</button></div>';
+  h += '</div>';
+  return h;
+}
+
+$('btn-load-bench').onclick = function(){
+  clearErr('err-bench');
+  var jid = $('sel-bench-jabatan').value;
+  if(!jid){ showErr('err-bench','Pilih jabatan target dulu.'); return; }
+  api('getBenchStrength', {targetJabatanId: jid}).then(function(r){
+    var s = r.summary;
+    var html = '<div class="bench-row">'+
+      '<div class="bench-tile"><div class="n" style="color:var(--green)">'+s.ready_now+'</div><div class="lbl">Ready Now</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--amber)">'+s.ready_6_12+'</div><div class="lbl">Ready 6&ndash;12 Bulan</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--red)">'+s.ready_1yr+'</div><div class="lbl">Ready &gt;1 Tahun</div></div>'+
+      '</div>';
+    if(!r.kandidat.length){
+      html += '<div class="empty">Belum ada kandidat (orang lain yang sudah diasesmen) untuk jabatan ini.</div>';
+      $('bench-result').innerHTML = html; return;
+    }
+    html += '<table><tr><th>Nama</th><th>Jabatan Saat Ini</th><th>Status Kesiapan</th><th>Kompetensi Tercakup</th></tr>';
+    var order = {ready_now:0, ready_6_12:1, ready_1yr:2};
+    r.kandidat.sort(function(a,b){ return order[a.readiness]-order[b.readiness]; }).forEach(function(k){
+      var lbl = k.readiness==='ready_now' ? 'Ready Now' : (k.readiness==='ready_6_12' ? 'Ready 6-12 Bulan' : 'Ready &gt;1 Tahun');
+      var cls = k.readiness==='ready_now' ? 'badge-green' : (k.readiness==='ready_6_12' ? 'badge-amber' : 'badge-red');
+      html += '<tr><td>'+esc(k.nama)+'</td><td>'+esc(k.jabatanSaatIni)+'</td><td><span class="badge '+cls+'">'+lbl+'</span></td>'+
+        '<td>'+k.kompetensiTercakup+'/'+k.totalKompetensiTarget+'</td></tr>';
+    });
+    html += '</table>';
+    $('bench-result').innerHTML = html;
+  }).catch(function(e){ showErr('err-bench', e.message); });
+};
+
+/* ---------- ITP & MONITORING ---------- */
+$('btn-load-itp-monitor').onclick = function(){
+  api('getItpMonitoring', {}).then(function(r){
+    var s = r.summary;
+    var html = '<div class="bench-row">'+
+      '<div class="bench-tile"><div class="n">'+r.total+'</div><div class="lbl">Total ITP</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--muted)">'+(s['Belum Mulai']||0)+'</div><div class="lbl">Belum Mulai</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--amber)">'+(s['Berjalan']||0)+'</div><div class="lbl">Berjalan</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--green)">'+(s['Selesai']||0)+'</div><div class="lbl">Selesai</div></div>'+
+      '<div class="bench-tile"><div class="n" style="color:var(--red)">'+r.terlambat.length+'</div><div class="lbl">Lewat Tenggat</div></div>'+
+      '</div>';
+    if(r.terlambat.length){
+      html += '<div class="card"><h2 class="sect" style="color:var(--red)">Lewat Tenggat</h2><table><tr><th>Nama</th><th>Kompetensi</th><th>PIC</th><th>Target</th><th>Status</th></tr>';
+      r.terlambat.forEach(function(t){
+        html += '<tr><td>'+esc(t.nama)+'</td><td>'+esc(t.kompetensi)+'</td><td>'+esc(t.pic||'-')+'</td><td>'+fmtDate(t.targetTanggal)+'</td><td><span class="badge-overdue">'+esc(t.status)+'</span></td></tr>';
+      });
+      html += '</table></div>';
+    }
+    $('itp-monitor-result').innerHTML = html;
+  });
+};
+
+$('btn-load-itp').onclick = function(){
+  clearErr('err-itp');
+  var nik = resolveNik($('inp-itp-nik').value);
+  if(!nik){ showErr('err-itp','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('getItpList', {nik: nik}).then(function(list){
+    if(!list.length){ $('itp-result').innerHTML = '<div class="empty">Belum ada ITP untuk karyawan ini (artinya tidak ada gap pada asesmen terakhir, atau belum pernah diases).</div>'; return; }
+    var html = '';
+    list.forEach(function(itp){
+      html += '<div class="itp-row" data-itp="'+esc(itp.itpId)+'">'+
+        '<div class="top"><span class="nama">'+esc(itp.nama)+'</span>'+(itp.terlambat?'<span class="badge-overdue">Lewat Tenggat</span>':'')+'</div>'+
+        '<div class="hint">'+esc(itp.tindakan)+' &middot; Siklus: '+esc(itp.siklus||'-')+'</div>'+
+        '<div class="grid">'+
+          '<div><label>Status</label><select class="itp-status">'+
+            ['Belum Mulai','Berjalan','Selesai'].map(function(s){ return '<option value="'+s+'"'+(s===itp.status?' selected':'')+'>'+s+'</option>'; }).join('')+
+          '</select></div>'+
+          '<div><label>PIC</label><input type="text" class="itp-pic" value="'+esc(itp.pic||'')+'" placeholder="Nama PIC"></div>'+
+          '<div><label>Target Tanggal</label><input type="date" class="itp-target" value="'+esc(itp.targetTanggal?String(itp.targetTanggal).slice(0,10):'')+'"></div>'+
+          '<div><label>&nbsp;</label><button class="btn btn-ghost itp-save" style="margin-top:0">Simpan</button></div>'+
+          '<div class="full"><label>Catatan Progress</label><textarea class="itp-catatan" style="min-height:50px">'+esc(itp.catatanProgress||'')+'</textarea></div>'+
+        '</div><div class="err itp-err" style="margin-top:6px"></div></div>';
+    });
+    $('itp-result').innerHTML = html;
+    document.querySelectorAll('#itp-result .itp-save').forEach(function(btn){
+      btn.onclick = function(){
+        var row = btn.closest('.itp-row');
+        var errEl = row.querySelector('.itp-err');
+        errEl.classList.remove('show'); errEl.textContent='';
+        api('updateItp', {
+          itpId: row.dataset.itp,
+          status: row.querySelector('.itp-status').value,
+          pic: row.querySelector('.itp-pic').value.trim(),
+          targetTanggal: row.querySelector('.itp-target').value,
+          catatanProgress: row.querySelector('.itp-catatan').value.trim()
+        }).then(function(){
+          errEl.textContent = 'Tersimpan.'; errEl.style.color='var(--green)'; errEl.classList.add('show');
+        }).catch(function(e){
+          errEl.style.color='#8A1620'; errEl.textContent = e.message; errEl.classList.add('show');
+        });
+      };
+    });
+  }).catch(function(e){ showErr('err-itp', e.message); });
+};
+</script>
+</body>
+</html>
