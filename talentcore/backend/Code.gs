@@ -29,7 +29,9 @@ var SHEET_ASSESSMENT = 'Assessment';
 var SHEET_TRAININGMODULE = 'TrainingModule';
 var SHEET_SESSIONS = 'Sessions';
 var SHEET_PERFORMANCE = 'Performance';
-var SHEET_IDP = 'IDP';
+var SHEET_ITP = 'ITP';
+var SHEET_KOMPETENSI_WAJIB = 'KompetensiWajib';
+var SHEET_LEVEL_WAJIB = 'LevelWajib';
 
 var SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 jam
 
@@ -61,8 +63,10 @@ function setupTabTalentCore() {
   createTabIfMissing_(ss, SHEET_TRAININGMODULE, ['NamaKompetensi', 'StatusModul', 'CatatanSumber']);
   createTabIfMissing_(ss, SHEET_SESSIONS, ['Token', 'NIK', 'Role', 'ExpiresAt']);
   createTabIfMissing_(ss, SHEET_PERFORMANCE, ['NIK', 'Periode', 'RatingKinerja', 'Catatan', 'DiinputOleh', 'Tanggal']);
-  createTabIfMissing_(ss, SHEET_IDP, ['IdpID', 'NIK', 'KompID', 'NamaKompetensi', 'Tindakan', 'PIC', 'TargetTanggal', 'Status', 'CatatanProgress', 'Siklus', 'DibuatPada']);
-  SpreadsheetApp.getUi().alert('Setup selesai. 10 sheet sudah siap.');
+  createTabIfMissing_(ss, SHEET_ITP, ['ItpID', 'NIK', 'KompID', 'NamaKompetensi', 'Tindakan', 'PIC', 'TargetTanggal', 'Status', 'CatatanProgress', 'Siklus', 'DibuatPada']);
+  createTabIfMissing_(ss, SHEET_KOMPETENSI_WAJIB, ['KompID', 'Nama', 'Definisi', 'LevelTargetStaff', 'LevelTargetSupervisor', 'LevelTargetManager', 'LevelTargetDivisionHead', 'EfektifMulai']);
+  createTabIfMissing_(ss, SHEET_LEVEL_WAJIB, ['KompID', 'Level', 'DeskripsiLevel', 'PerilakuKunci']);
+  SpreadsheetApp.getUi().alert('Setup selesai. 12 sheet sudah siap. Jangan lupa jalankan seedKompetensiWajib() sekali.');
 }
 
 function createTabIfMissing_(ss, name, headers) {
@@ -102,9 +106,9 @@ function doPost(e) {
       case 'savePerformance': out = actionSavePerformance_(payload, session); break;
       case 'getNineBox': out = actionGetNineBox_(payload, session); break;
       case 'getTalentCard': out = actionGetTalentCard_(payload, session); break;
-      case 'getIdpList': out = actionGetIdpList_(payload, session); break;
-      case 'updateIdp': out = actionUpdateIdp_(payload, session); break;
-      case 'getIdpMonitoring': out = actionGetIdpMonitoring_(payload, session); break;
+      case 'getItpList': out = actionGetItpList_(payload, session); break;
+      case 'updateItp': out = actionUpdateItp_(payload, session); break;
+      case 'getItpMonitoring': out = actionGetItpMonitoring_(payload, session); break;
       default: throw new Error('Action tidak dikenal: ' + action);
     }
     return jsonResponse_({ ok: true, data: out });
@@ -301,12 +305,58 @@ function actionGetJabatanList_(payload, session) {
 function actionGetKompetensiByJabatan_(payload, session) {
   var komp = sheetRows_(SHEET_KOMPETENSI).filter(function (r) { return r.JabatanID === payload.jabatanId; });
   var levels = sheetRows_(SHEET_LEVEL);
-  return komp.map(function (k) {
+  var hasil = komp.map(function (k) {
     var lv = levels.filter(function (l) { return l.KompID === k.KompID; })
       .sort(function (a, b) { return a.Level - b.Level; })
       .map(function (l) { return { level: l.Level, deskripsi: l.DeskripsiLevel, perilakuKunci: l.PerilakuKunci.split(' | ') }; });
     return { kompId: k.KompID, nama: k.NamaKompetensi, tipe: k.Tipe, definisi: k.Definisi, levelTarget: k.LevelTarget, levels: lv };
   });
+  var jab = sheetRows_(SHEET_JABATAN).filter(function (r) { return r.JabatanID === payload.jabatanId; })[0];
+  return hasil.concat(getKompetensiWajibUntukTier_(jab ? jab.Tier : 'staff'));
+}
+
+/* ================= KOMPETENSI WAJIB PERUSAHAAN =================
+ * Kompetensi yang diwajibkan perusahaan untuk SEMUA jabatan (lintas JD), bukan diturunkan dari
+ * Tugas Utama satu jabatan tertentu — jadi tidak lewat pipeline generate-dari-JD, disimpan di
+ * sheet terpisah (KompetensiWajib/LevelWajib) dan digabung otomatis ke hasil getKompetensiByJabatan_.
+ * Level target berbeda per tier jabatan (staff paling ringan, division_head paling berat).
+ * EfektifMulai dibiarkan tampil (bukan disembunyikan) sebelum tanggalnya tiba, supaya organisasi
+ * punya waktu bersiap — ditandai aktifSekarang:false ke frontend untuk itu.
+ */
+
+function wajibLevelTargetForTier_(w, tier) {
+  var col = tier === 'supervisor' ? 'LevelTargetSupervisor'
+    : tier === 'manager' ? 'LevelTargetManager'
+    : (tier === 'division_head' ? 'LevelTargetDivisionHead' : 'LevelTargetStaff');
+  var v = Number(w[col]);
+  return v || Number(w.LevelTargetStaff) || 2;
+}
+
+function getKompetensiWajibUntukTier_(tier) {
+  var wajibRows = sheetRows_(SHEET_KOMPETENSI_WAJIB);
+  var levelWajib = sheetRows_(SHEET_LEVEL_WAJIB);
+  return wajibRows.map(function (w) {
+    var lv = levelWajib.filter(function (l) { return l.KompID === w.KompID; })
+      .sort(function (a, b) { return a.Level - b.Level; })
+      .map(function (l) { return { level: l.Level, deskripsi: l.DeskripsiLevel, perilakuKunci: l.PerilakuKunci.split(' | ') }; });
+    return {
+      kompId: w.KompID, nama: w.Nama, tipe: 'wajib', definisi: w.Definisi,
+      levelTarget: wajibLevelTargetForTier_(w, tier), levels: lv,
+      efektifMulai: w.EfektifMulai, aktifSekarang: !w.EfektifMulai || new Date(w.EfektifMulai) <= new Date()
+    };
+  });
+}
+
+/* resolveKompForJabatan_: dipakai setiap kali ada KompID + JabatanID dari baris Assessment/ITP dan
+   butuh tahu nama/tipe/levelTarget-nya lagi — KompID kompetensi wajib TIDAK ada di sheet Kompetensi
+   biasa (itu per-jabatan), jadi harus dicek juga ke KompetensiWajib dengan tier jabatan terkait. */
+function resolveKompForJabatan_(jabatanId, kompId) {
+  var k = sheetRows_(SHEET_KOMPETENSI).filter(function (r) { return r.KompID === kompId; })[0];
+  if (k) return { kompId: kompId, nama: k.NamaKompetensi, tipe: k.Tipe, levelTarget: Number(k.LevelTarget) };
+  var w = sheetRows_(SHEET_KOMPETENSI_WAJIB).filter(function (r) { return r.KompID === kompId; })[0];
+  if (!w) return null;
+  var jab = sheetRows_(SHEET_JABATAN).filter(function (r) { return r.JabatanID === jabatanId; })[0];
+  return { kompId: kompId, nama: w.Nama, tipe: 'wajib', levelTarget: wajibLevelTargetForTier_(w, jab ? jab.Tier : 'staff') };
 }
 
 /* ================= EMPLOYEE DIRECTORY (P1) ================= */
@@ -337,12 +387,11 @@ function actionGetProfile_(payload, session) {
   }
   var user = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
   var assessments = sheetRows_(SHEET_ASSESSMENT).filter(function (a) { return String(a.NIK) === String(nik); });
-  var komp = sheetRows_(SHEET_KOMPETENSI);
   var byKomp = {};
   assessments.forEach(function (a) {
-    var k = komp.filter(function (r) { return r.KompID === a.KompID; })[0];
+    var k = resolveKompForJabatan_(a.JabatanID, a.KompID);
     if (!k) return;
-    if (!byKomp[a.KompID]) byKomp[a.KompID] = { kompId: a.KompID, nama: k.NamaKompetensi, tipe: k.Tipe, levelTarget: k.LevelTarget, history: [] };
+    if (!byKomp[a.KompID]) byKomp[a.KompID] = { kompId: a.KompID, nama: k.nama, tipe: k.tipe, levelTarget: k.levelTarget, history: [] };
     byKomp[a.KompID].history.push({ levelAktual: a.LevelAktual, tanggal: a.Tanggal, asesorNik: a.AsesorNIK });
   });
   var items = Object.keys(byKomp).map(function (id) {
@@ -370,36 +419,36 @@ function actionSubmitAssessment_(payload, session) {
   }
 
   var sh = ss.getSheetByName(SHEET_ASSESSMENT);
-  var shIdp = ss.getSheetByName(SHEET_IDP);
-  var komp = sheetRows_(SHEET_KOMPETENSI).filter(function (r) { return r.JabatanID === payload.jabatanId; });
+  var shItp = ss.getSheetByName(SHEET_ITP);
   var siklus = payload.siklus || 'Tanpa Siklus';
   var now = new Date();
-  var results = [], idpDibuat = 0;
+  var results = [], itpDibuat = 0;
   (payload.scores || []).forEach(function (s) {
     var id = payload.nik + '_' + s.kompId + '_' + now.getTime();
     var selfRating = (s.levelSelfRating === undefined || s.levelSelfRating === null || s.levelSelfRating === '') ? '' : s.levelSelfRating;
     sh.appendRow([id, payload.nik, payload.jabatanId, s.kompId, s.levelAktual, selfRating, session.nik, siklus, now]);
-    var k = komp.filter(function (r) { return r.KompID === s.kompId; })[0];
-    var target = k ? k.LevelTarget : 3;
+    var k = resolveKompForJabatan_(payload.jabatanId, s.kompId);
+    var target = k ? k.levelTarget : 3;
     var gap = target - s.levelAktual;
-    var nama = k ? k.NamaKompetensi : s.kompId;
-    var tipe = k ? k.Tipe : 'technical';
+    var nama = k ? k.nama : s.kompId;
+    var tipe = k ? k.tipe : 'technical';
     var rekomendasi = rekomendasiGap_(gap, tipe);
     var selisihSelf = selfRating === '' ? null : (Number(selfRating) - s.levelAktual);
     results.push({ kompId: s.kompId, nama: nama, tipe: tipe, target: target, aktual: s.levelAktual, selfRating: selfRating === '' ? null : Number(selfRating), selisihSelf: selisihSelf, gap: gap, rekomendasi: rekomendasi });
     if (gap > 0) {
-      shIdp.appendRow([
-        payload.nik + '_idp_' + s.kompId + '_' + now.getTime(), payload.nik, s.kompId, nama,
+      shItp.appendRow([
+        payload.nik + '_itp_' + s.kompId + '_' + now.getTime(), payload.nik, s.kompId, nama,
         rekomendasi, '', '', 'Belum Mulai', '', siklus, now
       ]);
-      idpDibuat++;
+      itpDibuat++;
     }
   });
-  return { nik: payload.nik, results: results, siklus: siklus, idpDibuat: idpDibuat };
+  return { nik: payload.nik, results: results, siklus: siklus, itpDibuat: itpDibuat };
 }
 
 function rekomendasiGap_(gap, tipe) {
   if (gap <= 0) return 'Sesuai standar — kandidat talent pool / calon mentor.';
+  if (tipe === 'wajib') return gap === 1 ? 'Ikuti modul wajib perusahaan (e-learning singkat) untuk menutup gap.' : 'Wajib ikut pelatihan formal kompetensi wajib perusahaan sebelum tenggat berlaku.';
   if (gap === 1 && tipe === 'technical') return 'On-the-job practice / shadowing dengan rekan level lebih tinggi.';
   if (gap === 1) return 'Coaching rutin oleh atasan langsung.';
   if (tipe === 'technical') return 'Formal training module + OJT terstruktur (gap >= 2 level).';
@@ -411,14 +460,13 @@ function rekomendasiGap_(gap, tipe) {
 function actionGetTrainingMatrix_(payload, session) {
   requireRole_(session, ['admin', 'ld']);
   var assessments = sheetRows_(SHEET_ASSESSMENT);
-  var komp = sheetRows_(SHEET_KOMPETENSI);
   var modules = sheetRows_(SHEET_TRAININGMODULE);
   var byKomp = {};
   assessments.forEach(function (a) {
-    var k = komp.filter(function (r) { return r.KompID === a.KompID; })[0];
+    var k = resolveKompForJabatan_(a.JabatanID, a.KompID);
     if (!k) return;
-    var gap = k.LevelTarget - a.LevelAktual;
-    if (!byKomp[a.KompID]) byKomp[a.KompID] = { nama: k.NamaKompetensi, tipe: k.Tipe, mandatoryCount: 0, developmentCount: 0, maxGap: 0 };
+    var gap = k.levelTarget - a.LevelAktual;
+    if (!byKomp[a.KompID]) byKomp[a.KompID] = { nama: k.nama, tipe: k.tipe, mandatoryCount: 0, developmentCount: 0, maxGap: 0 };
     if (gap > 0) { byKomp[a.KompID].mandatoryCount++; byKomp[a.KompID].maxGap = Math.max(byKomp[a.KompID].maxGap, gap); }
     else byKomp[a.KompID].developmentCount++;
   });
@@ -427,6 +475,7 @@ function actionGetTrainingMatrix_(payload, session) {
     var mod = modules.filter(function (m) { return m.NamaKompetensi === row.nama; })[0];
     return {
       kompetensi: row.nama, tipe: row.tipe,
+      wajibPerusahaan: row.tipe === 'wajib',
       kategori: row.mandatoryCount > 0 ? 'mandatory' : 'development',
       jumlahButuh: row.mandatoryCount || row.developmentCount,
       urgency: row.maxGap >= 2 ? 'tinggi' : (row.maxGap === 1 ? 'sedang' : 'aman'),
@@ -522,7 +571,6 @@ function actionGetBenchStrength_(payload, session) {
   var targetKomp = actionGetKompetensiByJabatan_({ jabatanId: targetJabatanId }, session);
   if (!targetKomp.length) throw new Error('Jabatan target ini belum punya kompetensi tersimpan.');
 
-  var komp = sheetRows_(SHEET_KOMPETENSI);
   var users = sheetRows_(SHEET_USERS);
   var latestByNik = latestAssessmentByNik_();
 
@@ -532,8 +580,9 @@ function actionGetBenchStrength_(payload, session) {
 
     var byName = {};
     Object.keys(latestByNik[nik]).forEach(function (kid) {
-      var k = komp.filter(function (r) { return r.KompID === kid; })[0];
-      if (k) byName[k.NamaKompetensi.toLowerCase()] = latestByNik[nik][kid].LevelAktual;
+      var row = latestByNik[nik][kid];
+      var k = resolveKompForJabatan_(row.JabatanID, kid);
+      if (k) byName[k.nama.toLowerCase()] = row.LevelAktual;
     });
 
     var maxGap = 0, kompetensiTercakup = 0;
@@ -585,18 +634,19 @@ function latestPerformanceByNik_() {
   return out;
 }
 
-function readinessProfile_(nik, latestMap, kompRows) {
+function readinessProfile_(nik, latestMap) {
   var perKomp = latestMap[nik] || {};
   var total = 0, ready = 0, items = [];
   Object.keys(perKomp).forEach(function (kid) {
-    var k = kompRows.filter(function (r) { return r.KompID === kid; })[0];
+    var row = perKomp[kid];
+    var k = resolveKompForJabatan_(row.JabatanID, kid);
     if (!k) return;
     total++;
-    var aktual = Number(perKomp[kid].LevelAktual), target = Number(k.LevelTarget);
+    var aktual = Number(row.LevelAktual), target = Number(k.levelTarget);
     if (aktual >= target) ready++;
     items.push({
-      kompId: kid, nama: k.NamaKompetensi, tipe: k.Tipe,
-      target: target, aktual: aktual, gap: target - aktual, tanggal: perKomp[kid].Tanggal
+      kompId: kid, nama: k.nama, tipe: k.tipe,
+      target: target, aktual: aktual, gap: target - aktual, tanggal: row.Tanggal
     });
   });
   return { total: total, readiness: total ? Math.round(ready / total * 100) : 0, items: items };
@@ -643,12 +693,11 @@ function actionGetNineBox_(payload, session) {
   requireRole_(session, ['admin', 'ld']);
   var latest = latestAssessmentByNik_();
   var perf = latestPerformanceByNik_();
-  var kompRows = sheetRows_(SHEET_KOMPETENSI);
   var users = sheetRows_(SHEET_USERS);
   var placed = [], tanpaKinerja = [];
 
   Object.keys(latest).forEach(function (nik) {
-    var prof = readinessProfile_(nik, latest, kompRows);
+    var prof = readinessProfile_(nik, latest);
     if (!prof.total) return;
     var u = users.filter(function (r) { return String(r.NIK) === String(nik); })[0];
     var orang = {
@@ -682,8 +731,7 @@ function actionGetTalentCard_(payload, session) {
     }
   }
 
-  var kompRows = sheetRows_(SHEET_KOMPETENSI);
-  var prof = readinessProfile_(nik, latestAssessmentByNik_(), kompRows);
+  var prof = readinessProfile_(nik, latestAssessmentByNik_());
   var p = latestPerformanceByNik_()[nik];
   var modules = sheetRows_(SHEET_TRAININGMODULE);
 
@@ -721,25 +769,25 @@ function actionGetTalentCard_(payload, session) {
   };
 }
 
-/* ================= IDP (yang dimonitor SETELAH asesmen, bukan re-asesmen) =================
+/* ================= ITP (yang dimonitor SETELAH asesmen, bukan re-asesmen) =================
  * Draft dibuat otomatis oleh actionSubmitAssessment_ untuk tiap kompetensi dengan gap>0.
  * Simplifikasi yang diakui (lihat PRD.md): draft dibuat untuk SEMUA gap>0, bukan hanya untuk
  * talent yang sengaja disiapkan jadi future leader — L&D menyaring/menghapus yang tidak relevan.
  */
 
-function actionGetIdpList_(payload, session) {
+function actionGetItpList_(payload, session) {
   var nik = payload.nik;
   if (!nik) throw new Error('Pilih karyawan dulu.');
   if (session.role !== 'admin' && session.role !== 'ld') {
     var target = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
     if (!target || String(target.AtasanNIK) !== String(session.nik)) {
-      throw new Error('Anda tidak punya akses melihat IDP karyawan ini.');
+      throw new Error('Anda tidak punya akses melihat ITP karyawan ini.');
     }
   }
-  var rows = sheetRows_(SHEET_IDP).filter(function (r) { return String(r.NIK) === String(nik); });
+  var rows = sheetRows_(SHEET_ITP).filter(function (r) { return String(r.NIK) === String(nik); });
   return rows.map(function (r) {
     return {
-      idpId: r.IdpID, kompId: r.KompID, nama: r.NamaKompetensi, tindakan: r.Tindakan,
+      itpId: r.ItpID, kompId: r.KompID, nama: r.NamaKompetensi, tindakan: r.Tindakan,
       pic: r.PIC, targetTanggal: r.TargetTanggal, status: r.Status || 'Belum Mulai',
       catatanProgress: r.CatatanProgress, siklus: r.Siklus, dibuatPada: r.DibuatPada,
       terlambat: !!(r.TargetTanggal && r.Status !== 'Selesai' && new Date(r.TargetTanggal) < new Date())
@@ -747,19 +795,19 @@ function actionGetIdpList_(payload, session) {
   });
 }
 
-function actionUpdateIdp_(payload, session) {
-  var idpId = payload.idpId;
-  if (!idpId) throw new Error('IDP tidak ditemukan.');
-  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_IDP);
-  var found = findRowByValue_(sh, 'IdpID', idpId);
-  if (!found) throw new Error('IDP tidak ditemukan.');
+function actionUpdateItp_(payload, session) {
+  var itpId = payload.itpId;
+  if (!itpId) throw new Error('ITP tidak ditemukan.');
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_ITP);
+  var found = findRowByValue_(sh, 'ItpID', itpId);
+  if (!found) throw new Error('ITP tidak ditemukan.');
   var headers = sh.getDataRange().getValues()[0];
   var nik = found.values[headers.indexOf('NIK')];
 
   if (session.role !== 'admin' && session.role !== 'ld') {
     var target = sheetRows_(SHEET_USERS).filter(function (r) { return String(r.NIK) === String(nik); })[0];
     if (!target || String(target.AtasanNIK) !== String(session.nik)) {
-      throw new Error('Anda tidak punya akses mengubah IDP ini.');
+      throw new Error('Anda tidak punya akses mengubah ITP ini.');
     }
   }
 
@@ -774,12 +822,12 @@ function actionUpdateIdp_(payload, session) {
   setCol('PIC', payload.pic);
   setCol('TargetTanggal', payload.targetTanggal);
   setCol('CatatanProgress', payload.catatanProgress);
-  return { idpId: idpId, ok: true };
+  return { itpId: itpId, ok: true };
 }
 
-function actionGetIdpMonitoring_(payload, session) {
+function actionGetItpMonitoring_(payload, session) {
   requireRole_(session, ['admin', 'ld']);
-  var rows = sheetRows_(SHEET_IDP);
+  var rows = sheetRows_(SHEET_ITP);
   var users = sheetRows_(SHEET_USERS);
   var now = new Date();
   var summary = { 'Belum Mulai': 0, 'Berjalan': 0, 'Selesai': 0 };
@@ -791,7 +839,7 @@ function actionGetIdpMonitoring_(payload, session) {
     if (isTerlambat) {
       var u = users.filter(function (x) { return String(x.NIK) === String(r.NIK); })[0];
       terlambat.push({
-        idpId: r.IdpID, nik: r.NIK, nama: u ? u.Nama : r.NIK, kompetensi: r.NamaKompetensi,
+        itpId: r.ItpID, nik: r.NIK, nama: u ? u.Nama : r.NIK, kompetensi: r.NamaKompetensi,
         pic: r.PIC, targetTanggal: r.TargetTanggal, status: status
       });
     }
@@ -850,6 +898,57 @@ function slugify_(s) {
  * lewat menu Run untuk isi starter data; untuk kompetensi baru di luar
  * 5 jabatan ini, isi manual di sheet TrainingModule atau cross-check ulang.
  */
+/* ================= SEED: KOMPETENSI WAJIB PERUSAHAAN =================
+ * Dua kompetensi wajib lintas-jabatan (2026-10-12): AI Generatif (efektif mulai 2027-01-01,
+ * level target lebih ringan untuk staff) dan Anti-Fraud (efektif sekarang, applies for all).
+ *
+ * CATATAN JUJUR SOAL SUMBER: tidak ada satu standar industri tunggal untuk level kompetensi AI
+ * karyawan korporat atau untuk level kewaspadaan anti-fraud dengan indikator perilaku per level —
+ * sudah dicek (2026-10-12). Yang ada: DigComp 3.0 dan kerangka AILit OECD/EU (ditujukan untuk
+ * kebijakan publik/pendidikan, bukan korporat) untuk AI; dan "Fraud Prevention Pyramid" (progresi
+ * 5 tahap kesadaran fraud, ditujukan untuk individu profesional keuangan, bukan skema korporat
+ * lintas-level) untuk anti-fraud. Dua kompetensi di bawah ini RACIKAN SENDIRI yang terinspirasi
+ * dari kerangka itu dan mengikuti format 5-level + Perilaku Kunci yang sama dengan Kamus 2022 —
+ * bukan jiplakan standar resmi. Kalau BBM punya kebijakan anti-fraud formal dengan definisi level
+ * sendiri, GANTI isi di bawah dengan itu, jangan dipakai sebagai pengganti kebijakan resmi.
+ */
+function seedKompetensiWajib() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var shK = ss.getSheetByName(SHEET_KOMPETENSI_WAJIB);
+  var shL = ss.getSheetByName(SHEET_LEVEL_WAJIB);
+
+  shK.appendRow([
+    'WAJIB_AI', 'Pemanfaatan AI Generatif untuk Produktivitas Kerja',
+    'Kemampuan memanfaatkan tools AI generatif (chat, image generator, dsb) secara efektif, kritis, dan aman untuk mendukung produktivitas kerja sehari-hari.',
+    2, 3, 4, 4, '2027-01-01'
+  ]);
+  shK.appendRow([
+    'WAJIB_ANTIFRAUD', 'Kepatuhan & Kewaspadaan Anti-Fraud',
+    'Kemampuan memahami, menerapkan, dan menegakkan prinsip anti-fraud dalam pekerjaan sehari-hari.',
+    2, 3, 4, 4, ''
+  ]);
+
+  var levelAi = [
+    ['Mengetahui apa itu AI generatif (chat & image generation) dan contoh penggunaannya di pekerjaan kantor.', 'Belum pernah menggunakan AI generatif untuk tugas kerja.'],
+    ['Menggunakan AI chat (ChatGPT/Claude/Gemini, dsb) untuk tugas rutin sederhana: meringkas teks, draft email/pesan, mencari ide.', 'Menggunakan AI image generator untuk kebutuhan visual dasar (bukan materi final tanpa review).', 'Tidak memasukkan data rahasia/pribadi pelanggan ke tools AI publik.'],
+    ['Menyusun prompt terstruktur (konteks, format keluaran, contoh) untuk hasil yang lebih relevan.', 'Memeriksa ulang (fact-check) hasil AI sebelum dipakai/dikirim ke pihak lain — tidak menelan mentah-mentah.', 'Memilih tools AI yang sesuai kebutuhan tugas secara mandiri.'],
+    ['Mengintegrasikan AI ke alur kerja rutin timnya dan membimbing rekan kerja memakainya dengan benar dan aman.', 'Mengenali situasi di mana AI tidak tepat/boleh dipakai (keputusan sensitif, data rahasia, kepatuhan hukum) dan menegakkan itu di timnya.'],
+    ['Merancang panduan/SOP ringan pemanfaatan AI untuk unit kerjanya, termasuk batasan dan eskalasi.', 'Mengevaluasi tools AI baru yang relevan untuk diadopsi dan menjadi rujukan kebijakan penggunaan AI yang etis & aman di lingkupnya.']
+  ];
+  levelAi.forEach(function (pk, i) { shL.appendRow(['WAJIB_AI', i + 1, LEVEL_HEAD_TECHNICAL[i], pk.join(' | ')]); });
+
+  var levelFraud = [
+    ['Memahami definisi fraud dan bentuk umumnya (penggelapan, suap, manipulasi laporan, dsb) serta kebijakan anti-fraud perusahaan.', 'Mengetahui jalur pelaporan (whistleblowing channel) dan kewajiban melapor bila menemukan indikasi fraud.'],
+    ['Mengenali red flag fraud yang relevan di area kerjanya sendiri (gaya hidup tidak wajar, dokumen/transaksi tidak konsisten, tekanan finansial yang mencolok).', 'Tidak menandatangani/mengesahkan dokumen yang belum diverifikasi.'],
+    ['Menerapkan kontrol anti-fraud dalam tugas rutin (segregation of duties, verifikasi berjenjang, dokumentasi transaksi yang rapi).', 'Berani menolak dan melaporkan instruksi/praktik yang mencurigakan, termasuk dari atasan, lewat jalur yang benar.'],
+    ['Mendeteksi pola fraud yang lebih halus lintas transaksi/tim dan melakukan eskalasi/investigasi awal dengan benar.', 'Membangun kesadaran anti-fraud di timnya secara rutin (briefing, pengingat kebijakan).'],
+    ['Merancang atau memperkuat kontrol anti-fraud di unit kerjanya berdasarkan temuan/pola risiko yang berulang.', 'Memimpin atau mengkoordinasikan investigasi internal dan menjadi rujukan kebijakan anti-fraud di lingkup kerjanya.']
+  ];
+  levelFraud.forEach(function (pk, i) { shL.appendRow(['WAJIB_ANTIFRAUD', i + 1, LEVEL_HEAD_TECHNICAL[i], pk.join(' | ')]); });
+
+  SpreadsheetApp.getUi().alert('Seed Kompetensi Wajib selesai: AI Generatif (efektif 2027-01-01) & Anti-Fraud (efektif sekarang), masing-masing 5 level.');
+}
+
 function seedTrainingModuleContoh() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(SHEET_TRAININGMODULE);

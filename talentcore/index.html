@@ -60,6 +60,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-o
 .badge-red{background:var(--red-soft);color:var(--red)}
 .badge-blue{background:var(--blue-soft);color:var(--blue)}
 .badge-grey{background:#EEF1F6;color:var(--muted)}
+.badge-purple{background:#F1E9FB;color:#6B3FA0}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -99,12 +100,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .bench-tile .lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
 .score-row .self-wrap{display:flex;align-items:center;gap:8px}
 .score-row .self-wrap small{font-size:10.5px;color:var(--muted);white-space:nowrap}
-.idp-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
-.idp-row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
-.idp-row .nama{font-weight:700;font-size:14px}
-.idp-row .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.idp-row .grid .full{grid-column:1 / -1}
-@media (max-width:520px){.idp-row .grid{grid-template-columns:1fr}}
+.itp-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.itp-row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.itp-row .nama{font-weight:700;font-size:14px}
+.itp-row .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.itp-row .grid .full{grid-column:1 / -1}
+@media (max-width:520px){.itp-row .grid{grid-template-columns:1fr}}
 .badge-overdue{background:var(--red-soft);color:var(--red);font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px}
 /* 9-box grid */
 .nb-scroll{overflow-x:auto}
@@ -185,7 +186,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <button class="tab-btn" data-tab="path">4. Career Path</button>
         <button class="tab-btn" data-tab="profile">5. Profil Karyawan</button>
         <button class="tab-btn" data-tab="succession">6. Suksesi &amp; Bench</button>
-        <button class="tab-btn" data-tab="idp">7. IDP &amp; Monitoring</button>
+        <button class="tab-btn" data-tab="itp">7. Individual Training Plan</button>
       </div>
 
       <div id="panel-generate">
@@ -281,20 +282,20 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <div id="talentcard-result" style="margin-top:20px"></div>
       </div>
 
-      <div id="panel-idp" style="display:none">
-        <h2 class="sect">Monitoring IDP Lintas Organisasi</h2>
-        <div class="hint" style="margin-bottom:10px">Yang dipantau setelah siklus asesmen adalah implementasi IDP ini — bukan asesmen ulang (siklus berikutnya ~2 tahun lagi).</div>
-        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-idp-monitor">Muat Monitoring</button></div>
-        <div id="idp-monitor-result"></div>
+      <div id="panel-itp" style="display:none">
+        <h2 class="sect">Monitoring ITP Lintas Organisasi</h2>
+        <div class="hint" style="margin-bottom:10px">Yang dipantau setelah siklus asesmen adalah implementasi ITP ini — bukan asesmen ulang (siklus berikutnya ~2 tahun lagi).</div>
+        <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-itp-monitor">Muat Monitoring</button></div>
+        <div id="itp-monitor-result"></div>
 
-        <h2 class="sect" style="margin-top:28px">IDP per Karyawan</h2>
+        <h2 class="sect" style="margin-top:28px">ITP per Karyawan</h2>
         <div class="card">
           <label>Karyawan</label>
-          <input type="text" id="inp-idp-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
-          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-idp">Tampilkan IDP</button></div>
-          <div class="err" id="err-idp"></div>
+          <input type="text" id="inp-itp-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
+          <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-load-itp">Tampilkan ITP</button></div>
+          <div class="err" id="err-itp"></div>
         </div>
-        <div id="idp-result"></div>
+        <div id="itp-result"></div>
       </div>
     </div>
     <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
@@ -385,7 +386,7 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
-    ['generate','dict','matrix','path','profile','succession','idp'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
+    ['generate','dict','matrix','path','profile','succession','itp'].forEach(function(t){ $('panel-'+t).style.display = (t===btn.dataset.tab)?'block':'none'; });
   });
 });
 
@@ -500,7 +501,7 @@ function loadInlineAssessment(jabatanId){
     html += '<div class="card"><h2 class="sect">Beri Skor (1-5)</h2>'+
       '<div class="hint" style="margin-bottom:6px">Self-Rating opsional (diisi karyawan sendiri) &middot; Rating Asesor yang menentukan gap resmi.</div>';
     list.forEach(function(k){
-      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b><div class="hint">'+esc(k.tipe)+' &middot; target: level '+k.levelTarget+'</div></div>'+
+      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b> '+kompBadgeHtml(k)+'<div class="hint">target: level '+k.levelTarget+(k.tipe==='wajib'?(k.aktifSekarang===false?' &middot; wajib mulai '+esc(k.efektifMulai):' &middot; wajib semua jabatan'):'')+'</div></div>'+
         '<div class="self-wrap"><small>Self</small><select class="gen-inp-self" data-komp="'+esc(k.kompId)+'"><option value="">-</option>'+
         [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select>'+
         '<small>Asesor</small><select class="gen-inp-score" data-komp="'+esc(k.kompId)+'">'+
@@ -516,7 +517,7 @@ function loadInlineAssessment(jabatanId){
       api('submitAssessment', {nik: nik, jabatanId: jabatanId, siklus: $('gen-inp-siklus').value.trim(), scores: scores}).then(function(r2){
         var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap-gen" height="220"></canvas></div></div>';
         html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
-        if(r2.idpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r2.idpDibuat+' rencana pengembangan (IDP) otomatis dibuat untuk kompetensi yang gap &mdash; buka tab "IDP & Monitoring" untuk isi PIC dan target tanggal.</div>';
+        if(r2.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r2.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini &mdash; buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
         r2.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
           html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+'</div></div>'+
@@ -556,6 +557,17 @@ function fillSelect(id, list){
   }).join('');
 }
 
+/* ---------- BADGE KOMPETENSI WAJIB (dipakai dict, form asesmen) ---------- */
+function kompBadgeHtml(k){
+  if(k.tipe==='wajib') return '<span class="badge badge-purple">wajib perusahaan</span>';
+  return '<span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span>';
+}
+function kompWajibNoteHtml(k){
+  if(k.tipe!=='wajib') return '';
+  if(k.aktifSekarang===false) return '<div class="hint" style="color:var(--amber);font-weight:700">Berlaku wajib mulai '+esc(k.efektifMulai)+' &mdash; tetap tampil di form asesmen sekarang supaya organisasi siap lebih dulu.</div>';
+  return '<div class="hint" style="color:var(--navy2);font-weight:700">Wajib untuk semua jabatan.</div>';
+}
+
 /* ---------- DICTIONARY ---------- */
 $('btn-load-dict').onclick = function(){
   var jid = $('sel-dict-jabatan').value;
@@ -564,8 +576,8 @@ $('btn-load-dict').onclick = function(){
     if(!list.length){ $('dict-result').innerHTML = '<div class="empty">Belum ada kompetensi tersimpan untuk jabatan ini.</div>'; return; }
     var html = '<div class="card"><h2 class="sect">Profil Level Target (sekilas)</h2><div class="chart-wrap"><canvas id="chart-proficiency" height="260"></canvas></div></div>';
     list.forEach(function(k){
-      html += '<div class="comp-card"><div class="name">'+esc(k.nama)+' <span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span></div>'+
-        '<div class="def">'+esc(k.definisi)+'</div><table style="margin-top:8px"><tr><th>Lvl</th><th>Deskripsi</th><th>Perilaku Kunci</th></tr>';
+      html += '<div class="comp-card"><div class="name">'+esc(k.nama)+' '+kompBadgeHtml(k)+'</div>'+
+        '<div class="def">'+esc(k.definisi||'')+'</div>'+kompWajibNoteHtml(k)+'<table style="margin-top:8px"><tr><th>Lvl</th><th>Deskripsi</th><th>Perilaku Kunci</th></tr>';
       k.levels.forEach(function(lv){
         html += '<tr><td>'+lv.level+'</td><td style="color:var(--muted);font-style:italic">'+esc(lv.deskripsi)+'</td><td>'+lv.perilakuKunci.map(esc).join('<br>')+'</td></tr>';
       });
@@ -591,7 +603,8 @@ $('btn-load-matrix').onclick = function(){
     rows.forEach(function(r){
       var urgBadge = r.urgency==='tinggi' ? 'badge-red' : (r.urgency==='sedang' ? 'badge-amber' : 'badge-green');
       var modBadge = r.statusModul==='ada' ? 'badge-green' : (r.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
-      html += '<tr><td>'+esc(r.kompetensi)+'</td><td><span class="badge '+(r.kategori==='mandatory'?'badge-red':'badge-blue')+'">'+r.kategori+'</span></td>'+
+      html += '<tr><td>'+esc(r.kompetensi)+(r.wajibPerusahaan?' <span class="badge badge-purple">wajib perusahaan</span>':'')+'</td>'+
+        '<td><span class="badge '+(r.kategori==='mandatory'?'badge-red':'badge-blue')+'">'+r.kategori+'</span></td>'+
         '<td>'+r.jumlahButuh+' orang</td><td><span class="badge '+urgBadge+'">'+r.urgency+'</span></td>'+
         '<td><span class="badge '+modBadge+'">'+r.statusModul+'</span><div class="hint">'+esc(r.catatanModul)+'</div></td></tr>';
     });
@@ -678,7 +691,7 @@ $('btn-load-assess').onclick = function(){
     html += '<div class="card"><h2 class="sect">Beri Skor (1-5)</h2>'+
       '<div class="hint" style="margin-bottom:6px">Self-Rating diisi oleh karyawan sendiri (opsional, buat sinyal kalibrasi) &middot; Rating Asesor yang menentukan gap resmi.</div>';
     list.forEach(function(k){
-      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b><div class="hint">'+esc(k.tipe)+' &middot; target: level '+k.levelTarget+'</div></div>'+
+      html += '<div class="score-row"><div><b>'+esc(k.nama)+'</b> '+kompBadgeHtml(k)+'<div class="hint">target: level '+k.levelTarget+(k.tipe==='wajib'?(k.aktifSekarang===false?' &middot; wajib mulai '+esc(k.efektifMulai):' &middot; wajib semua jabatan'):'')+'</div></div>'+
         '<div class="self-wrap"><small>Self</small><select class="inp-self" data-komp="'+esc(k.kompId)+'"><option value="">-</option>'+
         [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select>'+
         '<small>Asesor</small><select class="inp-score" data-komp="'+esc(k.kompId)+'" data-target="'+k.levelTarget+'">'+
@@ -700,7 +713,7 @@ $('btn-load-assess').onclick = function(){
       api('submitAssessment', {nik: nik, jabatanId: jid, siklus: $('inp-siklus').value.trim(), scores: scores}).then(function(r){
         var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap" height="220"></canvas></div></div>';
         html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
-        if(r.idpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r.idpDibuat+' rencana pengembangan (IDP) otomatis dibuat untuk kompetensi yang gap &mdash; buka tab "IDP & Monitoring" untuk isi PIC dan target tanggal.</div>';
+        if(r.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini &mdash; buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
         r.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
           var selisihTxt = res.selisihSelf===null ? '' : (res.selisihSelf===0 ? ' &middot; self-rating selaras' : (res.selisihSelf>0 ? ' &middot; self-rating lebih tinggi '+res.selisihSelf : ' &middot; self-rating lebih rendah '+Math.abs(res.selisihSelf)));
@@ -877,12 +890,12 @@ $('btn-load-bench').onclick = function(){
   }).catch(function(e){ showErr('err-bench', e.message); });
 };
 
-/* ---------- IDP & MONITORING ---------- */
-$('btn-load-idp-monitor').onclick = function(){
-  api('getIdpMonitoring', {}).then(function(r){
+/* ---------- ITP & MONITORING ---------- */
+$('btn-load-itp-monitor').onclick = function(){
+  api('getItpMonitoring', {}).then(function(r){
     var s = r.summary;
     var html = '<div class="bench-row">'+
-      '<div class="bench-tile"><div class="n">'+r.total+'</div><div class="lbl">Total IDP</div></div>'+
+      '<div class="bench-tile"><div class="n">'+r.total+'</div><div class="lbl">Total ITP</div></div>'+
       '<div class="bench-tile"><div class="n" style="color:var(--muted)">'+(s['Belum Mulai']||0)+'</div><div class="lbl">Belum Mulai</div></div>'+
       '<div class="bench-tile"><div class="n" style="color:var(--amber)">'+(s['Berjalan']||0)+'</div><div class="lbl">Berjalan</div></div>'+
       '<div class="bench-tile"><div class="n" style="color:var(--green)">'+(s['Selesai']||0)+'</div><div class="lbl">Selesai</div></div>'+
@@ -895,43 +908,43 @@ $('btn-load-idp-monitor').onclick = function(){
       });
       html += '</table></div>';
     }
-    $('idp-monitor-result').innerHTML = html;
+    $('itp-monitor-result').innerHTML = html;
   });
 };
 
-$('btn-load-idp').onclick = function(){
-  clearErr('err-idp');
-  var nik = resolveNik($('inp-idp-nik').value);
-  if(!nik){ showErr('err-idp','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
-  api('getIdpList', {nik: nik}).then(function(list){
-    if(!list.length){ $('idp-result').innerHTML = '<div class="empty">Belum ada IDP untuk karyawan ini (artinya tidak ada gap pada asesmen terakhir, atau belum pernah diases).</div>'; return; }
+$('btn-load-itp').onclick = function(){
+  clearErr('err-itp');
+  var nik = resolveNik($('inp-itp-nik').value);
+  if(!nik){ showErr('err-itp','Pilih karyawan dari daftar (ketik NIK atau nama).'); return; }
+  api('getItpList', {nik: nik}).then(function(list){
+    if(!list.length){ $('itp-result').innerHTML = '<div class="empty">Belum ada ITP untuk karyawan ini (artinya tidak ada gap pada asesmen terakhir, atau belum pernah diases).</div>'; return; }
     var html = '';
-    list.forEach(function(idp){
-      html += '<div class="idp-row" data-idp="'+esc(idp.idpId)+'">'+
-        '<div class="top"><span class="nama">'+esc(idp.nama)+'</span>'+(idp.terlambat?'<span class="badge-overdue">Lewat Tenggat</span>':'')+'</div>'+
-        '<div class="hint">'+esc(idp.tindakan)+' &middot; Siklus: '+esc(idp.siklus||'-')+'</div>'+
+    list.forEach(function(itp){
+      html += '<div class="itp-row" data-itp="'+esc(itp.itpId)+'">'+
+        '<div class="top"><span class="nama">'+esc(itp.nama)+'</span>'+(itp.terlambat?'<span class="badge-overdue">Lewat Tenggat</span>':'')+'</div>'+
+        '<div class="hint">'+esc(itp.tindakan)+' &middot; Siklus: '+esc(itp.siklus||'-')+'</div>'+
         '<div class="grid">'+
-          '<div><label>Status</label><select class="idp-status">'+
-            ['Belum Mulai','Berjalan','Selesai'].map(function(s){ return '<option value="'+s+'"'+(s===idp.status?' selected':'')+'>'+s+'</option>'; }).join('')+
+          '<div><label>Status</label><select class="itp-status">'+
+            ['Belum Mulai','Berjalan','Selesai'].map(function(s){ return '<option value="'+s+'"'+(s===itp.status?' selected':'')+'>'+s+'</option>'; }).join('')+
           '</select></div>'+
-          '<div><label>PIC</label><input type="text" class="idp-pic" value="'+esc(idp.pic||'')+'" placeholder="Nama PIC"></div>'+
-          '<div><label>Target Tanggal</label><input type="date" class="idp-target" value="'+esc(idp.targetTanggal?String(idp.targetTanggal).slice(0,10):'')+'"></div>'+
-          '<div><label>&nbsp;</label><button class="btn btn-ghost idp-save" style="margin-top:0">Simpan</button></div>'+
-          '<div class="full"><label>Catatan Progress</label><textarea class="idp-catatan" style="min-height:50px">'+esc(idp.catatanProgress||'')+'</textarea></div>'+
-        '</div><div class="err idp-err" style="margin-top:6px"></div></div>';
+          '<div><label>PIC</label><input type="text" class="itp-pic" value="'+esc(itp.pic||'')+'" placeholder="Nama PIC"></div>'+
+          '<div><label>Target Tanggal</label><input type="date" class="itp-target" value="'+esc(itp.targetTanggal?String(itp.targetTanggal).slice(0,10):'')+'"></div>'+
+          '<div><label>&nbsp;</label><button class="btn btn-ghost itp-save" style="margin-top:0">Simpan</button></div>'+
+          '<div class="full"><label>Catatan Progress</label><textarea class="itp-catatan" style="min-height:50px">'+esc(itp.catatanProgress||'')+'</textarea></div>'+
+        '</div><div class="err itp-err" style="margin-top:6px"></div></div>';
     });
-    $('idp-result').innerHTML = html;
-    document.querySelectorAll('#idp-result .idp-save').forEach(function(btn){
+    $('itp-result').innerHTML = html;
+    document.querySelectorAll('#itp-result .itp-save').forEach(function(btn){
       btn.onclick = function(){
-        var row = btn.closest('.idp-row');
-        var errEl = row.querySelector('.idp-err');
+        var row = btn.closest('.itp-row');
+        var errEl = row.querySelector('.itp-err');
         errEl.classList.remove('show'); errEl.textContent='';
-        api('updateIdp', {
-          idpId: row.dataset.idp,
-          status: row.querySelector('.idp-status').value,
-          pic: row.querySelector('.idp-pic').value.trim(),
-          targetTanggal: row.querySelector('.idp-target').value,
-          catatanProgress: row.querySelector('.idp-catatan').value.trim()
+        api('updateItp', {
+          itpId: row.dataset.itp,
+          status: row.querySelector('.itp-status').value,
+          pic: row.querySelector('.itp-pic').value.trim(),
+          targetTanggal: row.querySelector('.itp-target').value,
+          catatanProgress: row.querySelector('.itp-catatan').value.trim()
         }).then(function(){
           errEl.textContent = 'Tersimpan.'; errEl.style.color='var(--green)'; errEl.classList.add('show');
         }).catch(function(e){
@@ -939,7 +952,7 @@ $('btn-load-idp').onclick = function(){
         });
       };
     });
-  }).catch(function(e){ showErr('err-idp', e.message); });
+  }).catch(function(e){ showErr('err-itp', e.message); });
 };
 </script>
 </body>

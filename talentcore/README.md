@@ -40,7 +40,7 @@ data karyawan sungguhan. Semua rekomendasi di bawah sudah dikerjakan di versi in
 2. Dari Sheet itu: Extensions > Apps Script. Hapus isi default, tempel seluruh isi `backend/Code.gs`.
 3. Project Settings (ikon gear) > Script Properties > tambah properti `CLAUDE_API_KEY` dengan API key Anthropic yang valid.
 4. Di dropdown fungsi (atas editor), pilih `setupTabTalentCore`, klik Run. Izinkan otorisasi saat diminta (ikuti Incognito + satu akun saja kalau pernah gagal berulang, lihat catatan di README root). Aman dijalankan ulang kalau sheet sudah ada dari versi sebelumnya — cuma menambah sheet baru yang belum ada (`Sessions`, `Performance`, `IDP`), data lama tidak terhapus.
-5. Pilih fungsi `seedTrainingModuleContoh`, klik Run — ini isi starter data status modul training dari 5 jabatan sample yang sudah divalidasi.
+5. Pilih fungsi `seedTrainingModuleContoh`, klik Run — ini isi starter data status modul training dari 5 jabatan sample yang sudah divalidasi. Lalu pilih `seedKompetensiWajib`, klik Run — ini isi 2 kompetensi wajib perusahaan (AI Generatif, Anti-Fraud) yang otomatis muncul di SEMUA jabatan.
 6. Isi sheet `Users` manual (atau salin dari Learning Simulator DB): kolom NIK, Nama, PIN, Role (`admin`/`ld` untuk akses generate, lainnya untuk atasan), Cabang, Jabatan, AtasanNIK.
 7. Deploy > New deployment > pilih tipe Web app > Execute as: Me > Who has access: Anyone. Deploy, salin URL yang diberikan.
 8. Tempel URL itu ke `window.BACKEND_URL` di baris atas `talentcore/index.html`, commit & push.

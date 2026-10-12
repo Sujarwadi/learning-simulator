@@ -18,7 +18,8 @@ Spv/Manager/GM). Menyusun ini manual per jabatan dari puluhan JD yang sudah ters
 hasilnya rawan tidak konsisten format/kedalamannya.
 
 Begitu kompetensi Technical+Managerial ada, itu jadi fondasi untuk: Training Needs Analysis, pengembangan
-modul training, asesmen atasan ke bawahan, dan IDP (Individual Development Plan).
+modul training, asesmen, dan Individual Training Plan (ITP — rencana menutup gap pada jabatan SAAT INI;
+lihat §4 untuk beda ITP vs IDP suksesi yang sebenarnya).
 
 ## 2. Goals
 
@@ -53,16 +54,17 @@ modul training, asesmen atasan ke bawahan, dan IDP (Individual Development Plan)
 Asesmen kompetensi **BUKAN** aktivitas kontinu/kapan saja oleh atasan langsung. Realitasnya:
 - Dilakukan oleh **tim asesor** (bisa L&D, bisa panel internal/eksternal), **bukan otomatis atasan langsung**.
 - Siklusnya **~2 tahun**, bukan bulanan/triwulanan. Setiap siklus punya nama (mis. "Siklus 2026") supaya hasil satu kohort bisa dilihat bersama (talent pool).
-- Hasilnya untuk SEMUA yang diases: **talent pool** (klasifikasi). Untuk talent yang disiapkan jadi future leader: hasil asesmen jadi **competency gap**, yang diturunkan jadi **IDP** sekaligus input ke bench strength & succession planning.
-- **Yang dimonitor SETELAH asesmen adalah implementasi IDP-nya** — bukan re-asesmen berulang. Re-asesmen baru terjadi di siklus berikutnya (~2 tahun lagi).
+- Hasilnya untuk SEMUA yang diases: **talent pool** (klasifikasi) + **Individual Training Plan (ITP)** — rencana menutup gap kompetensi pada jabatannya SAAT INI, otomatis didraft dari gap>0.
+- **Koreksi terminologi (2026-10-12, dari Brader): ITP ≠ IDP.** ITP = output asesmen di level jabatan sekarang (sudah dibangun, lihat §5). **IDP (Individual Development Plan) sebenarnya untuk suksesi** — asesmennya harus memotret kompetensi orang itu diukur terhadap jabatan SATU TINGKAT DI ATAS posisinya sekarang (bukan posisi sekarang), supaya menggambarkan potensi, bukan cuma kecukupan di peran saat ini. **IDP yang sesungguhnya ini BELUM dibangun** — mekanismenya berbeda dari asesmen biasa: butuh assess kompetensi orang vs kompetensi jabatan target (satu tingkat di atas), mirip logika Career Path Explorer tapi dengan skor aktual orang itu, bukan cuma daftar kompetensi. Lihat §9 Open Questions.
+- **Yang dimonitor SETELAH asesmen adalah implementasi ITP-nya** — bukan re-asesmen berulang. Re-asesmen baru terjadi di siklus berikutnya (~2 tahun lagi).
 - **Self-rating ditambahkan** (2026-10-12, disetujui) — orang yang diases mengisi rating dirinya sendiri, dicatat berdampingan dengan rating asesor. Gap resmi tetap dihitung dari rating asesor; selisih self vs asesor jadi sinyal kalibrasi (over/under-confidence), bukan dipakai buat skor resmi.
 
 Implikasi ke RBAC: **tidak perlu role baru**. Role `admin`/`ld` sudah bisa menilai siapa saja (lihat `actionSubmitAssessment_`) — tim asesor cukup diberi role `ld` di sheet Users. Role "Atasan Langsung" (dibatasi ke bawahan langsungnya sendiri) tetap ada untuk kasus di luar siklus formal (mis. supervisor ingin cek kesiapan bawahannya sendiri kapan saja) — itu use case yang berbeda dari siklus asesor resmi, keduanya dipertahankan.
 
 | Role | Siapa | Ngapain di app |
 |---|---|---|
-| Admin / L&D / Tim Asesor | Sujarwadi, tim asesor siklus formal | Generate kompetensi dari JD, **tinjau & edit sebelum simpan**, jalankan asesmen siklus (siapa saja, bukan cuma bawahannya), kelola IDP, lihat Kamus Kompetensi, Training Matrix, Career Path, Profil Karyawan, monitoring implementasi IDP lintas organisasi |
-| Atasan Langsung | Dept Head / Kepala Cabang / Spv | Asesmen ad-hoc **hanya untuk bawahan langsungnya sendiri** (di luar siklus formal), update progress IDP bawahannya |
+| Admin / L&D / Tim Asesor | Sujarwadi, tim asesor siklus formal | Generate kompetensi dari JD, **tinjau & edit sebelum simpan**, jalankan asesmen siklus (siapa saja, bukan cuma bawahannya), kelola ITP, lihat Kamus Kompetensi, Training Matrix, Career Path, Profil Karyawan, monitoring implementasi ITP lintas organisasi |
+| Atasan Langsung | Dept Head / Kepala Cabang / Spv | Asesmen ad-hoc **hanya untuk bawahan langsungnya sendiri** (di luar siklus formal), update progress ITP bawahannya |
 
 Login pakai NIK + PIN (PIN di-hash, session berbasis token — lihat §7 Keamanan).
 
@@ -86,7 +88,8 @@ Login pakai NIK + PIN (PIN di-hash, session berbasis token — lihat §7 Keamana
 | **Talent Card** | Satu halaman per orang untuk rapat talent review: identitas, kinerja, kesiapan, posisi 9-box + tindakannya, 3 gap prioritas dengan status modul, seluruh kompetensi, siap dicetak/PDF | P1 | Selesai (2026-10-12, hasil benchmark) |
 | **Siklus Asesmen** | Setiap asesmen ditag nama siklus (mis. "Siklus 2026") supaya satu kohort talent pool bisa dilihat bersama, selaras model asesmen ~2 tahunan oleh tim asesor | P0 (koreksi model) | Selesai (2026-10-12) |
 | **Self-Rating** | Orang yang diases mengisi rating dirinya sendiri berdampingan dengan rating asesor. Gap resmi tetap dari rating asesor; selisih jadi sinyal kalibrasi | P1 | Selesai (2026-10-12) |
-| **IDP sebagai objek terlacak** | Draft IDP otomatis dibuat untuk tiap kompetensi dengan gap>0 setelah asesmen disimpan (PIC, target tanggal, status Belum Mulai/Berjalan/Selesai, catatan progress bisa diupdate). Tab monitoring lintas organisasi untuk lihat yang terlambat. **Simplifikasi yang diakui**: draft dibuat untuk SEMUA gap>0, bukan cuma untuk talent yang secara sadar disiapkan jadi future leader — L&D harus menyaring/menghapus entri yang tidak relevan. Ini yang dimaksud Brader sebagai "yang dimonitor setelah asesmen", bukan re-asesmen berulang | P0 (koreksi model, paling penting) | Selesai (2026-10-12) |
+| **ITP (Individual Training Plan) sebagai objek terlacak** | Draft ITP otomatis dibuat untuk tiap kompetensi dengan gap>0 pada jabatan SAAT INI setelah asesmen disimpan (PIC, target tanggal, status Belum Mulai/Berjalan/Selesai, catatan progress bisa diupdate). Tab monitoring lintas organisasi untuk lihat yang terlambat. **Simplifikasi yang diakui**: draft dibuat untuk SEMUA gap>0, bukan cuma untuk talent yang secara sadar disiapkan jadi future leader — L&D harus menyaring/menghapus entri yang tidak relevan. Ini **BUKAN** IDP suksesi (lihat §4) — ini yang dimaksud Brader sebagai "yang dimonitor setelah asesmen", bukan re-asesmen berulang | P0 (koreksi model, paling penting) | Selesai (2026-10-12) |
+| **Kompetensi Wajib Perusahaan: AI Generatif & Anti-Fraud** | Dua kompetensi lintas-jabatan (bukan hasil generate JD) otomatis muncul di SEMUA jabatan: "Pemanfaatan AI Generatif untuk Produktivitas Kerja" (efektif mulai 2027-01-01, level target lebih ringan untuk staff) dan "Kepatuhan & Kewaspadaan Anti-Fraud" (efektif sekarang, applies for all). Level target berbeda per tier jabatan. **Catatan jujur**: tidak ada standar industri tunggal untuk ini — dirancang sendiri terinspirasi DigComp/OECD AILit (AI) dan Fraud Prevention Pyramid (anti-fraud), ikuti format 5-level Kamus 2022. Kalau BBM punya kebijakan anti-fraud formal dengan level sendiri, itu harus menggantikan racikan ini, bukan sebaliknya | P0 | Selesai (2026-10-12) |
 
 **Belum dikerjakan sama sekali (bukan bug, keputusan sadar menunda):**
 - Deploy ke Google Sheet + Script Properties produksi (butuh aksi manual Sujarwadi — lihat `README.md` § Setup Deploy).
@@ -152,3 +155,9 @@ Tiga prinsip yang mengikat semua fase (dari roadmap, tidak diulang di sini secar
 - Siapa pemilik akses teknis BAMS di tim IT/Digital — belum dikonfirmasi.
 - Field & skema "Database Sales" yang sedang dibangun tim lain — perlu disepakati NIK sebagai join key
   SEBELUM skemanya final, bukan setelah (lihat Risiko di roadmap).
+- **IDP suksesi yang sesungguhnya (beda dari ITP, lihat §4) belum dibangun.** Butuh keputusan: siapa yang
+  menandai seseorang "sedang disiapkan jadi future leader untuk jabatan X" (manual oleh tim asesor saat
+  siklus, atau field baru di talent pool?), lalu mekanismenya assess kompetensi orang itu terhadap
+  kompetensi jabatan SATU TINGKAT DI ATAS — ini query baru, bukan dari assessment biasa.
+- Kalau BBM sudah punya kebijakan Anti-Fraud formal dengan level kesadaran sendiri, `seedKompetensiWajib()`
+  harus diganti isinya pakai itu — racikan di PRD ini bukan pengganti kebijakan resmi.
