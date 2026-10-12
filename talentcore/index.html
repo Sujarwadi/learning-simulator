@@ -146,6 +146,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
 </head>
 <body>
 <div id="app">
@@ -192,7 +194,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
       <div id="panel-generate">
         <h2 class="sect">Generate dari Deskripsi Jabatan</h2>
         <div class="card">
-          <label>Tempel Teks Deskripsi Jabatan (JD)</label>
+          <label>Upload File JD (.docx, .pdf, atau .txt)</label>
+          <input type="file" id="inp-jd-file" accept=".docx,.pdf,.txt">
+          <div class="hint" id="jd-file-status">Pilih file JD, isinya otomatis terbaca ke kotak teks di bawah untuk ditinjau sebelum di-generate. File .doc lama (bukan .docx) harus disimpan ulang jadi .docx/.pdf/.txt dulu.</div>
+          <label style="margin-top:14px">Atau Tempel Teks Deskripsi Jabatan (JD) Langsung</label>
           <textarea id="inp-jd" placeholder="Tempel seluruh isi JD di sini: Identitas Jabatan, Fungsi Jabatan, Tugas Utama & Proses Kerja, Wewenang, Bawahan Langsung, dst."></textarea>
           <div class="hint">Nama jabatan, tier, dan breakdown tugas dibaca otomatis oleh AI. Kompetensi Managerial hanya digenerate jika JD punya Bawahan Langsung.</div>
           <div class="err" id="err-generate"></div>
@@ -399,6 +404,53 @@ function loadEmployeeOptions(){
     }).join('');
   });
 }
+
+/* ---------- UPLOAD FILE JD ---------- */
+if(window.pdfjsLib){ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js'; }
+
+function extractTextFromFile_(file){
+  var ext = file.name.split('.').pop().toLowerCase();
+  if(ext === 'txt'){
+    return file.text();
+  }
+  if(ext === 'docx'){
+    return file.arrayBuffer().then(function(buf){
+      return mammoth.extractRawText({ arrayBuffer: buf }).then(function(result){ return result.value; });
+    });
+  }
+  if(ext === 'pdf'){
+    return file.arrayBuffer().then(function(buf){
+      return pdfjsLib.getDocument({ data: buf }).promise.then(function(pdf){
+        var pageNums = []; for(var i=1;i<=pdf.numPages;i++) pageNums.push(i);
+        return pageNums.reduce(function(chainPromise, pageNum){
+          return chainPromise.then(function(textSoFar){
+            return pdf.getPage(pageNum).then(function(page){
+              return page.getTextContent().then(function(content){
+                var pageText = content.items.map(function(it){ return it.str; }).join(' ');
+                return textSoFar + pageText + '\n';
+              });
+            });
+          });
+        }, Promise.resolve(''));
+      });
+    });
+  }
+  return Promise.reject(new Error('Format file tidak didukung. Gunakan .docx, .pdf, atau .txt.'));
+}
+
+$('inp-jd-file').onchange = function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  $('jd-file-status').textContent = 'Membaca "'+file.name+'"…';
+  extractTextFromFile_(file).then(function(text){
+    text = text.trim();
+    if(!text){ $('jd-file-status').textContent = 'File terbaca tapi tidak ada teks di dalamnya (kemungkinan hasil scan/gambar) — tempel manual saja.'; return; }
+    $('inp-jd').value = text;
+    $('jd-file-status').textContent = 'Terbaca dari "'+file.name+'" ('+text.length+' karakter). Periksa dulu di kotak teks di bawah sebelum klik Generate.';
+  }).catch(function(err){
+    $('jd-file-status').textContent = 'Gagal membaca file: ' + err.message;
+  });
+};
 
 /* ---------- GENERATE ---------- */
 var previewData = null;
