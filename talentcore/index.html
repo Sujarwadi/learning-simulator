@@ -45,6 +45,11 @@ h2.sect::before{content:"";width:7px;height:7px;border-radius:50%;background:var
   box-shadow:var(--shadow);margin-bottom:16px}
 label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 5px}
 label:first-child{margin-top:0}
+input[type=file]{width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:8px 12px;
+  color:var(--text);font-size:14px;font-family:inherit}
+input[type=file]::file-selector-button{background:var(--navy);color:#fff;border:none;border-radius:7px;
+  padding:7px 14px;font-size:13px;font-weight:700;font-family:inherit;margin-right:12px;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:var(--navy2)}
 input[type=text],input[type=password],input[type=number],select,textarea{
   width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:8px 12px;
   color:var(--text);font-size:15px;font-family:inherit}
@@ -117,6 +122,24 @@ td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .gap-1{background:var(--amber-soft);color:var(--amber)}
 .gap-2{background:var(--red-soft);color:var(--red)}
 .inline-link{background:none;border:none;color:var(--navy2);font-size:13px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.login-split{display:flex;min-height:100vh}
+.login-brand{flex:1;max-width:420px;background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 100%);
+  color:#fff;padding:48px 40px;display:flex;flex-direction:column;justify-content:center;flex-shrink:0}
+.login-brand .logo-mark{width:52px;height:52px;border-radius:14px;font-size:19px;margin-bottom:24px}
+.login-brand h1{font-size:22px;font-weight:800;margin:0 0 6px;letter-spacing:.3px}
+.login-brand .tagline{font-size:13px;color:#C7D5E6;margin-bottom:40px}
+.login-steps{list-style:none;margin:0;padding:0;border-left:2px solid rgba(255,255,255,.25)}
+.login-steps li{position:relative;padding:0 0 28px 22px;font-size:13px;color:#D7E1EE;line-height:1.5}
+.login-steps li:last-child{padding-bottom:0}
+.login-steps li::before{content:"";position:absolute;left:-7px;top:2px;width:12px;height:12px;border-radius:50%;
+  background:var(--red);border:2px solid var(--navy2)}
+.login-steps b{display:block;color:#fff;font-size:14px;margin-bottom:2px}
+.login-form-pane{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+@media (max-width:760px){
+  .login-split{flex-direction:column;min-height:0}
+  .login-brand{max-width:none;padding:32px 24px}
+  .login-steps{display:none}
+}
 .chart-wrap{position:relative;margin:8px 0 16px;background:#fff}
 .chart-wrap canvas{max-width:100%}
 .card-row{display:flex;gap:16px;flex-wrap:wrap}
@@ -185,20 +208,28 @@ td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 
   <!-- ============ LOGIN ============ -->
   <section class="screen active" id="scr-login">
-    <header class="app">
-      <div class="logo-mark">TC</div>
-      <div><div class="app-title">BBM TALENTCORE</div><div class="app-sub">Competency &amp; Development Engine</div></div>
-    </header>
-    <div class="body-wrap" style="max-width:420px;padding-top:60px">
-      <div class="card">
-        <h2 class="sect">Masuk</h2>
-        <label>NIK</label>
-        <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
-        <label>PIN</label>
-        <input type="password" id="inp-pin" placeholder="PIN">
-        <div class="hint">Khusus L&amp;D Admin dan Atasan (Dept Head/Kepala Cabang).</div>
-        <div class="err" id="err-login"></div>
-        <div style="margin-top:16px"><button class="btn btn-primary" id="btn-login">Masuk</button></div>
+    <div class="login-split">
+      <div class="login-brand">
+        <div class="logo-mark">TC</div>
+        <h1>BBM TALENTCORE</h1>
+        <div class="tagline">Competency &amp; Development Engine</div>
+        <ul class="login-steps">
+          <li><b>Deskripsi Jabatan</b>Upload atau tempel JD, AI memecahnya jadi kompetensi terstruktur.</li>
+          <li><b>Asesmen &amp; Gap</b>Atasan menilai, self-rating karyawan, gap terhitung otomatis.</li>
+          <li><b>Training Matrix &amp; ITP</b>Kebutuhan pelatihan company-wide, rencana pengembangan per individu.</li>
+        </ul>
+      </div>
+      <div class="login-form-pane">
+        <div class="card" style="max-width:380px;width:100%">
+          <h2 class="sect">Masuk</h2>
+          <label>NIK</label>
+          <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
+          <label>PIN</label>
+          <input type="password" id="inp-pin" placeholder="PIN">
+          <div class="hint">Khusus L&amp;D Admin dan Atasan (Dept Head/Kepala Cabang).</div>
+          <div class="err" id="err-login"></div>
+          <div style="margin-top:16px"><button class="btn btn-primary" id="btn-login">Masuk</button></div>
+        </div>
       </div>
     </div>
     <div class="credit">BBM TalentCore &middot; backend terpisah dari Learning Simulator DB</div>
