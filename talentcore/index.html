@@ -27,67 +27,68 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
 #app{display:flex;flex-direction:column;min-height:100vh}
 .screen{display:none;flex:1;flex-direction:column}
 .screen.active{display:flex}
-header.app{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px}
+header.app{background:var(--navy);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px}
 .logo-mark{width:38px;height:38px;border-radius:9px;background:var(--red);display:flex;align-items:center;
   justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:14px}
-.app-title{font-weight:800;font-size:15.5px;letter-spacing:.5px}
+.app-title{font-weight:800;font-size:16px;letter-spacing:.5px}
 .app-sub{font-size:11px;color:#9FB3C8;margin-top:1px}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#C7D2E0}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:#C7D2E0}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;
-  border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}
+  border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer}
 .body-wrap{flex:1;padding:24px 20px 60px;max-width:860px;width:100%;margin:0 auto}
 h2.sect{font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);
   margin:0 0 12px;display:flex;align-items:center;gap:8px}
 h2.sect::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--red)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
   box-shadow:var(--shadow);margin-bottom:16px}
-label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 5px}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 5px}
 label:first-child{margin-top:0}
 input[type=text],input[type=password],input[type=number],select,textarea{
-  width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
-  color:var(--text);font-size:14.5px;font-family:inherit}
+  width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:8px 12px;
+  color:var(--text);font-size:15px;font-family:inherit}
 textarea{resize:vertical;min-height:140px}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
+button:focus-visible,a:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;
-  border-radius:10px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%}
+  border-radius:10px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;width:100%}
 .btn-primary{background:var(--navy);color:#fff}
 .btn-primary:hover{background:var(--navy2)}
 .btn-red{background:var(--red);color:#fff}
 .btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
 .btn[disabled]{opacity:.45;pointer-events:none}
 .hint{font-size:12px;color:var(--muted);margin-top:6px}
-.err{background:var(--red-soft);border:1px solid #F3B9BD;color:#8A1620;border-radius:9px;padding:9px 12px;
+.err{background:var(--red-soft);border:1px solid #F3B9BD;color:#8A1620;border-radius:9px;padding:8px 12px;
   font-size:13px;margin-top:10px;display:none}
 .err.show{display:block}
-.badge{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+.badge{display:inline-block;font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;letter-spacing:.3px}
 .badge-green{background:var(--green-soft);color:var(--green)}
 .badge-amber{background:var(--amber-soft);color:var(--amber)}
 .badge-red{background:var(--red-soft);color:var(--red)}
 .badge-blue{background:var(--blue-soft);color:var(--blue)}
 .badge-grey{background:#EEF1F6;color:var(--muted)}
 .badge-purple{background:#F1E9FB;color:#6B3FA0}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 8px;border-bottom:2px solid var(--line)}
+td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 /* Navigasi admin: sidebar dikelompokkan per fase kerja, menggantikan tab-row rata 7 tombol
    (melanggar Hick's Law, uji blur gagal -- lihat audit 2026-10-23). Class .tab-btn dipertahankan
    supaya JS tab-switching yang sudah ada tidak perlu diubah. */
 .admin-shell{display:flex;align-items:flex-start;max-width:1180px;margin:0 auto;width:100%}
-.side-nav{width:208px;flex:none;padding:4px 10px 24px 0}
-.side-group-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
-  color:var(--muted);padding:16px 10px 6px;margin:0}
+.side-nav{width:208px;flex:none;padding:4px 8px 24px 0}
+.side-group-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);padding:16px 8px 8px;margin:0}
 .side-group-label:first-child{padding-top:0}
-.tab-row{display:flex;flex-direction:column;gap:2px}
-.tab-btn{width:100%;text-align:left;padding:9px 10px;border-radius:8px;border:1px solid transparent;
-  background:transparent;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer}
+.tab-row{display:flex;flex-direction:column;gap:4px}
+.tab-btn{width:100%;text-align:left;padding:8px 8px;border-radius:8px;border:1px solid transparent;
+  background:transparent;font-size:14px;font-weight:600;color:var(--text);cursor:pointer}
 .tab-btn:hover{background:var(--bg)}
 .tab-btn.active{background:var(--navy);color:#fff;font-weight:800}
 .admin-content{flex:1;min-width:0;padding:0 4px 60px 24px;border-left:1px solid var(--line)}
 @media (max-width:760px){
   .admin-shell{flex-direction:column}
   .side-nav{width:100%;padding:0 0 12px}
-  .tab-row{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
-  .side-group-label{padding:10px 4px 4px;white-space:nowrap}
+  .tab-row{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:4px}
+  .side-group-label{padding:8px 4px 4px;white-space:nowrap}
   .tab-btn{white-space:nowrap;flex:none}
   .admin-content{border-left:none;padding:16px 0 60px}
 }
@@ -96,69 +97,71 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
   animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0}
-.credit{text-align:center;font-size:10.5px;color:#9AA5B4;padding:16px 0;letter-spacing:.3px}
+.credit{text-align:center;font-size:11px;color:#9AA5B4;padding:16px 0;letter-spacing:.3px}
 .tree-list{list-style:none;margin:0;padding-left:0}
 .tree-list .lvl2{padding-left:18px;margin-top:6px;border-left:2px solid var(--line)}
-.tree-list li{padding:4px 0 4px 12px;font-size:13.5px}
-.task-item{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
-.task-item .head{font-weight:700;font-size:13.5px;color:var(--navy)}
-.comp-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
-.comp-card .name{font-weight:700;font-size:14.5px}
+.tree-list li{padding:4px 0 4px 12px;font-size:14px}
+.task-item{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:8px}
+.task-item .head{font-weight:700;font-size:14px;color:var(--navy)}
+.comp-card{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:10px}
+.comp-card .name{font-weight:700;font-size:15px}
 .comp-card .def{font-size:13px;color:var(--muted);margin-top:4px}
 .comp-card textarea{min-height:52px}
-.score-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.score-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
 .score-row:last-child{border-bottom:none}
 .score-row select{width:80px}
-.gap-pill{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px}
+.gap-pill{font-size:12px;font-weight:800;padding:4px 8px;border-radius:999px}
 .gap-0{background:var(--green-soft);color:var(--green)}
 .gap-1{background:var(--amber-soft);color:var(--amber)}
 .gap-2{background:var(--red-soft);color:var(--red)}
-.inline-link{background:none;border:none;color:var(--navy2);font-size:12.5px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
-.chart-wrap{position:relative;margin:10px 0 16px;background:#fff}
+.inline-link{background:none;border:none;color:var(--navy2);font-size:13px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.chart-wrap{position:relative;margin:8px 0 16px;background:#fff}
 .chart-wrap canvas{max-width:100%}
-.disclaimer{background:var(--amber-soft);border:1px solid #F3D9A8;color:#6B4A12;border-radius:9px;padding:10px 12px;font-size:12px;margin-bottom:14px;line-height:1.55}
-.bench-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.bench-tile{flex:1;min-width:140px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center}
-.bench-tile .n{font-size:26px;font-weight:800;line-height:1}
+.card-row{display:flex;gap:16px;flex-wrap:wrap}
+.card-row .card{flex:1;min-width:240px}
+.disclaimer{background:var(--amber-soft);border:1px solid #F3D9A8;color:#6B4A12;border-radius:9px;padding:8px 12px;font-size:12px;margin-bottom:14px;line-height:1.55}
+.bench-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.bench-tile{flex:1;min-width:140px;border:1px solid var(--line);border-radius:10px;padding:12px 16px;text-align:center}
+.bench-tile .n{font-size:28px;font-weight:800;line-height:1}
 .bench-tile .lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
 .score-row .self-wrap{display:flex;align-items:center;gap:8px}
-.score-row .self-wrap small{font-size:10.5px;color:var(--muted);white-space:nowrap}
-.itp-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
-.itp-row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.score-row .self-wrap small{font-size:11px;color:var(--muted);white-space:nowrap}
+.itp-row{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px}
+.itp-row .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
 .itp-row .nama{font-weight:700;font-size:14px}
-.itp-row .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.itp-row .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .itp-row .grid .full{grid-column:1 / -1}
 @media (max-width:520px){.itp-row .grid{grid-template-columns:1fr}}
-.badge-overdue{background:var(--red-soft);color:var(--red);font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px}
+.badge-overdue{background:var(--red-soft);color:var(--red);font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px}
 /* 9-box grid */
 .nb-scroll{overflow-x:auto}
 .ninebox{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;min-width:560px}
-.nb-rowlbl{display:flex;align-items:center;justify-content:flex-end;text-align:right;font-size:10.5px;font-weight:800;
+.nb-rowlbl{display:flex;align-items:center;justify-content:flex-end;text-align:right;font-size:11px;font-weight:800;
   text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-right:4px;max-width:92px}
-.nb-collbl{text-align:center;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-top:2px}
-.nb-cell{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:118px}
+.nb-collbl{text-align:center;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding-top:2px}
+.nb-cell{border:1px solid var(--line);border-radius:10px;padding:8px;min-height:118px}
 .nb-cell.g{background:var(--green-soft);border-color:#BCE3D0}
 .nb-cell.a{background:var(--amber-soft);border-color:#F3D9A8}
 .nb-cell.r{background:var(--red-soft);border-color:#F3B9BD}
-.nb-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.nb-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .nb-name{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--text)}
-.nb-count{font-size:19px;font-weight:800;line-height:1}
-.nb-aksi{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.4}
-.nb-chip{display:block;width:100%;text-align:left;font-size:11.5px;background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06);
-  border-radius:6px;padding:4px 7px;margin-top:5px;cursor:pointer;font-family:inherit}
+.nb-count{font-size:20px;font-weight:800;line-height:1}
+.nb-aksi{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.nb-chip{display:block;width:100%;text-align:left;font-size:12px;background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06);
+  border-radius:6px;padding:4px 8px;margin-top:5px;cursor:pointer;font-family:inherit}
 .nb-chip:hover{background:#fff}
 /* Talent card */
-.tc{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:22px;box-shadow:var(--shadow)}
-.tc-top{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px}
+.tc{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:24px;box-shadow:var(--shadow)}
+.tc-top{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px}
 .tc-nama{font-size:20px;font-weight:800;color:var(--navy);line-height:1.2}
-.tc-meta{font-size:12.5px;color:var(--muted);margin-top:3px}
-.tc-stats{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
-.tc-stat{text-align:center;min-width:86px;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
-.tc-stat .v{font-size:19px;font-weight:800;line-height:1}
-.tc-stat .l{font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
-.tc-box{border-left:3px solid var(--navy);background:#F7F9FC;padding:10px 12px;border-radius:0 9px 9px 0;margin-bottom:14px}
+.tc-meta{font-size:13px;color:var(--muted);margin-top:3px}
+.tc-stats{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tc-stat{text-align:center;min-width:86px;border:1px solid var(--line);border-radius:9px;padding:8px 8px}
+.tc-stat .v{font-size:20px;font-weight:800;line-height:1}
+.tc-stat .l{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
+.tc-box{border-left:3px solid var(--navy);background:#F7F9FC;padding:8px 12px;border-radius:0 9px 9px 0;margin-bottom:14px}
 .tc-box .t{font-weight:800;font-size:13px;color:var(--navy)}
-.tc-box .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.tc-box .d{font-size:13px;color:var(--muted);margin-top:2px}
 .tc-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);margin:16px 0 8px}
 @media print{
   body.printing{background:#fff}
@@ -271,7 +274,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <div class="card">
           <label>Pilih / Cari Karyawan</label>
           <input type="text" id="inp-profile-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
-          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="btn-load-profile" style="width:auto">Tampilkan Riwayat</button>
             <button class="btn btn-primary" id="btn-load-tc" style="width:auto">Buka Talent Card</button>
           </div>
@@ -288,11 +291,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
           <input type="text" id="inp-perf-nik" list="dl-employees" placeholder="Ketik NIK atau nama&hellip;">
           <label style="margin-top:12px">Rating Kinerja (1&ndash;5)</label>
           <select id="sel-perf-rating">
-            <option value="5">5 &mdash; Jauh melampaui target</option>
-            <option value="4">4 &mdash; Melampaui target</option>
-            <option value="3" selected>3 &mdash; Sesuai target</option>
-            <option value="2">2 &mdash; Di bawah target</option>
-            <option value="1">1 &mdash; Jauh di bawah target</option>
+            <option value="5">5: Jauh melampaui target</option>
+            <option value="4">4: Melampaui target</option>
+            <option value="3" selected>3: Sesuai target</option>
+            <option value="2">2: Di bawah target</option>
+            <option value="1">1: Jauh di bawah target</option>
           </select>
           <label style="margin-top:12px">Periode</label>
           <input type="text" id="inp-perf-periode" placeholder="Contoh: Semester 1 2026">
@@ -301,8 +304,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
           <div id="perf-ok" class="hint" style="display:none;color:var(--green);font-weight:700"></div>
         </div>
 
-        <h2 class="sect" style="margin-top:28px">HAV Map &mdash; 9-Box Kinerja &times; Kesiapan Kompetensi</h2>
-        <div class="disclaimer"><b>Baca ini dulu:</b> sumbu mendatar adalah <b>Kesiapan Kompetensi</b> (% kompetensi yang sudah mencapai target), <b>bukan "potensi"</b> dalam arti 9-box klasik (learning agility/aspirasi) &mdash; BBM belum punya instrumen untuk mengukur itu. Penempatan di sini hasil aturan baku yang bisa ditelusuri, bukan prediksi AI.</div>
+        <h2 class="sect" style="margin-top:28px">HAV Map: 9-Box Kinerja &times; Kesiapan Kompetensi</h2>
+        <div class="disclaimer"><b>Baca ini dulu:</b> sumbu mendatar adalah <b>Kesiapan Kompetensi</b> (% kompetensi yang sudah mencapai target), <b>bukan "potensi"</b> dalam arti 9-box klasik (learning agility/aspirasi), karena BBM belum punya instrumen untuk mengukur itu. Penempatan di sini hasil aturan baku yang bisa ditelusuri, bukan prediksi AI.</div>
         <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-ninebox">Muat / Refresh 9-Box</button></div>
         <div id="ninebox-result"></div>
 
@@ -319,7 +322,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 
       <div id="panel-itp" style="display:none">
         <h2 class="sect">Monitoring ITP Lintas Organisasi</h2>
-        <div class="hint" style="margin-bottom:10px">Yang dipantau setelah siklus asesmen adalah implementasi ITP ini — bukan asesmen ulang (siklus berikutnya ~2 tahun lagi).</div>
+        <div class="hint" style="margin-bottom:10px">Yang dipantau setelah siklus asesmen adalah implementasi ITP ini, bukan asesmen ulang (siklus berikutnya kira-kira dua tahun lagi).</div>
         <div style="margin-bottom:12px"><button class="btn btn-ghost" id="btn-load-itp-monitor">Muat Monitoring</button></div>
         <div id="itp-monitor-result"></div>
 
@@ -369,6 +372,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 var $ = function(id){ return document.getElementById(id); };
 var state = { nik:null, nama:null, role:null, token:null, jabatanOptions:[], employeeOptions:[] };
 var charts = {}; /* canvasId -> Chart instance, so we can .destroy() before re-render */
+/* Palet chart, token terpisah dari token UI (:root di CSS) -- skala semantik (bukan kategorikal):
+   hijau=aman/baik, amber=perhatian, merah=kritis. Nilai HEX sengaja disamakan dengan --green/--amber/--red
+   di CSS supaya satu makna selalu satu warna di seluruh app (badge dan chart), bukan kebetulan mirip. */
+var CHART_PALETTE = { aman:'#0B6B48', perhatian:'#9A4700', kritis:'#C00010', netral:'#9FB3C8', fokus:'#102A43' };
 function drawChart(canvasId, config){
   if(charts[canvasId]){ charts[canvasId].destroy(); }
   charts[canvasId] = new Chart($(canvasId).getContext('2d'), config);
@@ -476,7 +483,7 @@ $('inp-jd-file').onchange = function(e){
   $('jd-file-status').textContent = 'Membaca "'+file.name+'"…';
   extractTextFromFile_(file).then(function(text){
     text = text.trim();
-    if(!text){ $('jd-file-status').textContent = 'File terbaca tapi tidak ada teks di dalamnya (kemungkinan hasil scan/gambar) — tempel manual saja.'; return; }
+    if(!text){ $('jd-file-status').textContent = 'File terbaca tapi tidak ada teks di dalamnya (kemungkinan hasil scan/gambar), jadi tempel manual saja.'; return; }
     $('inp-jd').value = text;
     $('jd-file-status').textContent = 'Terbaca dari "'+file.name+'" ('+text.length+' karakter). Periksa dulu di kotak teks di bawah sebelum klik Generate.';
   }).catch(function(err){
@@ -501,12 +508,12 @@ $('btn-generate').onclick = function(){
 
 function renderGeneratePreview(r){
   var html = '<div class="card"><h2 class="sect">Tinjau &amp; Edit Sebelum Disimpan</h2>'+
-    '<div class="hint" style="margin-bottom:10px">Hasil AI di bawah BELUM resmi. Periksa dan betulkan nama/definisi/perilaku kunci yang kurang pas sebelum menekan Simpan — begitu disimpan, ini jadi standar penilaian jabatan ini.</div>'+
+    '<div class="hint" style="margin-bottom:10px">Hasil AI di bawah BELUM resmi. Periksa dan betulkan nama/definisi/perilaku kunci yang kurang pas sebelum menekan Simpan, karena begitu disimpan ini jadi standar penilaian jabatan ini.</div>'+
     '<label>Nama Jabatan</label><input type="text" id="edit-jabatan" value="'+esc(r.jabatan)+'">'+
     '<label>Tier</label><input type="text" id="edit-tier" value="'+esc(r.tier)+'"></div>';
 
   html += '<div class="card"><h2 class="sect">Breakdown Aktivitas (Hierarchical Task Analysis)</h2>'+
-    '<div class="hint" style="margin-bottom:8px">Breakdown ini referensi/konteks, belum bisa diedit di sini — kalau salah signifikan, ulangi Generate dengan teks JD yang lebih lengkap.</div>';
+    '<div class="hint" style="margin-bottom:8px">Breakdown ini referensi/konteks, belum bisa diedit di sini. Kalau salah signifikan, ulangi Generate dengan teks JD yang lebih lengkap.</div>';
   (r.taskBreakdown||[]).forEach(function(t){
     html += '<div class="task-item"><div class="head">'+esc(t.tugasUtama)+'</div><ul class="tree-list">';
     (t.subAktivitas||[]).forEach(function(sa){
@@ -518,7 +525,7 @@ function renderGeneratePreview(r){
   });
   html += '</div>';
 
-  html += '<div class="card"><h2 class="sect">Kompetensi ('+(r.kompetensi||[]).length+') &mdash; Edit di Sini</h2>';
+  html += '<div class="card"><h2 class="sect">Kompetensi ('+(r.kompetensi||[]).length+'): Edit di Sini</h2>';
   (r.kompetensi||[]).forEach(function(k, i){
     html += '<div class="comp-card" data-idx="'+i+'">'+
       '<label>Nama Kompetensi <span class="badge '+(k.tipe==='managerial'?'badge-blue':'badge-grey')+'">'+esc(k.tipe)+'</span></label>'+
@@ -527,7 +534,7 @@ function renderGeneratePreview(r){
       '<label>Level Target</label><select class="edit-komp-target">'+
       [1,2,3,4,5].map(function(n){ return '<option value="'+n+'"'+(n===k.levelTarget?' selected':'')+'>'+n+'</option>'; }).join('')+'</select>';
     (k.levels||[]).forEach(function(lv, li){
-      html += '<label>Perilaku Kunci &mdash; Level '+(li+1)+'</label>'+
+      html += '<label>Perilaku Kunci Level '+(li+1)+'</label>'+
         '<textarea class="edit-komp-pk" data-level="'+(li+1)+'">'+esc((lv.perilakuKunci||[]).join('\n'))+'</textarea>';
     });
     html += '<div class="hint">Diturunkan dari: '+esc(k.sumberTugas||'-')+'</div></div>';
@@ -601,7 +608,7 @@ function loadInlineAssessment(jabatanId){
       api('submitAssessment', {nik: nik, jabatanId: jabatanId, siklus: $('gen-inp-siklus').value.trim(), scores: scores}).then(function(r2){
         var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap-gen" height="220"></canvas></div></div>';
         html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
-        if(r2.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r2.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini &mdash; buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
+        if(r2.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r2.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini. Buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
         r2.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
           html2 += '<div class="score-row"><div><b>'+esc(res.nama)+'</b><div class="hint">'+esc(res.rekomendasi)+'</div></div>'+
@@ -613,10 +620,11 @@ function loadInlineAssessment(jabatanId){
           type:'bar',
           data:{ labels: r2.results.map(function(res){ return res.nama.length>24? res.nama.slice(0,22)+'…' : res.nama; }),
             datasets:[
-              { label:'Target', data:r2.results.map(function(res){return res.target;}), backgroundColor:'#9FB3C8' },
-              { label:'Aktual', data:r2.results.map(function(res){return res.aktual;}), backgroundColor:function(ctx){ var g=r2.results[ctx.dataIndex].gap; return g<=0?'#0E8A5F':(g===1?'#B45309':'#C00010'); } }
+              { label:'Target', data:r2.results.map(function(res){return res.target;}), backgroundColor:CHART_PALETTE.netral },
+              { label:'Aktual', data:r2.results.map(function(res){return res.aktual;}), backgroundColor:function(ctx){ var g=r2.results[ctx.dataIndex].gap; return g<=0?CHART_PALETTE.aman:(g===1?CHART_PALETTE.perhatian:CHART_PALETTE.kritis); } }
             ] },
-          options:{ scales:{ y:{ beginAtZero:true, max:5, ticks:{stepSize:1} } }, plugins:{legend:{position:'bottom'}} }
+          options:{ scales:{ y:{ beginAtZero:true, max:5, ticks:{stepSize:1} } },
+            plugins:{ legend:{position:'bottom'}, title:{display:true,text:'Target vs Aktual per Kompetensi (skala 0-5)',font:{size:13}} } }
         });
       }).catch(function(e){ showErr('err-gen-assess', e.message); });
     };
@@ -648,7 +656,7 @@ function kompBadgeHtml(k){
 }
 function kompWajibNoteHtml(k){
   if(k.tipe!=='wajib') return '';
-  if(k.aktifSekarang===false) return '<div class="hint" style="color:var(--amber);font-weight:700">Berlaku wajib mulai '+esc(k.efektifMulai)+' &mdash; tetap tampil di form asesmen sekarang supaya organisasi siap lebih dulu.</div>';
+  if(k.aktifSekarang===false) return '<div class="hint" style="color:var(--amber);font-weight:700">Berlaku wajib mulai '+esc(k.efektifMulai)+'. Tetap tampil di form asesmen sekarang supaya organisasi siap lebih dulu.</div>';
   return '<div class="hint" style="color:var(--navy2);font-weight:700">Wajib untuk semua jabatan.</div>';
 }
 
@@ -672,8 +680,9 @@ $('btn-load-dict').onclick = function(){
       type:'radar',
       data:{ labels: list.map(function(k){ return k.nama.length>28? k.nama.slice(0,26)+'…' : k.nama; }),
         datasets:[{ label:'Level Target', data:list.map(function(k){return k.levelTarget;}),
-          backgroundColor:'rgba(16,42,67,.15)', borderColor:'#102A43', pointBackgroundColor:'#102A43' }] },
-      options:{ scales:{ r:{ min:0, max:5, ticks:{stepSize:1} } }, plugins:{ legend:{display:false} } }
+          backgroundColor:'rgba(16,42,67,.15)', borderColor:CHART_PALETTE.fokus, pointBackgroundColor:CHART_PALETTE.fokus }] },
+      options:{ scales:{ r:{ min:0, max:5, ticks:{stepSize:1} } },
+        plugins:{ legend:{display:false}, title:{display:true,text:'Level Target per Kompetensi (skala 0-5)',font:{size:13}} } }
     });
   });
 };
@@ -682,7 +691,8 @@ $('btn-load-dict').onclick = function(){
 $('btn-load-matrix').onclick = function(){
   api('getTrainingMatrix', {}).then(function(rows){
     if(!rows.length){ $('matrix-result').innerHTML = '<div class="empty">Belum ada data asesmen untuk diagregasi.</div>'; return; }
-    var html = '<div class="card"><h2 class="sect">Urgency &amp; Kesiapan Modul (sekilas)</h2><div class="chart-wrap"><canvas id="chart-tna" height="220"></canvas></div></div>';
+    var html = '<div class="card-row"><div class="card"><div class="chart-wrap"><canvas id="chart-urgency" height="200"></canvas></div></div>'+
+      '<div class="card"><div class="chart-wrap"><canvas id="chart-modul" height="200"></canvas></div></div></div>';
     html += '<table><tr><th>Kompetensi</th><th>Kategori</th><th>Jumlah</th><th>Urgency</th><th>Status Modul</th></tr>';
     rows.forEach(function(r){
       var urgBadge = r.urgency==='tinggi' ? 'badge-red' : (r.urgency==='sedang' ? 'badge-amber' : 'badge-green');
@@ -696,12 +706,24 @@ $('btn-load-matrix').onclick = function(){
     $('matrix-result').innerHTML = html;
     var urgCount = {tinggi:0, sedang:0, aman:0}, modCount = {ada:0, sebagian:0, belum:0};
     rows.forEach(function(r){ urgCount[r.urgency]++; modCount[r.statusModul]++; });
-    drawChart('chart-tna', {
+    /* Dipisah jadi 2 chart (bukan 1 chart gabungan 6 bar) karena Urgency dan Status Modul adalah
+       dua pertanyaan berbeda -- menggabungkannya dalam satu sumbu menyiratkan keduanya sebanding,
+       padahal bukan. Warna tetap semantik (merah=kritis, amber=perhatian, hijau=aman), bukan kategorikal. */
+    drawChart('chart-urgency', {
       type:'bar',
-      data:{ labels:['Urgency Tinggi','Urgency Sedang','Urgency Aman','Modul Ada','Modul Sebagian','Modul Belum'],
-        datasets:[{ data:[urgCount.tinggi,urgCount.sedang,urgCount.aman,modCount.ada,modCount.sebagian,modCount.belum],
-          backgroundColor:['#C00010','#B45309','#0E8A5F','#0E8A5F','#B45309','#C00010'] }] },
-      options:{ plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
+      data:{ labels:['Tinggi','Sedang','Aman'],
+        datasets:[{ data:[urgCount.tinggi,urgCount.sedang,urgCount.aman],
+          backgroundColor:[CHART_PALETTE.kritis,CHART_PALETTE.perhatian,CHART_PALETTE.aman] }] },
+      options:{ plugins:{ legend:{display:false}, title:{display:true,text:'Urgency Kompetensi (jumlah kompetensi)',font:{size:13}} },
+        scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
+    });
+    drawChart('chart-modul', {
+      type:'bar',
+      data:{ labels:['Ada','Sebagian','Belum'],
+        datasets:[{ data:[modCount.ada,modCount.sebagian,modCount.belum],
+          backgroundColor:[CHART_PALETTE.aman,CHART_PALETTE.perhatian,CHART_PALETTE.kritis] }] },
+      options:{ plugins:{ legend:{display:false}, title:{display:true,text:'Kesiapan Modul Training (jumlah kompetensi)',font:{size:13}} },
+        scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
     });
   });
 };
@@ -713,9 +735,9 @@ $('btn-path-go').onclick = function(){
   api('careerPath', {fromJabatanId: from, toJabatanId: to}).then(function(r){
     var methodNote = r.method==='ai'
       ? '<div class="hint">Dicocokkan AI berdasarkan kesamaan substansi skill (bukan sekadar kata).</div>'
-      : '<div class="hint">Dicocokkan dengan kata kunci sederhana (AI tidak tersedia) — anggap sebagai perkiraan awal, bukan final.</div>';
+      : '<div class="hint">Dicocokkan dengan kata kunci sederhana (AI tidak tersedia). Anggap sebagai perkiraan awal, bukan final.</div>';
     var html = '<div class="card"><h2 class="sect">Transferable ('+r.transferable.length+')</h2>'+methodNote;
-    r.transferable.forEach(function(k){ html += '<div class="hint">&bull; '+esc(k.nama)+(k.alasan?' — '+esc(k.alasan):'')+'</div>'; });
+    r.transferable.forEach(function(k){ html += '<div class="hint">&bull; '+esc(k.nama)+(k.alasan?': '+esc(k.alasan):'')+'</div>'; });
     html += '</div><div class="card"><h2 class="sect">Perlu Dipelajari ('+r.toLearn.length+')</h2>';
     r.toLearn.forEach(function(k){
       var modBadge = k.statusModul==='ada' ? 'badge-green' : (k.statusModul==='sebagian' ? 'badge-amber' : 'badge-red');
@@ -781,7 +803,7 @@ $('btn-load-assess').onclick = function(){
         '<small>Asesor</small><select class="inp-score" data-komp="'+esc(k.kompId)+'" data-target="'+k.levelTarget+'">'+
         [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('')+'</select></div></div>';
     });
-    html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn btn-primary" id="btn-submit-assess">Simpan Asesmen</button>'+
+    html += '<div style="margin-top:16px;display:flex;gap:8px"><button class="btn btn-primary" id="btn-submit-assess">Simpan Asesmen</button>'+
       '<button class="btn btn-ghost" id="btn-view-riwayat" style="width:auto;white-space:nowrap">Lihat Riwayat</button></div></div><div id="assess-gap-result"></div>';
     $('assess-form').innerHTML = html;
     $('btn-view-riwayat').onclick = function(){
@@ -797,7 +819,7 @@ $('btn-load-assess').onclick = function(){
       api('submitAssessment', {nik: nik, jabatanId: jid, siklus: $('inp-siklus').value.trim(), scores: scores}).then(function(r){
         var html2 = '<div class="card"><h2 class="sect">Target vs Aktual (sekilas)</h2><div class="chart-wrap"><canvas id="chart-gap" height="220"></canvas></div></div>';
         html2 += '<div class="card"><h2 class="sect">Hasil Gap &amp; Rekomendasi</h2>';
-        if(r.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini &mdash; buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
+        if(r.itpDibuat>0) html2 += '<div class="hint" style="margin-bottom:10px;color:var(--green);font-weight:700">'+r.itpDibuat+' Individual Training Plan (ITP) otomatis dibuat untuk kompetensi yang gap pada standar jabatan saat ini. Buka tab "Individual Training Plan" untuk isi PIC dan target tanggal.</div>';
         r.results.forEach(function(res){
           var cls = res.gap<=0 ? 'gap-0' : (res.gap===1 ? 'gap-1' : 'gap-2');
           var selisihTxt = res.selisihSelf===null ? '' : (res.selisihSelf===0 ? ' &middot; self-rating selaras' : (res.selisihSelf>0 ? ' &middot; self-rating lebih tinggi '+res.selisihSelf : ' &middot; self-rating lebih rendah '+Math.abs(res.selisihSelf)));
@@ -810,8 +832,8 @@ $('btn-load-assess').onclick = function(){
           type:'bar',
           data:{ labels: r.results.map(function(res){ return res.nama.length>24? res.nama.slice(0,22)+'…' : res.nama; }),
             datasets:[
-              { label:'Target', data:r.results.map(function(res){return res.target;}), backgroundColor:'#9FB3C8' },
-              { label:'Aktual', data:r.results.map(function(res){return res.aktual;}), backgroundColor:function(ctx){ var g=r.results[ctx.dataIndex].gap; return g<=0?'#0E8A5F':(g===1?'#B45309':'#C00010'); } }
+              { label:'Target', data:r.results.map(function(res){return res.target;}), backgroundColor:CHART_PALETTE.netral },
+              { label:'Aktual', data:r.results.map(function(res){return res.aktual;}), backgroundColor:function(ctx){ var g=r.results[ctx.dataIndex].gap; return g<=0?CHART_PALETTE.aman:(g===1?CHART_PALETTE.perhatian:CHART_PALETTE.kritis); } }
             ] },
           options:{ scales:{ y:{ beginAtZero:true, max:5, ticks:{stepSize:1} } }, plugins:{legend:{position:'bottom'}} }
         });
@@ -830,7 +852,7 @@ $('btn-save-perf').onclick = function(){
     rating: parseInt($('sel-perf-rating').value,10),
     periode: $('inp-perf-periode').value.trim()
   }).then(function(r){
-    $('perf-ok').textContent = 'Tersimpan: '+r.nama+' — rating kinerja '+r.rating+'. Klik "Muat / Refresh 9-Box" untuk lihat posisinya.';
+    $('perf-ok').textContent = 'Tersimpan: '+r.nama+', rating kinerja '+r.rating+'. Klik "Muat / Refresh 9-Box" untuk lihat posisinya.';
     $('perf-ok').style.display='block';
   }).catch(function(e){ showErr('err-perf', e.message); });
 };
@@ -871,7 +893,7 @@ $('btn-load-ninebox').onclick = function(){
 
     if(r.tanpaRatingKinerja.length){
       html += '<div class="card"><h2 class="sect">Belum Bisa Dipetakan ('+r.tanpaRatingKinerja.length+')</h2>'+
-        '<div class="hint" style="margin-bottom:8px">Sudah ada asesmen kompetensi, tapi rating kinerjanya belum diinput — jadi belum punya sumbu kedua.</div>';
+        '<div class="hint" style="margin-bottom:8px">Sudah ada asesmen kompetensi, tapi rating kinerjanya belum diinput, jadi belum punya sumbu kedua.</div>';
       r.tanpaRatingKinerja.forEach(function(p){
         html += '<div class="score-row"><div><b>'+esc(p.nama)+'</b><div class="hint">'+esc(p.jabatan)+' &middot; kesiapan kompetensi '+p.readiness+'%</div></div>'+
           '<span class="badge badge-grey">perlu rating kinerja</span></div>';
@@ -920,7 +942,7 @@ function renderTalentCardHtml(c){
 
   h += '<div class="tc-h">Prioritas Pengembangan (3 gap terbesar)</div>';
   if(!c.prioritasPengembangan.length){
-    h += '<div class="hint">Tidak ada gap &mdash; seluruh kompetensi sudah memenuhi atau melampaui target. Kandidat talent pool / calon mentor.</div>';
+    h += '<div class="hint">Tidak ada gap. Seluruh kompetensi sudah memenuhi atau melampaui target, kandidat talent pool atau calon mentor.</div>';
   } else {
     h += '<table><tr><th>Kompetensi</th><th>Target</th><th>Aktual</th><th>Tindakan</th><th>Modul</th></tr>';
     c.prioritasPengembangan.forEach(function(p){
