@@ -23,15 +23,17 @@ window.BACKEND_URL = "TEMPEL_URL_WEB_APP_DI_SINI";
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
-  font-family:'Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.55}
+  font-family:'Plus Jakarta Sans','Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.55}
 #app{display:flex;flex-direction:column;min-height:100vh}
 .screen{display:none;flex:1;flex-direction:column}
 .screen.active{display:flex}
-header.app{background:var(--navy);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px}
-.logo-mark{width:38px;height:38px;border-radius:9px;background:var(--red);display:flex;align-items:center;
-  justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:14px}
-.app-title{font-weight:800;font-size:16px;letter-spacing:.5px}
-.app-sub{font-size:11px;color:#9FB3C8;margin-top:1px}
+header.app{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;
+  padding:16px 24px;display:flex;align-items:center;gap:12px}
+.logo-mark{width:40px;height:40px;border-radius:11px;background:var(--red);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:15px;letter-spacing:-.5px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.2)}
+.app-title{font-weight:800;font-size:16px;letter-spacing:.3px}
+.app-sub{font-size:11px;color:#C7D5E6;margin-top:1px}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:#C7D2E0}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;
   border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer}
@@ -171,6 +173,9 @@ td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
   body.printing .no-print{display:none !important}
 }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
@@ -372,6 +377,10 @@ td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 var $ = function(id){ return document.getElementById(id); };
 var state = { nik:null, nama:null, role:null, token:null, jabatanOptions:[], employeeOptions:[] };
 var charts = {}; /* canvasId -> Chart instance, so we can .destroy() before re-render */
+/* "Momen menonjol" app ini (jatah satu per app, sesuai audit UI/UX): animasi masuk default
+   Chart.js (bar tumbuh, radar melebar) SENGAJA dibiarkan aktif HANYA di titik paling penting
+   secara emosional di seluruh app -- saat hasil gap kompetensi pertama kali muncul ke pengguna,
+   baik di layar generate maupun asesmen. Tidak ada animasi lain di luar ini di seluruh app. */
 /* Palet chart, token terpisah dari token UI (:root di CSS) -- skala semantik (bukan kategorikal):
    hijau=aman/baik, amber=perhatian, merah=kritis. Nilai HEX sengaja disamakan dengan --green/--amber/--red
    di CSS supaya satu makna selalu satu warna di seluruh app (badge dan chart), bukan kebetulan mirip. */
