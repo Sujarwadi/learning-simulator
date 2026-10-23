@@ -10,10 +10,15 @@
 window.BACKEND_URL = "TEMPEL_URL_WEB_APP_DI_SINI";
 </script>
 <style>
+/* Token warna, hasil audit UI/UX 2026-10-23. --line, --green, --amber dipilih berdasarkan
+   rasio kontras WCAG 2.2 AA yang dihitung (bukan ditaksir): --line sebelumnya 1.29:1 (syarat
+   non-teks 3:1, SC 1.4.11), --green sebelumnya 3.53:1 (syarat teks 4.5:1, SC 1.4.3) -- keduanya
+   gagal dan sudah digelapkan. --red sengaja dibebaskan dari peran CTA (lihat btn-generate di
+   HTML) supaya tidak dobel arti dengan perannya sebagai warna semantik kritis/bahaya. */
 :root{
   --navy:#102A43; --navy2:#1E3A5F; --red:#C00010; --red-soft:#FBE9EA;
-  --bg:#F4F6F9; --surface:#FFFFFF; --line:#DCE3ED; --text:#1A2433; --muted:#5B6472;
-  --green:#0E8A5F; --green-soft:#E6F6EF; --amber:#B45309; --amber-soft:#FEF3E2;
+  --bg:#F4F6F9; --surface:#FFFFFF; --line:#7E93AA; --text:#1A2433; --muted:#5B6472;
+  --green:#0B6B48; --green-soft:#E6F6EF; --amber:#9A4700; --amber-soft:#FEF3E2;
   --blue:#2C5AA0; --blue-soft:#E8EFFA; --radius:14px; --shadow:0 8px 26px rgba(16,42,67,.10);
 }
 *{box-sizing:border-box}
@@ -64,10 +69,28 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-o
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.tab-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.tab-btn{flex:1;min-width:110px;padding:10px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:12.5px;
-  font-weight:700;color:var(--muted);cursor:pointer}
-.tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* Navigasi admin: sidebar dikelompokkan per fase kerja, menggantikan tab-row rata 7 tombol
+   (melanggar Hick's Law, uji blur gagal -- lihat audit 2026-10-23). Class .tab-btn dipertahankan
+   supaya JS tab-switching yang sudah ada tidak perlu diubah. */
+.admin-shell{display:flex;align-items:flex-start;max-width:1180px;margin:0 auto;width:100%}
+.side-nav{width:208px;flex:none;padding:4px 10px 24px 0}
+.side-group-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);padding:16px 10px 6px;margin:0}
+.side-group-label:first-child{padding-top:0}
+.tab-row{display:flex;flex-direction:column;gap:2px}
+.tab-btn{width:100%;text-align:left;padding:9px 10px;border-radius:8px;border:1px solid transparent;
+  background:transparent;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer}
+.tab-btn:hover{background:var(--bg)}
+.tab-btn.active{background:var(--navy);color:#fff;font-weight:800}
+.admin-content{flex:1;min-width:0;padding:0 4px 60px 24px;border-left:1px solid var(--line)}
+@media (max-width:760px){
+  .admin-shell{flex-direction:column}
+  .side-nav{width:100%;padding:0 0 12px}
+  .tab-row{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .side-group-label{padding:10px 4px 4px;white-space:nowrap}
+  .tab-btn{white-space:nowrap;flex:none}
+  .admin-content{border-left:none;padding:16px 0 60px}
+}
 .loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 0;color:var(--muted)}
 .spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--navy);border-radius:50%;
   animation:spin .8s linear infinite}
@@ -180,16 +203,23 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
       <div><div class="app-title">BBM TALENTCORE</div><div class="app-sub" id="admin-nama">-</div></div>
       <div class="header-right"><button class="btn-logout" id="btn-admin-logout">Keluar</button></div>
     </header>
-    <div class="body-wrap">
-      <div class="tab-row">
-        <button class="tab-btn active" data-tab="generate">1. Generate dari JD</button>
-        <button class="tab-btn" data-tab="dict">2. Kamus Kompetensi</button>
-        <button class="tab-btn" data-tab="matrix">3. Training Matrix</button>
-        <button class="tab-btn" data-tab="path">4. Career Path</button>
-        <button class="tab-btn" data-tab="profile">5. Profil Karyawan</button>
-        <button class="tab-btn" data-tab="succession">6. Suksesi &amp; Bench</button>
-        <button class="tab-btn" data-tab="itp">7. Individual Training Plan</button>
-      </div>
+    <div class="body-wrap" style="max-width:1180px">
+    <div class="admin-shell">
+      <nav class="side-nav">
+        <div class="tab-row">
+          <div class="side-group-label">Setup Kompetensi</div>
+          <button class="tab-btn active" data-tab="generate">Generate dari JD</button>
+          <button class="tab-btn" data-tab="dict">Kamus Kompetensi</button>
+          <div class="side-group-label">Operasional</div>
+          <button class="tab-btn" data-tab="matrix">Training Matrix</button>
+          <button class="tab-btn" data-tab="profile">Profil Karyawan</button>
+          <button class="tab-btn" data-tab="succession">Suksesi &amp; Bench</button>
+          <button class="tab-btn" data-tab="itp">Individual Training Plan</button>
+          <div class="side-group-label">Analisis</div>
+          <button class="tab-btn" data-tab="path">Career Path</button>
+        </div>
+      </nav>
+      <div class="admin-content">
 
       <div id="panel-generate">
         <h2 class="sect">Generate dari Deskripsi Jabatan</h2>
@@ -201,7 +231,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
           <textarea id="inp-jd" placeholder="Tempel seluruh isi JD di sini: Identitas Jabatan, Fungsi Jabatan, Tugas Utama & Proses Kerja, Wewenang, Bawahan Langsung, dst."></textarea>
           <div class="hint">Nama jabatan, tier, dan breakdown tugas dibaca otomatis oleh AI. Kompetensi Managerial hanya digenerate jika JD punya Bawahan Langsung.</div>
           <div class="err" id="err-generate"></div>
-          <div style="margin-top:16px"><button class="btn btn-red" id="btn-generate">Generate (Tinjau Dulu)</button></div>
+          <div style="margin-top:16px"><button class="btn btn-primary" id="btn-generate">Generate (Tinjau Dulu)</button></div>
         </div>
         <div id="generate-loading" style="display:none"><div class="loading"><div class="spinner"></div>AI sedang membaca JD, memecah aktivitas, dan menyusun kompetensi&hellip;</div></div>
         <div id="generate-result"></div>
@@ -302,6 +332,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         </div>
         <div id="itp-result"></div>
       </div>
+      </div>
+    </div>
     </div>
     <div class="credit">BBM TalentCore &middot; Created by Sujarwadi</div>
   </section>
