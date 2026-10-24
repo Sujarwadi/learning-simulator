@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.0, 24 Okt 2026. Perubahan: modul TNA 2027 untuk seluruh karyawan (beranda tugas asesmen, form checklist L2-L5 skor Guttman dengan draft lokal, penilaian kelompok sales, delegasi Leader Mekanik + approval, progres, ITP, matriks jabatan, panel admin parameter/approve/generate output) dan ganti PIN langsung di Studio. Fitur Studio lama tetap tersedia lewat menu. -->
 <!-- BBLC Studio v2.6, 22 Jul 2026. Perubahan: menangani respons login wajibGantiPin (backend v3.5) - Studio tidak punya layar ganti PIN sendiri, jadi jika PIN belum pernah diganti dari default, tampilkan pesan yang mengarahkan ke Learning Simulator untuk ganti PIN dulu, alih-alih lanjut dengan data undefined. -->
 <!-- BBLC Studio v2.5, 22 Jul 2026. Perubahan: Admin kini bisa membuka Tampilan Atasan (tombol di Panel Admin) untuk testing/pengawasan, sejalan dengan backend v3.4 yang menentukan status atasan secara dinamis dari kolom Atasan NIK, bukan dari nilai Role yang di-hardcode. -->
 <!-- BBLC Studio v2.4, 22 Jul 2026. Perbaikan: tombol unduh Form Asesmen memanggil unduhBase64SebagaiFile (sebelumnya unduhBase64, tidak terdefinisi, unduhan selalu gagal). -->
@@ -113,7 +114,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
         <label>PIN</label>
         <input type="password" id="inp-pin" placeholder="PIN yang sama dengan Learning Simulator">
-        <div class="hint">Khusus L&amp;D Admin dan Atasan (Dept Head/Kepala Cabang). Bukan untuk akun karyawan biasa.</div>
+        <div class="hint">Untuk seluruh karyawan BBM: penilaian diri, penilaian tim, dan ITP 2027. Login pertama kali akan diminta membuat PIN baru.</div>
         <div class="err" id="err-login"></div>
         <div style="margin-top:16px"><button class="btn btn-primary" id="btn-login">Masuk</button></div>
       </div>
@@ -262,6 +263,151 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     </div>
   </section>
 
+  <!-- ============ TNA 2027: GANTI PIN ============ -->
+  <section class="screen" id="scr-ganti-pin">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">GANTI PIN</div><div class="app-sub">Wajib sekali sebelum mulai</div></div>
+    </header>
+    <div class="body-wrap" style="max-width:420px;padding-top:40px">
+      <div class="card">
+        <h2 class="sect">Buat PIN Baru</h2>
+        <p style="font-size:13.5px;margin-top:0">PIN Anda masih PIN awal. Demi keamanan data penilaian, buat PIN baru 4 angka.</p>
+        <label>PIN Baru (4 angka)</label>
+        <input type="password" id="inp-pin-baru" inputmode="numeric" maxlength="4" placeholder="Contoh: 4821">
+        <label>Ulangi PIN Baru</label>
+        <input type="password" id="inp-pin-baru2" inputmode="numeric" maxlength="4">
+        <div class="err" id="err-ganti-pin"></div>
+        <div style="margin-top:16px"><button class="btn btn-primary" id="btn-ganti-pin">Simpan PIN &amp; Lanjut</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TNA 2027: BERANDA ============ -->
+  <section class="screen" id="scr-tna-home">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">TNA 2027</div><div class="app-sub" id="tna-nama">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-tna-logout">Keluar</button></div>
+    </header>
+    <div class="body-wrap">
+      <div class="card" id="tna-window-card" style="padding:14px 18px"></div>
+      <div id="tna-home-loading"><div class="loading"><div class="spinner"></div>Memuat tugas asesmen Anda&hellip;</div></div>
+      <div id="tna-home-body" style="display:none">
+        <div id="tna-approval-wrap"></div>
+        <div id="tna-self-wrap"></div>
+        <div id="tna-tim-wrap"></div>
+        <div id="tna-kelompok-wrap"></div>
+        <div id="tna-delegasi-wrap"></div>
+        <h2 class="sect" style="margin-top:22px">Menu Lain</h2>
+        <div class="card" style="display:grid;gap:10px">
+          <button class="btn btn-ghost" id="btn-tna-itp">Lihat ITP &amp; Hasil Gap Saya</button>
+          <button class="btn btn-ghost" id="btn-tna-progres" style="display:none">Progres Asesmen Tim</button>
+          <button class="btn btn-ghost" id="btn-tna-matriks">Lihat Matriks Kompetensi Jabatan</button>
+          <button class="btn btn-primary" id="btn-tna-admin" style="display:none">Panel Admin TNA</button>
+          <button class="btn btn-ghost" id="btn-tna-studio" style="display:none">Studio Kompetensi (fitur lama)</button>
+        </div>
+      </div>
+    </div>
+    <div class="credit">BBLC Competency Development Studio &middot; TNA 2027</div>
+  </section>
+
+  <!-- ============ TNA 2027: FORM ============ -->
+  <section class="screen" id="scr-tna-form">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div style="min-width:0"><div class="app-title" id="tna-form-judul">ASESMEN</div><div class="app-sub" id="tna-form-sub">-</div></div>
+      <div class="header-right"><button class="btn-logout" id="btn-tna-form-back">Kembali</button></div>
+    </header>
+    <div class="body-wrap">
+      <div class="card" style="padding:14px 18px">
+        <div style="font-size:13px" id="tna-form-petunjuk"></div>
+        <div style="height:8px;background:#EEF1F6;border-radius:99px;margin-top:10px;overflow:hidden"><div id="tna-form-bar" style="height:100%;width:0;background:var(--green);transition:.3s"></div></div>
+        <div class="hint" id="tna-form-hitung">0 dari 0 kompetensi terisi</div>
+      </div>
+      <div id="tna-form-list"></div>
+      <div class="err" id="err-tna-form"></div>
+      <div style="margin:16px 0 30px"><button class="btn btn-red" id="btn-tna-submit">Kirim Penilaian</button>
+        <div id="tna-tinjau-aksi" style="display:none;gap:10px;grid-template-columns:1fr 1fr">
+          <button class="btn btn-primary" id="btn-tna-setujui">Setujui Isian Ini</button>
+          <button class="btn btn-ghost" id="btn-tna-tolak">Tolak, Saya Nilai Sendiri</button>
+        </div></div>
+    </div>
+  </section>
+
+  <!-- ============ TNA 2027: PROGRES ============ -->
+  <section class="screen" id="scr-tna-progres">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">PROGRES ASESMEN</div><div class="app-sub" id="tna-progres-sub">-</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:960px"><div id="tna-progres-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div></div>
+  </section>
+
+  <!-- ============ TNA 2027: ITP / HASIL ============ -->
+  <section class="screen" id="scr-tna-itp">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">ITP 2027</div><div class="app-sub" id="tna-itp-sub">-</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap"><div id="tna-itp-body"></div></div>
+  </section>
+
+  <!-- ============ TNA 2027: MATRIKS JABATAN ============ -->
+  <section class="screen" id="scr-tna-matriks">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">MATRIKS KOMPETENSI</div><div class="app-sub">Daftar kompetensi per jabatan</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:960px">
+      <div class="card"><label>Cari jabatan</label><input type="text" id="inp-tna-cari-jab" placeholder="Ketik nama jabatan"></div>
+      <div id="tna-matriks-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div>
+    </div>
+  </section>
+
+  <!-- ============ TNA 2027: ADMIN ============ -->
+  <section class="screen" id="scr-tna-admin">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div><div class="app-title">PANEL ADMIN TNA</div><div class="app-sub">L&amp;D</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:960px">
+      <h2 class="sect">Parameter &amp; Window</h2>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 14px">
+          <div><label>Window dibuka</label><input type="text" id="adm-WindowBuka"></div>
+          <div><label>Window ditutup</label><input type="text" id="adm-WindowTutup"></div>
+          <div><label>Bobot atasan</label><input type="number" step="0.05" id="adm-BobotAtasan"></div>
+          <div><label>Bobot self</label><input type="number" step="0.05" id="adm-BobotSelf"></div>
+          <div><label>Target jam/orang/bulan</label><input type="number" step="0.5" id="adm-TargetJamBulan"></div>
+          <div><label>Kapasitas kelas</label><input type="number" id="adm-KapasitasKelas"></div>
+          <div><label>Maks training Dianjurkan/orang</label><input type="number" id="adm-MaksDianjurkan"></div>
+          <div><label>Durasi default (jam)</label><input type="number" id="adm-DurasiDefaultJam"></div>
+        </div>
+        <div class="hint">Format waktu: 2026-11-03T23:59:59+08:00 (WITA). Bobot atasan + self harus = 1.</div>
+        <div class="err" id="err-tna-param"></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-simpan-param">Simpan Parameter</button></div>
+      </div>
+      <h2 class="sect">Status Matriks Jabatan</h2>
+      <div class="card">
+        <div id="tna-adm-matriks"></div>
+        <div class="err" id="err-tna-approve"></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-approve-sel">Setujui Jabatan Terpilih</button></div>
+      </div>
+      <h2 class="sect">Output 5 Dokumen</h2>
+      <div class="card">
+        <div id="tna-adm-output"></div>
+        <div class="hint">Generate otomatis berjalan 5 menit setelah window ditutup bila trigger sudah dijadwalkan. Tombol ini untuk generate manual (uji coba atau ulang).</div>
+        <div class="err" id="err-tna-output"></div>
+        <div style="margin-top:12px"><button class="btn btn-red" id="btn-tna-generate">Generate Output Sekarang</button></div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -299,28 +445,16 @@ $("btn-login").onclick = async ()=>{
   $("btn-login").disabled = true;
   try{
     const r = await api("login", { nik, pin });
-    // v3.5/v2.6: PIN default belum pernah diganti. Studio tidak punya layar ganti PIN
-    // sendiri (dipakai sangat jarang, hanya Admin/Atasan) - arahkan ke Learning Simulator
-    // yang punya alur ganti PIN lengkap, lalu kembali ke sini setelah selesai.
+    // v3.0: semua karyawan masuk lewat pintu TNA 2027. PIN default diganti langsung di Studio.
+    tna.pin = pin;
     if(r.wajibGantiPin){
-      showErr("err-login", "PIN Anda belum pernah diganti dari default. Buka Learning Simulator terlebih dahulu untuk mengganti PIN, lalu login kembali di sini dengan PIN baru.");
+      state = { nik: nik, nama: r.nama, role: "", jabatan: "" };
+      show("scr-ganti-pin");
       $("btn-login").disabled = false;
       return;
     }
     state = { nik: nik, nama: r.nama, role: r.role, jabatan: r.jabatan||"" };
-    if(state.role === "admin"){
-      $("admin-nama").textContent = state.nama + " · L&D Admin";
-      show("scr-admin");
-      muatDaftarPilihan("");
-    } else if(state.role === "atasan" || r.isAtasan){
-      // r.isAtasan dihitung dinamis backend dari kolom Atasan NIK (v3.4), bukan dari
-      // literal role — begitu HC mengisi Atasan NIK, atasan sungguhan otomatis masuk sini.
-      $("atasan-nama").textContent = state.nama + " · Atasan";
-      show("scr-atasan");
-      loadTim();
-    } else {
-      show("scr-denied");
-    }
+    await masukTNA(r);
   }catch(e){ showErr("err-login", e.message); }
   $("btn-login").disabled = false;
 };
@@ -687,6 +821,335 @@ async function loadIdpTim(){
   }catch(e){ $("idp-tim-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
   $("idp-tim-loading").style.display = "none";
 }
+
+/* ================================================================
+   TNA 2027 (v3.0): satu pintu untuk semua karyawan. PIN hanya disimpan di memori
+   (variabel tna.pin), tidak pernah ke localStorage. Draft jawaban boleh disimpan
+   lokal per target supaya tidak hilang saat sinyal putus.
+   ================================================================ */
+const tna = { pin:"", konteks:null, form:null, jawaban:{}, targetKey:"", isAdmin:false, punyaLama:false };
+const LV_NAMA = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
+function tnaApi(action, payload){ return api(action, Object.assign({ nik: state.nik, pin: tna.pin }, payload||{})); }
+function draftKey(){ return "tnaDraft|"+state.nik+"|"+tna.targetKey; }
+function simpanDraft(){ try{ localStorage.setItem(draftKey(), JSON.stringify(tna.jawaban)); }catch(e){} }
+function bacaDraft(){ try{ return JSON.parse(localStorage.getItem(draftKey())||"null"); }catch(e){ return null; } }
+function hapusDraft(){ try{ localStorage.removeItem(draftKey()); }catch(e){} }
+function fmtTgl(d){ try{ return new Date(d).toLocaleString("id-ID",{ day:"numeric", month:"short", hour:"2-digit", minute:"2-digit", timeZone:"Asia/Makassar" })+" WITA"; }catch(e){ return String(d); } }
+function badgeStatus(st){
+  if(st==="FINAL") return '<span class="badge badge-green">Selesai</span>';
+  if(st==="MENUNGGU_APPROVAL") return '<span class="badge badge-amber">Menunggu approval</span>';
+  return '<span class="badge badge-grey">Belum</span>';
+}
+document.querySelectorAll("[data-back]").forEach(b=> b.onclick = ()=>{ show(b.dataset.back); if(b.dataset.back==="scr-tna-home") muatBerandaTNA(); });
+
+async function masukTNA(loginResp){
+  tna.isAdmin = state.role === "admin";
+  tna.punyaLama = tna.isAdmin || state.role === "atasan" || !!loginResp.isAtasan;
+  $("tna-nama").textContent = state.nama + (state.jabatan ? " · " + state.jabatan : "");
+  $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
+  $("btn-tna-studio").style.display = tna.punyaLama ? "" : "none";
+  show("scr-tna-home");
+  await muatBerandaTNA();
+}
+
+async function muatBerandaTNA(){
+  $("tna-home-loading").style.display = "block"; $("tna-home-body").style.display = "none";
+  try{
+    const r = await tnaApi("tnaKonteks");
+    tna.konteks = r;
+    const w = r.window;
+    $("tna-window-card").innerHTML = w==="DIBUKA"
+      ? '<b style="color:var(--green)">Window asesmen DIBUKA</b> sampai <b>'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban bisa direvisi selama window masih dibuka.'
+      : (w==="BELUM_DIBUKA" ? '<b style="color:var(--amber)">Window asesmen belum dibuka.</b> Dibuka '+esc(fmtTgl(r.windowBuka))+'.'
+        : '<b style="color:var(--red)">Window asesmen sudah DITUTUP.</b> Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.');
+    // Approval delegasi
+    $("tna-approval-wrap").innerHTML = r.menungguApproval.length ? '<h2 class="sect">Perlu Persetujuan Anda</h2><div class="card">'+
+      r.menungguApproval.map(m=>'<div class="team-item" style="cursor:default"><div class="team-avatar">'+esc(m.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(m.nama)+'</div><div class="team-jabatan">Diisi oleh '+esc(m.olehNama)+'</div></div>'+
+        '<button class="btn btn-ghost" style="width:auto;padding:8px 12px" data-lihat="'+esc(m.nik)+'">Tinjau</button></div>').join("")+'</div>' : "";
+    // Self
+    $("tna-self-wrap").innerHTML = r.selfStatus==="TIDAK_PERLU" ? (r.terdaftar ? '' : '<div class="card"><div class="empty">Akun Anda belum terdaftar di TNA 2027. Hubungi L&amp;D.</div></div>')
+      : '<h2 class="sect">Penilaian Diri (Self-Assessment)</h2><div class="team-item" id="btn-self"><div class="team-avatar">'+esc(state.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">Nilai diri saya</div><div class="team-jabatan">'+esc(r.jabatan)+'</div></div>'+badgeStatus(r.selfStatus)+'</div>';
+    // Tim
+    const tim = r.tugas;
+    const sel = tim.filter(t=>t.status==="FINAL").length;
+    $("tna-tim-wrap").innerHTML = tim.length ? '<h2 class="sect">Tim yang Anda Nilai ('+sel+'/'+tim.length+' selesai)</h2>'+
+      '<input type="text" id="inp-cari-tim" placeholder="Cari nama di tim" style="margin-bottom:10px">'+
+      '<div id="tna-tim-list">'+tim.map(t=>itemOrang(t)).join("")+'</div>' : "";
+    const kel = r.kelompok;
+    $("tna-kelompok-wrap").innerHTML = kel.length ? '<h2 class="sect">Penilaian per Kelompok Level</h2>'+
+      kel.map(g=>'<div class="team-item" data-kel="'+esc(g.kelompokId)+'"><div class="team-avatar">'+g.anggota+'</div><div class="team-info"><div class="team-name">'+esc(g.jabatan)+'</div><div class="team-jabatan">'+esc(g.cabang)+' · '+g.anggota+' orang</div></div>'+badgeStatus(g.status)+'</div>').join("") : "";
+    const del = r.delegasi;
+    $("tna-delegasi-wrap").innerHTML = del.length ? '<h2 class="sect">Bantu Nilai (Delegasi)</h2><div class="hint" style="margin:-6px 0 10px">Hasil isian Anda baru berlaku setelah disetujui penilai utama.</div>'+del.map(t=>itemOrang(t)).join("") : "";
+    if(!tim.length && !kel.length && !del.length && r.selfStatus==="TIDAK_PERLU" && !r.menungguApproval.length && r.terdaftar){
+      $("tna-tim-wrap").innerHTML = '<div class="card"><div class="empty">Tidak ada penilaian yang perlu Anda isi.</div></div>';
+    }
+    $("btn-tna-progres").style.display = (tim.length || kel.length || tna.isAdmin) ? "" : "none";
+    if($("btn-self")) $("btn-self").onclick = ()=> bukaFormTNA({ target: state.nik });
+    document.querySelectorAll("[data-nik]").forEach(el=> el.onclick = ()=> bukaFormTNA({ target: el.dataset.nik }));
+    document.querySelectorAll("[data-kel]").forEach(el=> el.onclick = ()=> bukaFormTNA({ kelompokId: el.dataset.kel }));
+    document.querySelectorAll("[data-lihat]").forEach(el=> el.onclick = ()=> tinjauDelegasi(el.dataset.lihat));
+    if($("inp-cari-tim")) $("inp-cari-tim").oninput = ()=>{
+      const q = $("inp-cari-tim").value.toLowerCase();
+      document.querySelectorAll("#tna-tim-list .team-item").forEach(el=>{ el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none"; });
+    };
+  }catch(e){
+    $("tna-window-card").innerHTML = '<div class="err show">'+esc(e.message)+'</div>';
+  }
+  $("tna-home-loading").style.display = "none"; $("tna-home-body").style.display = "block";
+}
+function itemOrang(t){
+  return '<div class="team-item" data-nik="'+esc(t.nik)+'"><div class="team-avatar">'+esc((t.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(t.jabatan)+' · '+esc(t.cabang)+(t.peran==="ATASAN2"?' · penilai kedua':'')+'</div></div>'+badgeStatus(t.status)+'</div>';
+}
+
+/* ---------- Form asesmen: checklist perilaku L2..L5, skor Guttman ---------- */
+let tnaFormMode = "isi";
+async function bukaFormTNA(sasaran, mode){
+  tnaFormMode = mode || "isi";
+  show("scr-tna-form");
+  $("tna-form-list").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat kompetensi&hellip;</div>';
+  clearErr("err-tna-form");
+  try{
+    const r = await tnaApi("tnaForm", sasaran);
+    tna.form = Object.assign({ sasaran }, r);
+    tna.targetKey = sasaran.kelompokId ? "K:"+sasaran.kelompokId : "N:"+sasaran.target;
+    tna.jawaban = {};
+    Object.keys(r.jawaban||{}).forEach(k=>{ tna.jawaban[k] = r.jawaban[k]; });
+    const d = bacaDraft(); if(d && tnaFormMode==="isi") Object.assign(tna.jawaban, d);
+    const self = r.peran==="SELF";
+    $("tna-form-judul").textContent = self ? "PENILAIAN DIRI" : (sasaran.kelompokId ? "PENILAIAN KELOMPOK" : "PENILAIAN ATASAN");
+    $("tna-form-sub").textContent = r.judul;
+    $("tna-form-petunjuk").innerHTML = (sasaran.kelompokId ? '<b>Nilai kemampuan umum kelompok ini</b> (rata-rata anggota: '+esc((r.target.anggota||[]).slice(0,6).join(", "))+((r.target.anggota||[]).length>6?", dst":"")+'). ' : '')+
+      'Centang perilaku yang <b>benar-benar '+(self?'Anda lakukan':'teramati')+' secara konsisten dalam 3 sampai 6 bulan terakhir</b>, mulai dari Level 2 ke atas. Level dihitung otomatis. Jika tidak bisa dinilai, pilih N/A dan isi alasannya.';
+    renderFormTNA();
+    if(tnaFormMode==="tinjau"){
+      document.querySelectorAll("#tna-form-list input").forEach(el=> el.disabled = true);
+      $("tna-form-judul").textContent = "TINJAU ISIAN DELEGASI";
+    }
+    $("tna-tinjau-aksi").style.display = tnaFormMode==="tinjau" ? "grid" : "none";
+    $("btn-tna-submit").style.display = (r.window==="DIBUKA" && tnaFormMode==="isi") ? "" : "none";
+    if(r.window!=="DIBUKA") showErr("err-tna-form","Window asesmen sedang tidak dibuka, form hanya bisa dilihat.");
+  }catch(e){ $("tna-form-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; $("btn-tna-submit").style.display="none"; }
+}
+function skorGuttman(checks){
+  let lv = 1, putus = false, inkon = false;
+  for(let i=0;i<4;i++){ const c = checks.charAt(i)==="Y"; if(c && !putus) lv++; else if(!c) putus = true; else if(c && putus) inkon = true; }
+  return { lv, inkon };
+}
+function renderFormTNA(){
+  const r = tna.form;
+  const kat = { Behavioral:"badge-grey", Technical:"badge-green", Leadership:"badge-amber" };
+  $("tna-form-list").innerHTML = r.kompetensi.map((k,i)=>{
+    const j = tna.jawaban[k.kode] || { checks:"NNNN", na:false, alasan:"" };
+    const ch = (j.checks||"NNNN");
+    const items = k.checklist.map((it,ci)=>'<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:13.5px;margin:8px 0;color:var(--text)">'+
+      '<input type="checkbox" class="tna-chk" data-k="'+i+'" data-c="'+ci+'" '+(ch.charAt(ci)==="Y"?"checked":"")+(j.na?" disabled":"")+' style="margin-top:3px;width:20px;height:20px;flex-shrink:0">'+
+      '<span><b>Level '+(ci+2)+'</b> · '+esc(it)+'</span></label>').join("");
+    return '<div class="card tna-komp" data-k="'+i+'" style="padding:16px">'+
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="kompetensi-name" style="flex:1">'+esc(k.nama)+'</span><span class="badge '+(kat[k.kategori]||"badge-grey")+'">'+esc(k.kategori)+'</span></div>'+
+      '<div class="kompetensi-target">Level dipersyaratkan: <b>'+k.required+' ('+LV_NAMA[k.required]+')</b></div>'+
+      (k.definisi ? '<details style="margin-top:6px"><summary style="font-size:12px;color:var(--navy2);cursor:pointer">Definisi &amp; deskripsi level</summary><div class="hint" style="color:var(--text)">'+esc(k.definisi)+'<br>'+k.levels.map((l,li)=>l?'<b>L'+(li+1)+'</b> '+esc(l):'').filter(Boolean).join("<br>")+'</div></details>' : '')+
+      items+
+      '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap"><span class="badge" id="tna-lv-'+i+'"></span>'+
+      '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:12.5px"><input type="checkbox" class="tna-na" data-k="'+i+'" '+(j.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
+      '<input type="text" class="tna-alasan" data-k="'+i+'" placeholder="Alasan N/A, contoh: baru mutasi 1 bulan" value="'+esc(j.alasan||"")+'" style="margin-top:8px;display:'+(j.na?"block":"none")+'">'+
+      '</div>';
+  }).join("");
+  r.kompetensi.forEach((k,i)=> perbaruiLevel(i));
+  document.querySelectorAll(".tna-chk").forEach(el=> el.onchange = ()=>{
+    const i = +el.dataset.k, k = r.kompetensi[i];
+    const j = tna.jawaban[k.kode] = tna.jawaban[k.kode] || { checks:"NNNN", na:false, alasan:"" };
+    const arr = (j.checks||"NNNN").split(""); arr[+el.dataset.c] = el.checked ? "Y" : "N"; j.checks = arr.join("");
+    j.disentuh = true; perbaruiLevel(i); simpanDraft();
+  });
+  document.querySelectorAll(".tna-na").forEach(el=> el.onchange = ()=>{
+    const i = +el.dataset.k, k = r.kompetensi[i];
+    const j = tna.jawaban[k.kode] = tna.jawaban[k.kode] || { checks:"NNNN", na:false, alasan:"" };
+    j.na = el.checked; j.disentuh = true;
+    document.querySelectorAll('.tna-chk[data-k="'+i+'"]').forEach(c=> c.disabled = el.checked);
+    document.querySelector('.tna-alasan[data-k="'+i+'"]').style.display = el.checked ? "block" : "none";
+    perbaruiLevel(i); simpanDraft();
+  });
+  document.querySelectorAll(".tna-alasan").forEach(el=> el.oninput = ()=>{
+    const k = r.kompetensi[+el.dataset.k]; const j = tna.jawaban[k.kode] = tna.jawaban[k.kode] || { checks:"NNNN", na:true, alasan:"" };
+    j.alasan = el.value; simpanDraft();
+  });
+}
+function perbaruiLevel(i){
+  const r = tna.form, k = r.kompetensi[i], j = tna.jawaban[k.kode];
+  const el = $("tna-lv-"+i);
+  if(j && j.na){ el.className = "badge badge-grey"; el.textContent = "N/A"; }
+  else {
+    const s = skorGuttman((j&&j.checks)||"NNNN");
+    el.className = "badge " + (s.lv >= k.required ? "badge-green" : (k.required - s.lv >= 2 ? "badge-red" : "badge-amber"));
+    el.textContent = "Level " + s.lv + " · " + LV_NAMA[s.lv] + (s.inkon ? " · centang melompat, cek lagi" : "");
+  }
+  const total = r.kompetensi.length;
+  const terisi = r.kompetensi.filter(x=>{ const a = tna.jawaban[x.kode]; return a && (a.disentuh || r.jawaban[x.kode]) && (!a.na || String(a.alasan||"").trim()); }).length;
+  $("tna-form-hitung").textContent = terisi + " dari " + total + " kompetensi sudah ditinjau";
+  $("tna-form-bar").style.width = Math.round(terisi/Math.max(1,total)*100) + "%";
+}
+$("btn-tna-form-back").onclick = ()=>{ show("scr-tna-home"); muatBerandaTNA(); };
+$("btn-tna-submit").onclick = async ()=>{
+  clearErr("err-tna-form");
+  const r = tna.form;
+  const belum = r.kompetensi.filter(k=>{ const a = tna.jawaban[k.kode]; return !a || (!a.disentuh && !r.jawaban[k.kode]); });
+  if(belum.length){
+    if(!confirm(belum.length+" kompetensi belum Anda sentuh sama sekali (akan tercatat Level 1). Lanjut kirim?")) return;
+  }
+  const naKosong = r.kompetensi.filter(k=>{ const a = tna.jawaban[k.kode]; return a && a.na && !String(a.alasan||"").trim(); });
+  if(naKosong.length){ showErr("err-tna-form","Isi alasan N/A untuk: "+naKosong.map(k=>k.nama).join(", ")); return; }
+  const kirim = {};
+  r.kompetensi.forEach(k=>{ const a = tna.jawaban[k.kode] || {}; kirim[k.kode] = { checks: a.checks||"NNNN", na: !!a.na, alasan: a.alasan||"" }; });
+  $("btn-tna-submit").disabled = true;
+  try{
+    const res = await tnaApi("tnaSubmit", Object.assign({ jawaban: kirim }, r.sasaran));
+    hapusDraft();
+    alert(res.status==="MENUNGGU_APPROVAL" ? "Terkirim. Menunggu persetujuan penilai utama." : "Penilaian tersimpan. Terima kasih!");
+    show("scr-tna-home"); muatBerandaTNA();
+  }catch(e){ showErr("err-tna-form", e.message); }
+  $("btn-tna-submit").disabled = false;
+};
+
+/* ---------- Approval delegasi: penilai utama melihat isian Leader dalam mode baca ---------- */
+function tinjauDelegasi(nik){ bukaFormTNA({ target: nik, lihatDelegasi: true }, "tinjau"); }
+async function putuskanDelegasi(setuju){
+  const nik = tna.form.sasaran.target;
+  try{
+    const r = await tnaApi("tnaApprove", { target: nik, setuju });
+    alert(setuju ? "Disetujui ("+r.jumlah+" kompetensi)." : "Ditolak. Silakan nilai sendiri karyawan ini dari daftar tim.");
+  }catch(e){ alert(e.message); }
+  show("scr-tna-home"); muatBerandaTNA();
+}
+$("btn-tna-setujui").onclick = ()=> putuskanDelegasi(true);
+$("btn-tna-tolak").onclick = ()=>{ if(confirm("Tolak isian delegasi ini?")) putuskanDelegasi(false); };
+
+/* ---------- Progres ---------- */
+$("btn-tna-progres").onclick = async ()=>{
+  show("scr-tna-progres");
+  $("tna-progres-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
+  try{
+    const r = await tnaApi("tnaProgres");
+    $("tna-progres-sub").textContent = r.selesai+" dari "+r.total+" karyawan sudah dinilai ("+r.persen+"%)";
+    const pp = Object.keys(r.perPenilai).map(n=>[n, r.perPenilai[n]]).sort((a,b)=>b[1]-a[1]);
+    $("tna-progres-body").innerHTML =
+      '<div class="card"><div style="font-size:32px;font-weight:800;color:var(--navy)">'+r.persen+'%</div><div class="hint">'+r.selesai+' / '+r.total+' karyawan sudah punya penilaian atasan final</div></div>'+
+      '<h2 class="sect">Per Cabang / Unit</h2><div class="card" style="overflow-x:auto"><table><tr><th>Unit</th><th>Selesai</th><th>%</th><th>Self-rating</th></tr>'+
+      r.units.map(u=>'<tr><td>'+esc(u.unit)+'</td><td>'+u.selesai+'/'+u.total+'</td><td><span class="badge '+(u.persen>=90?"badge-green":(u.persen>=50?"badge-amber":"badge-red"))+'">'+u.persen+'%</span></td><td>'+u.self+'/'+u.perluSelf+'</td></tr>').join("")+'</table></div>'+
+      (pp.length ? '<h2 class="sect">Penilai yang Belum Selesai</h2><div class="card" style="overflow-x:auto"><table><tr><th>Penilai</th><th>Sisa</th></tr>'+pp.map(x=>'<tr><td>'+esc(x[0]||"(belum ada penilai)")+'</td><td>'+x[1]+'</td></tr>').join("")+'</table></div>' : '');
+  }catch(e){ $("tna-progres-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+};
+
+/* ---------- ITP & hasil ---------- */
+$("btn-tna-itp").onclick = ()=> bukaITP(state.nik);
+async function bukaITP(nik){
+  show("scr-tna-itp");
+  $("tna-itp-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
+  try{
+    const r = await tnaApi("tnaITPSaya", { target: nik });
+    $("tna-itp-sub").textContent = r.nama + " · " + r.jabatan;
+    if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP belum diterbitkan. Output TNA 2027 terbit setelah window asesmen ditutup.</div></div>'; return; }
+    const katCls = { Wajib:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey" };
+    const gapCls = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
+    $("tna-itp-body").innerHTML =
+      '<h2 class="sect">Rencana Training 2027</h2><div class="card" style="overflow-x:auto"><table><tr><th>Bulan</th><th>Training</th><th>Kategori</th><th>Jam</th></tr>'+
+      r.itp.map(t=>'<tr><td>'+esc(t.Bulan)+'</td><td>'+esc(t.Judul)+'</td><td><span class="badge '+(katCls[t.Kategori]||"badge-grey")+'">'+esc(t.Kategori)+'</span></td><td>'+esc(t.Jam)+'</td></tr>').join("")+'</table></div>'+
+      '<h2 class="sect">Hasil Kompetensi</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
+      r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.Actual)+'</td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+'</span></td></tr>').join("")+'</table></div>'+
+      (r.rekomendasi.length ? '<h2 class="sect">Rencana Pengembangan 70/20/10</h2>'+r.rekomendasi.map(x=>'<div class="idp-card"><div class="idp-comp">'+esc(x.Kompetensi)+'</div>'+
+        '<div class="idp-line"><b>70 Penugasan:</b> '+esc(x.R70_Penugasan)+'</div><div class="idp-line"><b>20 Sosial:</b> '+esc(x.R20_Sosial)+'</div><div class="idp-line"><b>10 Training:</b> '+esc(x.R10_Training)+'</div></div>').join("") : '');
+  }catch(e){ $("tna-itp-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+}
+
+/* ---------- Matriks jabatan (baca saja, untuk dibagikan ke Dept Head) ---------- */
+let tnaDaftarJab = [];
+$("btn-tna-matriks").onclick = async ()=>{
+  show("scr-tna-matriks");
+  try{ const r = await tnaApi("tnaMatriksJabatan"); tnaDaftarJab = r.jabatan; renderDaftarJab(""); }
+  catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+};
+$("inp-tna-cari-jab").oninput = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
+function renderDaftarJab(q){
+  q = String(q||"").toLowerCase();
+  const list = tnaDaftarJab.filter(j=> !q || (j.jobTitle+" "+j.dept).toLowerCase().includes(q));
+  $("tna-matriks-body").innerHTML = list.map(j=>'<div class="team-item" data-jab="'+esc(j.kode)+'"><div class="team-avatar" style="font-size:11px">'+esc(j.kode)+'</div><div class="team-info"><div class="team-name">'+esc(j.jobTitle)+'</div><div class="team-jabatan">'+esc(j.dept)+' · '+esc(j.jml)+' orang</div></div>'+
+    '<span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(j.status||"DRAFT")+'</span></div>').join("") || '<div class="empty">Tidak ada jabatan.</div>';
+  document.querySelectorAll("[data-jab]").forEach(el=> el.onclick = ()=> lihatMatriks(el.dataset.jab));
+}
+async function lihatMatriks(kode){
+  $("tna-matriks-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
+  try{
+    const r = await tnaApi("tnaMatriksJabatan", { kodeJabatan: kode });
+    const grup = { Behavioral:[], Technical:[], Leadership:[] };
+    r.kompetensi.forEach(k=> (grup[k.kategori] = grup[k.kategori] || []).push(k));
+    $("tna-matriks-body").innerHTML = '<button class="btn btn-ghost" id="btn-jab-kembali" style="margin-bottom:12px">&larr; Daftar jabatan</button>'+
+      '<div class="card"><div class="team-name" style="font-size:16px">'+esc(r.jabatan.JobTitle)+'</div><div class="hint">'+esc(r.jabatan.Dept)+' · Status matriks: '+esc(r.jabatan.StatusMatriks)+(r.jabatan.LinkJD?' · <a href="'+esc(String(r.jabatan.LinkJD).split(" || ")[0])+'" target="_blank" rel="noopener">Buka JD</a>':'')+'</div></div>'+
+      Object.keys(grup).filter(g=>grup[g].length).map(g=>'<h2 class="sect">'+esc(g)+'</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Level</th><th>Bobot</th><th>Definisi</th></tr>'+
+        grup[g].map(k=>'<tr><td><b>'+esc(k.nama)+'</b>'+(k.flag?'<br><span class="badge badge-amber">'+esc(k.flag)+'</span>':'')+'</td><td>'+k.required+'</td><td>'+k.bobot+'</td><td style="font-size:12px">'+esc(k.definisi)+'</td></tr>').join("")+'</table></div>').join("");
+    $("btn-jab-kembali").onclick = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
+  }catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+}
+
+/* ---------- Admin ---------- */
+const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","MaksDianjurkan","DurasiDefaultJam"];
+$("btn-tna-admin").onclick = async ()=>{ show("scr-tna-admin"); muatAdminTNA(); };
+async function muatAdminTNA(){
+  try{
+    const [o, m] = await Promise.all([tnaApi("tnaGetOutput"), tnaApi("tnaMatriksJabatan")]);
+    PARAM_ADM.forEach(k=>{ const v = o.parameter[k]; $("adm-"+k).value = (v instanceof Object) ? "" : String(v==null?"":v); });
+    $("tna-adm-matriks").innerHTML = '<label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="chk-jab-semua"> Pilih semua yang belum APPROVED</label>'+
+      '<div style="max-height:360px;overflow:auto"><table><tr><th></th><th>Kode</th><th>Jabatan</th><th>Orang</th><th>JD</th><th>Status</th></tr>'+
+      m.jabatan.map(j=>'<tr><td><input type="checkbox" class="chk-jab" value="'+esc(j.kode)+'" '+(j.status==="APPROVED"?"disabled":"")+'></td><td>'+esc(j.kode)+'</td><td>'+esc(j.jobTitle)+'</td><td>'+esc(j.jml)+'</td><td>'+esc(j.statusJD)+'</td><td><span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(j.status)+'</span></td></tr>').join("")+'</table></div>'+
+      '<div class="hint">'+m.jabatan.filter(j=>j.status==="APPROVED").length+' dari '+m.jabatan.length+' jabatan sudah APPROVED.</div>';
+    $("chk-jab-semua").onchange = ()=> document.querySelectorAll(".chk-jab:not(:disabled)").forEach(c=> c.checked = $("chk-jab-semua").checked);
+    const L = o.links||{}, nama = { gap:"Gap Competency", matrix:"Training Matrix", plan:"Training Plan", calendar:"Training Calendar", itp:"Individual Training Plan" };
+    $("tna-adm-output").innerHTML = o.terakhir ? '<div class="hint" style="color:var(--text)">Terakhir generate: <b>'+esc(fmtTgl(o.terakhir))+'</b> · Rekonsiliasi jam ITP '+esc(o.rekon.jamITP)+' = Kalender '+esc(o.rekon.jamCalendar)+' (selisih '+esc(o.rekon.selisih)+')</div>'+
+      Object.keys(nama).map(k=> L[k] ? '<div style="margin-top:6px"><a href="'+esc(L[k])+'" target="_blank" rel="noopener">'+nama[k]+'</a></div>' : '').join("") : '<div class="empty">Belum pernah generate.</div>';
+  }catch(e){ showErr("err-tna-output", e.message); }
+}
+$("btn-tna-simpan-param").onclick = async ()=>{
+  clearErr("err-tna-param");
+  const p = {}; PARAM_ADM.forEach(k=> p[k] = $("adm-"+k).value.trim());
+  if(Math.abs(Number(p.BobotAtasan)+Number(p.BobotSelf)-1) > 0.001){ showErr("err-tna-param","Bobot atasan + self harus = 1."); return; }
+  if(isNaN(new Date(p.WindowBuka)) || isNaN(new Date(p.WindowTutup))){ showErr("err-tna-param","Format tanggal window tidak valid."); return; }
+  try{ await tnaApi("tnaSetParameter", { parameter: p }); alert("Parameter tersimpan."); }catch(e){ showErr("err-tna-param", e.message); }
+};
+$("btn-tna-approve-sel").onclick = async ()=>{
+  clearErr("err-tna-approve");
+  const kode = Array.from(document.querySelectorAll(".chk-jab:checked")).map(c=>c.value);
+  if(!kode.length){ showErr("err-tna-approve","Pilih minimal satu jabatan."); return; }
+  if(!confirm("Setujui "+kode.length+" matriks jabatan? Setelah disetujui, form asesmen jabatan tersebut terbuka.")) return;
+  try{ await tnaApi("tnaApproveMatriks", { kodeList: kode }); muatAdminTNA(); }catch(e){ showErr("err-tna-approve", e.message); }
+};
+$("btn-tna-generate").onclick = async ()=>{
+  clearErr("err-tna-output");
+  if(!confirm("Generate Gap, ITP, Training Plan, Matrix, dan Calendar sekarang? Proses bisa 1 sampai 3 menit.")) return;
+  $("btn-tna-generate").disabled = true; $("tna-adm-output").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung dan menyusun 5 dokumen&hellip;</div>';
+  try{ const r = await tnaApi("tnaGenerateOutput"); alert("Selesai: "+r.hasil.itp+" baris ITP, "+r.hasil.batch+" batch, "+r.hasil.belumDinilai+" kompetensi belum dinilai."); }
+  catch(e){ showErr("err-tna-output", e.message); }
+  $("btn-tna-generate").disabled = false; muatAdminTNA();
+};
+$("btn-tna-studio").onclick = ()=>{
+  if(state.role==="admin"){ $("admin-nama").textContent = state.nama + " · L&D Admin"; show("scr-admin"); muatDaftarPilihan(""); }
+  else { $("atasan-nama").textContent = state.nama + " · Atasan"; show("scr-atasan"); loadTim(); }
+};
+$("btn-tna-logout").onclick = ()=>{ tna.pin = ""; state = { nik:"", nama:"", role:"", jabatan:"" }; $("inp-pin").value=""; show("scr-login"); };
+
+/* ---------- Ganti PIN (dipakai karyawan baru sebelum TNA) ---------- */
+$("btn-ganti-pin").onclick = async ()=>{
+  clearErr("err-ganti-pin");
+  const a = $("inp-pin-baru").value.trim(), b = $("inp-pin-baru2").value.trim();
+  if(!/^[0-9]{4}$/.test(a)){ showErr("err-ganti-pin","PIN baru harus tepat 4 angka."); return; }
+  if(a!==b){ showErr("err-ganti-pin","Kedua PIN tidak sama."); return; }
+  $("btn-ganti-pin").disabled = true;
+  try{
+    const r = await api("gantiPin", { nik: state.nik, pinLama: tna.pin, pinBaru: a });
+    tna.pin = a;
+    state = { nik: state.nik, nama: r.nama, role: r.role, jabatan: r.jabatan||"" };
+    $("inp-pin-baru").value = ""; $("inp-pin-baru2").value = "";
+    await masukTNA(r);
+  }catch(e){ showErr("err-ganti-pin", e.message); }
+  $("btn-ganti-pin").disabled = false;
+};
 </script>
 </body>
 </html>

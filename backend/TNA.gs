@@ -289,8 +289,12 @@ function tnaForm(ss, req) {
 
   // Jawaban sebelumnya (supaya bisa dilanjutkan / direvisi selama window dibuka)
   var prev = {};
+  var lihatDelegasi = req.lihatDelegasi === true && !req.kelompokId;
+  if (lihatDelegasi && peran !== "ATASAN" && auth.role !== "admin") return { ok: false, error: "Hanya penilai utama yang dapat meninjau isian delegasi." };
   tnaBaca(ss, "Asesmen").forEach(function (a) {
-    if (a.Periode !== p.Periode || String(a.RaterNIK) !== auth.nik) return;
+    if (a.Periode !== p.Periode) return;
+    if (lihatDelegasi) { if (a.Rater !== "DELEGASI" || a.Status !== "MENUNGGU_APPROVAL") return; }
+    else if (String(a.RaterNIK) !== auth.nik) return;
     if (req.kelompokId ? a.KelompokID !== req.kelompokId : String(a.NIK) !== target.nik) return;
     prev[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan };
   });
