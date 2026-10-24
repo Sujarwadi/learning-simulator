@@ -24,3 +24,8 @@
 ## Tab TNA_Riwayat (v1.1)
 Isi `NIK, KodeTraining, Tanggal, Sumber` untuk training Wajib yang SUDAH lulus (mis. Step 1, MSA 1, Brevet).
 Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk orang itu. Kosong = semua Wajib dijadwalkan.
+
+## Validasi Head unit (v1.3)
+- Kolom `ValidatorNIK` di tab Karyawan menentukan siapa yang memvalidasi (Kacab di cabang, Dept Head di HO). Kosong = Admin L&D.
+- Status validasi tersimpan di tab `TNA_Validasi`. Jangan diedit manual kecuali koreksi darurat.
+- Hasil yang belum divalidasi tetap masuk output dengan `StatusValidasi = BELUM VALIDASI`.

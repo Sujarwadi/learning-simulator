@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.3, 24 Okt 2026
+**Versi dokumen:** 1.4, 25 Okt 2026
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -156,6 +156,13 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR10.7 Durasi:** AFA 2 jam, AIDW 3 jam, BST/IST/AST masing-masing 12 jam (2 hari).
 - **FR10.8 Sales Leadership Framework & Kacab Academy:** 11 kompetensi SL-01..SL-11 + LD-03/LD-04 dengan required level per tahap jalur Sales Operation (Trainee, Junior, Senior, Supervisor, Branch Head, NOH), menggantikan LD-01/LD-02 generik di jabatan jalur tersebut. Baseline TNA 2027 dipakai untuk Kacab Academy (Track A Kacab existing, Track B SPV future talent). Readiness SPV = proporsi kompetensi dengan Actual >= Required Branch Head.
 
+### M11 — Hasil Live & Validasi Head Unit (v1.4)
+- **FR11.1 Hasil langsung:** begitu penilai (atasan) submit, sistem menghitung gap dan rekomendasi 70/20/10 orang itu saat itu juga (`tnaHasil`) dan menampilkannya ke penilai. Rumus dan mesin rekomendasinya sama dengan generate output, jadi hasil live = output akhir (kecuali saran mentor, yang ikut bertambah seiring data masuk).
+- **FR11.2 Validator = Head unit** (`Karyawan.ValidatorNIK`): cabang → Kepala Cabang, HO → Dept Head (tier Manager ke atas). Dihitung naik dari penilai ke Head pertama; bila penilainya sendiri Head, validasi naik ke atasan penilai. Bila rantai habis (mis. bawahan langsung CEO) → Admin L&D.
+- **FR11.3 Aksi validator** (`tnaValidasi`): **Setujui** (boleh sekaligus mengedit 70/20 dan memilih/menghapus training 10 per kompetensi; editan dipakai di output dan ditandai `DiubahValidator`), atau **Kembalikan** ke penilai dengan catatan wajib (rating atasan berstatus `DIKEMBALIKAN`, tidak dihitung sampai penilai mengirim ulang; hanya saat window dibuka). **Setujui massal** (`tnaValidasiMassal`) untuk hasil tanpa flag validitas dan tanpa gap Major.
+- **FR11.4 Status** per target di `TNA_Validasi`: `MENUNGGU_VALIDASI` → `DISETUJUI` / `DIKEMBALIKAN`. Rating atasan baru/revisi atau penilai kedua → kembali `MENUNGGU_VALIDASI`. Self-rating yang masuk setelah disetujui → `MENUNGGU_VALIDASI` dengan catatan tinjau ulang. Karyawan melihat hasilnya sendiri setelah `DISETUJUI`.
+- **FR11.5 Batas waktu:** hasil yang belum divalidasi per 3 Nov 23:59 tetap masuk output dengan `StatusValidasi = BELUM VALIDASI` (kolom di Gap, Rekomendasi, ITP). Validasi tetap bisa dilakukan sesudahnya lalu output di-generate ulang.
+
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
 Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
@@ -173,6 +180,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | `KatalogTraining` | KodeTraining | Judul, FileDrive, Kompetensi, LevelTarget, Metode, DurasiJam, Status |
 | ✚`TrainingMandatory` | KodeJabatan+KodeTraining | Dasar (korporat/JD/regulasi/prinsipal) |
 | ✚`Riwayat` | NIK+KodeTraining | Tanggal, Sumber (training yang sudah lulus) |
+| ✚`Validasi` | Periode+Target | Target (NIK / K:KelompokID), PenilaiNIK, ValidatorNIK, Status, Catatan, Edit (JSON), Ringkasan |
 | ✚`Rekomendasi` | NIK+KodeKompetensi+Tipe | Tipe(70/20/10), Deskripsi, KodeTraining/MentorNIK |
 | ✚`ITP` | NIK+KodeTraining | Kategori(W/D/P), Bulan, BatchID, Jam, Status |
 | ✚`Batch` | BatchID | KodeTraining, Bulan, Tanggal, Wilayah, Kapasitas, Peserta |

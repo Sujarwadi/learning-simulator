@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.2, 24 Okt 2026. Perubahan: hasil gap & rekomendasi 70/20/10 langsung tampil setelah penilai submit; validasi Head unit (setujui, edit rekomendasi, kembalikan ke penilai, setujui massal yang tanpa flag); status validasi & catatan revisi di daftar tim; rekap validasi di progres. -->
 <!-- BBLC Studio v3.1, 24 Okt 2026. Perubahan: pesan khusus untuk jabatan yang dikecualikan dari asesmen TNA 2027 (C-level) di beranda TNA. -->
 <!-- BBLC Studio v3.0, 24 Okt 2026. Perubahan: modul TNA 2027 untuk seluruh karyawan (beranda tugas asesmen, form checklist L2-L5 skor Guttman dengan draft lokal, penilaian kelompok sales, delegasi Leader Mekanik + approval, progres, ITP, matriks jabatan, panel admin parameter/approve/generate output) dan ganti PIN langsung di Studio. Fitur Studio lama tetap tersedia lewat menu. -->
 <!-- BBLC Studio v2.6, 22 Jul 2026. Perubahan: menangani respons login wajibGantiPin (backend v3.5) - Studio tidak punya layar ganti PIN sendiri, jadi jika PIN belum pernah diganti dari default, tampilkan pesan yang mengarahkan ke Learning Simulator untuk ganti PIN dulu, alih-alih lanjut dengan data undefined. -->
@@ -295,6 +296,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
       <div class="card" id="tna-window-card" style="padding:14px 18px"></div>
       <div id="tna-home-loading"><div class="loading"><div class="spinner"></div>Memuat tugas asesmen Anda&hellip;</div></div>
       <div id="tna-home-body" style="display:none">
+        <div id="tna-validasi-wrap"></div>
         <div id="tna-approval-wrap"></div>
         <div id="tna-self-wrap"></div>
         <div id="tna-tim-wrap"></div>
@@ -354,6 +356,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap"><div id="tna-itp-body"></div></div>
+  </section>
+
+  <!-- ============ TNA 2027: HASIL & VALIDASI ============ -->
+  <section class="screen" id="scr-tna-hasil">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div style="min-width:0"><div class="app-title" id="tna-hasil-judul">HASIL &amp; REKOMENDASI</div><div class="app-sub" id="tna-hasil-sub">-</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:960px"><div id="tna-hasil-body"></div></div>
   </section>
 
   <!-- ============ TNA 2027: MATRIKS JABATAN ============ -->
@@ -836,7 +848,15 @@ function simpanDraft(){ try{ localStorage.setItem(draftKey(), JSON.stringify(tna
 function bacaDraft(){ try{ return JSON.parse(localStorage.getItem(draftKey())||"null"); }catch(e){ return null; } }
 function hapusDraft(){ try{ localStorage.removeItem(draftKey()); }catch(e){} }
 function fmtTgl(d){ try{ return new Date(d).toLocaleString("id-ID",{ day:"numeric", month:"short", hour:"2-digit", minute:"2-digit", timeZone:"Asia/Makassar" })+" WITA"; }catch(e){ return String(d); } }
-function badgeStatus(st){
+function badgeValidasi(v){
+  if(v==="DISETUJUI") return '<span class="badge badge-green">Divalidasi</span>';
+  if(v==="MENUNGGU_VALIDASI") return '<span class="badge badge-amber">Menunggu validasi</span>';
+  if(v==="DIKEMBALIKAN") return '<span class="badge badge-red">Dikembalikan</span>';
+  return "";
+}
+function badgeStatus(st, val){
+  if(st==="DIKEMBALIKAN" || val==="DIKEMBALIKAN") return '<span class="badge badge-red">Perlu revisi</span>';
+  if(st==="FINAL" && val) return badgeValidasi(val);
   if(st==="FINAL") return '<span class="badge badge-green">Selesai</span>';
   if(st==="MENUNGGU_APPROVAL") return '<span class="badge badge-amber">Menunggu approval</span>';
   return '<span class="badge badge-grey">Belum</span>';
@@ -863,6 +883,18 @@ async function muatBerandaTNA(){
       ? '<b style="color:var(--green)">Window asesmen DIBUKA</b> sampai <b>'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban bisa direvisi selama window masih dibuka.'
       : (w==="BELUM_DIBUKA" ? '<b style="color:var(--amber)">Window asesmen belum dibuka.</b> Dibuka '+esc(fmtTgl(r.windowBuka))+'.'
         : '<b style="color:var(--red)">Window asesmen sudah DITUTUP.</b> Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.');
+    // Validasi Head unit
+    const val = r.validasi || [];
+    const menunggu = val.filter(v=>v.status==="MENUNGGU_VALIDASI");
+    const bersih = menunggu.filter(v=> v.ringkasan && !v.ringkasan.flag && !v.ringkasan.major);
+    $("tna-validasi-wrap").innerHTML = val.length ? '<h2 class="sect">Validasi Hasil Tim ('+menunggu.length+' menunggu)</h2>'+
+      '<div class="hint" style="margin:-6px 0 10px">Tinjau gap &amp; rekomendasi hasil penilaian, lalu setujui, edit, atau kembalikan ke penilai.</div>'+
+      (bersih.length ? '<button class="btn btn-ghost" id="btn-val-massal" style="margin-bottom:10px">Setujui '+bersih.length+' hasil tanpa flag &amp; tanpa gap Major</button>' : '')+
+      '<div class="card">'+val.map(v=>{
+        const rg = v.ringkasan||{};
+        const info = (rg.major?'Major '+rg.major+' · ':'')+(rg.moderate?'Moderate '+rg.moderate+' · ':'')+(rg.flag?'<b style="color:var(--red)">Flag '+rg.flag+'</b> · ':'')+'Penilai: '+esc(v.penilai||"-");
+        return '<div class="team-item" data-val="'+esc(v.kunci)+'"><div class="team-avatar">'+esc((v.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(v.nama)+'</div><div class="team-jabatan">'+esc(v.jabatan||"")+' · '+esc(v.cabang||"")+'<br>'+info+'</div></div>'+badgeValidasi(v.status)+'</div>';
+      }).join("")+'</div>' : "";
     // Approval delegasi
     $("tna-approval-wrap").innerHTML = r.menungguApproval.length ? '<h2 class="sect">Perlu Persetujuan Anda</h2><div class="card">'+
       r.menungguApproval.map(m=>'<div class="team-item" style="cursor:default"><div class="team-avatar">'+esc(m.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(m.nama)+'</div><div class="team-jabatan">Diisi oleh '+esc(m.olehNama)+'</div></div>'+
@@ -879,7 +911,8 @@ async function muatBerandaTNA(){
       '<div id="tna-tim-list">'+tim.map(t=>itemOrang(t)).join("")+'</div>' : "";
     const kel = r.kelompok;
     $("tna-kelompok-wrap").innerHTML = kel.length ? '<h2 class="sect">Penilaian per Kelompok Level</h2>'+
-      kel.map(g=>'<div class="team-item" data-kel="'+esc(g.kelompokId)+'"><div class="team-avatar">'+g.anggota+'</div><div class="team-info"><div class="team-name">'+esc(g.jabatan)+'</div><div class="team-jabatan">'+esc(g.cabang)+' · '+g.anggota+' orang</div></div>'+badgeStatus(g.status)+'</div>').join("") : "";
+      kel.map(g=>'<div class="team-item" data-kel="'+esc(g.kelompokId)+'"><div class="team-avatar">'+g.anggota+'</div><div class="team-info"><div class="team-name">'+esc(g.jabatan)+'</div><div class="team-jabatan">'+esc(g.cabang)+' · '+g.anggota+' orang'+(g.catatanValidasi?'<br><b style="color:var(--red)">Catatan validator:</b> '+esc(g.catatanValidasi):'')+'</div></div>'+badgeStatus(g.status, g.validasi)+
+        (g.status==="FINAL"||g.validasi ? '<button class="btn btn-ghost" style="width:auto;padding:6px 10px;margin-left:6px" data-hasil-kel="'+esc(g.kelompokId)+'">Hasil</button>' : '')+'</div>').join("") : "";
     const del = r.delegasi;
     $("tna-delegasi-wrap").innerHTML = del.length ? '<h2 class="sect">Bantu Nilai (Delegasi)</h2><div class="hint" style="margin:-6px 0 10px">Hasil isian Anda baru berlaku setelah disetujui penilai utama.</div>'+del.map(t=>itemOrang(t)).join("") : "";
     if(!tim.length && !kel.length && !del.length && r.selfStatus==="TIDAK_PERLU" && !r.menungguApproval.length && r.terdaftar){
@@ -890,6 +923,14 @@ async function muatBerandaTNA(){
     document.querySelectorAll("[data-nik]").forEach(el=> el.onclick = ()=> bukaFormTNA({ target: el.dataset.nik }));
     document.querySelectorAll("[data-kel]").forEach(el=> el.onclick = ()=> bukaFormTNA({ kelompokId: el.dataset.kel }));
     document.querySelectorAll("[data-lihat]").forEach(el=> el.onclick = ()=> tinjauDelegasi(el.dataset.lihat));
+    document.querySelectorAll("[data-hasil]").forEach(el=> el.onclick = (e)=>{ e.stopPropagation(); bukaHasil({ target: el.dataset.hasil }); });
+    document.querySelectorAll("[data-hasil-kel]").forEach(el=> el.onclick = (e)=>{ e.stopPropagation(); bukaHasil({ kelompokId: el.dataset.hasilKel }); });
+    document.querySelectorAll("[data-val]").forEach(el=> el.onclick = ()=>{ const k = el.dataset.val; bukaHasil(k.indexOf("K:")===0 ? { kelompokId: k.substring(2) } : { target: k }); });
+    if($("btn-val-massal")) $("btn-val-massal").onclick = async ()=>{
+      if(!confirm("Setujui "+bersih.length+" hasil tanpa flag & tanpa gap Major? Hasil lain tetap perlu ditinjau satu per satu.")) return;
+      try{ const x = await tnaApi("tnaValidasiMassal", { targets: bersih.map(v=>v.kunci) }); alert(x.disetujui+" hasil disetujui."); }catch(e){ alert(e.message); }
+      muatBerandaTNA();
+    };
     if($("inp-cari-tim")) $("inp-cari-tim").oninput = ()=>{
       const q = $("inp-cari-tim").value.toLowerCase();
       document.querySelectorAll("#tna-tim-list .team-item").forEach(el=>{ el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none"; });
@@ -900,7 +941,10 @@ async function muatBerandaTNA(){
   $("tna-home-loading").style.display = "none"; $("tna-home-body").style.display = "block";
 }
 function itemOrang(t){
-  return '<div class="team-item" data-nik="'+esc(t.nik)+'"><div class="team-avatar">'+esc((t.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(t.jabatan)+' · '+esc(t.cabang)+(t.peran==="ATASAN2"?' · penilai kedua':'')+'</div></div>'+badgeStatus(t.status)+'</div>';
+  const adaHasil = (t.peran==="ATASAN"||t.peran==="ATASAN2") && (t.status==="FINAL" || t.validasi);
+  return '<div class="team-item" data-nik="'+esc(t.nik)+'"><div class="team-avatar">'+esc((t.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(t.jabatan)+' · '+esc(t.cabang)+(t.peran==="ATASAN2"?' · penilai kedua':'')+
+    (t.catatanValidasi?'<br><b style="color:var(--red)">Catatan validator:</b> '+esc(t.catatanValidasi):'')+'</div></div>'+badgeStatus(t.status, t.peran==="DELEGASI"?"":t.validasi)+
+    (adaHasil ? '<button class="btn btn-ghost" style="width:auto;padding:6px 10px;margin-left:6px" data-hasil="'+esc(t.nik)+'">Hasil</button>' : '')+'</div>';
 }
 
 /* ---------- Form asesmen: checklist perilaku L2..L5, skor Guttman ---------- */
@@ -922,6 +966,8 @@ async function bukaFormTNA(sasaran, mode){
     $("tna-form-sub").textContent = r.judul;
     $("tna-form-petunjuk").innerHTML = (sasaran.kelompokId ? '<b>Nilai kemampuan umum kelompok ini</b> (rata-rata anggota: '+esc((r.target.anggota||[]).slice(0,6).join(", "))+((r.target.anggota||[]).length>6?", dst":"")+'). ' : '')+
       'Centang perilaku yang <b>benar-benar '+(self?'Anda lakukan':'teramati')+' secara konsisten dalam 3 sampai 6 bulan terakhir</b>, mulai dari Level 2 ke atas. Level dihitung otomatis. Jika tidak bisa dinilai, pilih N/A dan isi alasannya.';
+    const kt = tna.konteks || {}, cari = sasaran.kelompokId ? (kt.kelompok||[]).find(g=>g.kelompokId===sasaran.kelompokId) : (kt.tugas||[]).find(t=>t.nik===sasaran.target);
+    if(cari && cari.catatanValidasi) $("tna-form-petunjuk").innerHTML = '<div class="err show" style="margin-bottom:8px"><b>Dikembalikan validator:</b> '+esc(cari.catatanValidasi)+'</div>' + $("tna-form-petunjuk").innerHTML;
     renderFormTNA();
     if(tnaFormMode==="tinjau"){
       document.querySelectorAll("#tna-form-list input").forEach(el=> el.disabled = true);
@@ -1006,8 +1052,8 @@ $("btn-tna-submit").onclick = async ()=>{
   try{
     const res = await tnaApi("tnaSubmit", Object.assign({ jawaban: kirim }, r.sasaran));
     hapusDraft();
-    alert(res.status==="MENUNGGU_APPROVAL" ? "Terkirim. Menunggu persetujuan penilai utama." : "Penilaian tersimpan. Terima kasih!");
-    show("scr-tna-home"); muatBerandaTNA();
+    if(res.lihatHasil){ bukaHasil(r.sasaran.kelompokId ? { kelompokId: r.sasaran.kelompokId } : { target: r.sasaran.target }, true); }
+    else { alert(res.status==="MENUNGGU_APPROVAL" ? "Terkirim. Menunggu persetujuan penilai utama." : "Penilaian tersimpan. Terima kasih!"); show("scr-tna-home"); muatBerandaTNA(); }
   }catch(e){ showErr("err-tna-form", e.message); }
   $("btn-tna-submit").disabled = false;
 };
@@ -1034,12 +1080,80 @@ $("btn-tna-progres").onclick = async ()=>{
     $("tna-progres-sub").textContent = r.selesai+" dari "+r.total+" karyawan sudah dinilai ("+r.persen+"%)";
     const pp = Object.keys(r.perPenilai).map(n=>[n, r.perPenilai[n]]).sort((a,b)=>b[1]-a[1]);
     $("tna-progres-body").innerHTML =
-      '<div class="card"><div style="font-size:32px;font-weight:800;color:var(--navy)">'+r.persen+'%</div><div class="hint">'+r.selesai+' / '+r.total+' karyawan sudah punya penilaian atasan final</div></div>'+
+      '<div class="card"><div style="font-size:32px;font-weight:800;color:var(--navy)">'+r.persen+'%</div><div class="hint">'+r.selesai+' / '+r.total+' karyawan sudah punya penilaian atasan final</div>'+
+        (r.validasi ? '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+badgeValidasi("DISETUJUI")+' '+r.validasi.DISETUJUI+' &nbsp; '+badgeValidasi("MENUNGGU_VALIDASI")+' '+r.validasi.MENUNGGU_VALIDASI+' &nbsp; '+badgeValidasi("DIKEMBALIKAN")+' '+r.validasi.DIKEMBALIKAN+'</div>' : '')+'</div>'+
       '<h2 class="sect">Per Cabang / Unit</h2><div class="card" style="overflow-x:auto"><table><tr><th>Unit</th><th>Selesai</th><th>%</th><th>Self-rating</th></tr>'+
       r.units.map(u=>'<tr><td>'+esc(u.unit)+'</td><td>'+u.selesai+'/'+u.total+'</td><td><span class="badge '+(u.persen>=90?"badge-green":(u.persen>=50?"badge-amber":"badge-red"))+'">'+u.persen+'%</span></td><td>'+u.self+'/'+u.perluSelf+'</td></tr>').join("")+'</table></div>'+
       (pp.length ? '<h2 class="sect">Penilai yang Belum Selesai</h2><div class="card" style="overflow-x:auto"><table><tr><th>Penilai</th><th>Sisa</th></tr>'+pp.map(x=>'<tr><td>'+esc(x[0]||"(belum ada penilai)")+'</td><td>'+x[1]+'</td></tr>').join("")+'</table></div>' : '');
   }catch(e){ $("tna-progres-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 };
+
+/* ---------- Hasil live & validasi Head unit ---------- */
+async function bukaHasil(sasaran, baruSubmit){
+  show("scr-tna-hasil");
+  $("tna-hasil-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung gap &amp; rekomendasi&hellip;</div>';
+  try{
+    const r = await tnaApi("tnaHasil", sasaran);
+    tna.hasil = Object.assign({ sasaran }, r);
+    renderHasil(baruSubmit);
+  }catch(e){ $("tna-hasil-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+}
+function renderHasil(baruSubmit){
+  const r = tna.hasil, v = r.validasi || {}, bisa = r.bisaValidasi;
+  $("tna-hasil-judul").textContent = bisa ? "VALIDASI HASIL" : "HASIL & REKOMENDASI";
+  $("tna-hasil-sub").textContent = r.nama + (r.kelompok ? "" : " · " + r.jabatan);
+  const gapCls = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
+  const statusTxt = v.status==="DISETUJUI" ? 'Sudah divalidasi oleh <b>'+esc(v.oleh)+'</b>.' :
+    (v.status==="DIKEMBALIKAN" ? 'Dikembalikan ke penilai: <b>'+esc(v.catatan||"")+'</b>' : 'Menunggu validasi oleh <b>'+esc(r.validatorNama)+'</b>.');
+  const banner = '<div class="card" style="padding:14px 18px">'+(baruSubmit?'<div style="color:var(--green);font-weight:700;margin-bottom:6px">Penilaian tersimpan. Berikut hasil gap &amp; rekomendasinya.</div>':'')+
+    badgeValidasi(v.status||"MENUNGGU_VALIDASI")+' <span style="font-size:13px">'+statusTxt+'</span>'+(v.status==="DISETUJUI"&&v.catatan?'<div class="hint">Catatan: '+esc(v.catatan)+'</div>':'')+'</div>';
+  if(!r.dinilai){ $("tna-hasil-body").innerHTML = banner + '<div class="card"><div class="empty">Belum ada penilaian atasan yang final untuk dihitung.</div></div>'; return; }
+  const gap = '<h2 class="sect">Gap Kompetensi</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
+    r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'<div class="hint" style="margin:0">'+esc(g.Kategori)+(g.Flag?' · <b style="color:var(--red)">'+esc(g.Flag)+'</b>':'')+'</div></td><td>'+esc(g.Required)+'</td><td><b>'+esc(g.Actual===""?"-":g.Actual)+'</b><div class="hint" style="margin:0;white-space:nowrap">A '+esc(g.SkorAtasan===""?"-":g.SkorAtasan)+' · S '+esc(g.SkorSelf===""?"-":g.SkorSelf)+'</div></td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+(Number(g.Gap)>0?' '+esc(g.Gap):'')+'</span></td></tr>').join("")+'</table>'+
+    '<div class="hint">Aktual = '+'70% atasan (A) + 30% self (S); tanpa self = nilai atasan.</div></div>';
+  const wajib = r.wajib.length ? '<h2 class="sect">Training Wajib 2027</h2><div class="card">'+r.wajib.map(w=>'<div class="idp-line">• '+esc(w.judul)+' <span class="hint">('+esc(w.jam||"-")+' jam · '+esc(w.dasar)+')</span></div>').join("")+'</div>' : '';
+  const rek = r.rekomendasi.length ? '<h2 class="sect">Rekomendasi 70/20/10'+(bisa?' (bisa Anda edit)':'')+'</h2>'+r.rekomendasi.map((x,i)=>{
+    const e = (r.edit||{})[x.KodeKompetensi] || {}, ops = r.opsiTraining[x.KodeKompetensi] || [];
+    if(!bisa) return '<div class="idp-card"><div class="idp-comp">'+esc(x.Kompetensi)+' <span class="badge badge-amber">gap '+esc(x.Gap)+'</span></div>'+
+      '<div class="idp-line"><b>70 Penugasan:</b> '+esc(x.R70_Penugasan)+'</div><div class="idp-line"><b>20 Sosial:</b> '+esc(x.R20_Sosial)+'</div><div class="idp-line"><b>10 Training:</b> '+esc(x.R10_Training)+'</div>'+(x.DiubahValidator?'<div class="hint">Diubah validator</div>':'')+'</div>';
+    return '<div class="idp-card" data-rek="'+i+'"><div class="idp-comp">'+esc(x.Kompetensi)+' <span class="badge badge-amber">gap '+esc(x.Gap)+'</span></div>'+
+      '<label>70 Penugasan</label><textarea class="rek-70" rows="2">'+esc(e.r70||x.R70_Penugasan)+'</textarea>'+
+      '<label>20 Sosial (coaching / mentoring)</label><textarea class="rek-20" rows="2">'+esc(e.r20||x.R20_Sosial)+'</textarea>'+
+      '<label>10 Training</label><select class="rek-10"><option value="">Sesuai sistem: '+esc(x.R10_Training)+'</option>'+
+      ops.map(o=>'<option value="'+esc(o.kode)+'"'+(e.r10===o.kode?' selected':'')+'>'+esc(o.kode+" "+o.judul)+' (target L'+esc(o.level)+')</option>').join("")+
+      '<option value="TANPA"'+(e.r10==="TANPA"?' selected':'')+'>Tidak perlu training formal</option></select></div>';
+  }).join("") : '<div class="card"><div class="empty">Tidak ada gap. Semua kompetensi sudah memenuhi syarat.</div></div>';
+  const aksiVal = bisa ? '<div class="card"><label>Catatan validasi (wajib bila dikembalikan)</label><textarea id="inp-val-catatan" rows="2" placeholder="Contoh: rating Product Knowledge terlalu tinggi, mohon cek ulang"></textarea>'+
+    '<div class="err" id="err-tna-val"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">'+
+    '<button class="btn btn-primary" id="btn-val-setujui">Setujui</button><button class="btn btn-ghost" id="btn-val-kembali">Kembalikan ke Penilai</button></div></div>' : '';
+  const revisi = (!bisa && r.window==="DIBUKA" && v.status!=="DISETUJUI") ? '<button class="btn btn-ghost" id="btn-hasil-revisi" style="margin:6px 0 30px">Revisi penilaian</button>' : '';
+  $("tna-hasil-body").innerHTML = banner + gap + wajib + rek + aksiVal + revisi;
+  if($("btn-hasil-revisi")) $("btn-hasil-revisi").onclick = ()=> bukaFormTNA(r.sasaran);
+  if(bisa){
+    $("btn-val-setujui").onclick = ()=> kirimValidasi("SETUJUI");
+    $("btn-val-kembali").onclick = ()=> kirimValidasi("KEMBALIKAN");
+  }
+}
+async function kirimValidasi(aksi){
+  clearErr("err-tna-val");
+  const r = tna.hasil, catatan = $("inp-val-catatan").value.trim();
+  if(aksi==="KEMBALIKAN" && !catatan){ showErr("err-tna-val","Tulis catatan untuk penilai: bagian mana yang perlu direvisi."); return; }
+  const edit = {};
+  document.querySelectorAll("[data-rek]").forEach(el=>{
+    const x = r.rekomendasi[+el.dataset.rek], o = {};
+    const v70 = el.querySelector(".rek-70").value.trim(), v20 = el.querySelector(".rek-20").value.trim(), v10 = el.querySelector(".rek-10").value;
+    if(v70 && v70!==x.R70_Penugasan) o.r70 = v70;
+    if(v20 && v20!==x.R20_Sosial) o.r20 = v20;
+    if(v10) o.r10 = v10;
+    if(Object.keys(o).length) edit[x.KodeKompetensi] = o;
+  });
+  if(aksi==="KEMBALIKAN" && !confirm("Kembalikan ke penilai untuk direvisi? Penilaiannya tidak dihitung sampai dikirim ulang.")) return;
+  try{
+    await tnaApi("tnaValidasi", Object.assign({ aksi, catatan, edit }, r.sasaran));
+    alert(aksi==="SETUJUI" ? "Hasil disetujui." : "Dikembalikan ke penilai.");
+    show("scr-tna-home"); muatBerandaTNA();
+  }catch(e){ showErr("err-tna-val", e.message); }
+}
 
 /* ---------- ITP & hasil ---------- */
 $("btn-tna-itp").onclick = ()=> bukaITP(state.nik);
