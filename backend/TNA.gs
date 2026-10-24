@@ -1,9 +1,11 @@
-/* BBLC TNA Engine v1.0, 24 Okt 2026. Modul TNA 2027 (PRD docs/PRD_TNA_Engine_2027.md).
+/* BBLC TNA Engine v1.1, 24 Okt 2026. Perubahan: tab TNA_Riwayat (training Wajib yang sudah lulus tidak dijadwalkan ulang),
+ * rekomendasi 70 memprioritaskan task JD jabatan, lalu Intervensi, lalu teks umum.
+ * BBLC TNA Engine v1.0, 24 Okt 2026. Modul TNA 2027 (PRD docs/PRD_TNA_Engine_2027.md).
  * File TERPISAH dari Kode.gs: semua tab memakai prefiks TNA_ sehingga fitur Simulator dan Studio
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.0";
+var TNA_VERSION = "1.1";
 
 /* ============================================================
  * SKEMA TAB
@@ -21,6 +23,7 @@ var TNA_TAB = {
   Intervensi: ["KodeKompetensi", "Tipe", "Deskripsi"],
   Katalog: ["KodeTraining", "Judul", "Kategori", "KodeKompetensi", "LevelTarget", "Metode", "DurasiJam", "SumberFile", "Link", "Status"],
   Mandatory: ["KodeJabatan", "KodeTraining", "Dasar"],
+  Riwayat: ["NIK", "KodeTraining", "Tanggal", "Sumber"],
   Asesmen: ["Periode", "NIK", "KelompokID", "KodeKompetensi", "Rater", "RaterNIK", "Checks", "Level", "NA", "Alasan", "Status", "Timestamp"],
   Gap: ["Periode", "NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "JobTitle", "KodeKompetensi", "Kompetensi", "Kategori",
     "Required", "Bobot", "SkorAtasan", "SkorSelf", "Actual", "Gap", "Prioritas", "KategoriGap", "Flag"],
@@ -592,6 +595,7 @@ function tnaBangunOutput(ss) {
   var intervensi = {}; tnaBaca(ss, "Intervensi").forEach(function (i) { ((intervensi[i.KodeKompetensi] = intervensi[i.KodeKompetensi] || {})[String(i.Tipe)] = i.Deskripsi); });
   var taskMap = {}; tnaBaca(ss, "Task").forEach(function (t) { var key = t.KodeJabatan + "|" + t.KodeKompetensi; (taskMap[key] = taskMap[key] || []).push(t.Task); });
   var mandatory = tnaBaca(ss, "Mandatory");
+  var lulus = {}; tnaBaca(ss, "Riwayat").forEach(function (r) { lulus[String(r.NIK) + "|" + r.KodeTraining] = true; });
 
   // Indeks calon mentor per kompetensi: actual tinggi
   var mentor = {};
@@ -607,7 +611,8 @@ function tnaBangunOutput(ss) {
   Object.keys(km).forEach(function (nik) {
     var k = km[nik];
     mandatory.forEach(function (m) {
-      if (m.KodeJabatan === "*" || m.KodeJabatan === k.KodeJabatan) if (katByKode[m.KodeTraining]) tambahTraining(nik, m.KodeTraining, "Wajib", "", 99);
+      if (m.KodeJabatan !== "*" && m.KodeJabatan !== k.KodeJabatan) return;
+      if (katByKode[m.KodeTraining] && !lulus[nik + "|" + m.KodeTraining]) tambahTraining(nik, m.KodeTraining, "Wajib", "", 99);
     });
   });
   var gapPerOrang = {};
@@ -618,8 +623,8 @@ function tnaBangunOutput(ss) {
     var nD = 0, k = km[nik];
     list.forEach(function (g) {
       var tasks = taskMap[g.KodeJabatan + "|" + g.KodeKompetensi] || [];
-      var r70 = (intervensi[g.KodeKompetensi] || {})["70"] ||
-        (tasks.length ? "Penugasan terstruktur 3 bulan pada tugas: " + tasks.slice(0, 2).join("; ") : "Penugasan terstruktur pada tugas yang memakai kompetensi ini, dipantau atasan.");
+      var r70 = tasks.length ? "Penugasan terstruktur 3 bulan pada tugas: " + tasks.slice(0, 2).join("; ") + ", dipantau atasan." :
+        ((intervensi[g.KodeKompetensi] || {})["70"] || "Penugasan terstruktur pada tugas yang memakai kompetensi ini, dipantau atasan.");
       var cand = (mentor[g.KodeKompetensi] || []).filter(function (m) { return m.NIK !== nik && Number(m.Actual) >= Math.min(5, Number(g.Required) + 1); })
         .sort(function (a, b) { return (a.Cabang === g.Cabang ? 0 : 1) - (b.Cabang === g.Cabang ? 0 : 1) || Number(b.Actual) - Number(a.Actual); });
       var r20 = "Coaching bulanan oleh " + ((km[k.PenilaiNIK] || {}).Nama || "atasan langsung") +
@@ -685,6 +690,29 @@ function tnaBangunOutput(ss) {
 
   // ---------- Batch & kalender ----------
   var kap = Number(p.KapasitasKelas), tahun = Number(p.TahunITP);
+  // Konsolidasi kelas tatap muka: peserta satu training di satu wilayah dikumpulkan ke sesedikit mungkin
+  // bulan (ceil(n / kapasitas)) di dalam jendela kategorinya, supaya kalender tidak pecah jadi kelas kecil.
+  var kelas = {};
+  itp.forEach(function (r, idx) {
+    var c = katByKode[r.KodeTraining] || {};
+    if (/e-?learning|online|daring/i.test(String(c.Metode || ""))) return;
+    var kk = r.KodeTraining + "|" + r.Wilayah; (kelas[kk] = kelas[kk] || []).push(idx);
+  });
+  Object.keys(kelas).forEach(function (kk) {
+    var idxs = kelas[kk];
+    var adaWajib = idxs.some(function (i) { return itp[i].Kategori === "Wajib"; });
+    var win = jendela(adaWajib ? "Wajib" : itp[idxs[0]].Kategori, itp[idxs[0]].KodeTraining);
+    var hit = {}; idxs.forEach(function (i) { hit[itp[i].Bulan] = (hit[itp[i].Bulan] || 0) + 1; });
+    var bulan = win.slice().sort(function (a, b) { return (hit[b] || 0) - (hit[a] || 0) || orgLoad[a] - orgLoad[b] || a - b; })
+      .slice(0, Math.ceil(idxs.length / kap));
+    var isi = {}; bulan.forEach(function (m) { isi[m] = 0; });
+    var sisa = [];
+    idxs.forEach(function (i) { var m = itp[i].Bulan; if (isi[m] !== undefined && isi[m] < kap) isi[m]++; else sisa.push(i); });
+    sisa.forEach(function (i) {
+      var m = bulan.filter(function (x) { return isi[x] < kap; }).sort(function (a, b) { return isi[a] - isi[b]; })[0];
+      isi[m]++; itp[i].Bulan = m;
+    });
+  });
   var grup = {};
   itp.forEach(function (r, idx) {
     var c = katByKode[r.KodeTraining] || {};
@@ -907,12 +935,20 @@ function tnaSetup() {
 // memakai header yang sama dengan TNA_TAB. Tab yang tidak ada di file import dilewati.
 // Users: NIK baru ditambahkan (PIN acak, wajib ganti PIN), kolom Atasan NIK (G) diisi dari PenilaiNIK
 // hanya bila masih kosong. Tidak ada baris Users yang dihapus.
+// Jalankan dari editor (tombol Run tidak bisa mengirim argumen): isi ID Google Sheet import di baris berikut.
+// ID ada di URL: docs.google.com/spreadsheets/d/<ID>/edit. ID tidak di-commit ke repo.
+function tnaImportPaket() {
+  var ID_FILE_IMPORT = "ISI_ID_FILE_IMPORT";
+  if (ID_FILE_IMPORT === "ISI_ID_FILE_IMPORT") throw new Error("Isi dulu ID_FILE_IMPORT di fungsi tnaImportPaket.");
+  return tnaImport(ID_FILE_IMPORT);
+}
+
 function tnaImport(fileIdImport) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   tnaSetup();
   var src = SpreadsheetApp.openById(fileIdImport);
   var lapor = [];
-  ["Karyawan", "MasterJabatan", "Kamus", "Checklist", "Matriks", "Task", "Intervensi", "Katalog", "Mandatory"].forEach(function (nama) {
+  ["Karyawan", "MasterJabatan", "Kamus", "Checklist", "Matriks", "Task", "Intervensi", "Katalog", "Mandatory", "Riwayat"].forEach(function (nama) {
     var s = src.getSheetByName(nama);
     if (!s) { lapor.push(nama + ": dilewati (tidak ada)"); return; }
     var v = s.getDataRange().getValues(), h = v[0].map(String);

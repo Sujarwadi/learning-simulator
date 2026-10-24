@@ -11,5 +11,16 @@
    default: out = String(req.action || "").indexOf("tna") === 0 ? handleTNA(req) : { ok: false, error: "Aksi tidak dikenal." };
    ```
 3. Jalankan `tnaSetup` sekali dari editor.
-4. Jalankan `tnaImport("<ID file TNA2027_Import>")` sekali.
-5. **Deploy → Kelola deployment → ✏️ → Versi: Versi baru → Deploy.**
+4. Import paket data:
+   - Upload `TNA2027_Import.xlsx` ke Google Drive (akun yang sama dengan pemilik Apps Script).
+   - Buka filenya, lalu **File → Simpan sebagai Google Spreadsheet**. Salin ID dari URL file baru (`/d/<ID>/edit`).
+   - Di `TNA.gs` fungsi `tnaImportPaket`, ganti `ISI_ID_FILE_IMPORT` dengan ID tadi. Pilih `tnaImportPaket` di dropdown, klik **Jalankan**.
+   - Cek **Log eksekusi**: harus muncul jumlah baris per tab dan "Users: ... Atasan NIK diisi".
+   - Jangan commit ID file tersebut ke repo.
+5. Buka Studio sebagai Admin → Panel Admin TNA → centang "Pilih semua" → **Setujui Jabatan Terpilih**.
+6. Jalankan `tnaJadwalkanOutput` sekali (generate otomatis 5 menit setelah window tutup).
+7. **Deploy → Kelola deployment → ✏️ → Versi: Versi baru → Deploy.**
+
+## Tab TNA_Riwayat (v1.1)
+Isi `NIK, KodeTraining, Tanggal, Sumber` untuk training Wajib yang SUDAH lulus (mis. Step 1, MSA 1, Brevet).
+Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk orang itu. Kosong = semua Wajib dijadwalkan.

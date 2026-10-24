@@ -1,8 +1,8 @@
 # PRD — BBLC TNA Engine 2027
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
-**Pemilik:** Sujarwadi, Training Department Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.1, 24 Okt 2026
+**Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
+**Versi dokumen:** 1.2, 24 Okt 2026
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -123,6 +123,7 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
   - **20 Social**: coaching oleh atasan, mentoring/shadowing oleh incumbent lain dengan `Actual ≥ Required + 1` pada kompetensi yang sama (lintas cabang boleh).
   - **10 Formal**: training dari katalog dengan kompetensi sama dan `LevelTarget ≥ Actual + 1`. Bila tidak ada → tandai `GAP KATALOG` (masukan untuk pengembangan modul baru).
 - **FR7.2** **ITP** per orang: daftar training (Wajib + Dianjurkan + Pengayaan), kategori, kompetensi yang ditutup, bulan rencana (Jan–Des 2027), durasi, status (`PLANNED` → `SCHEDULED` → `DONE` / `CANCELLED`).
+- **FR7.2a** Training Wajib yang sudah lulus (tab `Riwayat`: NIK, KodeTraining, Tanggal, Sumber) tidak dijadwalkan ulang.
 - **FR7.3** Prioritas penjadwalan: Wajib → Dianjurkan (urut Prioritas tertinggi) → Pengayaan (pengisi target jam, status `OPSIONAL`).
 
 ### M8 — Proyeksi Jam, Training Matrix, Kalender & Ekspor
@@ -131,7 +132,7 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
   - *Projected proficiency* akhir 2027 per orang per kompetensi: `Actual + Σ kontribusi intervensi` (default: training Dianjurkan +0,5 level, coaching terstruktur +0,5, penugasan +0,5, maks = Required + 1). Koefisien bisa diubah Admin di tab `Parameter`.
   - *Projected readiness* % = proporsi kompetensi wajib yang diproyeksikan ≥ Required pada Des 2027.
   - *Proyeksi pencapaian jam* L&D per bulan vs target, termasuk kapasitas kelas (lihat FR8.3).
-- **FR8.3** **Training Calendar 2027**: sistem membentuk *batch* per training (kapasitas default 20 peserta/kelas, bisa per training), mengelompokkan peserta per wilayah, dan menyebar batch per bulan agar beban jam per bulan merata (±20% dari rata-rata), Wajib di Q1 (Anti Fraud Awareness & AI for Daily Work: Q1 untuk semua karyawan). Admin bisa geser manual; ITP ikut ter-update.
+- **FR8.3** **Training Calendar 2027**: sistem membentuk *batch* per training (kapasitas default 20 peserta/kelas, bisa per training), mengelompokkan peserta per wilayah, dan menyebar batch per bulan agar beban jam per bulan merata (±20% dari rata-rata), Wajib di Q1 (Anti Fraud Awareness & AI for Daily Work: Q1 untuk semua karyawan). Kelas tatap muka dikonsolidasi: peserta satu training di satu wilayah dikumpulkan ke `ceil(n/kapasitas)` bulan di dalam jendela kategorinya. Wilayah = provinsi cabang. Admin bisa geser manual; ITP ikut ter-update.
 - **FR8.4** **Ekspor 5 dokumen** (Excel format BBM, disimpan ke Drive, link di dashboard):
   1. **Gap Competency Report**: per orang × kompetensi (Required, Atasan, Self, Actual, Gap, Prioritas, Flag), plus ringkasan per jabatan/dept.
   2. **Training Matrix**: jabatan × training (W/D/P) dan orang × training.
@@ -161,6 +162,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | ✚`Gap` | Periode+NIK+KodeKompetensi | Required, Atasan, Self, Actual, Gap, Prioritas, Flag |
 | `KatalogTraining` | KodeTraining | Judul, FileDrive, Kompetensi, LevelTarget, Metode, DurasiJam, Status |
 | ✚`TrainingMandatory` | KodeJabatan+KodeTraining | Dasar (korporat/JD/regulasi/prinsipal) |
+| ✚`Riwayat` | NIK+KodeTraining | Tanggal, Sumber (training yang sudah lulus) |
 | ✚`Rekomendasi` | NIK+KodeKompetensi+Tipe | Tipe(70/20/10), Deskripsi, KodeTraining/MentorNIK |
 | ✚`ITP` | NIK+KodeTraining | Kategori(W/D/P), Bulan, BatchID, Jam, Status |
 | ✚`Batch` | BatchID | KodeTraining, Bulan, Tanggal, Wilayah, Kapasitas, Peserta |
