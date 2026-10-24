@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.1, 24 Okt 2026. Perubahan: pesan khusus untuk jabatan yang dikecualikan dari asesmen TNA 2027 (C-level) di beranda TNA. -->
 <!-- BBLC Studio v3.0, 24 Okt 2026. Perubahan: modul TNA 2027 untuk seluruh karyawan (beranda tugas asesmen, form checklist L2-L5 skor Guttman dengan draft lokal, penilaian kelompok sales, delegasi Leader Mekanik + approval, progres, ITP, matriks jabatan, panel admin parameter/approve/generate output) dan ganti PIN langsung di Studio. Fitur Studio lama tetap tersedia lewat menu. -->
 <!-- BBLC Studio v2.6, 22 Jul 2026. Perubahan: menangani respons login wajibGantiPin (backend v3.5) - Studio tidak punya layar ganti PIN sendiri, jadi jika PIN belum pernah diganti dari default, tampilkan pesan yang mengarahkan ke Learning Simulator untuk ganti PIN dulu, alih-alih lanjut dengan data undefined. -->
 <!-- BBLC Studio v2.5, 22 Jul 2026. Perubahan: Admin kini bisa membuka Tampilan Atasan (tombol di Panel Admin) untuk testing/pengawasan, sejalan dengan backend v3.4 yang menentukan status atasan secara dinamis dari kolom Atasan NIK, bukan dari nilai Role yang di-hardcode. -->
@@ -867,7 +868,8 @@ async function muatBerandaTNA(){
       r.menungguApproval.map(m=>'<div class="team-item" style="cursor:default"><div class="team-avatar">'+esc(m.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(m.nama)+'</div><div class="team-jabatan">Diisi oleh '+esc(m.olehNama)+'</div></div>'+
         '<button class="btn btn-ghost" style="width:auto;padding:8px 12px" data-lihat="'+esc(m.nik)+'">Tinjau</button></div>').join("")+'</div>' : "";
     // Self
-    $("tna-self-wrap").innerHTML = r.selfStatus==="TIDAK_PERLU" ? (r.terdaftar ? '' : '<div class="card"><div class="empty">Akun Anda belum terdaftar di TNA 2027. Hubungi L&amp;D.</div></div>')
+    $("tna-self-wrap").innerHTML = r.selfStatus==="DIKECUALIKAN" ? '<div class="card"><div class="empty">Jabatan Anda tidak termasuk asesmen TNA 2027 (pengembangan diatur khusus). Silakan selesaikan penilaian tim Anda di bawah.</div></div>'
+      : r.selfStatus==="TIDAK_PERLU" ? (r.terdaftar ? '' : '<div class="card"><div class="empty">Akun Anda belum terdaftar di TNA 2027. Hubungi L&amp;D.</div></div>')
       : '<h2 class="sect">Penilaian Diri (Self-Assessment)</h2><div class="team-item" id="btn-self"><div class="team-avatar">'+esc(state.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">Nilai diri saya</div><div class="team-jabatan">'+esc(r.jabatan)+'</div></div>'+badgeStatus(r.selfStatus)+'</div>';
     // Tim
     const tim = r.tugas;

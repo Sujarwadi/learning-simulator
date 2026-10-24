@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.2, 24 Okt 2026
+**Versi dokumen:** 1.3, 24 Okt 2026
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -146,6 +146,16 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR9.3** Reminder WhatsApp ke penilai yang belum selesai (pakai kode Fonnte yang sudah ada, bila diaktifkan).
 - **FR9.4** Tombol "Generate Output" (Admin) + trigger otomatis setelah `WindowTutup`.
 
+### M10 — Keputusan 24 Okt 2026 (v1.3)
+- **FR10.1 Garis lapor:** penilai mengikuti atasan langsung di JD bila jabatan atasan itu ada (tunggal) di cabang yang sama; bila tidak, pakai aturan lama. Konfirmasi spesifik user sebelumnya (Bone, Jayapura, daftar terlampir) tetap berlaku.
+- **FR10.2 C-level dikecualikan:** CEO, COO, CFO berstatus `ModeAsesmen = DIKECUALIKAN`. Mereka tidak dinilai, tidak masuk Gap/ITP (pengembangan by request ke institusi luar), tetapi tetap menilai timnya.
+- **FR10.3 Fokus 2027 = Technical & Leadership:** parameter `KategoriDianjurkan = Technical,Leadership`. Gap Behavioral tetap dilaporkan dan mendapat rekomendasi 70/20, tetapi tidak dijadwalkan training Dianjurkan.
+- **FR10.4 Behavioral catch-up:** modul Behavioral 2026 (CBxx-Ly) menjadi **Wajib 2027 hanya bagi yang belum hadir**. Sumbernya master data training 2026 (STATUS KEHADIRAN). Karyawan yang tidak terplot di 2026 mendapat modul default jabatannya (modul yang diplot ke >= 50% incumbent). Wajib per orang disimpan sebagai `Mandatory.KodeJabatan = "NIK:<nik>"`.
+- **FR10.5 Riwayat:** training yang sudah lulus (master data 2025 COMPLETE + 2026 HADIR) tidak dijadwalkan ulang, baik Wajib maupun Dianjurkan. Sertifikasi APM (Step/FSA/MSA) hanya dihitung dari pelatihan resmi, bukan IHT. Sesi behavioral yang masih terjadwal Nov–Des 2026 dicatat `TERJADWAL_2026`; pada Januari 2027 baris peserta yang ternyata tidak hadir dihapus, lalu output di-generate ulang.
+- **FR10.6 Lokasi kelas:** kelas tatap muka dibentuk **per cabang**; kelas online digabung lintas cabang.
+- **FR10.7 Durasi:** AFA 2 jam, AIDW 3 jam, BST/IST/AST masing-masing 12 jam (2 hari).
+- **FR10.8 Sales Leadership Framework & Kacab Academy:** 11 kompetensi SL-01..SL-11 + LD-03/LD-04 dengan required level per tahap jalur Sales Operation (Trainee, Junior, Senior, Supervisor, Branch Head, NOH), menggantikan LD-01/LD-02 generik di jabatan jalur tersebut. Baseline TNA 2027 dipakai untuk Kacab Academy (Track A Kacab existing, Track B SPV future talent). Readiness SPV = proporsi kompetensi dengan Actual >= Required Branch Head.
+
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
 Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
@@ -207,5 +217,6 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 ## 11. Keputusan yang Masih Terbuka
 1. JD belum ada untuk: IT (3 jabatan, 8 orang), Training Supervisor, Personal Assistant. Jalan keluar sementara: matriks disusun dari JD jabatan serupa + input user, ditandai `TANPA JD`.
 2. Training **Wajib** tambahan per jabatan di luar syarat JD & 2 training korporat (regulasi/prinsipal), bila ada.
-3. Nama folder modul training di Google Drive.
-4. Durasi standar (jam) Anti Fraud Awareness & AI for Daily Work.
+3. ~~Nama folder modul training~~ → "Kurikulum & Modul" (dipakai di Katalog).
+4. ~~Durasi AFA & AIDW~~ → 2 jam & 3 jam (FR10.7).
+5. Durasi modul internal lain (CB-xx dari median 2026, SA & CS Master Class, dll) perlu dicek L&D di tab Katalog.
