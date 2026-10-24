@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Training Department Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.0, 24 Okt 2026
+**Versi dokumen:** 1.1, 24 Okt 2026
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -75,6 +75,8 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 ### M2 — JD → Task → Kompetensi
 - **FR2.1** Baca file JD per jabatan dari folder Drive `JOB PROFILE` (PDF/DOCX/Google Doc). Pencocokan file ↔ jabatan otomatis (by nama), dikonfirmasi Admin.
 - **FR2.2** AI memecah setiap tanggung jawab JD menjadi **unit tugas terkecil** (kata kerja + objek + standar), disimpan di `TaskBreakdown` dengan referensi baris JD sumber.
+- **FR2.2a** **Jangkar JD:** daftar kompetensi Behavioral/Teknikal yang sudah tertulis di bagian "KOMPETENSI" pada JD menjadi kandidat awal. AI memvalidasi silang dengan task: kompetensi di JD yang tidak didukung task mana pun diberi flag `TIDAK DIDUKUNG TASK` (contoh: Mekanik mencantumkan "Leading and Motivation"), dan task tanpa kompetensi di JD memunculkan usulan kompetensi baru. Keputusan akhir ada di Admin/Dept Head.
+- **FR2.2b** Bagian "PERSYARATAN JABATAN → pelatihan" pada JD (contoh: M-Step 1 & 2, House Keeping) otomatis diusulkan masuk `TrainingMandatory` jabatan tsb.
 - **FR2.3** AI mengelompokkan task ke kompetensi. Setiap task wajib terpetakan ke ≥1 kompetensi; kompetensi tanpa task ditolak (kecuali Behavioral/Leadership inti perusahaan).
 - **FR2.4** Kompetensi diklasifikasikan **Behavioral (B) / Technical (T) / Leadership (L)**. L hanya untuk jabatan dengan bawahan (dideteksi dari `AtasanNIK`).
 - **FR2.5** **Reuse kamus:** sebelum membuat kompetensi baru, AI wajib mencocokkan ke `KamusKompetensi` yang ada (semantic match). Kompetensi B & L memakai kamus korporat bersama agar konsisten lintas jabatan.
@@ -92,6 +94,9 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 
 ### M5 — Asesmen & Gap Engine
 - **FR5.1** Penilai melihat daftar timnya (dari `AtasanNIK`) dan progres (belum/sebagian/selesai).
+- **FR5.1a** **Mode asesmen per KELOMPOK** untuk Sales Force & Sales Consultant (157 orang, 61 kelompok = cabang × level Junior/Senior/Counter). Kepala Cabang menilai satu form per kelompok; hasilnya diwariskan ke setiap anggota sebagai skor Atasan. Self-rating tidak dipakai untuk mode kelompok. Training Wajib tetap individual.
+- **FR5.1b** **Delegasi penilai:** penilai utama (contoh: ASS Head) boleh mendelegasikan pengisian ke Leader Mekanik di cabangnya. Hasil delegasi berstatus `MENUNGGU APPROVAL` sampai penilai utama menyetujui. Yang dihitung hanya rating yang sudah disetujui.
+- **FR5.1c** **Penilai ganda:** Kepala Cabang dinilai dua NOH (MMKSI & KTB). Skor Atasan = rata-rata kedua rater. Bila hanya satu yang mengisi, dipakai satu nilai itu dengan flag `RATER TUNGGAL`.
 - **FR5.2** Form asesmen: satu layar per orang, skala 1–5 dengan BI level yang tampil saat dipilih; opsi "Tidak dapat dinilai (N/A)" wajib disertai alasan.
 - **FR5.3** Self-rating oleh karyawan dengan form yang sama.
 - **FR5.4** **Skor aktual** per kompetensi:
@@ -108,28 +113,28 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR6.2** AI membaca isi modul (judul, tujuan, outline) lalu mengisi: `KodeTraining`, `Judul`, `Kompetensi` (map ke kamus), `LevelTarget` (1–5), `Metode` (Classroom/E-learning/Simulator/OJT-terstruktur), `DurasiJam`, `Penyelenggara`.
 - **FR6.3** Admin mereview & mengoreksi hasil tagging sebelum dipakai (status `TAGGED_AI` → `VERIFIED`).
 - **FR6.4** **Klasifikasi** per jabatan:
-  - **Mandatory**: wajib untuk jabatan tsb tanpa melihat gap (onboarding, regulasi, sertifikasi prinsipal/Mitsubishi, K3). Ditentukan oleh tabel `TrainingMandatory` (jabatan × training), dikelola Admin.
-  - **Development**: menutup gap Moderate/Major pada kompetensi yang dipetakan.
-  - **Additional**: menutup gap Minor, atau pengembangan di atas required level untuk karyawan yang sudah kompeten.
+  - **Wajib (Mandatory)**: harus diikuti, tidak bisa ditawar, tanpa melihat gap. Sumbernya: (a) **Training wajib korporat untuk SEMUA karyawan: _Anti Fraud Awareness_ dan _AI for Daily Work_**; (b) syarat pelatihan di JD; (c) regulasi, sertifikasi prinsipal, K3. Dikelola di tabel `TrainingMandatory`.
+  - **Dianjurkan (Recommended)**: sangat disarankan untuk menutup gap pada kompetensi jabatan (semua besaran gap). Prioritasnya mengikuti `Gap × Bobot`. Boleh ditunda ke periode berikutnya, alasannya dicatat.
+  - **Pengayaan (Enrichment)**: *nice to have*, untuk menambah wawasan. Tidak terkait langsung dengan kompetensi jabatan (contoh: Financial Literacy). Tidak ditentukan dari gap. Ditawarkan sebagai pilihan dan dipakai sistem untuk mengisi kekurangan jam bila ITP seseorang di bawah target 3 jam/bulan.
 
 ### M7 — Rekomendasi 70/20/10 & ITP 2027
 - **FR7.1** Per gap > 0, sistem membuat 3 rekomendasi:
   - **70 Experiential**: penugasan/stretch assignment diturunkan dari task di `TaskBreakdown` yang terkait kompetensi tsb.
   - **20 Social**: coaching oleh atasan, mentoring/shadowing oleh incumbent lain dengan `Actual ≥ Required + 1` pada kompetensi yang sama (lintas cabang boleh).
   - **10 Formal**: training dari katalog dengan kompetensi sama dan `LevelTarget ≥ Actual + 1`. Bila tidak ada → tandai `GAP KATALOG` (masukan untuk pengembangan modul baru).
-- **FR7.2** **ITP** per orang: daftar training (Mandatory + Development + Additional), kategori, kompetensi yang ditutup, bulan rencana (Jan–Des 2027), durasi, status (`PLANNED` → `SCHEDULED` → `DONE` / `CANCELLED`).
-- **FR7.3** Prioritas penjadwalan: Mandatory → Development (urut Prioritas tertinggi) → Additional.
+- **FR7.2** **ITP** per orang: daftar training (Wajib + Dianjurkan + Pengayaan), kategori, kompetensi yang ditutup, bulan rencana (Jan–Des 2027), durasi, status (`PLANNED` → `SCHEDULED` → `DONE` / `CANCELLED`).
+- **FR7.3** Prioritas penjadwalan: Wajib → Dianjurkan (urut Prioritas tertinggi) → Pengayaan (pengisi target jam, status `OPSIONAL`).
 
 ### M8 — Proyeksi Jam, Training Matrix, Kalender & Ekspor
 - **FR8.1** **Proyeksi jam belajar** per orang, per bulan & tahun = Σ durasi training ITP + jam coaching terstruktur yang direncanakan. Ditampilkan vs target 3 jam/orang/bulan, agregat per cabang/dept/BBM. Flag: `UNDER` (<80% target), `ON TARGET`, `OVER` (>150%).
 - **FR8.2** **Fungsi prediktif/proyektif:**
-  - *Projected proficiency* akhir 2027 per orang per kompetensi: `Actual + Σ kontribusi intervensi` (default: training Development +0,5 level, coaching terstruktur +0,5, penugasan +0,5, maks = Required + 1). Koefisien bisa diubah Admin di tab `Parameter`.
+  - *Projected proficiency* akhir 2027 per orang per kompetensi: `Actual + Σ kontribusi intervensi` (default: training Dianjurkan +0,5 level, coaching terstruktur +0,5, penugasan +0,5, maks = Required + 1). Koefisien bisa diubah Admin di tab `Parameter`.
   - *Projected readiness* % = proporsi kompetensi wajib yang diproyeksikan ≥ Required pada Des 2027.
   - *Proyeksi pencapaian jam* L&D per bulan vs target, termasuk kapasitas kelas (lihat FR8.3).
-- **FR8.3** **Training Calendar 2027**: sistem membentuk *batch* per training (kapasitas default 20 peserta/kelas, bisa per training), mengelompokkan peserta per wilayah, dan menyebar batch per bulan agar beban jam per bulan merata (±20% dari rata-rata), Mandatory di Q1. Admin bisa geser manual; ITP ikut ter-update.
+- **FR8.3** **Training Calendar 2027**: sistem membentuk *batch* per training (kapasitas default 20 peserta/kelas, bisa per training), mengelompokkan peserta per wilayah, dan menyebar batch per bulan agar beban jam per bulan merata (±20% dari rata-rata), Wajib di Q1 (Anti Fraud Awareness & AI for Daily Work: Q1 untuk semua karyawan). Admin bisa geser manual; ITP ikut ter-update.
 - **FR8.4** **Ekspor 5 dokumen** (Excel format BBM, disimpan ke Drive, link di dashboard):
   1. **Gap Competency Report**: per orang × kompetensi (Required, Atasan, Self, Actual, Gap, Prioritas, Flag), plus ringkasan per jabatan/dept.
-  2. **Training Matrix**: jabatan × training (M/D/A) dan orang × training.
+  2. **Training Matrix**: jabatan × training (W/D/P) dan orang × training.
   3. **Training Plan 2027**: daftar training, jumlah peserta, batch, jam total, bulan.
   4. **Training Calendar 2027**: tampilan bulanan per batch (tanggal, lokasi, peserta).
   5. **ITP**: satu sheet ringkas per orang + sheet gabungan.
@@ -155,9 +160,9 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | ✚`Asesmen` | Periode+NIK+KodeKompetensi+Rater | Rating, Rater(ATASAN/SELF), RaterNIK, Alasan N/A, Timestamp |
 | ✚`Gap` | Periode+NIK+KodeKompetensi | Required, Atasan, Self, Actual, Gap, Prioritas, Flag |
 | `KatalogTraining` | KodeTraining | Judul, FileDrive, Kompetensi, LevelTarget, Metode, DurasiJam, Status |
-| ✚`TrainingMandatory` | KodeJabatan+KodeTraining | Dasar (regulasi/prinsipal/onboarding) |
+| ✚`TrainingMandatory` | KodeJabatan+KodeTraining | Dasar (korporat/JD/regulasi/prinsipal) |
 | ✚`Rekomendasi` | NIK+KodeKompetensi+Tipe | Tipe(70/20/10), Deskripsi, KodeTraining/MentorNIK |
-| ✚`ITP` | NIK+KodeTraining | Kategori(M/D/A), Bulan, BatchID, Jam, Status |
+| ✚`ITP` | NIK+KodeTraining | Kategori(W/D/P), Bulan, BatchID, Jam, Status |
 | ✚`Batch` | BatchID | KodeTraining, Bulan, Tanggal, Wilayah, Kapasitas, Peserta |
 | ✚`Parameter` | Key | WindowBuka/Tutup, BobotAtasan, Target jam, Kapasitas, Koefisien proyeksi |
 | ✚`AuditLog` | Timestamp | User, Aksi, Sebelum, Sesudah |
@@ -174,7 +179,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 
 ## 8. Asumsi
 1. 807 karyawan di sheet MPS per 15 Okt 2026 = populasi TNA. Sales di daftar BAMS yang tidak ada di MPS **tidak** diikutkan.
-2. Penilai = atasan langsung (`AtasanNIK`); untuk sales force diambil dari data BAMS.
+2. Penilai = atasan langsung (`AtasanNIK`) sesuai file `Master_Karyawan_TNA_2027_CLEAN.xlsx` yang sudah dikonfirmasi user (24 Okt). Sales diases per kelompok oleh Kepala Cabang.
 3. Target 3 jam/orang/bulan menghitung training formal + coaching terstruktur. Penugasan (70) tidak dihitung jam.
 4. Periode ITP: Jan–Des 2027.
 
@@ -198,7 +203,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | Struktur atasan di data tidak akurat | Orang salah dinilai / tidak muncul | Validasi import + sheet `Perlu_Konfirmasi` diselesaikan sebelum pilot |
 
 ## 11. Keputusan yang Masih Terbuka
-1. Branch Head dinilai NOH (MMKSI & KTB): dinilai berdua (rata-rata) atau dibagi per cabang? Default: berdua. Konsekuensinya, `Asesmen` mendukung >1 rater atasan, dan skor atasan = rata-rata rater atasan.
-2. Penilai untuk TM & OD Specialist dan Instructor (HO HC & GA).
-3. Daftar training **Mandatory** per jabatan (sumber: regulasi/prinsipal), siapa yang memberikan.
-4. Nama folder modul training di Google Drive.
+1. JD belum ada untuk: IT (3 jabatan, 8 orang), Training Supervisor, Personal Assistant. Jalan keluar sementara: matriks disusun dari JD jabatan serupa + input user, ditandai `TANPA JD`.
+2. Training **Wajib** tambahan per jabatan di luar syarat JD & 2 training korporat (regulasi/prinsipal), bila ada.
+3. Nama folder modul training di Google Drive.
+4. Durasi standar (jam) Anti Fraud Awareness & AI for Daily Work.
