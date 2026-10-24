@@ -198,7 +198,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | Struktur atasan di data tidak akurat | Orang salah dinilai / tidak muncul | Validasi import + sheet `Perlu_Konfirmasi` diselesaikan sebelum pilot |
 
 ## 11. Keputusan yang Masih Terbuka
-1. Atasan Branch Head: National Operation 1 Head (MMKSI) atau 2 Head (KTB), per cabang mana?
-2. Penilai level kepala di cabang SOPPENG (tidak ada Branch Head di data).
+1. Branch Head dinilai NOH (MMKSI & KTB): dinilai berdua (rata-rata) atau dibagi per cabang? Default: berdua. Konsekuensinya, `Asesmen` mendukung >1 rater atasan, dan skor atasan = rata-rata rater atasan.
+2. Penilai untuk TM & OD Specialist dan Instructor (HO HC & GA).
 3. Daftar training **Mandatory** per jabatan (sumber: regulasi/prinsipal), siapa yang memberikan.
 4. Nama folder modul training di Google Drive.
