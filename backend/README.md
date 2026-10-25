@@ -5,6 +5,7 @@
   Semua tab yang dipakai berawalan `TNA_`, jadi tab lama tidak tersentuh.
 
 ## Pemasangan TNA.gs
+0. **Wajib (sejak v1.6): perbarui `appsscript.json`** dengan isi file `backend/appsscript.json` di repo (menambah scope `script.scriptapp` untuk jadwal otomatis output & pengingat). Di editor: ⚙️ Setelan project → centang "Tampilkan file manifes appsscript.json" → tempel. Lalu jalankan fungsi apa saja sekali dan setujui izin baru (pakai jendela Incognito dengan satu akun).
 1. Di editor Apps Script, klik **+** (File) → **Skrip**, beri nama `TNA`, lalu tempel isi `TNA.gs`.
 2. Di `Kode.gs`, fungsi `doPost`, ganti baris `default:` menjadi:
    ```js
@@ -18,7 +19,7 @@
    - Cek **Log eksekusi**: harus muncul jumlah baris per tab dan "Users: ... Atasan NIK diisi".
    - Jangan commit ID file tersebut ke repo.
 5. Buka Studio sebagai Admin → Panel Admin TNA → centang "Pilih semua" → **Setujui Jabatan Terpilih**.
-6. Jalankan `tnaJadwalkanOutput` sekali (generate otomatis 5 menit setelah window tutup).
+6. Di Panel Admin TNA, tekan **Aktifkan Jadwal Otomatis** (generate output 5 menit setelah window tutup + pengingat WA harian). Alternatif dari editor: jalankan `tnaJadwalkanOutput` dan `tnaJadwalkanPengingat`.
 7. **Deploy → Kelola deployment → ✏️ → Versi: Versi baru → Deploy.**
 
 ## Tab TNA_Riwayat (v1.1)
@@ -29,3 +30,8 @@ Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk oran
 - Kolom `ValidatorNIK` di tab Karyawan menentukan siapa yang memvalidasi (Kacab di cabang, Dept Head di HO). Kosong = Admin L&D.
 - Status validasi tersimpan di tab `TNA_Validasi`. Jangan diedit manual kecuali koreksi darurat.
 - Hasil yang belum divalidasi tetap masuk output dengan `StatusValidasi = BELUM VALIDASI`.
+
+## Pengingat WhatsApp (v1.6)
+- Memakai `kirimWA` di Kode.gs (Fonnte). Script Properties: `WA_TOKEN` (token Fonnte) dan `WA_AKTIF` = `1`.
+- Nomor diambil dari tab Users kolom H (NoHP). Panel Admin menampilkan siapa yang nomornya kosong.
+- Hari kirim diatur parameter `PengingatHari` (default `5,3,1,0` = H-5, H-3, H-1, hari terakhir) jam `PengingatJam` WITA; H+1 hanya untuk validator yang masih punya antrean.

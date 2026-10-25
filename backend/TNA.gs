@@ -1,4 +1,8 @@
-/* BBLC TNA Engine v1.5, 25 Okt 2026. Perubahan: ValidatorNIK boleh lebih dari satu (dipisah koma, mis. dua NOH; siapa pun
+/* BBLC TNA Engine v1.6, 25 Okt 2026. Perubahan (P1): mode nilai per kompetensi untuk satu tim (tnaFormTim, tnaSubmitTim),
+ * dashboard tim (tnaTim: heatmap, gap terbesar, prioritas), rencana training tim (tnaTrainingTim), draft di server (TNA_Draft),
+ * pengingat WhatsApp manual & terjadwal via kirimWA Kode.gs (tnaPengingat, tnaPengingatTerjadwal), pemantauan validator (tnaPantau),
+ * cache data statis (CacheService, dibatalkan otomatis saat tab ditulis ulang), penjadwalan trigger dari Panel Admin (tnaJadwalkan).
+ * BBLC TNA Engine v1.5, 25 Okt 2026. Perubahan: ValidatorNIK boleh lebih dari satu (dipisah koma, mis. dua NOH; siapa pun
  * boleh memvalidasi, sekali divalidasi selesai untuk semua); tnaHasil menyertakan centangan perilaku tiap penilai (bukti) dan
  * kalimat checklist-nya; tnaKonteks mengirim ringkasan tugas (todo) dan batas waktu.
  * BBLC TNA Engine v1.4, 25 Okt 2026. Perubahan: karyawan hanya melihat ITP & kalender training miliknya (gap & rekomendasi
@@ -16,7 +20,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.5";
+var TNA_VERSION = "1.6";
 
 /* ============================================================
  * SKEMA TAB
@@ -45,6 +49,7 @@ var TNA_TAB = {
   Batch: ["BatchID", "KodeTraining", "Judul", "Kategori", "Metode", "Bulan", "Minggu", "TanggalMulai", "Lokasi", "JmlPeserta", "DurasiJam", "TotalJam"],
   Proyeksi: ["NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
     "TotalJam", "TargetJam", "PersenTarget", "StatusJam", "ReadinessSaatIni", "ReadinessProyeksi"],
+  Draft: ["Periode", "RaterNIK", "Target", "Jawaban", "Timestamp"],
   Log: ["Timestamp", "NIK", "Aksi", "Detail"]
 };
 
@@ -66,7 +71,10 @@ var TNA_PARAM_DEFAULT = [
   ["JamCoachingPerGap", 1, "Jam coaching terstruktur per kompetensi gap per tahun (dihitung jam belajar)"],
   ["OutputTerakhir", "", "Diisi sistem: waktu generate output terakhir"],
   ["OutputLinks", "", "Diisi sistem: link 5 dokumen output (JSON)"],
-  ["Rekonsiliasi", "", "Diisi sistem: total jam Plan/ITP/Calendar"]
+  ["Rekonsiliasi", "", "Diisi sistem: total jam Plan/ITP/Calendar"],
+  ["UrlStudio", "https://sujarwadi.github.io/learning-simulator/kompetensi/", "Link Studio di pesan pengingat WA"],
+  ["PengingatHari", "5,3,1,0", "Pengingat WA dikirim H-n sebelum window tutup (0 = hari terakhir)"],
+  ["PengingatJam", 8, "Jam kirim pengingat WA terjadwal (WITA)"]
 ];
 
 var TNA_BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -92,6 +100,14 @@ function handleTNA(req) {
     case "tnaHasil": return tnaHasil(ss, req);
     case "tnaValidasi": return tnaValidasi(ss, req);
     case "tnaValidasiMassal": return tnaValidasiMassal(ss, req);
+    case "tnaSimpanDraft": return tnaSimpanDraft(ss, req);
+    case "tnaFormTim": return tnaFormTim(ss, req);
+    case "tnaSubmitTim": return tnaSubmitTim(ss, req);
+    case "tnaTim": return tnaTim(ss, req);
+    case "tnaTrainingTim": return tnaTrainingTim(ss, req);
+    case "tnaPantau": return tnaPantau(ss, req);
+    case "tnaPengingat": return tnaPengingat(ss, req);
+    case "tnaJadwalkan": return tnaJadwalkanEndpoint(ss, req);
     default: return { ok: false, error: "Aksi TNA tidak dikenal." };
   }
 }
@@ -112,7 +128,43 @@ function tnaSheet(ss, nama) {
 }
 
 // Membaca tab sebagai array objek berdasarkan header baris 1.
+// Tab statis (berubah hanya saat import/approve) disimpan di CacheService 6 jam supaya layar hasil & validasi cepat.
+var TNA_CACHE_TAB = { Karyawan: 1, Kamus: 1, Checklist: 1, Matriks: 1, Task: 1, Intervensi: 1, Katalog: 1, Mandatory: 1, Riwayat: 1 };
+function tnaCacheVer() {
+  if (typeof PropertiesService === "undefined") return "0";
+  return PropertiesService.getScriptProperties().getProperty("TNA_CACHE_VER") || "0";
+}
+function tnaCacheBatal(nama) {
+  if (!TNA_CACHE_TAB[nama] || typeof PropertiesService === "undefined") return;
+  PropertiesService.getScriptProperties().setProperty("TNA_CACHE_VER", String(new Date().getTime()));
+}
 function tnaBaca(ss, nama) {
+  if (TNA_CACHE_TAB[nama] && typeof CacheService !== "undefined") {
+    var c = CacheService.getScriptCache(), key = "tna|" + nama + "|" + tnaCacheVer();
+    try {
+      var meta = c.get(key);
+      if (meta) {
+        var n = Number(meta), keys = [];
+        for (var i = 0; i < n; i++) keys.push(key + "|" + i);
+        var parts = c.getAll(keys), str = "";
+        for (var j = 0; j < n; j++) { if (parts[keys[j]] === undefined || parts[keys[j]] === null) { str = null; break; } str += parts[keys[j]]; }
+        if (str !== null) return JSON.parse(str);
+      }
+    } catch (e) { /* cache rusak: baca dari sheet */ }
+    var rows = tnaBacaSheet(ss, nama);
+    try {
+      var s = JSON.stringify(rows), CH = 90000, obj = {}, m = Math.ceil(s.length / CH);
+      if (m <= 40) {
+        for (var k = 0; k < m; k++) obj[key + "|" + k] = s.substring(k * CH, (k + 1) * CH);
+        obj[key] = String(m);
+        c.putAll(obj, 21600);
+      }
+    } catch (e2) { /* melebihi batas cache: tetap jalan tanpa cache */ }
+    return rows;
+  }
+  return tnaBacaSheet(ss, nama);
+}
+function tnaBacaSheet(ss, nama) {
   var sh = ss.getSheetByName("TNA_" + nama);
   if (!sh || sh.getLastRow() < 2) return [];
   var v = sh.getDataRange().getValues();
@@ -129,6 +181,7 @@ function tnaBaca(ss, nama) {
 
 // Menimpa seluruh isi tab (di bawah header) dalam satu setValues.
 function tnaTulisUlang(ss, nama, rows) {
+  tnaCacheBatal(nama);
   var sh = tnaSheet(ss, nama);
   var h = TNA_TAB[nama];
   sh.getRange(1, 1, 1, h.length).setValues([h]);
@@ -140,6 +193,7 @@ function tnaTulisUlang(ss, nama, rows) {
 
 function tnaTambah(ss, nama, rows) {
   if (!rows.length) return;
+  tnaCacheBatal(nama);
   var sh = tnaSheet(ss, nama);
   var h = TNA_TAB[nama];
   var data = rows.map(function (o) { return h.map(function (k) { return o[k] === undefined || o[k] === null ? "" : o[k]; }); });
@@ -340,7 +394,8 @@ function tnaForm(ss, req) {
     if (req.kelompokId ? a.KelompokID !== req.kelompokId : String(a.NIK) !== target.nik) return;
     prev[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan };
   });
-  return { ok: true, peran: peran, judul: judul, target: target, kompetensi: komp, jawaban: prev, window: tnaWindow(p).status };
+  var draft = lihatDelegasi ? null : (tnaDraftMilik(ss, p, auth.nik)[req.kelompokId ? "K:" + req.kelompokId : target.nik] || null);
+  return { ok: true, peran: peran, judul: judul, target: target, kompetensi: komp, jawaban: prev, draft: draft, window: tnaWindow(p).status };
 }
 
 // Checks disimpan sebagai huruf Y/N (contoh "YYNN" untuk L2..L5) supaya Sheets tidak mengubahnya jadi angka.
@@ -415,6 +470,7 @@ function tnaSubmit(ss, req) {
       sh.getRange(1, 1, simpan.length, v[0].length).setValues(simpan);
     }
     tnaTambah(ss, "Asesmen", baris);
+    tnaHapusDraft(ss, p, auth.nik, [kelompokId ? "K:" + kelompokId : nikTarget]);
     // Validasi Head unit: rating atasan baru/revisi -> MENUNGGU_VALIDASI. Self-rating sesudah disetujui -> tinjau ulang.
     var kunciV = kelompokId ? "K:" + kelompokId : nikTarget;
     var vAda = tnaPetaValidasi(ss, p)[kunciV];
@@ -764,7 +820,8 @@ function tnaHasil(ss, req) {
   var peran = req.kelompokId ? (w.PenilaiNIK === auth.nik ? "ATASAN" : null) : tnaPeranTerhadap(auth, km, w);
   var validator = tnaBolehValidasi(auth, w);
   // Karyawan yang dinilai tidak melihat gap/rekomendasi; yang ia lihat hanya ITP & kalender training (tnaITPSaya).
-  var bolehLihat = validator || peran === "ATASAN" || peran === "ATASAN2" || peran === "ADMIN";
+  var bolehLihat = validator || peran === "ATASAN" || peran === "ATASAN2" || peran === "ADMIN" ||
+    (peran !== "SELF" && tnaLingkup(auth, km, "").some(function (k) { return k.NIK === w.NIK; })); // atasan berjenjang: baca saja
   if (!bolehLihat) return { ok: false, error: peran === "SELF" ? "Yang dapat Anda lihat adalah ITP & kalender training, setelah output TNA terbit." : "Anda tidak berwenang melihat hasil ini." };
   var gapAll = tnaHitungGap(ss, p, km);
   var gapT = gapAll.filter(function (g) { return g.NIK === w.NIK; });
@@ -877,6 +934,333 @@ function tnaValidasiMassal(ss, req) {
   } finally { lock.releaseLock(); }
   tnaLog(ss, auth.nik, "validasiMassal", n + " disetujui, " + lewat + " dilewati");
   return { ok: true, disetujui: n, dilewati: lewat };
+}
+
+/* ============================================================
+ * DRAFT DI SERVER: isian yang belum dikirim tersimpan per penilai x target,
+ * sehingga bisa dilanjutkan dari perangkat lain. Dihapus otomatis saat submit.
+ * ============================================================ */
+function tnaDraftMilik(ss, p, raterNik) {
+  var m = {};
+  tnaBaca(ss, "Draft").forEach(function (d) {
+    if (d.Periode !== p.Periode || String(d.RaterNIK) !== String(raterNik)) return;
+    try { m[String(d.Target)] = { jawaban: JSON.parse(String(d.Jawaban)), waktu: d.Timestamp }; } catch (e) { /* draft rusak diabaikan */ }
+  });
+  return m;
+}
+function tnaHapusDraft(ss, p, raterNik, targets) {
+  var sh = ss.getSheetByName("TNA_Draft"); if (!sh || sh.getLastRow() < 2) return;
+  var hapus = {}; targets.forEach(function (t) { hapus[String(t)] = true; });
+  var v = sh.getDataRange().getValues(), simpan = [v[0]];
+  for (var i = 1; i < v.length; i++) if (!(v[i][0] === p.Periode && String(v[i][1]) === String(raterNik) && hapus[String(v[i][2])])) simpan.push(v[i]);
+  if (simpan.length === v.length) return;
+  sh.getRange(1, 1, v.length, v[0].length).clearContent();
+  sh.getRange(1, 1, simpan.length, v[0].length).setValues(simpan);
+}
+// req.drafts = [{ target | kelompokId, jawaban }] (satu atau banyak sekaligus, untuk mode per kompetensi)
+function tnaSimpanDraft(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
+  if (tnaWindow(p).status !== "DIBUKA" && auth.role !== "admin") return { ok: false, error: "Window asesmen sedang tidak dibuka." };
+  var list = req.drafts || [{ target: req.target, kelompokId: req.kelompokId, jawaban: req.jawaban }];
+  var baru = {};
+  for (var i = 0; i < list.length; i++) {
+    var d = list[i], key;
+    if (d.kelompokId) {
+      var w = tnaWakilTarget(km, "K:" + d.kelompokId);
+      if (!w || (w.PenilaiNIK !== auth.nik && auth.role !== "admin")) return { ok: false, error: "Anda bukan penilai kelompok ini." };
+      key = "K:" + d.kelompokId;
+    } else {
+      var t = km[String(d.target || "")];
+      if (!t || !tnaPeranTerhadap(auth, km, t)) return { ok: false, error: "Anda tidak berwenang menilai karyawan ini." };
+      key = t.NIK;
+    }
+    var js = JSON.stringify(d.jawaban || {});
+    if (js.length > 45000) return { ok: false, error: "Draft terlalu besar." };
+    baru[key] = js;
+  }
+  var lock = LockService.getScriptLock();
+  waitLockDenganRetry(lock, 15000, 3);
+  try {
+    var sh = tnaSheet(ss, "Draft"), v = sh.getDataRange().getValues(), sekarang = new Date();
+    for (var r = 1; r < v.length; r++) {
+      var k = String(v[r][2]);
+      if (v[r][0] === p.Periode && String(v[r][1]) === auth.nik && baru[k] !== undefined) { v[r][3] = baru[k]; v[r][4] = sekarang; delete baru[k]; }
+    }
+    if (v.length > 1) sh.getRange(1, 1, v.length, v[0].length).setValues(v);
+    var tambah = Object.keys(baru).map(function (k2) { return [p.Periode, auth.nik, k2, baru[k2], sekarang]; });
+    if (tambah.length) sh.getRange(sh.getLastRow() + 1, 1, tambah.length, 5).setValues(tambah);
+  } finally { lock.releaseLock(); }
+  return { ok: true, waktu: new Date() };
+}
+
+/* ============================================================
+ * MODE NILAI PER KOMPETENSI: satu jabatan, seluruh tim sekaligus.
+ * Menilai satu kompetensi untuk semua orang berturut-turut mengurangi efek halo
+ * dan membuat penilai membandingkan anggota tim secara langsung (kalibrasi alami).
+ * ============================================================ */
+function tnaAnggotaTim(auth, km) {
+  return Object.keys(km).map(function (n) { return km[n]; }).filter(function (k) {
+    if (k.ModeAsesmen === "KELOMPOK") return false;
+    var pr = tnaPeranTerhadap(auth, km, k); return pr === "ATASAN" || pr === "ATASAN2";
+  });
+}
+function tnaFormTim(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
+  var anggota = tnaAnggotaTim(auth, km);
+  var grup = {};
+  anggota.forEach(function (k) { (grup[k.KodeJabatan] = grup[k.KodeJabatan] || []).push(k); });
+  var daftar = Object.keys(grup).map(function (kj) { return { kode: kj, jobTitle: grup[kj][0].JobTitle, jabatan: grup[kj][0].Jabatan, jumlah: grup[kj].length }; })
+    .sort(function (a, b) { return b.jumlah - a.jumlah; });
+  var kode = req.kodeJabatan || (daftar[0] || {}).kode;
+  if (!kode || !grup[kode]) return { ok: true, daftar: daftar, kodeJabatan: "", kompetensi: [], orang: [], window: tnaWindow(p).status };
+  var mj = tnaBaca(ss, "MasterJabatan").filter(function (j) { return j.KodeJabatan === kode; })[0];
+  if (!mj || mj.StatusMatriks !== "APPROVED") return { ok: false, error: "Matriks kompetensi jabatan ini belum disetujui. Hubungi L&D." };
+  var prev = {}, sudah = {}, val = tnaPetaValidasi(ss, p), drafts = tnaDraftMilik(ss, p, auth.nik);
+  tnaBaca(ss, "Asesmen").forEach(function (a) {
+    if (a.Periode !== p.Periode || String(a.RaterNIK) !== auth.nik || a.KelompokID) return;
+    var n = String(a.NIK);
+    (prev[n] = prev[n] || {})[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan };
+    if (!sudah[n] || a.Status === "FINAL") sudah[n] = a.Status;
+  });
+  var orang = grup[kode].sort(function (a, b) { return String(a.Nama).localeCompare(String(b.Nama)); }).map(function (k) {
+    return { nik: k.NIK, nama: k.Nama, cabang: k.Cabang, peran: tnaPeranTerhadap(auth, km, k), status: sudah[k.NIK] || "BELUM",
+      validasi: (val[k.NIK] || {}).Status || "", jawaban: prev[k.NIK] || {}, draft: drafts[k.NIK] || null };
+  });
+  return { ok: true, daftar: daftar, kodeJabatan: kode, jobTitle: grup[kode][0].JobTitle, kompetensi: tnaKompetensiJabatan(ss, kode), orang: orang, window: tnaWindow(p).status };
+}
+// req.jawabanPer = { nik: { kodeKompetensi: {checks, na, alasan} } }. Hanya orang yang lengkap yang dikirim (dicek per orang oleh tnaSubmit).
+function tnaSubmitTim(ss, req) {
+  var hasil = [], ok = 0;
+  Object.keys(req.jawabanPer || {}).forEach(function (nik) {
+    var r = tnaSubmit(ss, { nik: req.nik, pin: req.pin, target: nik, jawaban: req.jawabanPer[nik] });
+    hasil.push({ nik: nik, ok: r.ok, error: r.error || "" }); if (r.ok) ok++;
+  });
+  return { ok: true, terkirim: ok, hasil: hasil };
+}
+
+/* ============================================================
+ * DASHBOARD TIM untuk penilai / Head unit / admin.
+ * Lingkup: semua orang di bawah rantai penilai/validator pengguna (admin: seluruh karyawan, bisa difilter cabang).
+ * ============================================================ */
+function tnaLingkup(auth, km, cabang) {
+  var semua = Object.keys(km).map(function (n) { return km[n]; });
+  if (auth.role === "admin") return semua.filter(function (k) { return !cabang || k.Cabang === cabang; });
+  var bawah = {}, ubah = true; bawah[auth.nik] = true;
+  while (ubah) {
+    ubah = false;
+    semua.forEach(function (k) {
+      if (bawah[k.NIK]) return;
+      if (bawah[k.PenilaiNIK] || bawah[k.Penilai2NIK] || tnaAdalahValidator(auth.nik, k.ValidatorNIK)) { bawah[k.NIK] = true; ubah = true; }
+    });
+  }
+  delete bawah[auth.nik];
+  return semua.filter(function (k) { return bawah[k.NIK] && (!cabang || k.Cabang === cabang); });
+}
+function tnaTim(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
+  var lingkup = tnaLingkup(auth, km, req.cabang || "");
+  if (!lingkup.length) return { ok: true, kosong: true, cabangList: [] };
+  var di = {}; lingkup.forEach(function (k) { di[k.NIK] = true; });
+  var gap = tnaHitungGap(ss, p, km).filter(function (g) { return di[g.NIK]; });
+  var val = tnaPetaValidasi(ss, p);
+  // Kelompok jabatan di lingkup
+  var grup = {};
+  lingkup.forEach(function (k) { (grup[k.KodeJabatan] = grup[k.KodeJabatan] || { kode: k.KodeJabatan, jobTitle: k.JobTitle, jumlah: 0 }).jumlah++; });
+  var daftar = Object.keys(grup).map(function (x) { return grup[x]; }).sort(function (a, b) { return b.jumlah - a.jumlah; });
+  var kode = req.kodeJabatan && grup[req.kodeJabatan] ? req.kodeJabatan : daftar[0].kode;
+  // Heatmap orang x kompetensi untuk jabatan terpilih
+  var kompList = [], kompIdx = {}, perOrang = {};
+  gap.forEach(function (g) {
+    if (g.KodeJabatan !== kode) return;
+    if (kompIdx[g.KodeKompetensi] === undefined) { kompIdx[g.KodeKompetensi] = kompList.length; kompList.push({ kode: g.KodeKompetensi, nama: g.Kompetensi, kategori: g.Kategori, required: g.Required }); }
+    var o = perOrang[g.NIK] = perOrang[g.NIK] || { nik: g.NIK, nama: g.Nama, cabang: g.Cabang, sel: {}, prioritas: 0, dinilai: false };
+    o.sel[g.KodeKompetensi] = { a: g.Actual, g: g.Gap, k: g.KategoriGap, f: g.Flag };
+    if (g.Actual !== "") { o.dinilai = true; o.prioritas += Number(g.Prioritas || 0); }
+  });
+  var urutKat = { Leadership: 0, Technical: 1, Behavioral: 2 };
+  kompList.sort(function (a, b) { return (urutKat[a.kategori] || 9) - (urutKat[b.kategori] || 9) || String(a.nama).localeCompare(String(b.nama)); });
+  var baris = Object.keys(perOrang).map(function (n) {
+    var o = perOrang[n], k = km[n];
+    o.prioritas = tnaR2(o.prioritas); o.validasi = (val[tnaKunciValidasi(k)] || {}).Status || "";
+    o.sel = kompList.map(function (c) { return o.sel[c.kode] || { a: "", g: "", k: "BELUM DINILAI", f: "" }; });
+    return o;
+  }).sort(function (a, b) { return b.prioritas - a.prioritas; });
+  // Gap terbesar di seluruh lingkup (per kompetensi)
+  var agg = {};
+  gap.forEach(function (g) {
+    if (g.Actual === "") return;
+    var a = agg[g.KodeKompetensi] = agg[g.KodeKompetensi] || { kode: g.KodeKompetensi, nama: g.Kompetensi, kategori: g.Kategori, dinilai: 0, bergap: 0, totalGap: 0 };
+    a.dinilai++; if (Number(g.Gap) > 0) { a.bergap++; a.totalGap += Number(g.Gap); }
+  });
+  var topGap = Object.keys(agg).map(function (x) { var a = agg[x]; a.persen = Math.round(a.bergap / a.dinilai * 100); a.rataGap = a.bergap ? tnaR2(a.totalGap / a.bergap) : 0; return a; })
+    .filter(function (a) { return a.bergap > 0; })
+    .sort(function (a, b) { return b.bergap * b.rataGap - a.bergap * a.rataGap; }).slice(0, 8);
+  // Orang prioritas (seluruh lingkup)
+  var prio = {};
+  gap.forEach(function (g) {
+    if (g.Actual === "") return;
+    var o = prio[g.NIK] = prio[g.NIK] || { nik: g.NIK, nama: g.Nama, jobTitle: g.JobTitle, cabang: g.Cabang, prioritas: 0, major: 0 };
+    o.prioritas += Number(g.Prioritas || 0); if (g.KategoriGap === "Major") o.major++;
+  });
+  var prioritas = Object.keys(prio).map(function (x) { prio[x].prioritas = tnaR2(prio[x].prioritas); return prio[x]; })
+    .filter(function (o) { return o.prioritas > 0; }).sort(function (a, b) { return b.prioritas - a.prioritas; }).slice(0, 10);
+  var dinilaiN = {}; gap.forEach(function (g) { if (g.Actual !== "") dinilaiN[g.NIK] = true; });
+  var komp = gap.filter(function (g) { return g.Actual !== ""; });
+  var cabangSet = {}; tnaLingkup(auth, km, "").forEach(function (k) { cabangSet[k.Cabang] = true; });
+  return {
+    ok: true, ringkasan: { orang: lingkup.length, dinilai: Object.keys(dinilaiN).length,
+      persenKompeten: komp.length ? Math.round(komp.filter(function (g) { return Number(g.Gap) === 0; }).length / komp.length * 100) : 0 },
+    daftar: daftar, kodeJabatan: kode, kompetensi: kompList, baris: baris, topGap: topGap, prioritas: prioritas,
+    cabangList: Object.keys(cabangSet).sort(), cabang: req.cabang || ""
+  };
+}
+// Rencana & kalender training tim (setelah output terbit). Diagregasi di server per bulan x training x batch
+// supaya ringan di HP; untuk lingkup besar tanpa filter cabang, daftar nama tidak dikirim (cukup jumlah).
+function tnaTrainingTim(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
+  var lingkup = tnaLingkup(auth, km, req.cabang || ""), di = {}; lingkup.forEach(function (k) { di[k.NIK] = true; });
+  var denganNama = lingkup.length <= 150;
+  var batch = {}; tnaBaca(ss, "Batch").forEach(function (b) { batch[b.BatchID] = b; });
+  var grup = {}, jamOrang = {}, totalJam = 0, peserta = 0;
+  tnaBaca(ss, "ITP").forEach(function (r) {
+    if (!di[String(r.NIK)]) return;
+    var b = batch[r.BatchID] || {}, key = r.Bulan + "|" + r.KodeTraining + "|" + (b.TanggalMulai || "") + "|" + (b.Lokasi || "");
+    var g = grup[key] = grup[key] || { bulan: r.Bulan, judul: r.Judul, kategori: r.Kategori, jam: Number(r.Jam), tanggal: b.TanggalMulai || "", lokasi: b.Lokasi || "",
+      opsional: r.Status === "OPSIONAL", jumlah: 0, nama: [] };
+    g.jumlah++; peserta++;
+    if (denganNama) g.nama.push(r.Nama);
+    if (r.Status !== "OPSIONAL") { totalJam += Number(r.Jam); jamOrang[r.Nama] = (jamOrang[r.Nama] || 0) + Number(r.Jam); }
+  });
+  var terbanyak = Object.keys(jamOrang).sort(function (x, y) { return jamOrang[y] - jamOrang[x]; }).slice(0, 3).map(function (n) { return { nama: n, jam: tnaR2(jamOrang[n]) }; });
+  var cabangSet = {}; tnaLingkup(auth, km, "").forEach(function (k) { cabangSet[k.Cabang] = true; });
+  return { ok: true, terbit: !!p.OutputTerakhir, terakhir: p.OutputTerakhir, orang: lingkup.length, denganNama: denganNama,
+    grup: Object.keys(grup).map(function (k) { return grup[k]; }), totalJam: tnaR2(totalJam), peserta: peserta, terbanyak: terbanyak,
+    cabangList: Object.keys(cabangSet).sort(), cabang: req.cabang || "" };
+}
+
+/* ============================================================
+ * PEMANTAUAN & PENGINGAT (admin)
+ * ============================================================ */
+function tnaRekapTugas(ss, p, km) {
+  var ases = tnaBaca(ss, "Asesmen").filter(function (a) { return a.Periode === p.Periode && a.Status === "FINAL"; });
+  var sudah = {};
+  ases.forEach(function (a) { if (a.Rater === "ATASAN" || a.Rater === "ATASAN2") sudah[(a.KelompokID ? "K:" + a.KelompokID : String(a.NIK)) + "|" + a.RaterNIK] = true; });
+  var penilai = {}, kel = {};
+  function catat(nik, key) { if (!nik) return; var o = penilai[nik] = penilai[nik] || { nik: nik, total: 0, sisa: 0 }; o.total++; if (!sudah[key + "|" + nik]) o.sisa++; }
+  Object.keys(km).forEach(function (n) {
+    var k = km[n];
+    if (k.ModeAsesmen === "KELOMPOK") { if (kel[k.KelompokID]) return; kel[k.KelompokID] = true; catat(k.PenilaiNIK, "K:" + k.KelompokID); return; }
+    catat(k.PenilaiNIK, n); catat(k.Penilai2NIK, n);
+  });
+  var validator = {};
+  var val = tnaPetaValidasi(ss, p);
+  Object.keys(val).forEach(function (key) {
+    var v = val[key];
+    String(v.ValidatorNIK || "").split(/[,;]\s*/).filter(Boolean).forEach(function (n) {
+      var o = validator[n] = validator[n] || { nik: n, menunggu: 0, disetujui: 0, dikembalikan: 0 };
+      if (v.Status === "MENUNGGU_VALIDASI") o.menunggu++; else if (v.Status === "DISETUJUI") o.disetujui++; else if (v.Status === "DIKEMBALIKAN") o.dikembalikan++;
+    });
+  });
+  return { penilai: penilai, validator: validator };
+}
+function tnaPantau(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss), semua = tnaPetaKaryawan(ss, true), hp = tnaNomorHP(ss);
+  var r = tnaRekapTugas(ss, p, km);
+  function info(n) { var k = semua[n] || {}; return { nama: k.Nama || n, jabatan: k.JobTitle || "", cabang: k.Cabang || "", adaHP: !!hp[n] }; }
+  var penilai = Object.keys(r.penilai).map(function (n) { var o = r.penilai[n], i = info(n); i.nik = n; i.total = o.total; i.sisa = o.sisa; return i; })
+    .sort(function (a, b) { return b.sisa - a.sisa; });
+  var validator = Object.keys(r.validator).map(function (n) { var o = r.validator[n], i = info(n); i.nik = n; i.menunggu = o.menunggu; i.disetujui = o.disetujui; i.dikembalikan = o.dikembalikan; return i; })
+    .sort(function (a, b) { return b.menunggu - a.menunggu; });
+  var trig = [];
+  try { ScriptApp.getProjectTriggers().forEach(function (t) { trig.push(t.getHandlerFunction()); }); } catch (e) { trig = null; }
+  return { ok: true, penilai: penilai, validator: validator, trigger: trig, waAktif: typeof waAktif === "function" ? waAktif() : false };
+}
+function tnaNomorHP(ss) {
+  var m = {}, sh = ss.getSheetByName("Users"); if (!sh) return m;
+  var v = sh.getDataRange().getValues();
+  for (var i = 1; i < v.length; i++) if (String(v[i][7] || "").trim()) m[String(v[i][0]).trim()] = String(v[i][7]).trim();
+  return m;
+}
+// Susun pesan pengingat. jenis: "penilai" | "validator" | "semua".
+function tnaSusunPengingat(ss, p, jenis) {
+  var km = tnaPetaKaryawan(ss), semua = tnaPetaKaryawan(ss, true), hp = tnaNomorHP(ss), r = tnaRekapTugas(ss, p, km);
+  var tutup = new Date(p.WindowTutup), sisaHari = Math.ceil((tutup - new Date()) / 86400000);
+  var batas = Utilities.formatDate(tutup, "Asia/Makassar", "d MMM yyyy HH:mm") + " WITA";
+  var pesan = {};
+  if (jenis !== "validator") Object.keys(r.penilai).forEach(function (n) {
+    var o = r.penilai[n]; if (!o.sisa) return;
+    pesan[n] = (pesan[n] || []).concat(o.sisa + " dari " + o.total + " penilaian tim belum dikirim");
+  });
+  if (jenis !== "penilai") Object.keys(r.validator).forEach(function (n) {
+    var o = r.validator[n]; if (!o.menunggu) return;
+    pesan[n] = (pesan[n] || []).concat(o.menunggu + " hasil tim menunggu validasi Anda");
+  });
+  return Object.keys(pesan).map(function (n) {
+    var k = semua[n] || {};
+    return { nik: n, nama: k.Nama || n, hp: hp[n] || "",
+      teks: "Yth. Bapak/Ibu" + (k.Nama ? " " + k.Nama : "") + ",\n\nPengingat TNA 2027 (BBLC):\n- " + pesan[n].join("\n- ") +
+        "\n\nBatas waktu: " + batas + (sisaHari > 0 ? " (sisa " + sisaHari + " hari)" : " (hari ini)") +
+        ".\nSilakan buka: " + p.UrlStudio + "\nLogin dengan NIK & PIN Anda.\n\nTerima kasih.\nL&D Bosowa Berlian Motor" };
+  });
+}
+function tnaPengingat(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
+  var p = tnaParam(ss), daftar = tnaSusunPengingat(ss, p, req.jenis || "semua");
+  var tanpaHP = daftar.filter(function (d) { return !d.hp; }).map(function (d) { return d.nama; });
+  if (req.kirim !== true) return { ok: true, pratinjau: true, jumlah: daftar.length, tanpaHP: tanpaHP, contoh: daftar.length ? daftar[0].teks : "" };
+  if (typeof kirimWA !== "function") return { ok: false, error: "Fungsi kirimWA (Kode.gs) tidak ditemukan." };
+  if (typeof waAktif === "function" && !waAktif()) return { ok: false, error: "WhatsApp belum aktif. Atur WA_AKTIF=1 dan WA_TOKEN di Script Properties." };
+  var n = tnaKirimDaftar(ss, daftar);
+  tnaLog(ss, auth.nik, "pengingatWA", n + " terkirim dari " + daftar.length);
+  return { ok: true, terkirim: n, jumlah: daftar.length, tanpaHP: tanpaHP };
+}
+function tnaKirimDaftar(ss, daftar) {
+  var n = 0;
+  daftar.forEach(function (d) {
+    if (!d.hp) return;
+    try { if (kirimWA(ss, d.hp, d.teks)) n++; } catch (e) { /* satu nomor gagal tidak menghentikan yang lain */ }
+    Utilities.sleep(400);
+  });
+  return n;
+}
+// Trigger harian: kirim pengingat pada hari-hari yang ditetapkan PengingatHari (H-n sebelum window tutup).
+function tnaPengingatTerjadwal() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), p = tnaParam(ss);
+  if (typeof kirimWA !== "function" || (typeof waAktif === "function" && !waAktif())) return;
+  var sisa = Math.floor((new Date(p.WindowTutup) - new Date()) / 86400000);
+  var hari = String(p.PengingatHari || "").split(/[,;]\s*/).map(Number);
+  var w = tnaWindow(p).status, daftar = [];
+  if (w === "DIBUKA" && hari.indexOf(sisa) !== -1) daftar = tnaSusunPengingat(ss, p, "semua");
+  else if (w === "DITUTUP" && sisa === -1) daftar = tnaSusunPengingat(ss, p, "validator"); // H+1: sisa validasi
+  if (!daftar.length) return;
+  var n = tnaKirimDaftar(ss, daftar);
+  tnaLog(ss, "SYSTEM", "pengingatWATerjadwal", "H" + (sisa >= 0 ? "-" : "+") + Math.abs(sisa) + ": " + n + " terkirim dari " + daftar.length);
+}
+// Jadwalkan trigger output otomatis dan/atau pengingat harian (dipanggil dari editor atau Panel Admin).
+function tnaJadwalkanPengingat() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), p = tnaParam(ss);
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === "tnaPengingatTerjadwal") ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger("tnaPengingatTerjadwal").timeBased().everyDays(1).atHour(Number(p.PengingatJam) || 8).inTimezone("Asia/Makassar").create();
+  Logger.log("Pengingat WA harian dijadwalkan jam " + p.PengingatJam + " WITA.");
+}
+function tnaJadwalkanEndpoint(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
+  try {
+    if (req.output !== false) tnaJadwalkanOutput();
+    if (req.pengingat !== false) tnaJadwalkanPengingat();
+  } catch (e) {
+    return { ok: false, error: "Gagal membuat jadwal otomatis. Pastikan appsscript.json memuat scope script.scriptapp dan sudah diotorisasi ulang. (" + String(e.message || e).substring(0, 120) + ")" };
+  }
+  tnaLog(ss, auth.nik, "jadwalkan", JSON.stringify({ output: req.output !== false, pengingat: req.pengingat !== false }));
+  return { ok: true };
 }
 
 function tnaBangunOutput(ss) {
