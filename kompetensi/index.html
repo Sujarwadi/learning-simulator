@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.4, 25 Okt 2026. Perubahan (P0 audit): nama level seragam Dasar/Berkembang/Mandiri/Mahir/Ahli; kartu To-do + hitung mundur di beranda; tombol "Nilai berikutnya" setelah submit; peringatan sebelum kirim (semua level sama / mayoritas Level 5); validator melihat centangan perilaku tiap penilai; validasi bisa dimiliki dua orang (mis. dua NOH); tombol Studio lama disembunyikan dari non-admin selama TNA. -->
 <!-- BBLC Studio v3.3, 25 Okt 2026. Perubahan: menu karyawan menjadi "ITP & Kalender Training Saya" (bulan, tanggal, lokasi/online, jam); gap & rekomendasi tidak ditampilkan ke karyawan yang dinilai. -->
 <!-- BBLC Studio v3.2, 24 Okt 2026. Perubahan: hasil gap & rekomendasi 70/20/10 langsung tampil setelah penilai submit; validasi Head unit (setujui, edit rekomendasi, kembalikan ke penilai, setujui massal yang tanpa flag); status validasi & catatan revisi di daftar tim; rekap validasi di progres. -->
 <!-- BBLC Studio v3.1, 24 Okt 2026. Perubahan: pesan khusus untuk jabatan yang dikecualikan dari asesmen TNA 2027 (C-level) di beranda TNA. -->
@@ -295,6 +296,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
     </header>
     <div class="body-wrap">
       <div class="card" id="tna-window-card" style="padding:14px 18px"></div>
+      <div id="tna-todo-card"></div>
       <div id="tna-home-loading"><div class="loading"><div class="spinner"></div>Memuat tugas asesmen Anda&hellip;</div></div>
       <div id="tna-home-body" style="display:none">
         <div id="tna-validasi-wrap"></div>
@@ -842,7 +844,7 @@ async function loadIdpTim(){
    lokal per target supaya tidak hilang saat sinyal putus.
    ================================================================ */
 const tna = { pin:"", konteks:null, form:null, jawaban:{}, targetKey:"", isAdmin:false, punyaLama:false };
-const LV_NAMA = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
+const LV_NAMA = ["","Dasar","Berkembang","Mandiri","Mahir","Ahli"];
 function tnaApi(action, payload){ return api(action, Object.assign({ nik: state.nik, pin: tna.pin }, payload||{})); }
 function draftKey(){ return "tnaDraft|"+state.nik+"|"+tna.targetKey; }
 function simpanDraft(){ try{ localStorage.setItem(draftKey(), JSON.stringify(tna.jawaban)); }catch(e){} }
@@ -869,7 +871,7 @@ async function masukTNA(loginResp){
   tna.punyaLama = tna.isAdmin || state.role === "atasan" || !!loginResp.isAtasan;
   $("tna-nama").textContent = state.nama + (state.jabatan ? " · " + state.jabatan : "");
   $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
-  $("btn-tna-studio").style.display = tna.punyaLama ? "" : "none";
+  $("btn-tna-studio").style.display = tna.isAdmin ? "" : "none";
   show("scr-tna-home");
   await muatBerandaTNA();
 }
@@ -884,6 +886,20 @@ async function muatBerandaTNA(){
       ? '<b style="color:var(--green)">Window asesmen DIBUKA</b> sampai <b>'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban bisa direvisi selama window masih dibuka.'
       : (w==="BELUM_DIBUKA" ? '<b style="color:var(--amber)">Window asesmen belum dibuka.</b> Dibuka '+esc(fmtTgl(r.windowBuka))+'.'
         : '<b style="color:var(--red)">Window asesmen sudah DITUTUP.</b> Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.');
+    // Studio lama hanya untuk admin selama TNA berjalan; atasan bisa memakainya lagi setelah window ditutup.
+    $("btn-tna-studio").style.display = (tna.isAdmin || (tna.punyaLama && w==="DITUTUP")) ? "" : "none";
+    // Kartu To-do
+    const td = r.todo || {}, nVal = (r.validasi||[]).filter(v=>v.status==="MENUNGGU_VALIDASI").length;
+    const sisaHari = Math.ceil((new Date(r.windowTutup) - new Date()) / 86400000);
+    const total = (td.nilai||0) + nVal + (td.approval||0) + (td.delegasi||0) + (r.selfStatus==="BELUM"?1:0);
+    const chip = (n, label, warna)=> n ? '<div style="flex:1;min-width:90px;background:var(--bg);border-radius:12px;padding:10px 12px"><div style="font-size:22px;font-weight:800;color:'+warna+'">'+n+'</div><div style="font-size:12px;color:var(--muted)">'+label+'</div></div>' : '';
+    $("tna-todo-card").innerHTML = (w==="DIBUKA" || nVal) ? '<div class="card" style="padding:14px 18px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><b style="font-size:15px">'+(total?'Tugas Anda: '+total:'Semua tugas selesai')+'</b>'+
+      (w==="DIBUKA" ? '<span class="badge '+(sisaHari<=2?'badge-red':(sisaHari<=4?'badge-amber':'badge-grey'))+'">'+(sisaHari>0?'sisa '+sisaHari+' hari':'hari terakhir')+'</span>' : '')+'</div>'+
+      (total ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+        chip((td.nilai||0)-(td.revisi||0), 'penilaian tim', 'var(--navy)')+chip(td.revisi, 'perlu revisi', 'var(--red)')+chip(nVal, 'validasi', 'var(--amber)')+
+        chip(td.approval, 'persetujuan delegasi', 'var(--amber)')+chip(td.delegasi, 'bantu nilai', 'var(--navy)')+chip(r.selfStatus==="BELUM"?1:0, 'nilai diri', 'var(--navy)')+'</div>' : '')+
+      '</div>' : '';
     // Validasi Head unit
     const val = r.validasi || [];
     const menunggu = val.filter(v=>v.status==="MENUNGGU_VALIDASI");
@@ -1047,6 +1063,14 @@ $("btn-tna-submit").onclick = async ()=>{
   }
   const naKosong = r.kompetensi.filter(k=>{ const a = tna.jawaban[k.kode]; return a && a.na && !String(a.alasan||"").trim(); });
   if(naKosong.length){ showErr("err-tna-form","Isi alasan N/A untuk: "+naKosong.map(k=>k.nama).join(", ")); return; }
+  // Peringatan kualitas penilaian (bukan larangan): pola yang sering menandakan penilaian kurang cermat.
+  const lv = r.kompetensi.map(k=>tna.jawaban[k.kode]).filter(a=>a && !a.na).map(a=>skorGuttman(a.checks||"NNNN").lv);
+  const inkon = r.kompetensi.filter(k=>{ const a = tna.jawaban[k.kode]; return a && !a.na && skorGuttman(a.checks||"NNNN").inkon; });
+  const pesan = [];
+  if(lv.length >= 5 && lv.every(x=>x===lv[0])) pesan.push("Semua kompetensi bernilai sama (Level "+lv[0]+"). Penilaian yang cermat biasanya menunjukkan kekuatan dan kelemahan yang berbeda.");
+  if(lv.length >= 5 && lv.filter(x=>x===5).length / lv.length >= 0.6) pesan.push("Lebih dari 60% kompetensi bernilai Level 5 (Ahli = rujukan tingkat perusahaan). Pastikan setiap centang Level 5 punya bukti nyata.");
+  if(inkon.length) pesan.push(inkon.length+" kompetensi centangnya melompat (mis. Level 4 dicentang tapi Level 3 tidak): "+inkon.map(k=>k.nama).slice(0,3).join(", ")+(inkon.length>3?", dst":"")+".");
+  if(pesan.length && !confirm("Mohon cek sebelum mengirim:\n\n• "+pesan.join("\n• ")+"\n\nTetap kirim?")) return;
   const kirim = {};
   r.kompetensi.forEach(k=>{ const a = tna.jawaban[k.kode] || {}; kirim[k.kode] = { checks: a.checks||"NNNN", na: !!a.na, alasan: a.alasan||"" }; });
   $("btn-tna-submit").disabled = true;
@@ -1094,7 +1118,8 @@ async function bukaHasil(sasaran, baruSubmit){
   show("scr-tna-hasil");
   $("tna-hasil-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung gap &amp; rekomendasi&hellip;</div>';
   try{
-    const r = await tnaApi("tnaHasil", sasaran);
+    const [r, kt] = await Promise.all([tnaApi("tnaHasil", sasaran), baruSubmit ? tnaApi("tnaKonteks").catch(()=>null) : Promise.resolve(null)]);
+    if(kt) tna.konteks = kt; // segarkan antrean "nilai berikutnya"
     tna.hasil = Object.assign({ sasaran }, r);
     renderHasil(baruSubmit);
   }catch(e){ $("tna-hasil-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
@@ -1112,6 +1137,14 @@ function renderHasil(baruSubmit){
   const gap = '<h2 class="sect">Gap Kompetensi</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
     r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'<div class="hint" style="margin:0">'+esc(g.Kategori)+(g.Flag?' · <b style="color:var(--red)">'+esc(g.Flag)+'</b>':'')+'</div></td><td>'+esc(g.Required)+'</td><td><b>'+esc(g.Actual===""?"-":g.Actual)+'</b><div class="hint" style="margin:0;white-space:nowrap">A '+esc(g.SkorAtasan===""?"-":g.SkorAtasan)+' · S '+esc(g.SkorSelf===""?"-":g.SkorSelf)+'</div></td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+(Number(g.Gap)>0?' '+esc(g.Gap):'')+'</span></td></tr>').join("")+'</table>'+
     '<div class="hint">Aktual = '+'70% atasan (A) + 30% self (S); tanpa self = nilai atasan.</div></div>';
+  const bk = r.bukti || {};
+  const bukti = (bisa && Object.keys(bk).length) ? '<details class="card" style="padding:14px 18px"><summary style="cursor:pointer;font-weight:700;color:var(--navy)">Lihat perilaku yang dicentang penilai</summary>'+
+    r.gap.map(g=>{
+      const b = bk[g.KodeKompetensi]; if(!b) return '';
+      return '<div style="margin-top:12px"><b>'+esc(g.Kompetensi)+'</b>'+b.penilai.map(pn=>'<div class="hint" style="margin:4px 0 2px;color:var(--text)">'+esc(pn.rater)+' ('+esc(pn.peran==="SELF"?"self":(pn.peran==="ATASAN2"?"penilai kedua":"atasan"))+'): '+
+        (pn.na ? '<b>N/A</b> · '+esc(pn.alasan) : '<b>Level '+esc(pn.level)+'</b>')+'</div>'+
+        (pn.na ? '' : b.checklist.map((c,ci)=>'<div style="font-size:12.5px;margin-left:8px;color:'+(pn.checks.charAt(ci)==="Y"?'var(--green)':'var(--muted)')+'">'+(pn.checks.charAt(ci)==="Y"?'✓':'○')+' L'+(ci+2)+' '+esc(c)+'</div>').join(""))).join("")+'</div>';
+    }).join("")+'</details>' : '';
   const wajib = r.wajib.length ? '<h2 class="sect">Training Wajib 2027</h2><div class="card">'+r.wajib.map(w=>'<div class="idp-line">• '+esc(w.judul)+' <span class="hint">('+esc(w.jam||"-")+' jam · '+esc(w.dasar)+')</span></div>').join("")+'</div>' : '';
   const rek = r.rekomendasi.length ? '<h2 class="sect">Rekomendasi 70/20/10'+(bisa?' (bisa Anda edit)':'')+'</h2>'+r.rekomendasi.map((x,i)=>{
     const e = (r.edit||{})[x.KodeKompetensi] || {}, ops = r.opsiTraining[x.KodeKompetensi] || [];
@@ -1127,8 +1160,16 @@ function renderHasil(baruSubmit){
   const aksiVal = bisa ? '<div class="card"><label>Catatan validasi (wajib bila dikembalikan)</label><textarea id="inp-val-catatan" rows="2" placeholder="Contoh: rating Product Knowledge terlalu tinggi, mohon cek ulang"></textarea>'+
     '<div class="err" id="err-tna-val"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">'+
     '<button class="btn btn-primary" id="btn-val-setujui">Setujui</button><button class="btn btn-ghost" id="btn-val-kembali">Kembalikan ke Penilai</button></div></div>' : '';
-  const revisi = (!bisa && r.window==="DIBUKA" && v.status!=="DISETUJUI") ? '<button class="btn btn-ghost" id="btn-hasil-revisi" style="margin:6px 0 30px">Revisi penilaian</button>' : '';
-  $("tna-hasil-body").innerHTML = banner + gap + wajib + rek + aksiVal + revisi;
+  const revisi = (!bisa && r.window==="DIBUKA" && v.status!=="DISETUJUI") ? '<button class="btn btn-ghost" id="btn-hasil-revisi" style="margin:6px 0 10px">Revisi penilaian</button>' : '';
+  // Lanjut ke orang/kelompok berikutnya yang belum dinilai (urut daftar tim)
+  const kt = tna.konteks || {}, kini = r.sasaran.kelompokId ? "K:"+r.sasaran.kelompokId : r.sasaran.target;
+  const antre = (kt.tugas||[]).filter(t=>t.peran!=="DELEGASI" && (t.status!=="FINAL" || t.validasi==="DIKEMBALIKAN")).map(t=>({ k:t.nik, nama:t.nama, s:{ target:t.nik } }))
+    .concat((kt.kelompok||[]).filter(g=>g.status!=="FINAL" || g.validasi==="DIKEMBALIKAN").map(g=>({ k:"K:"+g.kelompokId, nama:g.jabatan+" "+g.cabang, s:{ kelompokId:g.kelompokId } })))
+    .filter(x=>x.k!==kini);
+  tna.berikut = (!bisa && baruSubmit && antre.length) ? antre[0] : null;
+  const lanjut = tna.berikut ? '<button class="btn btn-primary" id="btn-hasil-lanjut" style="margin:6px 0 30px">Nilai berikutnya: '+esc(tna.berikut.nama)+' ('+antre.length+' tersisa)</button>' : '';
+  $("tna-hasil-body").innerHTML = banner + gap + bukti + wajib + rek + aksiVal + revisi + lanjut;
+  if($("btn-hasil-lanjut")) $("btn-hasil-lanjut").onclick = ()=> bukaFormTNA(tna.berikut.s);
   if($("btn-hasil-revisi")) $("btn-hasil-revisi").onclick = ()=> bukaFormTNA(r.sasaran);
   if(bisa){
     $("btn-val-setujui").onclick = ()=> kirimValidasi("SETUJUI");

@@ -1,4 +1,7 @@
-/* BBLC TNA Engine v1.4, 25 Okt 2026. Perubahan: karyawan hanya melihat ITP & kalender training miliknya (gap & rekomendasi
+/* BBLC TNA Engine v1.5, 25 Okt 2026. Perubahan: ValidatorNIK boleh lebih dari satu (dipisah koma, mis. dua NOH; siapa pun
+ * boleh memvalidasi, sekali divalidasi selesai untuk semua); tnaHasil menyertakan centangan perilaku tiap penilai (bukti) dan
+ * kalimat checklist-nya; tnaKonteks mengirim ringkasan tugas (todo) dan batas waktu.
+ * BBLC TNA Engine v1.4, 25 Okt 2026. Perubahan: karyawan hanya melihat ITP & kalender training miliknya (gap & rekomendasi
  * hanya untuk penilai, validator Head unit, dan admin); tnaITPSaya menyertakan jadwal batch (tanggal, lokasi, metode).
  * BBLC TNA Engine v1.3, 24 Okt 2026. Perubahan: hasil live per orang (tnaHasil) langsung setelah penilai submit, validasi Head unit
  * (tnaValidasi: setujui / edit rekomendasi / kembalikan ke penilai), tab TNA_Validasi, kolom StatusValidasi di Gap/Rekomendasi/ITP,
@@ -13,7 +16,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.4";
+var TNA_VERSION = "1.5";
 
 /* ============================================================
  * SKEMA TAB
@@ -264,8 +267,15 @@ function tnaKonteks(ss, req) {
     ok: true, nama: auth.nama, role: auth.role, window: win.status,
     windowBuka: win.buka, windowTutup: win.tutup, periode: p.Periode,
     terdaftar: !!saya, jabatan: saya ? saya.Jabatan : "", selfStatus: selfStatus,
+    todo: {
+      nilai: tugas.filter(function (t) { return t.status !== "FINAL" || t.validasi === "DIKEMBALIKAN"; }).length +
+        kelompokList.filter(function (g) { return g.status !== "FINAL" || g.validasi === "DIKEMBALIKAN"; }).length,
+      revisi: tugas.filter(function (t) { return t.validasi === "DIKEMBALIKAN"; }).length + kelompokList.filter(function (g) { return g.validasi === "DIKEMBALIKAN"; }).length,
+      delegasi: delegasi.filter(function (t) { return t.status !== "FINAL" && t.status !== "MENUNGGU_APPROVAL"; }).length,
+      approval: menunggu.length
+    },
     tugas: tugas, kelompok: kelompokList, delegasi: delegasi, menungguApproval: menunggu,
-    validasi: Object.keys(valMap).map(function (key) { return valMap[key]; }).filter(function (v) { return String(v.ValidatorNIK) === auth.nik; })
+    validasi: Object.keys(valMap).map(function (key) { return valMap[key]; }).filter(function (v) { return tnaAdalahValidator(auth.nik, v.ValidatorNIK); })
       .map(function (v) {
         var key = String(v.Target), kel = key.indexOf("K:") === 0;
         return { kunci: key, nik: kel ? "" : key, kelompokId: kel ? key.substring(2) : "", nama: v.Nama, jabatan: v.Jabatan, cabang: v.Cabang,
@@ -740,7 +750,8 @@ function tnaRingkasHasil(ss, p, w) {
   });
   return JSON.stringify(r);
 }
-function tnaBolehValidasi(auth, w) { return auth.role === "admin" || (w && String(w.ValidatorNIK || "") !== "" && String(w.ValidatorNIK) === auth.nik); }
+function tnaAdalahValidator(nik, daftar) { return String(daftar || "").split(/[,;]\s*/).indexOf(String(nik)) !== -1; }
+function tnaBolehValidasi(auth, w) { return auth.role === "admin" || (!!w && tnaAdalahValidator(auth.nik, w.ValidatorNIK)); }
 
 // Hasil live satu target: gap + rekomendasi 70/20/10 + training wajib + status validasi.
 function tnaHasil(ss, req) {
@@ -777,9 +788,29 @@ function tnaHasil(ss, req) {
     dianjurkan: hasil.dianjurkan.map(function (d) { var c = cx.katByKode[d.kode] || {}; return { kode: d.kode, judul: c.Judul, jam: c.DurasiJam, kompetensi: d.kompetensi }; }),
     wajib: wajib, opsiTraining: opsi, edit: edit, window: tnaWindow(p).status,
     validasi: val ? { status: val.Status, catatan: val.Catatan, oleh: (km[String(val.DiperbaruiOleh)] || {}).Nama || String(val.DiperbaruiOleh || ""), waktu: val.Timestamp } : null,
-    validatorNama: (tnaPetaKaryawan(ss, true)[String(w.ValidatorNIK || "")] || {}).Nama || "L&D (Admin)",
+    validatorNama: (function () {
+      var semua = tnaPetaKaryawan(ss, true);
+      var n = String(w.ValidatorNIK || "").split(/[,;]\s*/).map(function (x) { return (semua[x] || {}).Nama; }).filter(Boolean);
+      return n.length ? n.join(" / ") : (String(w.ValidatorNIK || "") ? "Head unit" : "L&D (Admin)");
+    })(),
+    bukti: tnaBuktiPenilai(ss, p, km, w, !!req.kelompokId),
     bisaValidasi: validator && dinilai
   };
+}
+
+// Centangan perilaku per penilai (FINAL) untuk ditinjau validator: {KodeKompetensi: [{rater, peran, checks, level, na, alasan}]}
+function tnaBuktiPenilai(ss, p, km, w, kelompok) {
+  var semua = tnaPetaKaryawan(ss, true), out = {};
+  tnaBaca(ss, "Asesmen").forEach(function (a) {
+    if (a.Periode !== p.Periode || a.Status !== "FINAL") return;
+    if (kelompok ? a.KelompokID !== w.KelompokID : (String(a.NIK) !== w.NIK || a.KelompokID)) return;
+    (out[a.KodeKompetensi] = out[a.KodeKompetensi] || []).push({
+      rater: (semua[String(a.RaterNIK)] || {}).Nama || String(a.RaterNIK), peran: a.Rater, checks: tnaNormalChecks(a.Checks),
+      level: a.Level, na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: String(a.Alasan || "") });
+  });
+  var cek = {}; tnaBaca(ss, "Checklist").forEach(function (c) { cek[c.KodeKompetensi] = [c.C2, c.C3, c.C4, c.C5].map(String); });
+  Object.keys(out).forEach(function (k) { out[k] = { penilai: out[k], checklist: cek[k] || [] }; });
+  return out;
 }
 
 function tnaValidasi(ss, req) {
@@ -1068,7 +1099,7 @@ function tnaITPSaya(ss, req) {
   var target = String(req.target || auth.nik);
   var t = km[target];
   if (!t) return { ok: false, error: "Karyawan tidak terdaftar." };
-  if (target !== auth.nik && t.PenilaiNIK !== auth.nik && t.Penilai2NIK !== auth.nik && String(t.ValidatorNIK || "") !== auth.nik && auth.role !== "admin") return { ok: false, error: "Tidak berwenang." };
+  if (target !== auth.nik && t.PenilaiNIK !== auth.nik && t.Penilai2NIK !== auth.nik && !tnaAdalahValidator(auth.nik, t.ValidatorNIK) && auth.role !== "admin") return { ok: false, error: "Tidak berwenang." };
   var batch = {}; tnaBaca(ss, "Batch").forEach(function (b) { batch[b.BatchID] = b; });
   var itp = tnaBaca(ss, "ITP").filter(function (r) { return String(r.NIK) === target; }).map(function (r) {
     var b = batch[r.BatchID] || {};
