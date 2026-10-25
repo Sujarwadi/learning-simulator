@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.3, 25 Okt 2026. Perubahan: menu karyawan menjadi "ITP & Kalender Training Saya" (bulan, tanggal, lokasi/online, jam); gap & rekomendasi tidak ditampilkan ke karyawan yang dinilai. -->
 <!-- BBLC Studio v3.2, 24 Okt 2026. Perubahan: hasil gap & rekomendasi 70/20/10 langsung tampil setelah penilai submit; validasi Head unit (setujui, edit rekomendasi, kembalikan ke penilai, setujui massal yang tanpa flag); status validasi & catatan revisi di daftar tim; rekap validasi di progres. -->
 <!-- BBLC Studio v3.1, 24 Okt 2026. Perubahan: pesan khusus untuk jabatan yang dikecualikan dari asesmen TNA 2027 (C-level) di beranda TNA. -->
 <!-- BBLC Studio v3.0, 24 Okt 2026. Perubahan: modul TNA 2027 untuk seluruh karyawan (beranda tugas asesmen, form checklist L2-L5 skor Guttman dengan draft lokal, penilaian kelompok sales, delegasi Leader Mekanik + approval, progres, ITP, matriks jabatan, panel admin parameter/approve/generate output) dan ganti PIN langsung di Studio. Fitur Studio lama tetap tersedia lewat menu. -->
@@ -304,7 +305,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
         <div id="tna-delegasi-wrap"></div>
         <h2 class="sect" style="margin-top:22px">Menu Lain</h2>
         <div class="card" style="display:grid;gap:10px">
-          <button class="btn btn-ghost" id="btn-tna-itp">Lihat ITP &amp; Hasil Gap Saya</button>
+          <button class="btn btn-ghost" id="btn-tna-itp">ITP &amp; Kalender Training Saya</button>
           <button class="btn btn-ghost" id="btn-tna-progres" style="display:none">Progres Asesmen Tim</button>
           <button class="btn btn-ghost" id="btn-tna-matriks">Lihat Matriks Kompetensi Jabatan</button>
           <button class="btn btn-primary" id="btn-tna-admin" style="display:none">Panel Admin TNA</button>
@@ -1163,13 +1164,14 @@ async function bukaITP(nik){
   try{
     const r = await tnaApi("tnaITPSaya", { target: nik });
     $("tna-itp-sub").textContent = r.nama + " · " + r.jabatan;
-    if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP belum diterbitkan. Output TNA 2027 terbit setelah window asesmen ditutup.</div></div>'; return; }
+    if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP &amp; kalender training belum diterbitkan. Output TNA 2027 terbit setelah window asesmen ditutup dan hasil divalidasi.</div></div>'; return; }
     const katCls = { Wajib:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey" };
     const gapCls = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
     $("tna-itp-body").innerHTML =
-      '<h2 class="sect">Rencana Training 2027</h2><div class="card" style="overflow-x:auto"><table><tr><th>Bulan</th><th>Training</th><th>Kategori</th><th>Jam</th></tr>'+
-      r.itp.map(t=>'<tr><td>'+esc(t.Bulan)+'</td><td>'+esc(t.Judul)+'</td><td><span class="badge '+(katCls[t.Kategori]||"badge-grey")+'">'+esc(t.Kategori)+'</span></td><td>'+esc(t.Jam)+'</td></tr>').join("")+'</table></div>'+
-      '<h2 class="sect">Hasil Kompetensi</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
+      '<h2 class="sect">Rencana &amp; Kalender Training 2027</h2><div class="card" style="overflow-x:auto"><table><tr><th>Jadwal</th><th>Training</th><th>Jam</th></tr>'+
+      r.itp.map(t=>'<tr><td style="white-space:nowrap"><b>'+esc(t.Bulan)+'</b>'+(t.TanggalMulai?'<div class="hint" style="margin:0">mulai '+esc(new Date(t.TanggalMulai).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+'</div>':'')+'</td><td>'+esc(t.Judul)+'<div style="margin-top:3px"><span class="badge '+(katCls[t.Kategori]||"badge-grey")+'">'+esc(t.Kategori)+'</span> <span class="hint">'+esc(t.Lokasi==="ONLINE"?"Online":(t.Lokasi||""))+'</span></div></td><td>'+esc(t.Jam)+'</td></tr>').join("")+'</table>'+
+      '<div class="hint">Total '+r.itp.reduce((a,t)=>a+Number(t.Jam||0),0)+' jam. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>'+
+      '<h2 class="sect"'+(r.gap.length?'':' style="display:none"')+'>Hasil Kompetensi</h2><div class="card" style="overflow-x:auto'+(r.gap.length?'':';display:none')+'"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
       r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.Actual)+'</td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+'</span></td></tr>').join("")+'</table></div>'+
       (r.rekomendasi.length ? '<h2 class="sect">Rencana Pengembangan 70/20/10</h2>'+r.rekomendasi.map(x=>'<div class="idp-card"><div class="idp-comp">'+esc(x.Kompetensi)+'</div>'+
         '<div class="idp-line"><b>70 Penugasan:</b> '+esc(x.R70_Penugasan)+'</div><div class="idp-line"><b>20 Sosial:</b> '+esc(x.R20_Sosial)+'</div><div class="idp-line"><b>10 Training:</b> '+esc(x.R10_Training)+'</div></div>').join("") : '');

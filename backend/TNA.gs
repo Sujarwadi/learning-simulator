@@ -1,4 +1,6 @@
-/* BBLC TNA Engine v1.3, 24 Okt 2026. Perubahan: hasil live per orang (tnaHasil) langsung setelah penilai submit, validasi Head unit
+/* BBLC TNA Engine v1.4, 25 Okt 2026. Perubahan: karyawan hanya melihat ITP & kalender training miliknya (gap & rekomendasi
+ * hanya untuk penilai, validator Head unit, dan admin); tnaITPSaya menyertakan jadwal batch (tanggal, lokasi, metode).
+ * BBLC TNA Engine v1.3, 24 Okt 2026. Perubahan: hasil live per orang (tnaHasil) langsung setelah penilai submit, validasi Head unit
  * (tnaValidasi: setujui / edit rekomendasi / kembalikan ke penilai), tab TNA_Validasi, kolom StatusValidasi di Gap/Rekomendasi/ITP,
  * mesin rekomendasi dipakai bersama (live = output), header tab ditulis ulang saat tab ditimpa.
  * BBLC TNA Engine v1.2, 24 Okt 2026. Perubahan: ModeAsesmen DIKECUALIKAN (C-level tidak dinilai, tetap bisa menilai tim),
@@ -11,7 +13,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.3";
+var TNA_VERSION = "1.4";
 
 /* ============================================================
  * SKEMA TAB
@@ -750,9 +752,9 @@ function tnaHasil(ss, req) {
   var val = tnaPetaValidasi(ss, p)[kunci] || null;
   var peran = req.kelompokId ? (w.PenilaiNIK === auth.nik ? "ATASAN" : null) : tnaPeranTerhadap(auth, km, w);
   var validator = tnaBolehValidasi(auth, w);
-  var bolehLihat = validator || peran === "ATASAN" || peran === "ATASAN2" || peran === "ADMIN" ||
-    (peran === "SELF" && val && val.Status === "DISETUJUI");
-  if (!bolehLihat) return { ok: false, error: peran === "SELF" ? "Hasil Anda tampil setelah divalidasi Head unit." : "Anda tidak berwenang melihat hasil ini." };
+  // Karyawan yang dinilai tidak melihat gap/rekomendasi; yang ia lihat hanya ITP & kalender training (tnaITPSaya).
+  var bolehLihat = validator || peran === "ATASAN" || peran === "ATASAN2" || peran === "ADMIN";
+  if (!bolehLihat) return { ok: false, error: peran === "SELF" ? "Yang dapat Anda lihat adalah ITP & kalender training, setelah output TNA terbit." : "Anda tidak berwenang melihat hasil ini." };
   var gapAll = tnaHitungGap(ss, p, km);
   var gapT = gapAll.filter(function (g) { return g.NIK === w.NIK; });
   var cx = tnaSiapRekom(ss, p, km, gapAll);
@@ -1067,7 +1069,14 @@ function tnaITPSaya(ss, req) {
   var t = km[target];
   if (!t) return { ok: false, error: "Karyawan tidak terdaftar." };
   if (target !== auth.nik && t.PenilaiNIK !== auth.nik && t.Penilai2NIK !== auth.nik && String(t.ValidatorNIK || "") !== auth.nik && auth.role !== "admin") return { ok: false, error: "Tidak berwenang." };
-  var itp = tnaBaca(ss, "ITP").filter(function (r) { return String(r.NIK) === target; });
+  var batch = {}; tnaBaca(ss, "Batch").forEach(function (b) { batch[b.BatchID] = b; });
+  var itp = tnaBaca(ss, "ITP").filter(function (r) { return String(r.NIK) === target; }).map(function (r) {
+    var b = batch[r.BatchID] || {};
+    return { Bulan: r.Bulan, KodeTraining: r.KodeTraining, Judul: r.Judul, Kategori: r.Kategori, Jam: r.Jam, Status: r.Status,
+      BatchID: r.BatchID, TanggalMulai: b.TanggalMulai || "", Lokasi: b.Lokasi || "", Metode: b.Metode || "" };
+  });
+  // Karyawan sendiri hanya ITP & kalender; gap & rekomendasi untuk penilai, validator, admin.
+  if (target === auth.nik && auth.role !== "admin") return { ok: true, nama: t.Nama, jabatan: t.Jabatan, itp: itp, gap: [], rekomendasi: [], hanyaITP: true };
   var gap = tnaBaca(ss, "Gap").filter(function (r) { return String(r.NIK) === target; });
   var rek = tnaBaca(ss, "Rekomendasi").filter(function (r) { return String(r.NIK) === target; });
   return { ok: true, nama: t.Nama, jabatan: t.Jabatan, itp: itp, gap: gap, rekomendasi: rek };
