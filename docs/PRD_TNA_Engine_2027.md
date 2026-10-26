@@ -257,8 +257,8 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 5. Durasi modul internal lain (CB-xx dari median 2026, SA & CS Master Class, dll) perlu dicek L&D di tab Katalog.
 6. Review silabus `DRAF_AI` oleh L&D (43 program). Temuan dari materi yang perlu diputuskan: ~~nilai lulus BST 70 vs 75~~ → 70/100 (dikonfirmasi 26 Okt); modul IST M1-01, M1-03, M1-06 tidak ada di folder; template Modul Monitoring masih kosong; 7 Step Service baru terbaca langkah 1; materi "Sales Jago Jualan" 2024 memakai contoh Mercedes-Benz Trucks.
 
+7. ~~Cara menaikkan jam non-IHT 2027 (FR13.5)~~ → diputuskan 26 Okt: opsi A, lihat M14. Pengayaan `OPSIONAL` tetap tidak dihitung dalam batas IHT.
 8. Program 2027 (M14): daftar model kendaraan untuk W-PK27 per kuartal mengikuti jadwal launching APM; vendor final setelah RFQ; kriteria masa kerja Sales Junior sebelum IST (saat ini semua Junior wajib, urutan diatur L&D).
-7. ~~Cara menaikkan jam non-IHT 2027~~ → M14 (opsi A). Catatan lama: Cara menaikkan jam non-IHT 2027 agar ruang IHT bertambah (FR13.5): program non-IHT apa yang ditambah (mis. modul online Product Knowledge per model untuk sales, kelas teknis tambahan), dan apakah Pengayaan `OPSIONAL` ikut dihitung sebagai jam L&D.
 
 ## 12. Landasan Metodologi & Rencana Validasi
 
