@@ -1,4 +1,7 @@
-/* BBLC TNA Engine v2.1, 26 Okt 2026. Perubahan: batas porsi IHT dihitung dari jam karyawan saja (kursi proyeksi calon BST tidak
+/* BBLC TNA Engine v2.2, 26 Okt 2026. Perubahan: default JendelaKhusus mengikuti kalender program 2027 yang disepakati
+ * (satu program tatap muka per bulan): BMDP kelas Jan (modul online mandiri dirilis Jan) & Jul, IST Feb/Mei/Agu/Nov,
+ * AST Mar/Jun/Sep/Des, SSDP Apr & Okt (shadowing bengkel bulan berikutnya). Tab TNA_Parameter yang sudah ada tidak ditimpa.
+ * BBLC TNA Engine v2.1, 26 Okt 2026. Perubahan: batas porsi IHT dihitung dari jam karyawan saja (kursi proyeksi calon BST tidak
  * menambah jatah IHT; keputusan user 26 Okt); tnaITPSaya menyertakan StatusKatalog (program USULAN_PENGADAAN diberi label di UI);
  * tnaTrainingTim meringkas IHT per bulan per rumpun (tidak dipecah per Sabtu).
  * BBLC TNA Engine v2.0, 26 Okt 2026. Perubahan: parameter JendelaKhusus (JSON kode training -> bulan 1-12) supaya program 2027
@@ -36,7 +39,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.1";
+var TNA_VERSION = "2.2";
 
 /* ============================================================
  * SKEMA TAB
@@ -92,10 +95,10 @@ var TNA_PARAM_DEFAULT = [
   ["JamCoachingPerGap", 1, "Jam coaching terstruktur per kompetensi gap per tahun (dihitung jam belajar)"],
   ["KodeBST", "D-BST", "Kode katalog BST: slot tetap tiap awal bulan (tgl 1-3, Minggu dilewati)"],
   ["ProyeksiPesertaBST", 63, "Proyeksi peserta per batch BST bulanan (calon sales baru + karyawan); referensi BST 1-2 Sep 2026"],
-  ["JendelaKhusus", JSON.stringify({ "BMDP-01": [1, 2, 3], "BMDP-03": [1, 2, 3], "BMDP-02": [4, 5, 6], "BMDP-05": [4, 5, 6], "BMDP-10": [4, 5, 6],
-    "BMDP-04": [7, 8, 9], "BMDP-06": [7, 8, 9], "BMDP-07": [7, 8, 9], "BMDP-08": [10, 11], "BMDP-09": [10, 11], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-    "D-IST": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-LEAS": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-AST": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-FLEET": [3, 4, 5, 6, 7, 8, 9, 10],
-    "D-MENTOR": [3, 4, 5, 6, 7, 8, 9, 10], "D-SPV": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-ASX": [3, 4, 5, 6, 7, 8, 9, 10], "D-SACS": [2, 3, 4, 5, 6, 7, 8],
+  ["JendelaKhusus", JSON.stringify({ "BMDP-01": [1], "BMDP-02": [1], "BMDP-03": [1], "BMDP-05": [1], "BMDP-10": [1],
+    "BMDP-04": [1], "BMDP-07": [1], "BMDP-08": [1], "BMDP-06": [7], "BMDP-09": [7], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "D-IST": [2, 5, 8, 11], "D-LEAS": [2, 5, 8, 11], "D-AST": [3, 6, 9, 12], "D-FLEET": [3, 6, 9, 12], "D-MENTOR": [3, 6, 9, 12],
+    "D-SPV": [4, 10], "D-ASX": [5, 11], "D-SACS": [2, 3, 4, 5, 6, 7, 8],
     "W-HRNH": [2, 3, 4, 5, 6, 7, 8, 9, 10], "W-BEI": [2, 3, 4, 5, 6, 7, 8, 9, 10] }),
     "Jendela bulan (1-12) per kode training, menggantikan jendela kategori"],
   ["MaksPersenIHT", 20, "Batas porsi jam IHT dari total jam L&D karyawan (%), dihitung dari jam PLANNED; kursi calon BST tidak dihitung"],

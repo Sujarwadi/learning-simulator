@@ -52,7 +52,7 @@ Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk oran
 
 ## Program 2027 (v2.0)
 - Paket import menambah 11 modul baru (status `USULAN_PENGADAAN`) dan Mandatory jalur sales, aftersales, HR for Non-HR, dan BEI. Ikut ter-import seperti biasa.
-- Parameter `JendelaKhusus` (JSON kode -> bulan 1-12) mengatur bulan program tertentu (Kacab Academy per kuartal, dst). Edit langsung di tab `TNA_Parameter` bila perlu.
+- Parameter `JendelaKhusus` (JSON kode -> bulan 1-12) mengatur bulan program tertentu. Default v2.2 mengikuti kalender 2027 (satu program tatap muka per bulan): BMDP Jan & Jul, IST Feb/Mei/Agu/Nov, AST Mar/Jun/Sep/Des, SSDP Apr & Okt. Edit langsung di tab `TNA_Parameter` bila perlu.
 
 ## Validasi Head unit (v1.3)
 - Kolom `ValidatorNIK` di tab Karyawan menentukan siapa yang memvalidasi (Kacab di cabang, Dept Head di HO). Kosong = Admin L&D.
