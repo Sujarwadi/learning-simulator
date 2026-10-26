@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.8, 26 Okt 2026. Perubahan: Panel Admin menambah parameter Proyeksi peserta BST per batch dan menampilkan jam proyeksi calon peserta BST di rekonsiliasi (ITP + proyeksi = Kalender). -->
 <!-- BBLC Studio v3.7, 26 Okt 2026. Perubahan: kalender 2027 menampilkan slot BST awal bulan dan IHT Sabtu per cabang (badge IHT di ITP, Training Tim, dan Katalog; filter Katalog "IHT Sabtu"); Panel Admin menambah parameter Maks porsi IHT (%) dan durasi sesi IHT, serta menampilkan porsi IHT terhadap total jam L&D di rekonsiliasi. -->
 <!-- BBLC Studio v3.6, 26 Okt 2026. Perubahan: Katalog Training & Silabus (cari, filter, detail tujuan-materi-evaluasi; status Draf AI/Final, admin bisa menandai final); nama training di ITP, rekomendasi, training wajib, dan kalender tim bisa diklik ke silabusnya; tombol Riwayat Training karyawan (2025-2026) di form asesmen, nilai per kompetensi, dan layar hasil/validasi; layar Landasan Metodologi (dasar ilmiah, asumsi, rencana validasi, daftar pustaka). -->
 <!-- BBLC Studio v3.5, 25 Okt 2026. Perubahan (P1): mode Nilai per Kompetensi (seluruh tim satu jabatan sekaligus); Dashboard Tim (heatmap orang x kompetensi, gap terbesar, prioritas, rencana & kalender training tim); draft tersimpan di server (lanjut dari perangkat lain); Panel Admin: pemilih tanggal window, pemantauan penilai & validator, pengingat WhatsApp (pratinjau/kirim), aktivasi jadwal otomatis; nama level kembali ke istilah Inggris yang familiar (seragam di semua dokumen). -->
@@ -590,6 +591,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
           <div><label>Durasi default (jam)</label><input type="number" id="adm-DurasiDefaultJam"></div>
           <div><label>Maks porsi IHT dari total jam L&amp;D (%)</label><input type="number" min="0" max="90" id="adm-MaksPersenIHT"></div>
           <div><label>Durasi satu sesi IHT Sabtu (jam)</label><input type="number" step="0.5" min="0.5" id="adm-JamSesiIHT"></div>
+          <div><label>Proyeksi peserta BST per batch</label><input type="number" min="0" id="adm-ProyeksiPesertaBST"></div>
         </div>
         <div class="hint">Waktu dalam WITA. Bobot atasan + self harus = 1. Slot BST (tanggal 1-3 tiap bulan) dan IHT Sabtu dijadwalkan otomatis saat generate output.</div>
         <div class="err" id="err-tna-param"></div>
@@ -1771,7 +1773,7 @@ async function lihatMatriks(kode){
 }
 
 /* ---------- Admin ---------- */
-const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","MaksDianjurkan","DurasiDefaultJam","MaksPersenIHT","JamSesiIHT"];
+const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","MaksDianjurkan","DurasiDefaultJam","MaksPersenIHT","JamSesiIHT","ProyeksiPesertaBST"];
 $("btn-tna-admin").onclick = async ()=>{ show("scr-tna-admin"); muatAdminTNA(); };
 // datetime-local tidak membawa zona waktu: tampilkan & simpan sebagai WITA (+08:00) apa pun zona perangkat admin.
 function keLokalWITA(v){ const d = new Date(v); if(isNaN(d)) return ""; const w = new Date(d.getTime() + 8*3600000); return w.toISOString().slice(0,16); }
@@ -1822,7 +1824,7 @@ async function muatAdminTNA(){
       '<div class="hint">'+m.jabatan.filter(j=>j.status==="APPROVED").length+' dari '+m.jabatan.length+' jabatan sudah APPROVED.</div>';
     $("chk-jab-semua").onchange = ()=> document.querySelectorAll(".chk-jab:not(:disabled)").forEach(c=> c.checked = $("chk-jab-semua").checked);
     const L = o.links||{}, nama = { gap:"Gap Competency", matrix:"Training Matrix", plan:"Training Plan", calendar:"Training Calendar", itp:"Individual Training Plan" };
-    $("tna-adm-output").innerHTML = o.terakhir ? '<div class="hint" style="color:var(--text)">Terakhir generate: <b>'+esc(fmtTgl(o.terakhir))+'</b> · Rekonsiliasi jam ITP '+esc(o.rekon.jamITP)+' = Kalender '+esc(o.rekon.jamCalendar)+' (selisih '+esc(o.rekon.selisih)+')</div>'+
+    $("tna-adm-output").innerHTML = o.terakhir ? '<div class="hint" style="color:var(--text)">Terakhir generate: <b>'+esc(fmtTgl(o.terakhir))+'</b> · Rekonsiliasi jam ITP '+esc(o.rekon.jamITP)+(o.rekon.jamProyeksiBST?' + proyeksi calon BST '+esc(o.rekon.jamProyeksiBST):'')+' = Kalender '+esc(o.rekon.jamCalendar)+' (selisih '+esc(o.rekon.selisih)+')</div>'+
       (o.rekon.jamIHT!==undefined ? '<div class="hint" style="color:var(--text)">Porsi IHT <b>'+esc(o.rekon.persenIHT)+'%</b> (batas '+esc(o.rekon.maksPersenIHT)+'%): IHT '+esc(o.rekon.jamIHT)+' jam vs non-IHT terencana '+esc(o.rekon.jamNonIHT)+' jam'+(o.rekon.jamOpsional?' (+ Pengayaan opsional '+esc(o.rekon.jamOpsional)+' jam)':'')+
         '. Sesi IHT terjadwal '+esc(o.rekon.sesiIHTDijadwalkan)+' dari '+esc(o.rekon.sesiIHTDiminta)+' sesi kebutuhan pola 2026 · slot BST '+esc(o.rekon.slotBST)+' · slot IHT Sabtu '+esc(o.rekon.slotIHT)+'</div>' : '')+
       Object.keys(nama).map(k=> L[k] ? '<div style="margin-top:6px"><a href="'+esc(L[k])+'" target="_blank" rel="noopener">'+nama[k]+'</a></div>' : '').join("") : '<div class="empty">Belum pernah generate.</div>';

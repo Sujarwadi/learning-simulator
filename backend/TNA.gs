@@ -1,4 +1,7 @@
-/* BBLC TNA Engine v1.8, 26 Okt 2026. Perubahan: kalender default 2027 mengamankan slot BST tiap awal bulan (2 hari pelatihan +
+/* BBLC TNA Engine v1.9, 26 Okt 2026. Perubahan: peserta BST diproyeksikan dari batch terakhir (parameter ProyeksiPesertaBST,
+ * default 63 = BST 1-2 Sep 2026) karena pesertanya mayoritas calon sales baru yang belum ada di data karyawan; kolom Batch
+ * PesertaProyeksi, rekonsiliasi = jam ITP + jam proyeksi calon = jam Calendar; jam proyeksi ikut total jam L&D non-IHT.
+ * BBLC TNA Engine v1.8, 26 Okt 2026. Perubahan: kalender default 2027 mengamankan slot BST tiap awal bulan (2 hari pelatihan +
  * 1 hari remedial mulai tanggal 1, hari Minggu dilewati, Sabtu tetap jalan) dan IHT tiap Sabtu per cabang (rotasi rumpun
  * Selling/PK/After Sales/Self Management minggu ke-1..4, Sabtu ke-5 cadangan). Jam IHT per orang dari tab TNA_IHT (rata-rata
  * rencana IHT 2026 per jabatan) dan dibatasi MaksPersenIHT (default 20%) dari total jam L&D; kelas reguler mulai Selasa
@@ -28,7 +31,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.8";
+var TNA_VERSION = "1.9";
 
 /* ============================================================
  * SKEMA TAB
@@ -59,7 +62,7 @@ var TNA_TAB = {
   ITP: ["NIK", "Nama", "Cabang", "Wilayah", "KodeJabatan", "JobTitle", "KodeTraining", "Judul", "Kategori", "KodeKompetensi",
     "Bulan", "BatchID", "Jam", "Status", "StatusValidasi"],
   Validasi: ["Periode", "Target", "Jenis", "Nama", "Jabatan", "Cabang", "PenilaiNIK", "ValidatorNIK", "Status", "Catatan", "Edit", "Ringkasan", "DiperbaruiOleh", "Timestamp"],
-  Batch: ["BatchID", "KodeTraining", "Judul", "Kategori", "Metode", "Bulan", "Minggu", "TanggalMulai", "TanggalSelesai", "Lokasi", "JmlPeserta", "DurasiJam", "TotalJam", "Catatan"],
+  Batch: ["BatchID", "KodeTraining", "Judul", "Kategori", "Metode", "Bulan", "Minggu", "TanggalMulai", "TanggalSelesai", "Lokasi", "JmlPeserta", "PesertaProyeksi", "DurasiJam", "TotalJam", "Catatan"],
   Proyeksi: ["NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
     "TotalJam", "TargetJam", "PersenTarget", "StatusJam", "ReadinessSaatIni", "ReadinessProyeksi"],
   Draft: ["Periode", "RaterNIK", "Target", "Jawaban", "Timestamp"],
@@ -83,6 +86,7 @@ var TNA_PARAM_DEFAULT = [
   ["KoefPenugasan", 0.5, "Kenaikan level proyeksi dari penugasan"],
   ["JamCoachingPerGap", 1, "Jam coaching terstruktur per kompetensi gap per tahun (dihitung jam belajar)"],
   ["KodeBST", "D-BST", "Kode katalog BST: slot tetap tiap awal bulan (tgl 1-3, Minggu dilewati)"],
+  ["ProyeksiPesertaBST", 63, "Proyeksi peserta per batch BST bulanan (calon sales baru + karyawan); referensi BST 1-2 Sep 2026"],
   ["MaksPersenIHT", 20, "Batas porsi jam IHT dari total jam L&D (%), dihitung dari jam PLANNED"],
   ["JamSesiIHT", 2, "Durasi satu sesi IHT Sabtu (jam)"],
   ["OutputTerakhir", "", "Diisi sistem: waktu generate output terakhir"],
@@ -638,7 +642,7 @@ function tnaSetParameter(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
   var boleh = ["WindowBuka", "WindowTutup", "BobotAtasan", "BobotSelf", "TargetJamBulan", "KapasitasKelas", "MaksDianjurkan", "DurasiDefaultJam",
-    "KategoriDianjurkan", "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT"];
+    "KategoriDianjurkan", "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT", "ProyeksiPesertaBST"];
   var sh = tnaSheet(ss, "Parameter");
   var v = sh.getDataRange().getValues();
   var ubah = req.parameter || {};
@@ -1434,17 +1438,23 @@ function tnaBangunOutput(ss) {
     selasa.push(sl);
   }
   var tglPendek = function (d) { return d.getDate() + " " + TNA_BULAN[d.getMonth()]; };
+  var proyBST = Math.max(0, Math.round(Number(p.ProyeksiPesertaBST) || 0)), jamProyeksi = 0;
   if (kodeBST) {
-    var cB = katByKode[kodeBST];
+    var cB = katByKode[kodeBST], onlineB = /e-?learning|online|daring/i.test(String(cB.Metode || "")), capB = onlineB ? 1000 : kap;
     for (mb = 0; mb < 12; mb++) {
       var pesertaB = bstIdx.filter(function (i) { return itp[i].Bulan === mb; }), hb = hariBST[mb];
-      var nKelas = Math.max(1, Math.ceil(pesertaB.length / kap)); // slot tetap diamankan walau belum ada peserta
+      // peserta BST mayoritas calon sales baru (belum ada di data karyawan): kekurangan dari proyeksi diisi kursi proyeksi
+      var calon = Math.max(0, proyBST - pesertaB.length), total = pesertaB.length + calon;
+      var nKelas = Math.max(1, Math.ceil(total / capB)); // slot tetap diamankan walau belum ada peserta
       for (var kb = 0; kb < nKelas; kb++) {
-        var anggotaB = pesertaB.slice(kb * kap, (kb + 1) * kap), idB = "B" + tahun + "-" + ("0" + (mb + 1)).slice(-2) + "-" + kodeBST + "-TERPUSAT-" + (kb + 1);
+        var anggotaB = pesertaB.slice(kb * capB, (kb + 1) * capB), idB = "B" + tahun + "-" + ("0" + (mb + 1)).slice(-2) + "-" + kodeBST + "-" + (onlineB ? "ONLINE" : "TERPUSAT") + "-" + (kb + 1);
+        var calonK = Math.min(calon, capB - anggotaB.length); calon -= calonK;
         anggotaB.forEach(function (i) { itp[i].BatchID = idB; });
+        jamProyeksi += jamTraining(cB) * calonK;
         batchRows.push({ BatchID: idB, KodeTraining: kodeBST, Judul: cB.Judul, Kategori: cB.Kategori, Metode: cB.Metode || "", Bulan: TNA_BULAN[mb], Minggu: 1,
-          TanggalMulai: hb[0], TanggalSelesai: hb[1], Lokasi: "TERPUSAT", JmlPeserta: anggotaB.length, DurasiJam: jamTraining(cB),
-          TotalJam: jamTraining(cB) * anggotaB.length, Catatan: "Slot tetap BST awal bulan. Remedial " + tglPendek(hb[2]) + "." });
+          TanggalMulai: hb[0], TanggalSelesai: hb[1], Lokasi: onlineB ? "ONLINE" : "TERPUSAT", JmlPeserta: anggotaB.length, PesertaProyeksi: calonK, DurasiJam: jamTraining(cB),
+          TotalJam: jamTraining(cB) * (anggotaB.length + calonK), Catatan: "Slot tetap BST awal bulan. Remedial " + tglPendek(hb[2]) + "." +
+            (calonK ? " " + calonK + " kursi proyeksi calon sales baru." : "") });
       }
     }
   }
@@ -1461,14 +1471,14 @@ function tnaBangunOutput(ss) {
       anggota.forEach(function (i) { itp[i].BatchID = id; });
       var kat = itp[anggota[0]].Kategori;
       batchRows.push({ BatchID: id, KodeTraining: kode, Judul: c.Judul || kode, Kategori: kat, Metode: c.Metode || "", Bulan: TNA_BULAN[bln], Minggu: minggu,
-        TanggalMulai: tgl, TanggalSelesai: "", Lokasi: wil, JmlPeserta: anggota.length, DurasiJam: jam, TotalJam: jam * anggota.length, Catatan: "" });
+        TanggalMulai: tgl, TanggalSelesai: "", Lokasi: wil, JmlPeserta: anggota.length, PesertaProyeksi: 0, DurasiJam: jam, TotalJam: jam * anggota.length, Catatan: "" });
     }
   });
 
   // ---------- IHT tiap Sabtu per cabang, jam IHT maksimal MaksPersenIHT% dari total jam L&D ----------
   var jamSesi = Number(p.JamSesiIHT) || 2, maksIHT = Math.max(0, Math.min(90, Number(p.MaksPersenIHT) || 0));
   var ihtJab = {}; tnaBaca(ss, "IHT").forEach(function (r) { ihtJab[String(r.KodeJabatan)] = r; });
-  var jamNonIHT = itp.reduce(function (s, r) { return s + (r.Status === "PLANNED" ? Number(r.Jam) : 0); }, 0);
+  var jamNonIHT = itp.reduce(function (s, r) { return s + (r.Status === "PLANNED" ? Number(r.Jam) : 0); }, jamProyeksi);
   var kuotaSesi = Math.floor(jamNonIHT * maksIHT / (100 - maksIHT) / jamSesi);
   var sabtu = TNA_BULAN.map(function (b, m) {
     var out = [], d = new Date(tahun, m, 1);
@@ -1529,7 +1539,7 @@ function tnaBangunOutput(ss) {
       var cat = !cR ? "Sabtu ke-5: cadangan untuk susulan/remedial IHT." : (anggota.length ? "" : "Slot IHT tanpa peserta terjadwal; boleh diisi topik umum cabang.");
       if (bst) cat = (cat ? cat + " " : "") + "Bertepatan dengan BST (peserta BST tidak dijadwalkan IHT hari ini).";
       batchRows.push({ BatchID: id, KodeTraining: kode, Judul: cR ? cR.Judul : "IHT Cadangan (Sabtu ke-5)", Kategori: "IHT", Metode: cR ? cR.Metode : "KLASIKAL",
-        Bulan: TNA_BULAN[m], Minggu: ke + 1, TanggalMulai: tglS, TanggalSelesai: "", Lokasi: cab, JmlPeserta: anggota.length, DurasiJam: jamSesi,
+        Bulan: TNA_BULAN[m], Minggu: ke + 1, TanggalMulai: tglS, TanggalSelesai: "", Lokasi: cab, JmlPeserta: anggota.length, PesertaProyeksi: 0, DurasiJam: jamSesi,
         TotalJam: jamSesi * anggota.length, Catatan: cat });
       slotIHT++;
     });
@@ -1571,9 +1581,9 @@ function tnaBangunOutput(ss) {
   // ---------- Rekonsiliasi jam (Plan = ITP = Calendar) ----------
   var jamITP = itp.reduce(function (s, r) { return s + Number(r.Jam); }, 0);
   var jamBatch = batchRows.reduce(function (s, r) { return s + Number(r.TotalJam); }, 0);
-  var rekon = { jamITP: tnaR2(jamITP), jamCalendar: tnaR2(jamBatch), selisih: tnaR2(jamITP - jamBatch) };
+  var rekon = { jamITP: tnaR2(jamITP), jamProyeksiBST: tnaR2(jamProyeksi), jamCalendar: tnaR2(jamBatch), selisih: tnaR2(jamITP + jamProyeksi - jamBatch) };
   var jamIHT = itp.reduce(function (s, r) { return s + (r.Kategori === "IHT" ? Number(r.Jam) : 0); }, 0);
-  rekon.jamIHT = tnaR2(jamIHT); rekon.jamNonIHT = tnaR2(jamNonIHT); rekon.jamOpsional = tnaR2(jamITP - jamIHT - jamNonIHT);
+  rekon.jamIHT = tnaR2(jamIHT); rekon.jamNonIHT = tnaR2(jamNonIHT); rekon.jamOpsional = tnaR2(jamITP + jamProyeksi - jamIHT - jamNonIHT);
   rekon.persenIHT = jamIHT + jamNonIHT ? Math.round(jamIHT / (jamIHT + jamNonIHT) * 1000) / 10 : 0; rekon.maksPersenIHT = maksIHT;
   rekon.sesiIHTDiminta = totMinta; rekon.sesiIHTDijadwalkan = itp.filter(function (r) { return r.Kategori === "IHT"; }).length; rekon.slotIHT = slotIHT;
   rekon.slotBST = batchRows.filter(function (b) { return b.KodeTraining === kodeBST && kodeBST; }).length;
@@ -1777,6 +1787,11 @@ function tnaEksporDokumen(ss) {
   itpAll.forEach(function (r) {
     var o = plan[r.KodeTraining] = plan[r.KodeTraining] || { kode: r.KodeTraining, judul: r.Judul, kat: r.Kategori, peserta: 0, jam: 0, bulan: {}, batch: {} };
     o.peserta++; o.jam += Number(r.Jam); o.bulan[r.Bulan] = (o.bulan[r.Bulan] || 0) + 1; o.batch[r.BatchID] = true;
+  });
+  tnaBaca(ss, "Batch").forEach(function (b) { // kursi proyeksi calon peserta (BST) supaya Plan = Calendar
+    var n = Number(b.PesertaProyeksi || 0); if (!n) return;
+    var o = plan[b.KodeTraining] = plan[b.KodeTraining] || { kode: b.KodeTraining, judul: b.Judul, kat: b.Kategori, peserta: 0, jam: 0, bulan: {}, batch: {} };
+    o.peserta += n; o.jam += n * Number(b.DurasiJam); o.bulan[b.Bulan] = (o.bulan[b.Bulan] || 0) + n; o.batch[b.BatchID] = true;
   });
   var planRows = Object.keys(plan).sort().map(function (k) {
     var o = plan[k]; return [o.kode, o.judul, o.kat, o.peserta, Object.keys(o.batch).length, tnaR2(o.jam)].concat(TNA_BULAN.map(function (b) { return o.bulan[b] || ""; }));

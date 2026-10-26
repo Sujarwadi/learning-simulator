@@ -35,6 +35,7 @@ Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk oran
 - Paket import kini berisi tab `IHT` (rata-rata jam IHT 2026 per jabatan) dan 4 entri katalog rumpun IHT (`IHT-SELL`, `IHT-PK`, `IHT-ASV`, `IHT-SELF`, kategori `IHT`). Ikut ter-import oleh `tnaImportPaket`.
 - Tab `TNA_Batch` mendapat kolom `TanggalSelesai` dan `Catatan`. Header ditulis ulang otomatis saat generate output; tidak perlu langkah manual.
 - Parameter baru (default dipakai bila belum ada di tab Parameter): `KodeBST` (D-BST), `MaksPersenIHT` (20), `JamSesiIHT` (2). Dua yang terakhir bisa diubah di Panel Admin.
+- v1.9: kolom `PesertaProyeksi` di `TNA_Batch` dan parameter `ProyeksiPesertaBST` (default 63, referensi BST 1-2 Sep 2026; ubah di Panel Admin). Katalog D-BST kini berstatus metode ONLINE (Zoom).
 - Setelah generate, Panel Admin menampilkan porsi IHT terhadap total jam L&D dan jumlah sesi IHT terjadwal vs kebutuhan pola 2026.
 
 ## Validasi Head unit (v1.3)
