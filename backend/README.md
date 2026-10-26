@@ -5,7 +5,11 @@
   Semua tab yang dipakai berawalan `TNA_`, jadi tab lama tidak tersentuh.
 
 ## Pemasangan TNA.gs
-0. **Wajib (sejak v1.6): perbarui `appsscript.json`** dengan isi file `backend/appsscript.json` di repo (menambah scope `script.scriptapp` untuk jadwal otomatis output & pengingat). Di editor: ⚙️ Setelan project → centang "Tampilkan file manifes appsscript.json" → tempel. Lalu jalankan fungsi apa saja sekali dan setujui izin baru (pakai jendela Incognito dengan satu akun).
+0. **Wajib: GABUNGKAN scope di `appsscript.json`, jangan timpa seluruh file.** Manifest berlaku untuk SEMUA kode di project (Kode.gs + TNA.gs). Kalau ditimpa begitu saja, scope milik Kode.gs (mis. `drive.file` untuk ekspor & upload video Learning Simulator) dan setelan `webapp` bisa hilang, lalu fitur lama berhenti.
+   - Di editor: ⚙️ Setelan project → centang "Tampilkan file manifes appsscript.json" → buka `appsscript.json` yang SEKARANG.
+   - Pastikan daftar `oauthScopes` memuat keempat scope ini; tambahkan yang belum ada, JANGAN hapus yang sudah ada: `spreadsheets`, `drive.file`, `script.external_request`, `script.scriptapp` (lihat `backend/appsscript.json` di repo sebagai acuan).
+   - Bagian `webapp` (executeAs, access) biarkan seperti yang sekarang berjalan.
+   - Jalankan fungsi apa saja sekali dan setujui izin (jendela Incognito, satu akun).
 1. Di editor Apps Script, klik **+** (File) → **Skrip**, beri nama `TNA`, lalu tempel isi `TNA.gs`.
 2. Di `Kode.gs`, fungsi `doPost`, ganti baris `default:` menjadi:
    ```js
@@ -21,6 +25,14 @@
 5. Buka Studio sebagai Admin → Panel Admin TNA → centang "Pilih semua" → **Setujui Jabatan Terpilih**.
 6. Di Panel Admin TNA, tekan **Aktifkan Jadwal Otomatis** (generate output 5 menit setelah window tutup + pengingat WA harian). Alternatif dari editor: jalankan `tnaJadwalkanOutput` dan `tnaJadwalkanPengingat`.
 7. **Deploy → Kelola deployment → ✏️ → Versi: Versi baru → Deploy.**
+
+## Cek terakhir sebelum window buka (27 Okt 00:00 WITA)
+1. **Log `tnaImportPaket`**: jumlah baris per tab sesuai (Karyawan 807, Katalog 166, Silabus 61, IHT 26) dan baris "Users: ... user baru".
+2. **User baru = PIN acak, nomor HP kosong.** Mereka tidak bisa login dan tidak menerima WA sampai PIN-nya diberikan. Di tab Users, filter kolom Wajib_Ganti_PIN = TRUE dan NoHP kosong, lalu bagikan PIN lewat Kacab/atasan masing-masing (atau isi NoHP supaya ikut pengingat WA).
+3. **Panel Admin → Parameter**: Window dibuka 27 Okt 2026 00:00, ditutup 3 Nov 2026 23:59 (WITA). Tab Parameter lama dari uji coba bisa masih menyimpan tanggal tes.
+4. **Bersihkan data uji pilot** di `TNA_Asesmen`, `TNA_Validasi`, `TNA_Draft` bila pilot memakai NIK asli dengan jawaban percobaan (hapus barisnya, header jangan).
+5. **Jadwal Otomatis aktif** (Panel Admin menampilkan trigger output & pengingat).
+6. **Uji asap** setelah Deploy versi baru dan merge ke `main`: login admin, satu penilai, satu karyawan; buka form, Katalog, Riwayat, Landasan. Fitur Learning Simulator lama (roleplay, video) juga dicoba sekali karena manifest berubah.
 
 ## Tab TNA_Riwayat (v1.1)
 Isi `NIK, KodeTraining, Tanggal, Sumber` untuk training Wajib yang SUDAH lulus (mis. Step 1, MSA 1, Brevet).
