@@ -38,6 +38,10 @@ Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk oran
 - v1.9: kolom `PesertaProyeksi` di `TNA_Batch` dan parameter `ProyeksiPesertaBST` (default 63, referensi BST 1-2 Sep 2026; ubah di Panel Admin). Katalog D-BST kini berstatus metode ONLINE (Zoom).
 - Setelah generate, Panel Admin menampilkan porsi IHT terhadap total jam L&D dan jumlah sesi IHT terjadwal vs kebutuhan pola 2026.
 
+## Program 2027 (v2.0)
+- Paket import menambah 11 modul baru (status `USULAN_PENGADAAN`) dan Mandatory jalur sales, aftersales, HR for Non-HR, dan BEI. Ikut ter-import seperti biasa.
+- Parameter `JendelaKhusus` (JSON kode -> bulan 1-12) mengatur bulan program tertentu (Kacab Academy per kuartal, dst). Edit langsung di tab `TNA_Parameter` bila perlu.
+
 ## Validasi Head unit (v1.3)
 - Kolom `ValidatorNIK` di tab Karyawan menentukan siapa yang memvalidasi (Kacab di cabang, Dept Head di HO). Kosong = Admin L&D.
 - Status validasi tersimpan di tab `TNA_Validasi`. Jangan diedit manual kecuali koreksi darurat.

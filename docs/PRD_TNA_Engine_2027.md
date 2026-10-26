@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.7, 26 Okt 2026 (M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
+**Versi dokumen:** 1.8, 26 Okt 2026 (M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -178,6 +178,14 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR13.4 Batas porsi IHT:** jam IHT ≤ `MaksPersenIHT` (default 20%) dari total jam L&D, dihitung terhadap jam non-IHT berstatus `PLANNED` (Wajib + Dianjurkan, termasuk BST dan kursi proyeksi calon BST; Pengayaan `OPSIONAL` tidak dihitung supaya batas tetap terpenuhi walau Pengayaan tidak diambil). Bila kebutuhan pola 2026 melebihi batas, sesi tiap orang dipangkas proporsional (sisa pecahan terbesar didahulukan). Rekonsiliasi dan Panel Admin menampilkan porsi IHT, jam IHT vs non-IHT, dan sesi terjadwal vs kebutuhan. Konsekuensinya: menaikkan jam IHT hanya bisa dengan menambah jam training non-IHT terencana.
 - **FR13.5 Baseline 2026** (master data BBLC): IHT = 33% jam rencana (18.061 dari 54.163 jam) dan 38,8% jam yang dihadiri. Simulasi skala penuh 2027 (804 orang, penilaian sintetis, BST 63 peserta/bulan): non-IHT terencana 30.001 jam (21.469 jam karyawan + 8.532 jam kursi proyeksi BST), IHT 7.500 jam (20,0%), yaitu 60% dari kebutuhan pola 2026 (12.400 jam). Untuk mempertahankan volume IHT 2026 di batas 20%, jam non-IHT terencana perlu ±49.600 jam.
 
+### M14 — Program Pengembangan 2027 (v1.8, keputusan 26 Okt: opsi A, tema peningkatan technical skill)
+- **FR14.1 Target dua lapis:** Lapis 1 = jam & komposisi (IHT ≤ 20%, non-IHT ±37 jam/karyawan). Lapis 2 = dampak (kenaikan pre/post test, kelulusan sertifikasi per jalur, perbaikan gap TNA 2028).
+- **FR14.2 Jalur sales** Trainee → Junior → Senior → Supervisor → Branch Head dengan peran dan kompetensi pembeda per level (lihat file Development Framework 2027): Junior = konversi & kredit (D-IST, D-LEAS), Senior = akun/fleet & value selling TCO + buddy (D-AST, D-FLEET, D-MENTOR), Supervisor = coaching + exposure workshop management (D-SPV, D-ASX + shadowing bengkel), Kacab = P&L cabang termasuk profit aftersales (BMDP-01..09 + BMDP-10). Semua sales dan CS Sales wajib PK online per model (W-PK27, 12 jam).
+- **FR14.3 Jalur aftersales:** SA/CS wajib SA & CS Master Class (D-SACS); lulusan otomatis mendapat modul lanjutan sesuai peran (SA → D-SAADV, CS → D-CSVOC; Mandatory per NIK dari riwayat). D-SALEAD dan D-CSPS untuk level 5 (Dianjurkan, berbasis gap).
+- **FR14.4 Enablers academy:** HR for Non-HR (W-HRNH) wajib untuk semua Head/Supervisor/Coordinator; Wawancara Terstruktur & BEI (W-BEI) wajib untuk hiring manager cabang dan tim rekrutmen HC. 20 usulan kompetensi teknis enablers (pajak, akuntansi, piutang, inventory, gudang, Excel/data, K3, dll.) diberi judul, durasi, dan penyelenggara konkret; dijadwalkan otomatis bila asesmen menunjukkan gap.
+- **FR14.5 Jendela bulan per program** (`JendelaKhusus`, JSON): Kacab Academy mengikuti kuartal, program 2027 lain tersebar Feb–Nov supaya tidak menumpuk di jendela Wajib Jan–Jun.
+- **FR14.6** Semua modul baru berstatus `USULAN_PENGADAAN` sampai materi/vendor siap. Simulasi skala penuh: non-IHT 40,2 jam/karyawan, IHT 12,7 jam/karyawan (20%, 82% kebutuhan pola 2026).
+
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
 Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
@@ -249,7 +257,8 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 5. Durasi modul internal lain (CB-xx dari median 2026, SA & CS Master Class, dll) perlu dicek L&D di tab Katalog.
 6. Review silabus `DRAF_AI` oleh L&D (43 program). Temuan dari materi yang perlu diputuskan: ~~nilai lulus BST 70 vs 75~~ → 70/100 (dikonfirmasi 26 Okt); modul IST M1-01, M1-03, M1-06 tidak ada di folder; template Modul Monitoring masih kosong; 7 Step Service baru terbaca langkah 1; materi "Sales Jago Jualan" 2024 memakai contoh Mercedes-Benz Trucks.
 
-7. Cara menaikkan jam non-IHT 2027 agar ruang IHT bertambah (FR13.5): program non-IHT apa yang ditambah (mis. modul online Product Knowledge per model untuk sales, kelas teknis tambahan), dan apakah Pengayaan `OPSIONAL` ikut dihitung sebagai jam L&D.
+8. Program 2027 (M14): daftar model kendaraan untuk W-PK27 per kuartal mengikuti jadwal launching APM; vendor final setelah RFQ; kriteria masa kerja Sales Junior sebelum IST (saat ini semua Junior wajib, urutan diatur L&D).
+7. ~~Cara menaikkan jam non-IHT 2027~~ → M14 (opsi A). Catatan lama: Cara menaikkan jam non-IHT 2027 agar ruang IHT bertambah (FR13.5): program non-IHT apa yang ditambah (mis. modul online Product Knowledge per model untuk sales, kelas teknis tambahan), dan apakah Pengayaan `OPSIONAL` ikut dihitung sebagai jam L&D.
 
 ## 12. Landasan Metodologi & Rencana Validasi
 

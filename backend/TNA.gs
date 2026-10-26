@@ -1,4 +1,6 @@
-/* BBLC TNA Engine v1.9, 26 Okt 2026. Perubahan: peserta BST diproyeksikan dari batch terakhir (parameter ProyeksiPesertaBST,
+/* BBLC TNA Engine v2.0, 26 Okt 2026. Perubahan: parameter JendelaKhusus (JSON kode training -> bulan 1-12) supaya program 2027
+ * (Kacab Academy per kuartal, jalur sales, PK online, HR for Non-HR, BEI) tersebar sepanjang tahun, tidak menumpuk di jendela Wajib Jan-Jun.
+ * BBLC TNA Engine v1.9, 26 Okt 2026. Perubahan: peserta BST diproyeksikan dari batch terakhir (parameter ProyeksiPesertaBST,
  * default 63 = BST 1-2 Sep 2026) karena pesertanya mayoritas calon sales baru yang belum ada di data karyawan; kolom Batch
  * PesertaProyeksi, rekonsiliasi = jam ITP + jam proyeksi calon = jam Calendar; jam proyeksi ikut total jam L&D non-IHT.
  * BBLC TNA Engine v1.8, 26 Okt 2026. Perubahan: kalender default 2027 mengamankan slot BST tiap awal bulan (2 hari pelatihan +
@@ -31,7 +33,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.9";
+var TNA_VERSION = "2.0";
 
 /* ============================================================
  * SKEMA TAB
@@ -87,6 +89,12 @@ var TNA_PARAM_DEFAULT = [
   ["JamCoachingPerGap", 1, "Jam coaching terstruktur per kompetensi gap per tahun (dihitung jam belajar)"],
   ["KodeBST", "D-BST", "Kode katalog BST: slot tetap tiap awal bulan (tgl 1-3, Minggu dilewati)"],
   ["ProyeksiPesertaBST", 63, "Proyeksi peserta per batch BST bulanan (calon sales baru + karyawan); referensi BST 1-2 Sep 2026"],
+  ["JendelaKhusus", JSON.stringify({ "BMDP-01": [1, 2, 3], "BMDP-03": [1, 2, 3], "BMDP-02": [4, 5, 6], "BMDP-05": [4, 5, 6], "BMDP-10": [4, 5, 6],
+    "BMDP-04": [7, 8, 9], "BMDP-06": [7, 8, 9], "BMDP-07": [7, 8, 9], "BMDP-08": [10, 11], "BMDP-09": [10, 11], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "D-IST": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-LEAS": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-AST": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-FLEET": [3, 4, 5, 6, 7, 8, 9, 10],
+    "D-MENTOR": [3, 4, 5, 6, 7, 8, 9, 10], "D-SPV": [2, 3, 4, 5, 6, 7, 8, 9, 10], "D-ASX": [3, 4, 5, 6, 7, 8, 9, 10], "D-SACS": [2, 3, 4, 5, 6, 7, 8],
+    "W-HRNH": [2, 3, 4, 5, 6, 7, 8, 9, 10], "W-BEI": [2, 3, 4, 5, 6, 7, 8, 9, 10] }),
+    "Jendela bulan (1-12) per kode training, menggantikan jendela kategori"],
   ["MaksPersenIHT", 20, "Batas porsi jam IHT dari total jam L&D (%), dihitung dari jam PLANNED"],
   ["JamSesiIHT", 2, "Durasi satu sesi IHT Sabtu (jam)"],
   ["OutputTerakhir", "", "Diisi sistem: waktu generate output terakhir"],
@@ -1309,6 +1317,8 @@ function tnaBangunOutput(ss) {
   function jamTraining(c) { var d = Number(c && c.DurasiJam); return d > 0 ? d : durDefault; }
   var mandatory = tnaBaca(ss, "Mandatory");
   var kodeBST = katByKode[String(p.KodeBST || "")] ? String(p.KodeBST) : "";
+  var khusus = {};
+  try { khusus = JSON.parse(String(p.JendelaKhusus || "{}")); } catch (eJ) { khusus = {}; }
   var val = tnaPetaValidasi(ss, p);
   function statusValidasi(k) {
     var v = val[tnaKunciValidasi(k)];
@@ -1349,6 +1359,8 @@ function tnaBangunOutput(ss) {
   var itp = [], beban = {};
   function jendela(kategori, kode) {
     if (kode === kodeBST) return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; // BST ada tiap bulan
+    var kh = (khusus[kode] || []).map(Number).filter(function (b) { return b >= 1 && b <= 12; });
+    if (kh.length) return kh.map(function (b) { return b - 1; });
     if (kategori === "Wajib") return /^W-(AFA|AIDW)$/.test(kode) ? [0, 1, 2] : [0, 1, 2, 3, 4, 5];
     if (kategori === "Dianjurkan") return [2, 3, 4, 5, 6, 7, 8, 9, 10];
     return [3, 4, 5, 6, 7, 8, 9, 10];
