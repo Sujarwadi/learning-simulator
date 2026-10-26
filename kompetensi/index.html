@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.7, 26 Okt 2026. Perubahan: kalender 2027 menampilkan slot BST awal bulan dan IHT Sabtu per cabang (badge IHT di ITP, Training Tim, dan Katalog; filter Katalog "IHT Sabtu"); Panel Admin menambah parameter Maks porsi IHT (%) dan durasi sesi IHT, serta menampilkan porsi IHT terhadap total jam L&D di rekonsiliasi. -->
 <!-- BBLC Studio v3.6, 26 Okt 2026. Perubahan: Katalog Training & Silabus (cari, filter, detail tujuan-materi-evaluasi; status Draf AI/Final, admin bisa menandai final); nama training di ITP, rekomendasi, training wajib, dan kalender tim bisa diklik ke silabusnya; tombol Riwayat Training karyawan (2025-2026) di form asesmen, nilai per kompetensi, dan layar hasil/validasi; layar Landasan Metodologi (dasar ilmiah, asumsi, rencana validasi, daftar pustaka). -->
 <!-- BBLC Studio v3.5, 25 Okt 2026. Perubahan (P1): mode Nilai per Kompetensi (seluruh tim satu jabatan sekaligus); Dashboard Tim (heatmap orang x kompetensi, gap terbesar, prioritas, rencana & kalender training tim); draft tersimpan di server (lanjut dari perangkat lain); Panel Admin: pemilih tanggal window, pemantauan penilai & validator, pengingat WhatsApp (pratinjau/kirim), aktivasi jadwal otomatis; nama level kembali ke istilah Inggris yang familiar (seragam di semua dokumen). -->
 <!-- BBLC Studio v3.4, 25 Okt 2026. Perubahan (P0 audit): nama level seragam Dasar/Berkembang/Mandiri/Mahir/Ahli; kartu To-do + hitung mundur di beranda; tombol "Nilai berikutnya" setelah submit; peringatan sebelum kirim (semua level sama / mayoritas Level 5); validator melihat centangan perilaku tiap penilai; validasi bisa dimiliki dua orang (mis. dua NOH); tombol Studio lama disembunyikan dari non-admin selama TNA. -->
@@ -450,7 +451,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
         <div><label for="sel-kat-jenis">Tampilkan</label><select id="sel-kat-jenis">
           <option value="">Semua program</option><option value="SILABUS">Yang sudah punya silabus</option>
           <option value="Wajib">Kategori Wajib</option><option value="Dianjurkan">Kategori Dianjurkan</option>
-          <option value="Pengayaan">Kategori Pengayaan</option><option value="INTERNAL">Program internal BBLC (IHT dll.)</option></select></div>
+          <option value="Pengayaan">Kategori Pengayaan</option><option value="IHT">IHT Sabtu (rumpun)</option><option value="INTERNAL">Program internal BBLC (IHT dll.)</option></select></div>
       </div>
       <div id="kat-body"><div class="loading"><div class="spinner"></div>Memuat katalog&hellip;</div></div>
     </div>
@@ -587,8 +588,10 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
           <div><label>Kapasitas kelas</label><input type="number" id="adm-KapasitasKelas"></div>
           <div><label>Maks training Dianjurkan/orang</label><input type="number" id="adm-MaksDianjurkan"></div>
           <div><label>Durasi default (jam)</label><input type="number" id="adm-DurasiDefaultJam"></div>
+          <div><label>Maks porsi IHT dari total jam L&amp;D (%)</label><input type="number" min="0" max="90" id="adm-MaksPersenIHT"></div>
+          <div><label>Durasi satu sesi IHT Sabtu (jam)</label><input type="number" step="0.5" min="0.5" id="adm-JamSesiIHT"></div>
         </div>
-        <div class="hint">Waktu dalam WITA. Bobot atasan + self harus = 1.</div>
+        <div class="hint">Waktu dalam WITA. Bobot atasan + self harus = 1. Slot BST (tanggal 1-3 tiap bulan) dan IHT Sabtu dijadwalkan otomatis saat generate output.</div>
         <div class="err" id="err-tna-param"></div>
         <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-simpan-param">Simpan Parameter</button></div>
       </div>
@@ -1140,13 +1143,13 @@ function renderKatalog(){
   const list = semua.filter(x=>{
     if(jenis==="SILABUS" && !(x.sil && x.sil.Status!=="BELUM_ADA_SILABUS")) return false;
     if(jenis==="INTERNAL" && !x.internal) return false;
-    if(["Wajib","Dianjurkan","Pengayaan"].includes(jenis) && x.kategori!==jenis) return false;
+    if(["Wajib","Dianjurkan","Pengayaan","IHT"].includes(jenis) && x.kategori!==jenis) return false;
     if(!q) return true;
     return (x.kode+" "+x.judul+" "+(x.kompetensi||"")+" "+(x.sil?x.sil.Outline+" "+x.sil.Sasaran:"")).toLowerCase().includes(q);
   }).sort((a,b)=> (b.sil&&b.sil.Status!=="BELUM_ADA_SILABUS"?1:0)-(a.sil&&a.sil.Status!=="BELUM_ADA_SILABUS"?1:0) || String(a.judul).localeCompare(String(b.judul)));
   const nSil = semua.filter(x=>x.sil && x.sil.Status!=="BELUM_ADA_SILABUS").length;
   $("kat-sub").textContent = semua.length + " program · " + nSil + " sudah punya silabus";
-  const katCls = { Wajib:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey" };
+  const katCls = { Wajib:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey", IHT:"badge-green" };
   $("kat-body").innerHTML = list.length ? list.slice(0,200).map(x=>
     '<button type="button" class="kat-item" data-trn="'+esc(x.kode)+'"><b>'+esc(x.judul)+'</b> <span class="hint">'+esc(x.kode)+'</span>'+
     '<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge '+(katCls[x.kategori]||"badge-grey")+'">'+esc(x.internal?"Internal: "+(x.kategori||""):x.kategori)+'</span>'+badgeSilabus(x.sil)+
@@ -1616,8 +1619,8 @@ function renderDashTraining(r){
     const gs = perBulan[b].sort((x,y)=> String(x.tanggal).localeCompare(String(y.tanggal)) || y.jumlah - x.jumlah);
     const jamBln = gs.filter(g=>!g.opsional).reduce((a,g)=>a+g.jam*g.jumlah,0), nPes = gs.reduce((a,g)=>a+g.jumlah,0);
     return '<h2 class="sect">'+b+' 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+nPes+' peserta · '+jamBln+' jam</span></h2><div class="card">'+
-      gs.map(g=>'<div class="idp-line" style="margin:8px 0"><b>'+trn(g.kode, g.judul)+'</b> <span class="badge '+({Wajib:"badge-red",Dianjurkan:"badge-amber"}[g.kategori]||"badge-grey")+'">'+esc(g.kategori)+'</span>'+
-        '<div class="hint" style="margin:2px 0">'+(g.tanggal?'mulai '+esc(new Date(g.tanggal).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+' · ':'')+esc(g.lokasi==="ONLINE"?"Online":g.lokasi)+' · '+g.jam+' jam · <b>'+g.jumlah+' orang</b></div>'+
+      gs.map(g=>'<div class="idp-line" style="margin:8px 0"><b>'+trn(g.kode, g.judul)+'</b> <span class="badge '+({Wajib:"badge-red",Dianjurkan:"badge-amber",IHT:"badge-green"}[g.kategori]||"badge-grey")+'">'+esc(g.kategori)+'</span>'+
+        '<div class="hint" style="margin:2px 0">'+(g.tanggal?'mulai '+esc(new Date(g.tanggal).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+' · ':'')+esc(g.lokasi==="ONLINE"?"Online":(g.lokasi==="TERPUSAT"?"Kelas terpusat":g.lokasi))+' · '+g.jam+' jam · <b>'+g.jumlah+' orang</b></div>'+
         (g.nama.length ? '<div style="font-size:12.5px">'+g.nama.map(esc).join(", ")+'</div>' : '')+'</div>').join("")+'</div>';
   }).join("");
   const ringkas = '<div class="card" style="padding:14px 18px"><b>Jam training per orang (tanpa Pengayaan)</b>'+
@@ -1724,11 +1727,11 @@ async function bukaITP(nik){
     const r = await tnaApi("tnaITPSaya", { target: nik });
     $("tna-itp-sub").textContent = r.nama + " · " + r.jabatan;
     if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP &amp; kalender training belum diterbitkan. Output TNA 2027 terbit setelah window asesmen ditutup dan hasil divalidasi.</div></div>'; return; }
-    const katCls = { Wajib:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey" };
+    const katCls = { Wajib:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey", IHT:"badge-green" };
     const gapCls = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
     $("tna-itp-body").innerHTML =
       '<h2 class="sect">Rencana &amp; Kalender Training 2027</h2><div class="card" style="overflow-x:auto"><table><tr><th>Jadwal</th><th>Training</th><th>Jam</th></tr>'+
-      r.itp.map(t=>'<tr><td style="white-space:nowrap"><b>'+esc(t.Bulan)+'</b>'+(t.TanggalMulai?'<div class="hint" style="margin:0">mulai '+esc(new Date(t.TanggalMulai).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+'</div>':'')+'</td><td>'+trn(t.KodeTraining, t.Judul)+'<div style="margin-top:3px"><span class="badge '+(katCls[t.Kategori]||"badge-grey")+'">'+esc(t.Kategori)+'</span> <span class="hint">'+esc(t.Lokasi==="ONLINE"?"Online":(t.Lokasi||""))+'</span></div></td><td>'+esc(t.Jam)+'</td></tr>').join("")+'</table>'+
+      r.itp.map(t=>'<tr><td style="white-space:nowrap"><b>'+esc(t.Bulan)+'</b>'+(t.TanggalMulai?'<div class="hint" style="margin:0">'+(t.Kategori==="IHT"?'Sabtu ':'mulai ')+esc(new Date(t.TanggalMulai).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+'</div>':'')+'</td><td>'+trn(t.KodeTraining, t.Judul)+'<div style="margin-top:3px"><span class="badge '+(katCls[t.Kategori]||"badge-grey")+'">'+esc(t.Kategori)+'</span> <span class="hint">'+esc(t.Lokasi==="ONLINE"?"Online":(t.Lokasi==="TERPUSAT"?"Kelas terpusat":(t.Lokasi||"")))+'</span></div></td><td>'+esc(t.Jam)+'</td></tr>').join("")+'</table>'+
       '<div class="hint">Total '+r.itp.reduce((a,t)=>a+Number(t.Jam||0),0)+' jam. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>'+
       '<h2 class="sect"'+(r.gap.length?'':' style="display:none"')+'>Hasil Kompetensi</h2><div class="card" style="overflow-x:auto'+(r.gap.length?'':';display:none')+'"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
       r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.Actual)+'</td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+'</span></td></tr>').join("")+'</table></div>'+
@@ -1768,7 +1771,7 @@ async function lihatMatriks(kode){
 }
 
 /* ---------- Admin ---------- */
-const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","MaksDianjurkan","DurasiDefaultJam"];
+const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","MaksDianjurkan","DurasiDefaultJam","MaksPersenIHT","JamSesiIHT"];
 $("btn-tna-admin").onclick = async ()=>{ show("scr-tna-admin"); muatAdminTNA(); };
 // datetime-local tidak membawa zona waktu: tampilkan & simpan sebagai WITA (+08:00) apa pun zona perangkat admin.
 function keLokalWITA(v){ const d = new Date(v); if(isNaN(d)) return ""; const w = new Date(d.getTime() + 8*3600000); return w.toISOString().slice(0,16); }
@@ -1820,6 +1823,8 @@ async function muatAdminTNA(){
     $("chk-jab-semua").onchange = ()=> document.querySelectorAll(".chk-jab:not(:disabled)").forEach(c=> c.checked = $("chk-jab-semua").checked);
     const L = o.links||{}, nama = { gap:"Gap Competency", matrix:"Training Matrix", plan:"Training Plan", calendar:"Training Calendar", itp:"Individual Training Plan" };
     $("tna-adm-output").innerHTML = o.terakhir ? '<div class="hint" style="color:var(--text)">Terakhir generate: <b>'+esc(fmtTgl(o.terakhir))+'</b> · Rekonsiliasi jam ITP '+esc(o.rekon.jamITP)+' = Kalender '+esc(o.rekon.jamCalendar)+' (selisih '+esc(o.rekon.selisih)+')</div>'+
+      (o.rekon.jamIHT!==undefined ? '<div class="hint" style="color:var(--text)">Porsi IHT <b>'+esc(o.rekon.persenIHT)+'%</b> (batas '+esc(o.rekon.maksPersenIHT)+'%): IHT '+esc(o.rekon.jamIHT)+' jam vs non-IHT terencana '+esc(o.rekon.jamNonIHT)+' jam'+(o.rekon.jamOpsional?' (+ Pengayaan opsional '+esc(o.rekon.jamOpsional)+' jam)':'')+
+        '. Sesi IHT terjadwal '+esc(o.rekon.sesiIHTDijadwalkan)+' dari '+esc(o.rekon.sesiIHTDiminta)+' sesi kebutuhan pola 2026 · slot BST '+esc(o.rekon.slotBST)+' · slot IHT Sabtu '+esc(o.rekon.slotIHT)+'</div>' : '')+
       Object.keys(nama).map(k=> L[k] ? '<div style="margin-top:6px"><a href="'+esc(L[k])+'" target="_blank" rel="noopener">'+nama[k]+'</a></div>' : '').join("") : '<div class="empty">Belum pernah generate.</div>';
   }catch(e){ showErr("err-tna-output", e.message); }
 }

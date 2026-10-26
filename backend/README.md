@@ -31,6 +31,12 @@ Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk oran
 - `TNA_RekamTraining` harus tetap **diurutkan per NIK** (sudah begitu dari file import). Baris yang ditambah manual di bawah tetap terbaca, hanya sedikit lebih lambat.
 - Silabus yang sudah direview: buka Studio sebagai Admin → Katalog Training & Silabus → pilih training → **Tandai silabus final**. Boleh juga mengedit isi silabus langsung di tab `TNA_Silabus`.
 
+## Kalender BST & IHT (v1.8)
+- Paket import kini berisi tab `IHT` (rata-rata jam IHT 2026 per jabatan) dan 4 entri katalog rumpun IHT (`IHT-SELL`, `IHT-PK`, `IHT-ASV`, `IHT-SELF`, kategori `IHT`). Ikut ter-import oleh `tnaImportPaket`.
+- Tab `TNA_Batch` mendapat kolom `TanggalSelesai` dan `Catatan`. Header ditulis ulang otomatis saat generate output; tidak perlu langkah manual.
+- Parameter baru (default dipakai bila belum ada di tab Parameter): `KodeBST` (D-BST), `MaksPersenIHT` (20), `JamSesiIHT` (2). Dua yang terakhir bisa diubah di Panel Admin.
+- Setelah generate, Panel Admin menampilkan porsi IHT terhadap total jam L&D dan jumlah sesi IHT terjadwal vs kebutuhan pola 2026.
+
 ## Validasi Head unit (v1.3)
 - Kolom `ValidatorNIK` di tab Karyawan menentukan siapa yang memvalidasi (Kacab di cabang, Dept Head di HO). Kosong = Admin L&D.
 - Status validasi tersimpan di tab `TNA_Validasi`. Jangan diedit manual kecuali koreksi darurat.

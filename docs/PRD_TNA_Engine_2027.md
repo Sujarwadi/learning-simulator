@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.5, 26 Okt 2026 (tambah M12 Katalog, Silabus & Riwayat Training dan §12 Landasan Metodologi & Rencana Validasi)
+**Versi dokumen:** 1.6, 26 Okt 2026 (tambah M13 Kalender Default: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%; nilai lulus BST 70)
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -171,6 +171,13 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR12.3 Riwayat Training** (`tnaRekam`): seluruh training 2025 (master data, selesai) dan 2026 (status kehadiran HADIR / TIDAK HADIR / PLAN) per karyawan, termasuk jam, penyelenggara, dan nilai post-test, plus ringkasan per tahun. Tombol tersedia di form asesmen, mode Nilai per Kompetensi, dan layar hasil/validasi. Akses dicek di backend: karyawan itu sendiri, penilai (atasan, penilai kedua, delegasi), validator, atasan berjenjang, dan admin. Rekan setim dan orang di luar lingkup ditolak. Data di `TNA_RekamTraining` diurutkan per NIK saat import supaya cukup membaca satu blok baris.
 - **FR12.4 Landasan Metodologi:** layar statis yang menjelaskan dasar ilmiah setiap komponen TNA, daftar hal yang masih berupa asumsi, rencana validasi, dan daftar pustaka (lihat §12). Bisa dibuka dari beranda, form asesmen, dan layar hasil.
 
+### M13 — Kalender Default BST & IHT (v1.6, keputusan 26 Okt)
+- **FR13.1 Slot BST tiap awal bulan:** kalender 2027 selalu memuat satu kelas BST (`KodeBST`, default `D-BST`, 12 jam) per bulan, terpusat, walau belum ada peserta. Hari pelatihan = dua hari pertama mulai tanggal 1 yang bukan Minggu, ditambah satu hari remedial berikutnya (Minggu dilewati, Sabtu tetap jalan). Contoh 2027: Mei (1 = Sabtu, 2 = Minggu) → 1 & 3 Mei, remedial 4 Mei; Agustus (1 = Minggu) → 2 & 3 Agustus, remedial 4 Agustus. Peserta BST dari ITP diratakan ke 12 bulan (maks kapasitas kelas; di atas itu kelas paralel). Kelas reguler lain dijadwalkan pada Selasa **setelah** hari remedial BST.
+- **FR13.2 IHT tiap Sabtu per cabang:** setiap Sabtu 2027 di setiap cabang yang punya jabatan sasaran IHT diisi slot IHT 2 jam (`JamSesiIHT`). Rumpun berotasi mengikuti pola folder IHT: Sabtu ke-1 Selling Technique (`IHT-SELL`), ke-2 Product Knowledge (`IHT-PK`), ke-3 After Sales Service (`IHT-ASV`), ke-4 Self Management (`IHT-SELF`), ke-5 cadangan susulan/remedial. Topik spesifik per bulan ditetapkan L&D dari materi folder 01. MATERI IHT (silabus per rumpun di Katalog).
+- **FR13.3 Jam IHT per orang:** kebutuhan sesi per orang per rumpun = rata-rata jam rencana IHT 2026 jabatannya (tab `TNA_IHT`, hanya jabatan yang ≥50% pemangkunya ikut IHT 2026) ÷ durasi sesi, maks 12 sesi per rumpun. Sesi disebar merata sepanjang tahun dan diseimbangkan jumlah pesertanya per Sabtu di cabang. Peserta BST tidak dijadwalkan IHT pada Sabtu yang bertepatan dengan hari BST-nya. IHT masuk ITP (kategori `IHT`), Proyeksi, Calendar, dan rekonsiliasi.
+- **FR13.4 Batas porsi IHT:** jam IHT ≤ `MaksPersenIHT` (default 20%) dari total jam L&D, dihitung terhadap jam non-IHT berstatus `PLANNED` (Wajib + Dianjurkan, termasuk BST; Pengayaan `OPSIONAL` tidak dihitung supaya batas tetap terpenuhi walau Pengayaan tidak diambil). Bila kebutuhan pola 2026 melebihi batas, sesi tiap orang dipangkas proporsional (sisa pecahan terbesar didahulukan). Rekonsiliasi dan Panel Admin menampilkan porsi IHT, jam IHT vs non-IHT, dan sesi terjadwal vs kebutuhan. Konsekuensinya: menaikkan jam IHT hanya bisa dengan menambah jam training non-IHT terencana.
+- **FR13.5 Baseline 2026** (master data BBLC): IHT = 33% jam rencana (18.061 dari 54.163 jam) dan 38,8% jam yang dihadiri. Simulasi skala penuh 2027 (804 orang, penilaian sintetis): non-IHT terencana 21.469 jam, IHT 5.366 jam (20,0%), yaitu 43% dari kebutuhan pola 2026 (12.400 jam). Untuk mempertahankan volume IHT 2026 di batas 20%, jam non-IHT terencana perlu ±49.600 jam (±62 jam/orang/tahun).
+
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
 Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
@@ -193,8 +200,9 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | ✚`Validasi` | Periode+Target | Target (NIK / K:KelompokID), PenilaiNIK, ValidatorNIK, Status, Catatan, Edit (JSON), Ringkasan |
 | ✚`Rekomendasi` | NIK+KodeKompetensi+Tipe | Tipe(70/20/10), Deskripsi, KodeTraining/MentorNIK |
 | ✚`ITP` | NIK+KodeTraining | Kategori(W/D/P), Bulan, BatchID, Jam, Status |
-| ✚`Batch` | BatchID | KodeTraining, Bulan, Tanggal, Wilayah, Kapasitas, Peserta |
-| ✚`Parameter` | Key | WindowBuka/Tutup, BobotAtasan, Target jam, Kapasitas, Koefisien proyeksi |
+| ✚`IHT` | KodeJabatan | JobTitle, Orang2026, Peserta2026, JamSelling, JamPK, JamASS, JamSelf, JamTotal, Sumber (agregat per jabatan, tanpa data perorangan) |
+| ✚`Batch` | BatchID | KodeTraining, Judul, Kategori, Metode, Bulan, Minggu, TanggalMulai, TanggalSelesai, Lokasi (cabang/ONLINE/TERPUSAT), JmlPeserta, DurasiJam, TotalJam, Catatan |
+| ✚`Parameter` | Key | WindowBuka/Tutup, BobotAtasan, Target jam, Kapasitas, Koefisien proyeksi, KodeBST, MaksPersenIHT, JamSesiIHT |
 | ✚`AuditLog` | Timestamp | User, Aksi, Sebelum, Sesudah |
 
 ## 7. Arsitektur & Kebutuhan Non-Fungsional
@@ -220,6 +228,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 - [ ] Gap dihitung untuk setiap pasangan (karyawan × kompetensi wajib) yang punya rating atasan; sisanya berlabel `BELUM DINILAI`, tidak dihitung 0.
 - [ ] Setiap training di ITP punya kode katalog `VERIFIED` atau label `GAP KATALOG`.
 - [ ] Total jam di Training Plan = Σ jam di ITP = Σ jam di Calendar (rekonsiliasi otomatis, selisih 0).
+- [ ] Kalender memuat 12 slot BST (tanggal 1–3 sesuai FR13.1) dan slot IHT di setiap Sabtu untuk setiap cabang sasaran; porsi IHT ≤ `MaksPersenIHT`.
 - [ ] 5 dokumen terunduh tanpa error; spot-check 20 orang acak lolos penelusuran §7 Auditability.
 - [ ] Uji end-to-end pilot (Senin 26 Okt) lulus tanpa bug blocker.
 
@@ -238,7 +247,9 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 3. ~~Nama folder modul training~~ → "Kurikulum & Modul" (dipakai di Katalog).
 4. ~~Durasi AFA & AIDW~~ → 2 jam & 3 jam (FR10.7).
 5. Durasi modul internal lain (CB-xx dari median 2026, SA & CS Master Class, dll) perlu dicek L&D di tab Katalog.
-6. Review silabus `DRAF_AI` oleh L&D (43 program). Temuan dari materi yang perlu diputuskan: nilai lulus BST tertulis 70/100 di slide ketentuan dan 75/100 di slide tujuan; modul IST M1-01, M1-03, M1-06 tidak ada di folder; template Modul Monitoring masih kosong; 7 Step Service baru terbaca langkah 1; materi "Sales Jago Jualan" 2024 memakai contoh Mercedes-Benz Trucks.
+6. Review silabus `DRAF_AI` oleh L&D (43 program). Temuan dari materi yang perlu diputuskan: ~~nilai lulus BST 70 vs 75~~ → 70/100 (dikonfirmasi 26 Okt); modul IST M1-01, M1-03, M1-06 tidak ada di folder; template Modul Monitoring masih kosong; 7 Step Service baru terbaca langkah 1; materi "Sales Jago Jualan" 2024 memakai contoh Mercedes-Benz Trucks.
+
+7. Cara menaikkan jam non-IHT 2027 agar ruang IHT bertambah (FR13.5): program non-IHT apa yang ditambah (mis. modul online Product Knowledge per model untuk sales, kelas teknis tambahan), dan apakah Pengayaan `OPSIONAL` ikut dihitung sebagai jam L&D.
 
 ## 12. Landasan Metodologi & Rencana Validasi
 
