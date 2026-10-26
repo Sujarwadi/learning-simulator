@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.9, 26 Okt 2026 (hasil self-audit: basis batas IHT = jam karyawan, ringkasan IHT di ITP, label program usulan, silabus 11 program baru; sebelumnya M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
+**Versi dokumen:** 2.0, 26 Okt 2026 (FR10.9 struktur kompetensi: setiap jabatan Behavioral + Technical + Leadership tanpa tumpang tindih; Level 1 tampil di form; sebelumnya hasil self-audit: basis batas IHT = jam karyawan, ringkasan IHT di ITP, label program usulan, silabus 11 program baru; sebelumnya M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -155,6 +155,19 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR10.6 Lokasi kelas:** kelas tatap muka dibentuk **per cabang**; kelas online digabung lintas cabang.
 - **FR10.7 Durasi:** AFA 2 jam, AIDW 3 jam, BST/IST/AST masing-masing 12 jam (2 hari).
 - **FR10.8 Sales Leadership Framework & Kacab Academy:** 11 kompetensi SL-01..SL-11 + LD-03/LD-04 dengan required level per tahap jalur Sales Operation (Trainee, Junior, Senior, Supervisor, Branch Head, NOH), menggantikan LD-01/LD-02 generik di jabatan jalur tersebut. Baseline TNA 2027 dipakai untuk Kacab Academy (Track A Kacab existing, Track B SPV future talent). Readiness SPV = proporsi kompetensi dengan Actual >= Required Branch Head.
+- **FR10.9 Struktur kompetensi (keputusan 26 Okt):**
+  - Setiap jabatan wajib punya tiga kelompok: **Behavioral** (8 kompetensi korporat), **Technical**, dan **Leadership**.
+  - Jabatan staf memakai **LD-05 Self-Leadership & Integrity** (jujur, menepati komitmen, bertanggung jawab atas hasil tanpa diawasi). Level dipersyaratkan: Staff 2, Officer/Supervisor 3, Manager ke atas 4. LD-05 juga menggantikan SL-01 di jalur sales. Program behavioral CB05 "Leading with Integrity" dipetakan ke LD-05.
+  - Tumpang tindih dihapus supaya satu perilaku tidak dinilai dua kali:
+    - LD-03 menjadi **Decision Making** saja (pemecahan masalah dinilai di BH-01 Analytical Thinking).
+    - TK Coaching & Counseling dihapus dari jabatan yang punya LD-02/SL-02.
+    - TK Sales Management & Strategy dan TK Strategic Planning Management dihapus dari jabatan yang punya SL-03/SL-09.
+    - TK Marketing Management dihapus dari Sales Force (sudah tercakup SL-06).
+    - SL-11 hanya untuk SPV ke atas (di Junior/Senior sudah tercakup BAMS Operation).
+    - SL-04 Level 2 difokuskan ke disiplin follow-up prospek, bukan pemakaian sistem.
+  - SL-04 Pipeline & Funnel, SL-06 Customer & Market Development, dan SL-10 Compliance & Risk berkategori **Technical** (keahlian sales), bukan Leadership.
+  - Pasangan Behavioral vs Technical yang mirip (Customer Focus vs Service Excellence/Handling Complaint, Interpersonal vs Communication Skill) **dipertahankan**: behavioral menilai orientasi, technical menilai teknik yang bisa dilatih (Spencer & Spencer, 1993).
+  - Form asesmen menampilkan Level 1 sebagai titik awal (otomatis bila tidak ada perilaku Level 2–5 yang dicentang).
 
 ### M11 — Hasil Live & Validasi Head Unit (v1.4)
 - **FR11.1 Hasil langsung:** begitu penilai (atasan) submit, sistem menghitung gap dan rekomendasi 70/20/10 orang itu saat itu juga (`tnaHasil`) dan menampilkannya ke penilai. Rumus dan mesin rekomendasinya sama dengan generate output, jadi hasil live = output akhir (kecuali saran mentor, yang ikut bertambah seiring data masuk).

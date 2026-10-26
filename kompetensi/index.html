@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.10, 26 Okt 2026. Perubahan: form asesmen dan nilai per kompetensi menampilkan Level 1 sebagai titik awal (otomatis bila tidak ada perilaku L2-L5 yang dicentang) supaya penilai tidak bertanya kenapa checklist mulai dari Level 2. -->
 <!-- BBLC Studio v3.9, 26 Okt 2026. Perubahan: ITP memisahkan IHT Sabtu ke kartu ringkas per rumpun (jumlah sesi, jam, tanggal bisa dibuka) supaya training inti tidak tenggelam; label "Materi disiapkan L&D" untuk program berstatus usulan di ITP, Training Tim, Katalog, dan Silabus; Training Tim meringkas IHT per bulan; rekonsiliasi admin menjelaskan basis porsi IHT. -->
 <!-- BBLC Studio v3.8, 26 Okt 2026. Perubahan: Panel Admin menambah parameter Proyeksi peserta BST per batch dan menampilkan jam proyeksi calon peserta BST di rekonsiliasi (ITP + proyeksi = Kalender). -->
 <!-- BBLC Studio v3.7, 26 Okt 2026. Perubahan: kalender 2027 menampilkan slot BST awal bulan dan IHT Sabtu per cabang (badge IHT di ITP, Training Tim, dan Katalog; filter Katalog "IHT Sabtu"); Panel Admin menambah parameter Maks porsi IHT (%) dan durasi sesi IHT, serta menampilkan porsi IHT terhadap total jam L&D di rekonsiliasi. -->
@@ -1371,6 +1372,12 @@ function skorGuttman(checks){
   for(let i=0;i<4;i++){ const c = checks.charAt(i)==="Y"; if(c && !putus) lv++; else if(!c) putus = true; else if(c && putus) inkon = true; }
   return { lv, inkon };
 }
+// Level 1 tidak dicentang: menjadi titik awal bila tidak ada perilaku Level 2-5 yang teramati.
+function lv1Info(k){
+  const d = (k.levels||[])[0] || LV_NAMA[1];
+  return '<div style="display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin:8px 0;color:var(--muted)"><span style="width:20px;flex-shrink:0;text-align:center">&bull;</span>'+
+    '<span><b>Level 1</b> · '+esc(d)+' <i>(titik awal; otomatis bila tidak ada Level 2-5 yang dicentang)</i></span></div>';
+}
 function renderFormTNA(){
   const r = tna.form;
   const kat = { Behavioral:"badge-grey", Technical:"badge-green", Leadership:"badge-amber" };
@@ -1384,7 +1391,7 @@ function renderFormTNA(){
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="kompetensi-name" style="flex:1">'+esc(k.nama)+'</span><span class="badge '+(kat[k.kategori]||"badge-grey")+'">'+esc(k.kategori)+'</span></div>'+
       '<div class="kompetensi-target">Level dipersyaratkan: <b>'+k.required+' ('+LV_NAMA[k.required]+')</b></div>'+
       (k.definisi ? '<details style="margin-top:6px"><summary style="font-size:12px;color:var(--navy2);cursor:pointer">Definisi &amp; deskripsi level</summary><div class="hint" style="color:var(--text)">'+esc(k.definisi)+'<br>'+k.levels.map((l,li)=>l?'<b>L'+(li+1)+'</b> '+esc(l):'').filter(Boolean).join("<br>")+'</div></details>' : '')+
-      items+
+      lv1Info(k)+items+
       '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap"><span class="badge" id="tna-lv-'+i+'"></span>'+
       '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:12.5px"><input type="checkbox" class="tna-na" data-k="'+i+'" '+(j.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
       '<input type="text" class="tna-alasan" data-k="'+i+'" placeholder="Alasan N/A, contoh: baru mutasi 1 bulan" value="'+esc(j.alasan||"")+'" style="margin-top:8px;display:'+(j.na?"block":"none")+'">'+
@@ -1516,7 +1523,7 @@ function renderFormTim(){
     '<div style="height:8px;background:#EEF1F6;border-radius:99px;margin-top:8px;overflow:hidden"><div style="height:100%;width:'+Math.round((ft.idx+1)/ft.kompetensi.length*100)+'%;background:var(--green)"></div></div></div>';
   const kartu = '<div class="card" style="padding:16px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="kompetensi-name" style="flex:1">'+esc(k.nama)+'</span><span class="badge badge-grey">'+esc(k.kategori)+'</span></div>'+
     '<div class="kompetensi-target">Level dipersyaratkan: <b>'+k.required+' ('+LV_NAMA[k.required]+')</b></div>'+
-    '<div style="margin:10px 0 4px;font-size:13px">'+k.checklist.map((c,ci)=>'<div style="margin:5px 0"><b>L'+(ci+2)+'</b> · '+esc(c)+'</div>').join("")+'</div>'+
+    '<div style="margin:10px 0 4px;font-size:13px">'+lv1Info(k)+k.checklist.map((c,ci)=>'<div style="margin:5px 0"><b>L'+(ci+2)+'</b> · '+esc(c)+'</div>').join("")+'</div>'+
     '<div class="hint">Tekan angka level yang perilakunya <b>benar-benar teramati konsisten 3 sampai 6 bulan terakhir</b>. Menekan L4 otomatis mencentang L2 sampai L4. Tekan lagi untuk membatalkan.</div>'+
     '<div style="margin-top:6px">'+ft.orang.map(o=>{
       const j = (ft.jaw[o.nik]||{})[k.kode] || { checks:"NNNN" }, sg = skorGuttman(j.checks||"NNNN"), terkunci = o.status==="FINAL" && !ft.ubah[o.nik] && o.validasi!=="DIKEMBALIKAN";
