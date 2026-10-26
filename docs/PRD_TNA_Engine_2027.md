@@ -180,11 +180,11 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 
 ### M14 — Program Pengembangan 2027 (v1.8, keputusan 26 Okt: opsi A, tema peningkatan technical skill)
 - **FR14.1 Target dua lapis:** Lapis 1 = jam & komposisi (IHT ≤ 20%, non-IHT ±37 jam/karyawan). Lapis 2 = dampak (kenaikan pre/post test, kelulusan sertifikasi per jalur, perbaikan gap TNA 2028).
-- **FR14.2 Jalur sales** Trainee → Junior → Senior → Supervisor → Branch Head dengan peran dan kompetensi pembeda per level (lihat file Development Framework 2027): Junior = konversi & kredit (D-IST, D-LEAS), Senior = akun/fleet & value selling TCO + buddy (D-AST, D-FLEET, D-MENTOR), Supervisor = coaching + exposure workshop management (D-SPV, D-ASX + shadowing bengkel), Kacab = P&L cabang termasuk profit aftersales (BMDP-01..09 + BMDP-10). Semua sales dan CS Sales wajib PK online per model (W-PK27, 12 jam).
+- **FR14.2 Jalur sales** Trainee → Junior → Senior → Supervisor → Branch Head dengan peran dan kompetensi pembeda per level (lihat file Development Framework 2027): Junior = konversi & kredit (D-IST, D-LEAS), Senior = akun/fleet & value selling TCO + buddy (D-AST, D-FLEET, D-MENTOR), Supervisor = coaching + exposure workshop management (D-SPV, D-ASX + shadowing bengkel), Kacab = P&L cabang termasuk profit aftersales (BMDP-01..09 + BMDP-10). Semua sales dan CS Sales wajib PK online per model (W-PK27, 16 jam = 8 model berjalan: Destinator, Xforce/Xforce HEV, Xpander/Xpander Cross, Pajero Sport, Triton, L300, Fuso Canter, Fuso Fighter; model baru 2027 ditambahkan saat diumumkan APM).
 - **FR14.3 Jalur aftersales:** SA/CS wajib SA & CS Master Class (D-SACS); lulusan otomatis mendapat modul lanjutan sesuai peran (SA → D-SAADV, CS → D-CSVOC; Mandatory per NIK dari riwayat). D-SALEAD dan D-CSPS untuk level 5 (Dianjurkan, berbasis gap).
 - **FR14.4 Enablers academy:** HR for Non-HR (W-HRNH) wajib untuk semua Head/Supervisor/Coordinator; Wawancara Terstruktur & BEI (W-BEI) wajib untuk hiring manager cabang dan tim rekrutmen HC. 20 usulan kompetensi teknis enablers (pajak, akuntansi, piutang, inventory, gudang, Excel/data, K3, dll.) diberi judul, durasi, dan penyelenggara konkret; dijadwalkan otomatis bila asesmen menunjukkan gap.
 - **FR14.5 Jendela bulan per program** (`JendelaKhusus`, JSON): Kacab Academy mengikuti kuartal, program 2027 lain tersebar Feb–Nov supaya tidak menumpuk di jendela Wajib Jan–Jun.
-- **FR14.6** Semua modul baru berstatus `USULAN_PENGADAAN` sampai materi/vendor siap. Simulasi skala penuh: non-IHT 40,2 jam/karyawan, IHT 12,7 jam/karyawan (20%, 82% kebutuhan pola 2026).
+- **FR14.6** Semua modul baru berstatus `USULAN_PENGADAAN` sampai materi/vendor siap. Simulasi skala penuh: non-IHT 41,2 jam/karyawan, IHT 13,0 jam/karyawan (20%, 84% kebutuhan pola 2026).
 
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
@@ -258,7 +258,7 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 6. Review silabus `DRAF_AI` oleh L&D (43 program). Temuan dari materi yang perlu diputuskan: ~~nilai lulus BST 70 vs 75~~ → 70/100 (dikonfirmasi 26 Okt); modul IST M1-01, M1-03, M1-06 tidak ada di folder; template Modul Monitoring masih kosong; 7 Step Service baru terbaca langkah 1; materi "Sales Jago Jualan" 2024 memakai contoh Mercedes-Benz Trucks.
 
 7. ~~Cara menaikkan jam non-IHT 2027 (FR13.5)~~ → diputuskan 26 Okt: opsi A, lihat M14. Pengayaan `OPSIONAL` tetap tidak dihitung dalam batas IHT.
-8. Program 2027 (M14): daftar model kendaraan untuk W-PK27 per kuartal mengikuti jadwal launching APM; vendor final setelah RFQ; kriteria masa kerja Sales Junior sebelum IST (saat ini semua Junior wajib, urutan diatur L&D).
+8. Program 2027 (M14): ~~daftar model W-PK27~~ → model berjalan (8 model), model baru ditambah saat diumumkan; vendor final setelah RFQ; kriteria masa kerja Sales Junior sebelum IST (saat ini semua Junior wajib, urutan diatur L&D).
 
 ## 12. Landasan Metodologi & Rencana Validasi
 
