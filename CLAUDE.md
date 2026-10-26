@@ -44,6 +44,9 @@ Deadline keras: pilot Sen 26 Okt 2026, window asesmen 27 Okt sampai 3 Nov 23:59 
 - **Backend:** `clasp push`, lalu di editor Apps Script buka **Deploy > Manage deployments > ✏️ > Version: New version > Deploy**. Lupa langkah ini = Web App tetap memakai kode lama (sumber kebingungan #1 di proyek ini).
 - Re-otorisasi OAuth (setelah ubah `oauthScopes`) dilakukan di jendela Incognito dengan satu akun. Scope Drive pakai `drive.file`, jangan `drive` penuh. Pengecualian: membaca folder JD/modul milik user bisa butuh `drive.readonly`, jadi konfirmasi ke user dulu.
 
+## Dokumen & presentasi
+Setiap PPT, proposal, atau dokumen untuk user WAJIB mengikuti `docs/STANDAR_DOKUMEN.md` (judul slide headline 2-6 kata, bukan kalimat; alur ringkasan-situasi-masalah-solusi-keputusan; satu halaman per komponen; tanpa nama perusahaan pembanding; render & periksa sebelum kirim; file diberi akhiran versi).
+
 ## Verifikasi sebelum menyatakan selesai
 - Buka halaman yang diubah di Chromium (Playwright sudah terpasang). Uji alur login → fitur → ekspor, dan pastikan konsol tidak ada error.
 - Untuk logika perhitungan (gap, proyeksi, kalender): jalankan dengan data contoh **sintetis**, lalu cocokkan dengan hitungan manual. Rekonsiliasi jam Plan = ITP = Calendar harus selisih 0.
