@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.12, 26 Okt 2026. Perubahan: desain ulang tampilan berbasis audit UI/UX (Nielsen, WCAG 2.2 AA): layar masuk menjadi halaman pembuka dua kolom (alur 3 langkah, skala 5 level, jadwal window); menu beranda menjadi ubin berikon dengan deskripsi; kartu window dengan hitung mundur; token warna, tipografi Plus Jakarta Sans, skala spasi 4/8; kontras teks & border input lolos AA; fokus keyboard terlihat; target sentuh minimal 44 px. Logika tidak berubah. -->
 <!-- BBLC Studio v3.11, 26 Okt 2026. Perubahan: istilah program kepemimpinan diselaraskan dengan proposal 2027 (SSDP untuk Sales Supervisor, BMDP untuk Kepala Cabang). -->
 <!-- BBLC Studio v3.10, 26 Okt 2026. Perubahan: form asesmen dan nilai per kompetensi menampilkan Level 1 sebagai titik awal (otomatis bila tidak ada perilaku L2-L5 yang dicentang) supaya penilai tidak bertanya kenapa checklist mulai dari Level 2. -->
 <!-- BBLC Studio v3.9, 26 Okt 2026. Perubahan: ITP memisahkan IHT Sabtu ke kartu ringkas per rumpun (jumlah sesi, jam, tanggal bisa dibuka) supaya training inti tidak tenggelam; label "Materi disiapkan L&D" untuk program berstatus usulan di ITP, Training Tim, Katalog, dan Silabus; Training Tim meringkas IHT per bulan; rekonsiliasi admin menjelaskan basis porsi IHT. -->
@@ -20,6 +21,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>BBLC Competency Development Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 /* ================== KONFIGURASI BACKEND ==================
    Tempel URL Web App yang SAMA PERSIS dengan yang dipakai
@@ -28,46 +31,52 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-rn8rbUhT0RbpTRj
 </script>
 <style>
 :root{
-  --navy:#102A43; --navy2:#1E3A5F; --red:#C00010; --red-soft:#FBE9EA;
-  --bg:#F4F6F9; --surface:#FFFFFF; --line:#DCE3ED; --text:#1A2433; --muted:#5B6472;
-  --green:#0E8A5F; --green-soft:#E6F6EF; --amber:#B45309; --amber-soft:#FEF3E2;
-  --radius:14px; --shadow:0 8px 26px rgba(16,42,67,.10);
+  /* Struktural */ --navy:#0B1F33; --navy2:#1E3A5F; --navy3:#2F5D8A;
+  /* Aksen tunggal: CTA utama & angka yang menuntut tindakan */ --red:#B3121E; --red-soft:#FBECEC;
+  /* Netral */ --bg:#F5F7FA; --surface:#FFFFFF; --line:#E1E6ED; --line-strong:#8492A3; --text:#142233; --muted:#536174; --subtle:#EEF2F6;
+  /* Semantik */ --green:#0E7A53; --green-soft:#E7F4EE; --amber:#A14B05; --amber-soft:#FDF1E3;
+  --radius:12px; --shadow:0 1px 2px rgba(11,31,51,.06),0 1px 1px rgba(11,31,51,.04);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
-  font-family:'Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.55}
+  font-family:'Plus Jakarta Sans','Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 0}
 #app{display:flex;flex-direction:column;min-height:100vh}
 .screen{display:none;flex:1;flex-direction:column}
 .screen.active{display:flex}
-header.app{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px}
-.logo-mark{width:38px;height:38px;border-radius:9px;background:var(--red);display:flex;align-items:center;
+header.app{background:var(--navy);color:#fff;padding:12px max(20px,calc((100vw - 800px)/2 + 20px));display:flex;align-items:center;gap:12px;min-height:60px}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:var(--red);display:flex;align-items:center;
   justify-content:center;flex-shrink:0;font-weight:800;color:#fff;font-size:16px}
-.app-title{font-weight:800;font-size:15.5px;letter-spacing:.5px}
-.app-sub{font-size:11px;color:#9FB3C8;margin-top:1px}
+.app-title{font-weight:700;font-size:15px;letter-spacing:.2px}
+.app-sub{font-size:12px;color:#A9BCD0;margin-top:1px}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#C7D2E0}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;
-  border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}
-.body-wrap{flex:1;padding:24px 20px 60px;max-width:760px;width:100%;margin:0 auto}
-h2.sect{font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--navy);
-  margin:0 0 12px;display:flex;align-items:center;gap:8px}
-h2.sect::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--red)}
+  border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;min-height:36px}
+.btn-logout:hover{background:rgba(255,255,255,.18)}
+.body-wrap{flex:1;padding:24px 20px 64px;max-width:800px;width:100%;margin:0 auto}
+h2.sect{font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);
+  margin:var(--s5) 0 var(--s3);display:flex;align-items:center;gap:8px}
+h2.sect:first-child{margin-top:0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
-  box-shadow:var(--shadow);margin-bottom:16px}
-label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 5px}
+  box-shadow:var(--shadow);margin-bottom:var(--s4)}
+label{display:block;font-size:13px;font-weight:600;color:var(--text);margin:var(--s4) 0 6px}
 label:first-child{margin-top:0}
 input[type=text],input[type=password],input[type=number],input[type=file],select,textarea{
-  width:100%;background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
-  color:var(--text);font-size:14.5px;font-family:inherit}
+  width:100%;background:#fff;border:1px solid var(--line-strong);border-radius:8px;padding:11px 12px;min-height:44px;
+  color:var(--text);font-size:15px;font-family:inherit}
 textarea{resize:vertical;min-height:130px}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;
-  border-radius:10px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy3);outline-offset:1px;border-color:var(--navy3)}
+:focus-visible{outline:2px solid var(--navy3);outline-offset:2px}
+header.app :focus-visible{outline-color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;min-height:44px;
+  border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;transition:background .15s}
 .btn-primary{background:var(--navy);color:#fff}
 .btn-primary:hover{background:var(--navy2)}
-.btn-red{background:var(--red);color:#fff}
-.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#97101A}
+.btn-ghost{background:var(--surface);color:var(--navy);border:1px solid var(--line-strong)}.btn-ghost:hover{background:var(--subtle)}
 .btn[disabled]{opacity:.45;pointer-events:none}
-.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
 .err{background:var(--red-soft);border:1px solid #F3B9BD;color:#8A1620;border-radius:9px;padding:9px 12px;
   font-size:13px;margin-top:10px;display:none}
 .err.show{display:block}
@@ -77,11 +86,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-o
 .badge-red{background:var(--red-soft);color:var(--red)}
 .badge-grey{background:#EEF1F6;color:var(--muted)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#F1F4F8;color:var(--navy);font-weight:800;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--subtle);color:var(--muted);font-weight:700;font-size:12px;text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
+a{color:var(--navy3);font-weight:600;text-underline-offset:3px}
 .team-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);
   border-radius:11px;margin-bottom:9px;cursor:pointer;transition:.15s}
-.team-item:hover{border-color:var(--navy2);box-shadow:0 4px 14px rgba(16,42,67,.08)}
+.team-item:hover{border-color:var(--line-strong);background:#FAFBFC}
 .team-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;display:flex;
   align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
 .team-info{flex:1;min-width:0}
@@ -102,10 +112,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px 0}
 .tab-row{display:flex;gap:6px;margin-bottom:16px}
-.tab-btn{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:12.5px;
+.tab-btn{flex:1;padding:10px;min-height:44px;border-radius:8px;border:1px solid var(--line-strong);background:#fff;font-size:13px;font-family:inherit;
   font-weight:700;color:var(--muted);cursor:pointer}
 .tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-.credit{text-align:center;font-size:10.5px;color:#9AA5B4;padding:16px 0;letter-spacing:.3px}
+.credit{text-align:center;font-size:12px;color:var(--muted);padding:16px 0}
 .hm{border-collapse:separate;border-spacing:2px;font-size:12px}
 .hm th{background:none;font-size:10.5px;font-weight:700;color:var(--muted);padding:4px;vertical-align:bottom;white-space:normal;min-width:44px;max-width:80px}
 .hm td{padding:0;text-align:center}
@@ -114,11 +124,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .hm .c-Kompeten{background:var(--green-soft);color:var(--green)} .hm .c-Minor{background:#EEF1F6;color:var(--muted)}
 .hm .c-Moderate{background:var(--amber-soft);color:var(--amber)} .hm .c-Major{background:var(--red-soft);color:var(--red)}
 .hm .c-BELUM{background:#fff;color:#B7C0CC;border:1px dashed var(--line)}
-.tabs{display:flex;gap:6px;margin:6px 0 14px}.tabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700;color:var(--muted);cursor:pointer}
-.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabs{display:flex;gap:4px;margin:6px 0 14px;background:var(--subtle);padding:4px;border-radius:10px}.tabs button{flex:1;padding:9px;min-height:40px;border-radius:8px;border:0;background:transparent;font-weight:700;font-family:inherit;color:var(--muted);cursor:pointer}
+.tabs button.on{background:var(--surface);color:var(--navy);box-shadow:0 1px 3px rgba(11,31,51,.15)}
 .ft-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
 .ft-row:first-child{border-top:0}.ft-nama{flex:1;min-width:120px;font-weight:600;font-size:13.5px}
-.ft-btn{width:40px;height:38px;border-radius:9px;border:1.5px solid var(--line);background:#fff;font-weight:800;color:var(--muted);cursor:pointer}
+.ft-btn{width:44px;height:44px;border-radius:8px;border:1px solid var(--line-strong);font-family:inherit;background:#fff;font-weight:800;color:var(--muted);cursor:pointer}
 .ft-btn.on{background:var(--navy);border-color:var(--navy);color:#fff}.ft-btn.na.on{background:var(--muted);border-color:var(--muted)}
 .ft-btn:disabled{opacity:.35;cursor:not-allowed}
 .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.btn-kecil{padding:8px 12px;font-size:12.5px;border-radius:9px}
@@ -130,6 +140,47 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .sil-blok ol{margin:4px 0 0;padding-left:20px}.sil-blok li{margin:4px 0;font-size:13.5px}
 .ldn h3{font-size:14.5px;color:var(--navy);margin:16px 0 6px}.ldn p,.ldn li{font-size:13.5px;line-height:1.55}.ldn ol,.ldn ul{padding-left:20px}
 .ldn .ref{font-size:12.5px;line-height:1.5;margin:6px 0}
+
+/* ===== v3.12: landing, beranda, ubin menu ===== */
+.landing{flex:1;display:grid;grid-template-columns:1.15fr 1fr;min-height:100vh}
+.lp-hero{background:var(--navy);color:#fff;padding:var(--s7) clamp(24px,5vw,72px);display:flex;flex-direction:column;gap:var(--s5)}
+.lp-brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px}
+.lp-brand small{display:block;font-weight:500;font-size:12px;color:#A9BCD0}
+.lp-eyebrow{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#F2A7AD;margin-top:auto}
+.lp-hero h1{font-size:clamp(30px,3.4vw,44px);line-height:1.12;margin:0;font-weight:800;letter-spacing:-.5px;max-width:560px}
+.lp-lead{font-size:16px;color:#C7D2E0;max-width:520px;margin:0}
+.lp-steps{list-style:none;padding:0;margin:0;display:grid;gap:var(--s3);max-width:540px}
+.lp-steps li{display:flex;gap:var(--s3);align-items:flex-start;font-size:14.5px;color:#E3EAF2}
+.lp-steps b{color:#fff}
+.lp-num{flex:0 0 28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.lp-ladder{display:flex;align-items:flex-end;gap:6px;height:96px;max-width:420px}
+.lp-ladder div{flex:1;background:#2F5D8A;border-radius:4px 4px 0 0;position:relative}
+.lp-ladder div:last-child{background:var(--red)}
+.lp-ladder span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:11px;color:#C7D2E0;white-space:nowrap}
+.lp-timeline{display:flex;gap:var(--s5);flex-wrap:wrap;font-size:13px;color:#A9BCD0;border-top:1px solid rgba(255,255,255,.15);padding-top:var(--s4);margin-bottom:auto}
+.lp-timeline b{display:block;color:#fff;font-size:15px}
+.lp-form{display:flex;flex-direction:column;justify-content:center;padding:var(--s7) clamp(20px,5vw,72px);background:var(--surface)}
+.lp-form-in{width:100%;max-width:380px;margin:0 auto}
+.lp-form h2{font-size:24px;margin:0 0 4px;color:var(--navy);font-weight:800}
+.lp-form .lp-sub{color:var(--muted);font-size:14px;margin:0 0 var(--s3)}
+.lp-form .credit{margin-top:var(--s6);text-align:left;padding:0}
+@media (max-width:860px){.landing{grid-template-columns:1fr;min-height:0}.lp-hero{padding:var(--s5) 20px var(--s6);gap:var(--s4)}
+  .lp-eyebrow{margin-top:var(--s3)}.lp-ladder,.lp-steps,.lp-lead{display:none}.lp-hero h1{font-size:26px}.lp-timeline{margin-bottom:0}.lp-form{padding:var(--s6) 20px}}
+.win{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.win-dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px}
+.win-txt{flex:1;min-width:200px;font-size:14px}
+.win-cd{font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;color:var(--navy);line-height:1}
+.win-cd small{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:var(--s3)}
+.tile{display:flex;gap:var(--s3);align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:var(--s4);cursor:pointer;font:inherit;color:var(--text);min-height:76px;box-shadow:var(--shadow);transition:border-color .15s,background .15s}
+.tile:hover{border-color:var(--line-strong);background:#FAFBFC}
+.tile svg{flex:0 0 22px;width:22px;height:22px;stroke:var(--navy3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.tile-t{display:block;font-weight:700;font-size:14.5px;color:var(--navy)}
+.tile-d{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45}
+.tile.tile-admin{border-color:var(--navy);background:var(--navy)}.tile.tile-admin .tile-t{color:#fff}.tile.tile-admin .tile-d{color:#C7D2E0}.tile.tile-admin svg{stroke:#fff}
+.tile.tile-admin:hover{background:var(--navy2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -137,24 +188,35 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 
   <!-- ============ LOGIN ============ -->
   <section class="screen active" id="scr-login">
-    <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">BBLC COMPETENCY DEVELOPMENT STUDIO</div>
-      <div class="app-sub">Bosowa Berlian Learning Center</div></div>
-    </header>
-    <div class="body-wrap" style="max-width:420px;padding-top:60px">
-      <div class="card">
-        <h2 class="sect">Masuk</h2>
-        <label>NIK</label>
-        <input type="text" id="inp-nik" placeholder="Nomor Induk Karyawan">
-        <label>PIN</label>
-        <input type="password" id="inp-pin" placeholder="PIN yang sama dengan Learning Simulator">
-        <div class="hint">Untuk seluruh karyawan BBM: penilaian diri, penilaian tim, dan ITP 2027. Login pertama kali akan diminta membuat PIN baru.</div>
-        <div class="err" id="err-login"></div>
-        <div style="margin-top:16px"><button class="btn btn-primary" id="btn-login">Masuk</button></div>
+    <div class="landing">
+      <div class="lp-hero">
+        <div class="lp-brand"><div class="logo-mark">CD</div><div>BBLC Competency Development Studio<small>Bosowa Berlian Learning Center</small></div></div>
+        <div class="lp-eyebrow">Training Need Analysis 2027</div>
+        <h1>Kenali gap kompetensi, rancang rencana belajar 2027.</h1>
+        <p class="lp-lead">Satu tempat untuk seluruh karyawan BBM: menilai kompetensi berdasarkan perilaku nyata, lalu menerima rencana training pribadi yang terjadwal.</p>
+        <ol class="lp-steps">
+          <li><span class="lp-num">1</span><span><b>Nilai diri dan tim.</b> Centang perilaku yang benar-benar terlihat, dari Level 1 sampai Level 5.</span></li>
+          <li><span class="lp-num">2</span><span><b>Atasan memvalidasi.</b> Gap dan rekomendasi 70-20-10 dihitung otomatis.</span></li>
+          <li><span class="lp-num">3</span><span><b>Terima ITP dan kalender.</b> Training, coaching, dan penugasan Anda selama 2027.</span></li>
+        </ol>
+        <div class="lp-ladder" aria-label="Lima level kompetensi">
+          <div style="height:22%"><span>Dasar</span></div><div style="height:40%"><span>Berkembang</span></div><div style="height:58%"><span>Mandiri</span></div><div style="height:78%"><span>Mahir</span></div><div style="height:100%"><span>Ahli</span></div>
+        </div>
+        <div class="lp-timeline"><div><b>27 Okt – 3 Nov 2026</b>Window asesmen</div><div><b>4 Nov 2026</b>Hasil, ITP &amp; kalender terbit</div></div>
       </div>
+      <div class="lp-form"><div class="lp-form-in">
+        <h2>Masuk</h2>
+        <p class="lp-sub">Gunakan NIK dan PIN yang sama dengan Learning Simulator.</p>
+        <label for="inp-nik">NIK</label>
+        <input type="text" id="inp-nik" inputmode="numeric" autocomplete="username" placeholder="Nomor Induk Karyawan">
+        <label for="inp-pin">PIN</label>
+        <input type="password" id="inp-pin" autocomplete="current-password" placeholder="PIN Anda">
+        <div class="hint">Login pertama kali akan diminta membuat PIN baru.</div>
+        <div class="err" id="err-login" role="alert"></div>
+        <div style="margin-top:20px"><button class="btn btn-red" id="btn-login">Masuk</button></div>
+        <div class="credit">Created by Sujarwadi · Satu backend dengan Learning Simulator</div>
+      </div></div>
     </div>
-    <div class="credit">Created by Sujarwadi &middot; Satu backend dengan Learning Simulator</div>
   </section>
 
   <!-- ============ DITOLAK (role user) ============ -->
@@ -336,16 +398,16 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
         <div id="tna-tim-wrap"></div>
         <div id="tna-kelompok-wrap"></div>
         <div id="tna-delegasi-wrap"></div>
-        <h2 class="sect" style="margin-top:22px">Menu Lain</h2>
-        <div class="card" style="display:grid;gap:10px">
-          <button class="btn btn-ghost" id="btn-tna-itp">ITP &amp; Kalender Training Saya</button>
-          <button class="btn btn-ghost" id="btn-tna-tim" style="display:none">Dashboard Tim &amp; Training Tim</button>
-          <button class="btn btn-ghost" id="btn-tna-progres" style="display:none">Progres Asesmen Tim</button>
-          <button class="btn btn-ghost" id="btn-tna-matriks">Lihat Matriks Kompetensi Jabatan</button>
-          <button class="btn btn-ghost" id="btn-tna-katalog">Katalog Training &amp; Silabus</button>
-          <button class="btn btn-ghost" id="btn-tna-landasan">Landasan Metodologi TNA</button>
-          <button class="btn btn-primary" id="btn-tna-admin" style="display:none">Panel Admin TNA</button>
-          <button class="btn btn-ghost" id="btn-tna-studio" style="display:none">Studio Kompetensi (fitur lama)</button>
+        <h2 class="sect">Menu</h2>
+        <div class="tiles">
+          <button class="tile" id="btn-tna-itp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg><span><span class="tile-t">ITP &amp; Kalender Training Saya</span><span class="tile-d">Training, coaching, dan penugasan Anda selama 2027</span></span></button>
+          <button class="tile" id="btn-tna-tim" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span><span class="tile-t">Dashboard Tim &amp; Training Tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span></button>
+          <button class="tile" id="btn-tna-progres" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span></button>
+          <button class="tile" id="btn-tna-matriks"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span><span class="tile-t">Matriks Kompetensi Jabatan</span><span class="tile-d">Kompetensi dan level yang dipersyaratkan</span></span></button>
+          <button class="tile" id="btn-tna-katalog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg><span><span class="tile-t">Katalog Training &amp; Silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span></button>
+          <button class="tile" id="btn-tna-landasan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg><span><span class="tile-t">Landasan Metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span></button>
+          <button class="tile tile-admin" id="btn-tna-admin" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span><span class="tile-t">Panel Admin TNA</span><span class="tile-d">Pantau progres, matriks, dan generate output</span></span></button>
+          <button class="tile" id="btn-tna-studio" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span><span class="tile-t">Studio Kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span></button>
         </div>
       </div>
     </div>
@@ -1243,10 +1305,12 @@ async function muatBerandaTNA(){
     const r = await tnaApi("tnaKonteks");
     tna.konteks = r;
     const w = r.window;
-    $("tna-window-card").innerHTML = w==="DIBUKA"
+    const sisaMs = new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
+    const cd = (w!=="DITUTUP" && sisaMs>0) ? '<div class="win-cd">'+sisaH+' hari '+sisaJ+' jam<small>'+(w==="DIBUKA"?"sampai ditutup":"sampai dibuka")+'</small></div>' : '';
+    $("tna-window-card").innerHTML = '<div class="win"><span class="win-dot" style="background:'+(w==="DIBUKA"?"var(--green)":(w==="BELUM_DIBUKA"?"var(--amber)":"var(--red)"))+'"></span><div class="win-txt">'+(w==="DIBUKA"
       ? '<b style="color:var(--green)">Window asesmen DIBUKA</b> sampai <b>'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban bisa direvisi selama window masih dibuka.'
       : (w==="BELUM_DIBUKA" ? '<b style="color:var(--amber)">Window asesmen belum dibuka.</b> Dibuka '+esc(fmtTgl(r.windowBuka))+'.'
-        : '<b style="color:var(--red)">Window asesmen sudah DITUTUP.</b> Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.');
+        : '<b style="color:var(--red)">Window asesmen sudah DITUTUP.</b> Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.'))+'</div>'+cd+'</div>';
     // Studio lama hanya untuk admin selama TNA berjalan; atasan bisa memakainya lagi setelah window ditutup.
     $("btn-tna-studio").style.display = (tna.isAdmin || (tna.punyaLama && w==="DITUTUP")) ? "" : "none";
     // Kartu To-do
@@ -1256,7 +1320,7 @@ async function muatBerandaTNA(){
     const chip = (n, label, warna)=> n ? '<div style="flex:1;min-width:90px;background:var(--bg);border-radius:12px;padding:10px 12px"><div style="font-size:22px;font-weight:800;color:'+warna+'">'+n+'</div><div style="font-size:12px;color:var(--muted)">'+label+'</div></div>' : '';
     $("tna-todo-card").innerHTML = (w==="DIBUKA" || nVal) ? '<div class="card" style="padding:14px 18px">'+
       '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><b style="font-size:15px">'+(total?'Tugas Anda: '+total:'Semua tugas selesai')+'</b>'+
-      (w==="DIBUKA" ? '<span class="badge '+(sisaHari<=2?'badge-red':(sisaHari<=4?'badge-amber':'badge-grey'))+'">'+(sisaHari>0?'sisa '+sisaHari+' hari':'hari terakhir')+'</span>' : '')+'</div>'+
+      (w==="DIBUKA" && sisaHari<=2 ? '<span class="badge badge-red">'+(sisaHari>0?'sisa '+sisaHari+' hari':'hari terakhir')+'</span>' : '')+'</div>'+
       (total ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
         chip((td.nilai||0)-(td.revisi||0), 'penilaian tim', 'var(--navy)')+chip(td.revisi, 'perlu revisi', 'var(--red)')+chip(nVal, 'validasi', 'var(--amber)')+
         chip(td.approval, 'persetujuan delegasi', 'var(--amber)')+chip(td.delegasi, 'bantu nilai', 'var(--navy)')+chip(r.selfStatus==="BELUM"?1:0, 'nilai diri', 'var(--navy)')+'</div>' : '')+
