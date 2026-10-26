@@ -1,4 +1,7 @@
-/* BBLC TNA Engine v1.6, 25 Okt 2026. Perubahan (P1): mode nilai per kompetensi untuk satu tim (tnaFormTim, tnaSubmitTim),
+/* BBLC TNA Engine v1.7, 26 Okt 2026. Perubahan: katalog training + silabus (tab TNA_Silabus hasil ringkasan materi Drive,
+ * status DRAF_AI sampai L&D menandai FINAL; tnaKatalog, tnaSilabusStatus); riwayat training lengkap 2025-2026 per karyawan
+ * (tab TNA_RekamTraining, diurutkan per NIK; tnaRekam hanya untuk karyawan itu sendiri, penilai, validator, atasan berjenjang, admin).
+ * BBLC TNA Engine v1.6, 25 Okt 2026. Perubahan (P1): mode nilai per kompetensi untuk satu tim (tnaFormTim, tnaSubmitTim),
  * dashboard tim (tnaTim: heatmap, gap terbesar, prioritas), rencana training tim (tnaTrainingTim), draft di server (TNA_Draft),
  * pengingat WhatsApp manual & terjadwal via kirimWA Kode.gs (tnaPengingat, tnaPengingatTerjadwal), pemantauan validator (tnaPantau),
  * cache data statis (CacheService, dibatalkan otomatis saat tab ditulis ulang), penjadwalan trigger dari Panel Admin (tnaJadwalkan).
@@ -20,7 +23,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "1.6";
+var TNA_VERSION = "1.7";
 
 /* ============================================================
  * SKEMA TAB
@@ -39,6 +42,10 @@ var TNA_TAB = {
   Katalog: ["KodeTraining", "Judul", "Kategori", "KodeKompetensi", "LevelTarget", "Metode", "DurasiJam", "SumberFile", "Link", "Status"],
   Mandatory: ["KodeJabatan", "KodeTraining", "Dasar"],
   Riwayat: ["NIK", "KodeTraining", "Tanggal", "Sumber"],
+  Silabus: ["KodeTraining", "Judul", "Rumpun", "Kompetensi", "Sasaran", "Tujuan", "Outline", "Metode", "Durasi", "Evaluasi", "Sumber",
+    "Status", "DiperbaruiOleh", "Timestamp"],
+  RekamTraining: ["NIK", "Tahun", "Tanggal", "KodeProgram", "Judul", "Kategori", "Metode", "Penyelenggara", "Status", "Jam",
+    "PreTest", "PostTest", "KodeTNA"],
   Asesmen: ["Periode", "NIK", "KelompokID", "KodeKompetensi", "Rater", "RaterNIK", "Checks", "Level", "NA", "Alasan", "Status", "Timestamp"],
   Gap: ["Periode", "NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "JobTitle", "KodeKompetensi", "Kompetensi", "Kategori",
     "Required", "Bobot", "SkorAtasan", "SkorSelf", "Actual", "Gap", "Prioritas", "KategoriGap", "Flag", "StatusValidasi"],
@@ -108,6 +115,9 @@ function handleTNA(req) {
     case "tnaPantau": return tnaPantau(ss, req);
     case "tnaPengingat": return tnaPengingat(ss, req);
     case "tnaJadwalkan": return tnaJadwalkanEndpoint(ss, req);
+    case "tnaKatalog": return tnaKatalog(ss, req);
+    case "tnaSilabusStatus": return tnaSilabusStatus(ss, req);
+    case "tnaRekam": return tnaRekam(ss, req);
     default: return { ok: false, error: "Aksi TNA tidak dikenal." };
   }
 }
@@ -129,7 +139,7 @@ function tnaSheet(ss, nama) {
 
 // Membaca tab sebagai array objek berdasarkan header baris 1.
 // Tab statis (berubah hanya saat import/approve) disimpan di CacheService 6 jam supaya layar hasil & validasi cepat.
-var TNA_CACHE_TAB = { Karyawan: 1, Kamus: 1, Checklist: 1, Matriks: 1, Task: 1, Intervensi: 1, Katalog: 1, Mandatory: 1, Riwayat: 1 };
+var TNA_CACHE_TAB = { Karyawan: 1, Kamus: 1, Checklist: 1, Matriks: 1, Task: 1, Intervensi: 1, Katalog: 1, Mandatory: 1, Riwayat: 1, Silabus: 1 };
 function tnaCacheVer() {
   if (typeof PropertiesService === "undefined") return "0";
   return PropertiesService.getScriptProperties().getProperty("TNA_CACHE_VER") || "0";
@@ -1129,7 +1139,7 @@ function tnaTrainingTim(ss, req) {
   tnaBaca(ss, "ITP").forEach(function (r) {
     if (!di[String(r.NIK)]) return;
     var b = batch[r.BatchID] || {}, key = r.Bulan + "|" + r.KodeTraining + "|" + (b.TanggalMulai || "") + "|" + (b.Lokasi || "");
-    var g = grup[key] = grup[key] || { bulan: r.Bulan, judul: r.Judul, kategori: r.Kategori, jam: Number(r.Jam), tanggal: b.TanggalMulai || "", lokasi: b.Lokasi || "",
+    var g = grup[key] = grup[key] || { bulan: r.Bulan, kode: r.KodeTraining, judul: r.Judul, kategori: r.Kategori, jam: Number(r.Jam), tanggal: b.TanggalMulai || "", lokasi: b.Lokasi || "",
       opsional: r.Status === "OPSIONAL", jumlah: 0, nama: [] };
     g.jumlah++; peserta++;
     if (denganNama) g.nama.push(r.Nama);
@@ -1498,6 +1508,80 @@ function tnaITPSaya(ss, req) {
 }
 
 /* ============================================================
+ * KATALOG TRAINING & SILABUS (semua pengguna) dan RIWAYAT TRAINING per karyawan
+ * Silabus adalah ringkasan otomatis materi Drive (DRAF_AI) sampai L&D menandai FINAL.
+ * Silabus perilaku berlaku per rumpun: W-CB03 dipakai untuk W-CB03-L1/L2/L3.
+ * ============================================================ */
+function tnaKatalog(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var nama = {}; tnaBaca(ss, "Kamus").forEach(function (k) { nama[k.KodeKompetensi] = k.Nama; });
+  var katalog = tnaBaca(ss, "Katalog").filter(function (c) { return String(c.Status).toUpperCase() !== "NONAKTIF"; }).map(function (c) {
+    return { kode: String(c.KodeTraining), judul: c.Judul, kategori: c.Kategori, metode: c.Metode, jam: c.DurasiJam, level: c.LevelTarget,
+      status: c.Status, sumber: c.SumberFile, link: c.Link,
+      kompetensi: String(c.KodeKompetensi || "").split(/[,;]\s*/).filter(String).map(function (k) { return nama[k] || k; }).join(", ") };
+  });
+  var silabus = tnaBaca(ss, "Silabus").map(function (s) {
+    var o = {}; TNA_TAB.Silabus.forEach(function (h) { o[h] = s[h] === undefined || s[h] === null ? "" : String(s[h]); }); return o;
+  });
+  return { ok: true, katalog: katalog, silabus: silabus, admin: auth.role === "admin" };
+}
+
+function tnaSilabusStatus(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (auth.role !== "admin") return { ok: false, error: "Hanya admin L&D yang dapat mengubah status silabus." };
+  var status = String(req.status || "").toUpperCase();
+  if (["FINAL", "DRAF_AI"].indexOf(status) === -1) return { ok: false, error: "Status silabus tidak dikenal." };
+  var sh = tnaSheet(ss, "Silabus"), v = sh.getDataRange().getValues(), h = v[0];
+  var cK = h.indexOf("KodeTraining"), cS = h.indexOf("Status"), cO = h.indexOf("DiperbaruiOleh"), cT = h.indexOf("Timestamp");
+  for (var i = 1; i < v.length; i++) {
+    if (String(v[i][cK]) !== String(req.kode)) continue;
+    v[i][cS] = status; v[i][cO] = auth.nama; v[i][cT] = new Date();
+    sh.getRange(i + 1, 1, 1, h.length).setValues([v[i]]);
+    tnaCacheBatal("Silabus");
+    tnaLog(ss, auth.nik, "silabusStatus", req.kode + " " + status);
+    return { ok: true, kode: req.kode, status: status };
+  }
+  return { ok: false, error: "Silabus tidak ditemukan." };
+}
+
+// Riwayat training lengkap 2025-2026 (master data BBLC) untuk satu karyawan.
+// Tab diurutkan per NIK saat import, jadi cukup membaca kolom NIK lalu satu blok baris milik orang itu.
+function tnaRekam(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var km = tnaPetaKaryawan(ss), target = String(req.target || auth.nik), t = km[target];
+  if (!t) return { ok: false, error: "Karyawan tidak terdaftar di TNA 2027." };
+  var peran = tnaPeranTerhadap(auth, km, t);
+  var boleh = peran === "SELF" || peran === "ATASAN" || peran === "ATASAN2" || peran === "DELEGASI" || peran === "ADMIN" ||
+    tnaAdalahValidator(auth.nik, t.ValidatorNIK) || tnaLingkup(auth, km, "").some(function (k) { return k.NIK === target; });
+  if (!boleh) return { ok: false, error: "Anda tidak berwenang melihat riwayat training karyawan ini." };
+  var sh = ss.getSheetByName("TNA_RekamTraining"), rows = [];
+  if (sh && sh.getLastRow() > 1) {
+    var h = sh.getRange(1, 1, 1, TNA_TAB.RekamTraining.length).getValues()[0];
+    var nikCol = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(), lo = -1, hi = -1;
+    for (var i = 0; i < nikCol.length; i++) if (String(nikCol[i][0]) === target) { if (lo < 0) lo = i; hi = i; }
+    if (lo >= 0) {
+      sh.getRange(2 + lo, 1, hi - lo + 1, h.length).getValues().forEach(function (r) {
+        if (String(r[0]) !== target) return;
+        var o = {}; h.forEach(function (k, c) { o[k] = r[c] instanceof Date ? Utilities.formatDate(r[c], "Asia/Makassar", "yyyy-MM-dd") : r[c]; });
+        rows.push(o);
+      });
+    }
+  }
+  rows.sort(function (a, b) { return String(b.Tanggal).localeCompare(String(a.Tanggal)); });
+  var tahun = {};
+  rows.forEach(function (r) {
+    var y = tahun[r.Tahun] = tahun[r.Tahun] || { tahun: r.Tahun, program: 0, ikut: 0, tidakHadir: 0, rencana: 0, jam: 0 };
+    y.program++;
+    var st = String(r.Status).toUpperCase();
+    if (st === "HADIR" || st === "SELESAI") { y.ikut++; y.jam += Number(r.Jam) || 0; }
+    else if (st === "TIDAK HADIR") y.tidakHadir++;
+    else y.rencana++;
+  });
+  return { ok: true, nama: t.Nama, jabatan: t.Jabatan, cabang: t.Cabang, rekam: rows,
+    ringkasan: Object.keys(tahun).sort().reverse().map(function (y) { tahun[y].jam = tnaR2(tahun[y].jam); return tahun[y]; }) };
+}
+
+/* ============================================================
  * EKSPOR 5 DOKUMEN (Google Sheets baru di Drive pemilik script)
  * ============================================================ */
 function tnaEksporDokumen(ss) {
@@ -1615,7 +1699,8 @@ function tnaImport(fileIdImport) {
   tnaSetup();
   var src = SpreadsheetApp.openById(fileIdImport);
   var lapor = [];
-  ["Karyawan", "MasterJabatan", "Kamus", "Checklist", "Matriks", "Task", "Intervensi", "Katalog", "Mandatory", "Riwayat"].forEach(function (nama) {
+  ["Karyawan", "MasterJabatan", "Kamus", "Checklist", "Matriks", "Task", "Intervensi", "Katalog", "Mandatory", "Riwayat",
+    "Silabus", "RekamTraining"].forEach(function (nama) {
     var s = src.getSheetByName(nama);
     if (!s) { lapor.push(nama + ": dilewati (tidak ada)"); return; }
     var v = s.getDataRange().getValues(), h = v[0].map(String);

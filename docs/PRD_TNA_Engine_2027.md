@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 1.4, 25 Okt 2026
+**Versi dokumen:** 1.5, 26 Okt 2026 (tambah M12 Katalog, Silabus & Riwayat Training dan §12 Landasan Metodologi & Rencana Validasi)
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -165,6 +165,12 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR11.7 P1 (25 Okt):** (a) mode **Nilai per Kompetensi**: penilai menilai satu kompetensi untuk seluruh anggota satu jabatan sekaligus (tombol level L2..L5 + N/A), hanya orang lengkap & belum terkirim/diubah yang dikirim; (b) **Dashboard Tim**: ringkasan, gap terbesar tim, prioritas pengembangan (Σ gap × bobot), heatmap orang × kompetensi per jabatan, filter cabang; lingkup = rantai penilai/validator; atasan berjenjang dapat membuka hasil anggota (baca saja); (c) **Training Tim**: rencana & kalender training tim per bulan setelah output terbit; (d) **draft di server** (`TNA_Draft`) supaya bisa lanjut dari perangkat lain; (e) **Panel Admin**: pemilih tanggal window (WITA), pemantauan penilai & validator, pratinjau/kirim pengingat WhatsApp (Fonnte via `kirimWA` Kode.gs, nomor dari Users kolom H), aktivasi jadwal otomatis (output + pengingat harian H-5/H-3/H-1/H0, H+1 khusus validator); (f) cache data statis (CacheService 6 jam, dibatalkan saat tab ditulis ulang).
 - **FR11.5 Batas waktu:** hasil yang belum divalidasi per 3 Nov 23:59 tetap masuk output dengan `StatusValidasi = BELUM VALIDASI` (kolom di Gap, Rekomendasi, ITP). Validasi tetap bisa dilakukan sesudahnya lalu output di-generate ulang.
 
+### M12 — Katalog, Silabus, Riwayat Training & Landasan (v1.5, keputusan 26 Okt)
+- **FR12.1 Silabus:** ringkasan silabus setiap program di folder materi L&D ("Kurikulum & Modul", "01. MATERI IHT", "Materi Training", "MATERI TRAINING SALES") disimpan di `TNA_Silabus`: tujuan, sasaran, kompetensi, materi per sesi, metode, durasi, evaluasi, sumber file. Ringkasan disusun AI dari isi materi, berstatus `DRAF_AI` dan tetap ditampilkan dengan label "Draf AI, belum direview L&D". Admin L&D menandai `FINAL` per training (`tnaSilabusStatus`). Program yang materinya tidak terbaca atau tidak ada berstatus `BELUM_ADA_SILABUS`; isinya tidak dikarang. Silabus perilaku berlaku per rumpun (W-CB03 dipakai untuk W-CB03-L1/L2/L3).
+- **FR12.2 Katalog Training** (`tnaKatalog`, semua pengguna): daftar training katalog TNA + program internal BBLC (IHT dll.) yang punya silabus, bisa dicari (judul, kode, kompetensi, isi materi) dan difilter (kategori, sudah bersilabus, internal). Setiap nama training di ITP, rekomendasi 10, training wajib, opsi training validator, kalender Training Tim, dan riwayat training bisa diklik untuk membuka detail silabus.
+- **FR12.3 Riwayat Training** (`tnaRekam`): seluruh training 2025 (master data, selesai) dan 2026 (status kehadiran HADIR / TIDAK HADIR / PLAN) per karyawan, termasuk jam, penyelenggara, dan nilai post-test, plus ringkasan per tahun. Tombol tersedia di form asesmen, mode Nilai per Kompetensi, dan layar hasil/validasi. Akses dicek di backend: karyawan itu sendiri, penilai (atasan, penilai kedua, delegasi), validator, atasan berjenjang, dan admin. Rekan setim dan orang di luar lingkup ditolak. Data di `TNA_RekamTraining` diurutkan per NIK saat import supaya cukup membaca satu blok baris.
+- **FR12.4 Landasan Metodologi:** layar statis yang menjelaskan dasar ilmiah setiap komponen TNA, daftar hal yang masih berupa asumsi, rencana validasi, dan daftar pustaka (lihat §12). Bisa dibuka dari beranda, form asesmen, dan layar hasil.
+
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
 Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
@@ -182,6 +188,8 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 | `KatalogTraining` | KodeTraining | Judul, FileDrive, Kompetensi, LevelTarget, Metode, DurasiJam, Status |
 | ✚`TrainingMandatory` | KodeJabatan+KodeTraining | Dasar (korporat/JD/regulasi/prinsipal) |
 | ✚`Riwayat` | NIK+KodeTraining | Tanggal, Sumber (training yang sudah lulus) |
+| ✚`Silabus` | KodeTraining | Judul, Rumpun, Kompetensi, Sasaran, Tujuan, Outline, Metode, Durasi, Evaluasi, Sumber, Status (DRAF_AI/FINAL/BELUM_ADA_SILABUS) |
+| ✚`RekamTraining` | NIK (urut) | Tahun, Tanggal, KodeProgram, Judul, Kategori, Metode, Penyelenggara, Status, Jam, PreTest, PostTest, KodeTNA |
 | ✚`Validasi` | Periode+Target | Target (NIK / K:KelompokID), PenilaiNIK, ValidatorNIK, Status, Catatan, Edit (JSON), Ringkasan |
 | ✚`Rekomendasi` | NIK+KodeKompetensi+Tipe | Tipe(70/20/10), Deskripsi, KodeTraining/MentorNIK |
 | ✚`ITP` | NIK+KodeTraining | Kategori(W/D/P), Bulan, BatchID, Jam, Status |
@@ -230,3 +238,39 @@ Tab yang sudah ada dipakai ulang; tambahan bertanda ✚.
 3. ~~Nama folder modul training~~ → "Kurikulum & Modul" (dipakai di Katalog).
 4. ~~Durasi AFA & AIDW~~ → 2 jam & 3 jam (FR10.7).
 5. Durasi modul internal lain (CB-xx dari median 2026, SA & CS Master Class, dll) perlu dicek L&D di tab Katalog.
+6. Review silabus `DRAF_AI` oleh L&D (43 program). Temuan dari materi yang perlu diputuskan: nilai lulus BST tertulis 70/100 di slide ketentuan dan 75/100 di slide tujuan; modul IST M1-01, M1-03, M1-06 tidak ada di folder; template Modul Monitoring masih kosong; 7 Step Service baru terbaca langkah 1; materi "Sales Jago Jualan" 2024 memakai contoh Mercedes-Benz Trucks.
+
+## 12. Landasan Metodologi & Rencana Validasi
+
+Prinsip: hasil TNA 2027 dipakai untuk **pengembangan**. Hasil belum boleh dipakai untuk keputusan gaji, promosi, atau seleksi (termasuk seleksi Kacab Academy) sampai lolos uji keandalan antar-penilai dan validitas isi di bawah. Alasannya, keputusan yang berdampak pada karier menuntut bukti validitas yang jauh lebih tinggi (SIOP Principles, 2018; AERA/APA/NCME Standards, 2014).
+
+### 12.1 Landasan per komponen
+| Komponen | Landasan | Kekuatan bukti | Status |
+|---|---|---|---|
+| Kompetensi diturunkan dari JD/tugas | McClelland (1973); Spencer & Spencer (1993); Shippmann dkk. (2000); Campion dkk. (2011); Lievens dkk. (2004) | Kuat | Sesuai. 4 jabatan tanpa JD memakai draf AI; required level belum diuji SME |
+| Skala 5 level | Dreyfus & Dreyfus (1980) | Kuat sebagai kerangka | Sesuai |
+| Checklist perilaku L2–L5 | BARS (Smith & Kendall, 1963); BOS (Latham & Wexley, 1977) | Kuat | Kalimat perilaku 107 kompetensi teknis dari template, belum ditulis SME per kompetensi |
+| Skor kumulatif | Guttman (1944), syarat koefisien reproducibilitas ≥ 0,90 | Kuat sebagai metode | Flag INKONSISTEN sudah ada; sifat kumulatif checklist belum diuji |
+| Bobot atasan 70% / self 30% | Harris & Schaubroeck (1988); Heidemeier & Moser (2009) | Arah kuat, angka tidak | **Asumsi** kebijakan |
+| Dua penilai Kacab, flag leniency/straight-lining | Viswesvaran, Ones & Schmidt (1996); Saal, Downey & Lahey (1980); Krosnick (1991) | Kuat | Sesuai; rater training belum ada |
+| TNA tiga lapis | McGehee & Thayer (1961); Goldstein & Ford (2002); Salas dkk. (2012) | Kuat | Sesuai |
+| Prioritas = gap × bobot | Borich (1980) | Kuat | Bobot ditetapkan L&D, belum diuji SME |
+| 70/20/10 | McCall, Lombardo & Morrison (1988); DeRue & Wellman (2009); Jones, Woods & Guillaume (2016); Allen dkk. (2004); kritik rasio: Clardy (2018) | Komponen kuat, rasio lemah | Dipakai sebagai tiga jalur, bukan proporsi wajib |
+| Desain Kacab Academy / BMDP | Charan, Drotter & Noel (2011); Lacerenza dkk. (2017) | Kuat | Jangkar perilaku SL perlu diuji SME sales |
+| Transfer & evaluasi | Baldwin & Ford (1988); Blume dkk. (2010); Kirkpatrick & Kirkpatrick (2016) | Kuat | Belum di sistem (kandidat P2) |
+| Koefisien proyeksi (+0,5 level) | — | Tidak ada | **Asumsi**, dikalibrasi dari asesmen tengah tahun |
+
+### 12.2 Rencana validasi
+| Uji | Metode | Waktu |
+|---|---|---|
+| Validitas isi | Panel SME 2–3 orang per rumpun, Content Validity Ratio (Lawshe, 1975), mulai dari jabatan berpopulasi terbesar | Paralel window asesmen |
+| Konsistensi skala | Koefisien reproducibilitas Guttman per kompetensi (target ≥ 0,90) | Setelah 3 Nov |
+| Keandalan antar-penilai | ICC (Shrout & Fleiss, 1979) dari dua NOH atas 28 Kacab | 4 Nov |
+| Validitas kriteria | Korelasi gap dengan KPI (comeback rate, konversi SPK, laba cabang) | Q1 2027 |
+| Stabilitas & kalibrasi proyeksi | Asesmen ulang tengah tahun | Jun 2027 |
+| Peningkatan akurasi penilai | Briefing Frame-of-Reference 30 menit (Woehr & Huffcutt, 1994; Roch dkk., 2012) | Sosialisasi 27 Okt |
+
+### 12.3 Daftar pustaka
+Allen dkk. (2004) *JAP 89*(1); AERA/APA/NCME (2014) *Standards*; Baldwin & Ford (1988) *Pers. Psych. 41*(1); Blume dkk. (2010) *J. of Management 36*(4); Borich (1980) *J. Teacher Ed. 31*(3); Campion dkk. (2011) *Pers. Psych. 64*(1); Charan, Drotter & Noel (2011) *The Leadership Pipeline*; Clardy (2018) *HRDR 17*(2); DeRue & Wellman (2009) *JAP 94*(4); Dreyfus & Dreyfus (1980) UC Berkeley ORC; Goldstein & Ford (2002) *Training in Organizations*; Guttman (1944) *ASR 9*(2); Harris & Schaubroeck (1988) *Pers. Psych. 41*(1); Heidemeier & Moser (2009) *JAP 94*(2); Jones, Woods & Guillaume (2016) *JOOP 89*(2); Kirkpatrick & Kirkpatrick (2016) ATD Press; Krosnick (1991) *Applied Cog. Psych. 5*(3); Lacerenza dkk. (2017) *JAP 102*(12); Latham & Wexley (1977) *Pers. Psych. 30*(2); Lawshe (1975) *Pers. Psych. 28*(4); Lievens, Sanchez & De Corte (2004) *Pers. Psych. 57*(4); McCall, Lombardo & Morrison (1988) *The Lessons of Experience*; McClelland (1973) *Am. Psych. 28*(1); McGehee & Thayer (1961) *Training in Business and Industry*; Roch dkk. (2012) *JOOP 85*(2); Saal, Downey & Lahey (1980) *Psych. Bull. 88*(2); Salas dkk. (2012) *PSPI 13*(2); Shippmann dkk. (2000) *Pers. Psych. 53*(3); Shrout & Fleiss (1979) *Psych. Bull. 86*(2); SIOP (2018) *Principles*, 5th ed.; Smith & Kendall (1963) *JAP 47*(2); Spencer & Spencer (1993) *Competence at Work*; Viswesvaran, Ones & Schmidt (1996) *JAP 81*(5); Woehr & Huffcutt (1994) *JOOP 67*(3).
+
+Sitasi ditulis dari ingatan penyusun dan perlu dicocokkan dengan sumber aslinya (volume, halaman, DOI) sebelum dipakai di dokumen resmi.

@@ -26,6 +26,11 @@
 Isi `NIK, KodeTraining, Tanggal, Sumber` untuk training Wajib yang SUDAH lulus (mis. Step 1, MSA 1, Brevet).
 Saat generate output, training Wajib tersebut tidak dijadwalkan ulang untuk orang itu. Kosong = semua Wajib dijadwalkan.
 
+## Katalog, Silabus & Riwayat Training (v1.7)
+- Paket import kini berisi tab `Silabus` (ringkasan materi, status `DRAF_AI`) dan `RekamTraining` (riwayat training 2025-2026 per karyawan). Keduanya ikut ter-import oleh `tnaImportPaket`; tidak ada langkah tambahan.
+- `TNA_RekamTraining` harus tetap **diurutkan per NIK** (sudah begitu dari file import). Baris yang ditambah manual di bawah tetap terbaca, hanya sedikit lebih lambat.
+- Silabus yang sudah direview: buka Studio sebagai Admin → Katalog Training & Silabus → pilih training → **Tandai silabus final**. Boleh juga mengedit isi silabus langsung di tab `TNA_Silabus`.
+
 ## Validasi Head unit (v1.3)
 - Kolom `ValidatorNIK` di tab Karyawan menentukan siapa yang memvalidasi (Kacab di cabang, Dept Head di HO). Kosong = Admin L&D.
 - Status validasi tersimpan di tab `TNA_Validasi`. Jangan diedit manual kecuali koreksi darurat.
