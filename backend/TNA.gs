@@ -1,4 +1,6 @@
-/* BBLC TNA Engine v2.4.1, 27 Okt 2026. Perubahan: tnaMatrixOutput sumber "hasil" (gap live /* BBLC TNA Engine v2.4, 27 Okt 2026. ITP per orang, tim saya).
+/* BBLC TNA Engine v2.5, 27 Okt 2026. Perubahan (keputusan user 27 Okt): nilai aktual dibulatkan ke level utuh,
+ * Actual = round(70% atasan + 30% self), 0,5 ke atas; gap bulat; kategori gap 1 = Minor, 2 = Moderate, >= 3 = Major.
+ * BBLC TNA Engine v2.4.1, 27 Okt 2026. Perubahan: tnaMatrixOutput sumber "hasil" (gap live /* BBLC TNA Engine v2.4, 27 Okt 2026. ITP per orang, tim saya).
  * BBLC TNA Engine v2.4, 27 Okt 2026. Perubahan: tnaMatrixOutput (khusus admin L&D) untuk Pusat Matrix: Competency Matrix dan
  * Training Matrix per jabatan, dept, divisi, atau seluruh BBM. Penanda training memakai aturan yang sama dengan mesin rekomendasi:
  * W = wajib (Mandatory jabatan/korporat), G = wajib bila ada gap (modul yang dipilih mesin untuk gap dari level 1 sampai syarat-1,
@@ -55,7 +57,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.4.1";
+var TNA_VERSION = "2.5";
 
 /* ============================================================
  * SKEMA TAB
@@ -816,11 +818,11 @@ function tnaHitungGap(ss, p, km) {
       var actual = "", gap = "", prio = "", kat;
       if (sA === null) { kat = "BELUM DINILAI"; }
       else {
-        actual = sS === null ? sA : bA * sA + bS * sS;
-        actual = tnaR2(actual);
-        gap = tnaR2(Math.max(0, req - actual));
-        prio = tnaR2(gap * bobot);
-        kat = gap === 0 ? "Kompeten" : (gap < 1 ? "Minor" : (gap < 2 ? "Moderate" : "Major"));
+        // Level adalah skala bertingkat: aktual dibulatkan ke level utuh (0,5 ke atas), keputusan user 27 Okt
+        actual = Math.round(sS === null ? sA : bA * sA + bS * sS);
+        gap = Math.max(0, req - actual);
+        prio = gap * bobot;
+        kat = gap === 0 ? "Kompeten" : (gap === 1 ? "Minor" : (gap === 2 ? "Moderate" : "Major"));
       }
       var kk = kamus[m.KodeKompetensi] || {};
       gapRows.push({ Periode: p.Periode, NIK: nik, Nama: k.Nama, Cabang: k.Cabang, Dept: k.Dept, KodeJabatan: k.KodeJabatan, JobTitle: k.JobTitle,

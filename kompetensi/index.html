@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.18, 27 Okt 2026. Perubahan: nilai aktual & gap tampil sebagai angka bulat (mesin TNA v2.5, pembulatan 70/30); Pusat Matrix dirancang ulang bergaya laporan konsultan: cover laporan dengan angka ringkas, heatmap bertingkat satu warna (1-5) dengan kompetensi inti berbingkai, pengelompokan klaster behavioral, band departemen, kolom ringkasan (pemakaian / sebaran status), baris total, sorotan otomatis, panel Cara Membaca, sorot baris & kolom saat kursor melintas, profil jabatan lengkap di laci samping, filter kategori, training matrix dengan bentuk berbeda per jenis (terisi, garis tegas, garis putus, titik) agar terbaca di cetak hitam putih, ekspor PDF dengan skala otomatis, nomor halaman, dan judul kolom berulang. -->
 <!-- BBLC Studio v3.17, 27 Okt 2026. Perubahan: Pusat Matrix menambah sumber "Hasil asesmen" (competency matrix nilai aktual per orang berwarna status, training matrix dari ITP per orang) dan lingkup "Tim Saya" (seluruh anggota di bawah admin menurut rantai penilai); data dimuat ulang tiap kali dibuka; grafik profil: angka skala tidak lagi tertutup penanda syarat. -->
 <!-- BBLC Studio v3.16, 27 Okt 2026. Perubahan: Panduan Pengisian (tombol di halaman masuk, ubin & kartu pengingat di beranda, wajib dibuka sebelum penilaian pertama); Pusat Matrix L&D khusus admin (competency matrix & training matrix per jabatan, dept, divisi, seluruh BBM; penanda Wajib, Wajib bila gap, IHT, Dianjurkan; ekspor PDF A4/A3 lanskap); bagian asumsi, cara pembuktian, dan catatan kebijakan di Landasan Metodologi hanya tampil untuk admin L&D. -->
 <!-- BBLC Studio v3.15, 27 Okt 2026. Perubahan: hasil asesmen menjadi laporan visual bergaya laporan asesor (ringkasan kesesuaian standar + komposisi status, kekuatan & prioritas, profil kompetensi skala 1-5 dengan penanda syarat/atasan/self/aktual, radar 10 behavioral vs standar jenjang, matriks prioritas gap x bobot, persepsi diri vs atasan, rencana 70/20/10 bernomor, navigasi bagian); ITP menjadi Peta Belajar 2027 (jam terencana vs target, strip 12 bulan yang bisa diketuk, agenda per bulan dengan kompetensi yang dikembangkan); tabel tetap tersedia sebagai tampilan alternatif. -->
@@ -395,80 +396,151 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 body.role-admin .khusus-ld{display:block}
 body.role-admin span.khusus-ld{display:inline}
 @media (max-width:720px){.pd-flow,.pd-grid,.pd-ex,.pd-time{grid-template-columns:1fr}.pd-h{font-size:19px}}
-/* ---------- Pusat Matrix L&D (v3.16) ---------- */
-.mx-ctrl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;position:sticky;top:64px;z-index:6}
+/* ---------- Pusat Matrix L&D (v3.18): bahasa visual laporan konsultan ---------- */
+#scr-tna-pusat{
+  --r1:#1D3556;--r2:#25497A;--r3:#2F6CAB;--r4:#58A6E0;--r5:#A9DBFF;
+  --rt1:#CFE3F8;--rt2:#E3F0FC;--rt3:#EAF4FF;--rt4:#06182C;--rt5:#06182C;
+  --inti:#F8FAFC;--hl:rgba(148,163,184,.14);--band1:rgba(148,163,184,.10);--band2:rgba(148,163,184,.04);
+  --tw:#A9DBFF;--tw-ink:#06182C;
+}
+:root[data-theme="light"] #scr-tna-pusat{
+  --r1:#E8F0F8;--r2:#BFD3EA;--r3:#86A7CB;--r4:#2E5C8A;--r5:#0B2340;
+  --rt1:#0B2340;--rt2:#0B2340;--rt3:#0B2340;--rt4:#FFFFFF;--rt5:#FFFFFF;
+  --inti:#0F172A;--hl:rgba(15,23,42,.07);--band1:rgba(15,23,42,.05);--band2:rgba(15,23,42,.02);
+  --tw:#0B2340;--tw-ink:#FFFFFF;
+}
+.mx-ctrl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;position:sticky;top:64px;z-index:20}
 .mx-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
 .mx-lbl{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 .seg{display:inline-flex;background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
 .seg button{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;min-height:36px}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
-.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg button:focus-visible,.chips button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 #mx-pilih{min-width:260px;max-width:420px;margin:0}
 .mx-pdf{width:auto;margin-left:auto;display:inline-flex;gap:8px;align-items:center}
 .mx-pdf svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.mx-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 20px;align-items:flex-end;margin:4px 0 12px}
-.mx-title{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.3px;margin:2px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:var(--inset);color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:32px}
+.chips button[aria-pressed="true"]{color:var(--ink);border-color:var(--line-strong);background:var(--surface)}
+.mx-rpt{padding:0;overflow:hidden}
+.mx-cover{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px 24px;align-items:flex-end;padding:22px 24px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--inset),transparent)}
+.mx-title{font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin:2px 0;line-height:1.15}
 .mx-meta{font-size:12.5px;color:var(--muted)}
 .mx-stats{display:flex;gap:10px;flex-wrap:wrap}
-.mx-stat{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-width:92px}
-.mx-stat b{display:block;font-size:20px;color:var(--ink)}
+.mx-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;min-width:96px}
+.mx-stat b{display:block;font-size:22px;color:var(--ink);line-height:1.15}
 .mx-stat span{font-size:11.5px;color:var(--muted)}
-.mx-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted);margin:0 0 10px;align-items:center}
-.mx-legend span{display:inline-flex;align-items:center;gap:6px}
-.mx-wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-table.mx{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content}
-table.mx th{text-transform:none;letter-spacing:normal;font-weight:400}
-table.mx th,table.mx td{border-bottom:1px solid var(--line);padding:0;text-align:center}
-table.mx thead th{position:sticky;top:0;z-index:2;background:var(--surface);vertical-align:bottom;border-bottom:1px solid var(--line-strong)}
-table.mx thead th.mx-jh{width:30px;min-width:30px;max-width:30px;height:170px;padding:6px 0}
-.mx-jh span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-weight:600;color:var(--text);font-size:11px;display:inline-block;max-height:158px;overflow:hidden;text-overflow:ellipsis}
-.mx-jh small{display:block;font-size:9.5px;color:var(--muted);margin-top:4px}
-table.mx .mx-rh{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;padding:6px 12px;min-width:300px;max-width:340px;border-right:1px solid var(--line-strong)}
-table.mx thead .mx-rh{z-index:3}
-.mx-rh .n{color:var(--ink);font-weight:600;font-size:12.5px;line-height:1.3}
-.mx-rh .s{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.3}
-tr.mx-grp td{position:sticky;left:0;background:var(--inset);text-align:left;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
-td.mx-c{width:30px;height:30px}
-.mx-cell{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-weight:700;font-size:11.5px}
-.lv1{background:rgba(56,189,248,.10);color:var(--text)}.lv2{background:rgba(56,189,248,.22);color:var(--ink)}.lv3{background:rgba(56,189,248,.40);color:var(--ink)}
-.lv4{background:rgba(56,189,248,.62);color:#0B1120}.lv5{background:rgba(56,189,248,.88);color:#0B1120}
-.mx-cell.inti{box-shadow:inset 0 0 0 2px var(--ink)}
-.mk-W{background:var(--red);color:#fff}.mk-G{background:var(--amber);color:#0B1120}.mk-I{background:var(--green);color:#0B1120}.mk-P{background:var(--subtle);color:var(--muted);font-size:14px}
-:root[data-theme="light"] .mk-I{color:#fff}
-.mx-one{display:grid;grid-template-columns:minmax(0,1.2fr) 150px 92px minmax(0,1.6fr);gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
-.mx-one:last-child{border-bottom:0}
-.mx-one .n{color:var(--ink);font-weight:600}
-.mx-one .d{color:var(--muted);font-size:12px;line-height:1.4}
-.pips{display:flex;gap:3px}
-.pips i{width:22px;height:8px;border-radius:3px;background:var(--subtle)}
-.pips i.on{background:var(--sky)}
+.mx-grid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:0}
+.mx-main{min-width:0;padding:16px 8px 16px 16px}
+.mx-aside{border-left:1px solid var(--line);padding:18px 18px 18px;display:flex;flex-direction:column;gap:18px;font-size:13px;color:var(--text);line-height:1.5}
+.mx-aside h4{margin:0 0 8px;font-size:13px;color:var(--ink);letter-spacing:.2px}
+.mx-aside ul{margin:0;padding-left:16px;display:grid;gap:6px}
+.ramp{display:grid;gap:5px;margin-top:12px}
+.ramp div{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text)}
+.ramp i{font-style:normal;width:46px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:0 0 auto}
+.ramp-cap{display:none}
+.lv1{background:var(--r1);color:var(--rt1)}.lv2{background:var(--r2);color:var(--rt2)}.lv3{background:var(--r3);color:var(--rt3)}.lv4{background:var(--r4);color:var(--rt4)}.lv5{background:var(--r5);color:var(--rt5)}
+.ins{display:grid;gap:10px}
+.ins div{border-left:3px solid var(--accent);padding:2px 0 2px 10px}
+.ins b{display:block;color:var(--ink);font-size:12.5px}
+.ins span{color:var(--muted);font-size:12px}
+.mx-wrap{overflow:auto;max-height:74vh;position:relative}
+table.mx{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content;--cw:46px}
+table.mx.isi{width:100%}
+table.mx.isi th.mx-h,table.mx.isi td.mx-c{width:auto}
+table.mx th,table.mx td{padding:0;text-align:center;text-transform:none;letter-spacing:normal}
+table.mx thead{position:sticky;top:0;z-index:6;background:var(--surface)}
+table.mx thead th{vertical-align:bottom;border-bottom:1px solid var(--line-strong);font-weight:400;text-transform:none;letter-spacing:normal;background:transparent}
+table.mx thead tr.mx-bandrow th{border-bottom:0;padding:6px 2px 4px}
+.mx-band{font-size:10px !important;font-weight:700 !important;letter-spacing:.5px !important;text-transform:uppercase !important;color:var(--muted);text-align:center;white-space:normal;line-height:1.15;overflow:hidden;max-width:0;height:28px}
+.mx-band.b0{background:var(--band1) !important}.mx-band.b1{background:var(--band2) !important}
+th.mx-h{min-width:var(--cw);width:var(--cw);padding:8px 3px 8px !important}
+th.mx-h button{all:unset;cursor:pointer;display:block;width:100%}
+th.mx-h .t{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25;display:block}
+th.mx-h .s{font-size:10.5px;color:var(--muted);display:block;margin-top:3px}
+th.mx-h button:hover .t,th.mx-h button:focus-visible .t{text-decoration:underline}
+th.mx-sl{height:162px;white-space:nowrap;min-width:var(--cw);width:var(--cw);position:relative;overflow:visible}
+th.mx-sl button{all:unset;cursor:pointer;display:block;width:var(--cw);height:162px;position:relative}
+th.mx-sl .t{position:absolute;left:calc(50% - 4px);bottom:26px;transform-origin:0 100%;transform:rotate(-58deg);width:150px;overflow:hidden;text-overflow:ellipsis;text-align:left;font-size:11.5px;font-weight:600;color:var(--ink);line-height:1.2}
+th.mx-sl .s{position:absolute;left:0;right:0;bottom:6px;font-size:10px;color:var(--muted)}
+th.mx-sl button:hover .t{text-decoration:underline}
+th.mx-sp{min-width:90px;width:90px}
+th.mx-sum{min-width:128px;width:128px;vertical-align:bottom;padding:8px 8px !important;font-size:10.5px !important;color:var(--muted);text-align:left}
+table.mx .mx-rh{position:sticky;left:0;z-index:3;background:var(--surface);text-align:left;padding:5px 14px 5px 12px;min-width:290px;max-width:330px;border-right:1px solid var(--line-strong)}
+table.mx thead .mx-rh{z-index:8;background:var(--surface);vertical-align:bottom;font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.8px !important;text-transform:uppercase !important}
+.mx-rh .n{color:var(--ink);font-weight:600;font-size:13px;line-height:1.3;text-transform:none;letter-spacing:normal}
+.mx-rh .s{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.3;text-transform:none;letter-spacing:normal;font-weight:400}
+tr.mx-grp td{background:var(--inset);text-align:left;padding:9px 12px;font-size:11px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink);position:sticky;left:0;border-top:1px solid var(--line)}
+tr.mx-sub td{text-align:left;padding:7px 12px 4px;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);position:sticky;left:0}
+td.mx-c{padding:2px !important;min-width:var(--cw);width:var(--cw)}
+.cl{display:flex;align-items:center;justify-content:center;height:34px;border-radius:6px;font-weight:800;font-size:14px;position:relative;font-variant-numeric:tabular-nums}
+.cl.inti{box-shadow:inset 0 0 0 2px var(--inti)}
+.cl small{font-size:9px;font-weight:600;opacity:.8;margin-left:2px}
+.cl.st-K{background:var(--green-soft);color:var(--green);box-shadow:inset 0 0 0 1px var(--green-line)}
+.cl.st-Mi{background:var(--subtle);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.cl.st-Mo{background:var(--amber-soft);color:var(--amber);box-shadow:inset 0 0 0 1px var(--accent-line)}
+.cl.st-Ma{background:var(--red);color:#fff}
+:root[data-theme="light"] .cl.st-Ma{background:var(--red);color:#fff}
+.cl.st-B{color:var(--muted);font-weight:400;background:transparent;box-shadow:inset 0 0 0 1px var(--line);opacity:.7}
+table.mx tbody tr:hover > th.mx-rh,table.mx tbody tr:hover > td{background-color:var(--hl)}
+table.mx tbody tr:hover > th.mx-rh{background:linear-gradient(var(--hl),var(--hl)),var(--surface)}
+td.hlc{background-color:var(--hl)}
+td.mx-sm{min-width:128px;width:128px;padding:2px 8px !important;text-align:left;vertical-align:middle}
+.sm-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:var(--subtle)}
+.sm-bar i{display:block;height:100%}
+.sm-t{font-size:10.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+.sm-t b{color:var(--ink)}
+tr.mx-tot td,tr.mx-tot th{border-top:1px solid var(--line-strong);background:var(--inset)}
+tr.mx-tot td{padding:6px 2px !important;font-size:11.5px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+tr.mx-tot th.mx-rh{background:var(--inset)}
+.tg{display:flex;align-items:center;justify-content:center;height:34px;border-radius:6px;font-weight:800;font-size:12.5px;flex-direction:column;line-height:1.05;box-sizing:border-box}
+.tg small{font-size:8.5px;font-weight:600;opacity:.85}
+.tg.W{background:var(--tw);color:var(--tw-ink)}
+.tg.G{border:2px solid var(--r4);color:var(--r4)}
+:root[data-theme="light"] .tg.G{color:var(--r4)}
+.tg.I{border:2px dashed var(--green);color:var(--green)}
+.tg.P{color:var(--muted);font-size:18px;font-weight:400}
+.tgk{display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;border-radius:5px;font-weight:800;font-size:11.5px;box-sizing:border-box;flex:0 0 auto}
+.tgk.W{background:var(--tw);color:var(--tw-ink)}.tgk.G{border:2px solid var(--r4);color:var(--r4)}.tgk.I{border:2px dashed var(--green);color:var(--green)}.tgk.P{color:var(--muted);font-size:16px}
+.klg{display:grid;gap:9px;margin-top:4px}
+.klg div{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.4}
+.klg b{color:var(--ink)}
+.mx-one{display:grid;grid-template-columns:minmax(0,1.3fr) 150px 96px minmax(0,1.5fr);gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
+.mx-one .n{color:var(--ink);font-weight:600}.mx-one .d{color:var(--muted);font-size:12px;line-height:1.4}
+.pips{display:flex;gap:3px}.pips i{width:24px;height:10px;border-radius:3px;background:var(--subtle)}
+.pips i.on.lv1{background:var(--r1)}.pips i.on.lv2{background:var(--r2)}.pips i.on.lv3{background:var(--r3)}.pips i.on.lv4{background:var(--r4)}.pips i.on.lv5{background:var(--r5)}
 .bobot{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);text-align:center}
 .bobot.b3{color:var(--ink);border-color:var(--ink)}
-.mx-tr{display:grid;grid-template-columns:34px minmax(0,1fr) 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
-.mx-tr:last-child{border-bottom:0}
-.mx-tr .n{color:var(--ink);font-weight:600}
-.mx-tr .d{color:var(--muted);font-size:12px}
-.mx-tr .j{text-align:right;font-weight:700;color:var(--text)}
+.mx-tr{display:grid;grid-template-columns:34px minmax(0,1fr) 80px;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
+.mx-tr .n{color:var(--ink);font-weight:600}.mx-tr .d{color:var(--muted);font-size:12px}.mx-tr .j{text-align:right;font-weight:700;color:var(--text)}
+.mx-gh{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:16px 4px 6px;border-bottom:1px solid var(--line-strong);display:flex;justify-content:space-between}
+.mx-gh em{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
+.mx-drawer{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;background:rgba(2,6,23,.55)}
+.mx-drawer[hidden]{display:none}
+.mx-sheet{width:min(560px,100%);height:100%;background:var(--surface);border-left:1px solid var(--line-strong);overflow:auto;padding:20px 22px 40px;box-shadow:var(--shadow)}
+.mx-sheet h3{margin:6px 0 2px;font-size:20px;color:var(--ink)}
+.mx-sheet .x{float:right}
+.dr-k{padding:10px 0;border-bottom:1px solid var(--line)}
+.dr-k .h{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.dr-k b{color:var(--ink);font-size:13.5px}.dr-k p{margin:4px 0 0;font-size:12.5px;color:var(--text);line-height:1.5}.dr-k .m{color:var(--muted);font-size:11.5px}
 .mx-cetak{display:none}
-.st-K{background:var(--green-soft);color:var(--green);box-shadow:inset 0 0 0 1px var(--green-line)}.st-Mi{background:var(--subtle);color:var(--text)}
-.st-Mo{background:var(--amber-soft);color:var(--amber);box-shadow:inset 0 0 0 1px var(--accent-line)}.st-Ma{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1px var(--red-line)}
-.st-B{color:var(--muted);font-weight:400}
-.mx-cell.w2{width:30px}
-table.mx thead th.mx-ph{width:36px;min-width:36px;max-width:36px;height:190px;padding:6px 0}
-.mx-ph span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-weight:600;color:var(--ink);font-size:11px;display:inline-block;max-height:176px;overflow:hidden;text-overflow:ellipsis}
-.mx-ph span em{font-style:normal;font-weight:400;color:var(--muted)}
-@media (max-width:720px){#mx-pilih{min-width:0;width:100%}.mx-ctl{width:100%}.mx-pdf{margin-left:0}.mx-one{grid-template-columns:minmax(0,1fr) auto}.mx-one .d,.mx-one .pips{grid-column:1 / -1}
-  table.mx .mx-rh{min-width:170px;max-width:200px}.mx-ctrl{position:static}}
+@media (max-width:980px){.mx-grid{grid-template-columns:1fr}.mx-aside{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:720px){#mx-pilih{min-width:0;width:100%}.mx-ctl{width:100%}.mx-pdf{margin-left:0}.mx-ctrl{position:static}.mx-one{grid-template-columns:minmax(0,1fr) auto}.mx-one .d,.mx-one .pips{grid-column:1 / -1}.mx-title{font-size:21px}table.mx .mx-rh{min-width:170px;max-width:200px}}
 @media print{
   body.cetak-matrix *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.cetak-matrix .screen:not(#scr-tna-pusat),body.cetak-matrix header.app,body.cetak-matrix .mx-ctrl,body.cetak-matrix .demo-bar,body.cetak-matrix #demo-fab,body.cetak-matrix #demo-panel,body.cetak-matrix #demo-toasts{display:none !important}
-  body.cetak-matrix .body-wrap{max-width:none;padding:0}
-  body.cetak-matrix .mx-wrap{max-height:none;overflow:visible;border:0}
-  body.cetak-matrix table.mx thead th{position:static}
-  body.cetak-matrix table.mx .mx-rh,body.cetak-matrix tr.mx-grp td{position:static}
-  body.cetak-matrix .card{box-shadow:none;border:0;padding:0}
-  body.cetak-matrix .mx-cetak{display:block;font-size:10px;color:#475569;margin-top:8px}
+  body.cetak-matrix .screen:not(#scr-tna-pusat),body.cetak-matrix header.app,body.cetak-matrix .mx-ctrl,body.cetak-matrix .demo-bar,body.cetak-matrix #demo-fab,body.cetak-matrix #demo-panel,body.cetak-matrix #demo-toasts,body.cetak-matrix .mx-drawer,body.cetak-matrix .credit{display:none !important}
+  body.cetak-matrix{background:#fff !important}
+  body.cetak-matrix .body-wrap{max-width:none !important;padding:0 !important}
+  body.cetak-matrix .mx-wrap{max-height:none;overflow:visible}
+  body.cetak-matrix table.mx thead{position:static;display:table-header-group}
+  body.cetak-matrix table.mx .mx-rh,body.cetak-matrix tr.mx-grp td,body.cetak-matrix tr.mx-sub td{position:static}
+  body.cetak-matrix .card{box-shadow:none;border:0;border-radius:0}
+  body.cetak-matrix .mx-grid{grid-template-columns:1fr}
+  body.cetak-matrix .mx-aside{border-left:0;border-top:1px solid #cbd5e1;display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:24px;break-inside:avoid}
+  body.cetak-matrix .mx-main{padding:12px 0}
   body.cetak-matrix tr{break-inside:avoid}
+  body.cetak-matrix .mx-cetak{display:block;font-size:9.5px;color:#475569;padding:8px 16px}
+  body.cetak-matrix tr:hover > td,body.cetak-matrix tr:hover > th{background-color:transparent !important}
 }
 </style>
 <script>
@@ -951,7 +1023,7 @@ table.mx thead th.mx-ph{width:36px;min-width:36px;max-width:36px;height:190px;pa
       <div style="min-width:0"><div class="app-title">PUSAT MATRIX L&amp;D</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
-    <div class="body-wrap" style="max-width:1280px">
+    <div class="body-wrap" style="max-width:1480px">
       <div class="card mx-ctrl">
         <div class="mx-ctl"><span class="mx-lbl">Tampilan</span><div class="seg" role="group" aria-label="Jenis matrix" id="mx-jenis">
           <button type="button" data-v="komp" aria-pressed="true">Competency Matrix</button><button type="button" data-v="train" aria-pressed="false">Training Matrix</button></div></div>
@@ -960,11 +1032,14 @@ table.mx thead th.mx-ph{width:36px;min-width:36px;max-width:36px;height:190px;pa
         <div class="mx-ctl"><span class="mx-lbl">Lingkup</span><div class="seg" role="group" aria-label="Lingkup" id="mx-lingkup">
           <button type="button" data-v="tim" aria-pressed="false">Tim Saya</button><button type="button" data-v="jab" aria-pressed="false">Jabatan</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="all" aria-pressed="false">Seluruh BBM</button></div></div>
         <div class="mx-ctl" id="mx-pilih-wrap"><label class="mx-lbl" for="mx-pilih">Pilih</label><select id="mx-pilih"></select></div>
+        <div class="mx-ctl"><span class="mx-lbl">Tampilkan</span><div class="chips" id="mx-filter" role="group" aria-label="Saring isi matrix"></div></div>
         <button class="btn btn-ghost mx-pdf" id="btn-mx-pdf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>Ekspor PDF</button>
       </div>
       <div id="mx-body"><div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div></div>
     </div>
+    <div class="mx-drawer" id="mx-drawer" hidden role="dialog" aria-modal="true" aria-label="Profil jabatan"><div class="mx-sheet" id="mx-sheet-isi"></div></div>
   </section>
+
   <section class="screen" id="scr-tna-landasan">
     <header class="app">
       <div class="logo-mark">CD</div>
@@ -2109,7 +2184,7 @@ function renderDashKompetensi(r){
   const pilihJab = '<div class="card" style="padding:12px 16px"><label>Heatmap jabatan</label><select id="dt-jab">'+r.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===r.kodeJabatan?' selected':'')+'>'+esc(d.jobTitle)+' ('+d.jumlah+')</option>').join("")+'</select></div>';
   const hm = '<div class="card" style="overflow-x:auto;padding:12px"><table class="hm"><tr><th style="text-align:left">Nama</th>'+r.kompetensi.map(c=>'<th title="'+esc(c.nama)+'">'+esc(c.nama.length>22?c.nama.slice(0,20)+"…":c.nama)+'<div style="font-weight:400">syarat '+c.required+'</div></th>').join("")+'</tr>'+
     r.baris.map(b=>'<tr><td class="nm" data-dt="'+esc(b.nik)+'" title="'+esc(b.nama+" · "+b.cabang)+'">'+esc(b.nama)+'</td>'+b.sel.map(c=>{ const k = c.k==="BELUM DINILAI" ? "BELUM" : c.k; return '<td><span class="c c-'+k+'" title="'+esc(c.k+(c.f?" · "+c.f:""))+'">'+(c.a===""?"·":c.a)+'</span></td>'; }).join("")+'</tr>').join("")+'</table>'+
-    '<div class="hint" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><span><span class="badge badge-green">Kompeten</span></span><span><span class="badge badge-grey">Minor &lt;1</span></span><span><span class="badge badge-amber">Moderate &lt;2</span></span><span><span class="badge badge-red">Major</span></span><span>angka = nilai aktual</span></div></div>';
+    '<div class="hint" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><span><span class="badge badge-green">Kompeten</span></span><span><span class="badge badge-grey">Minor · kurang 1 level</span></span><span><span class="badge badge-amber">Moderate · kurang 2</span></span><span><span class="badge badge-red">Major · kurang 3+</span></span><span>angka = nilai aktual</span></div></div>';
   $("dt-body").innerHTML = filterCabang(r.cabangList) + ringkas + top + prio + '<h2 class="sect">Heatmap Orang × Kompetensi</h2>' + pilihJab + hm;
   pasangFilterCabang();
   $("dt-jab").onchange = ()=>{ dtFilter.kodeJabatan = $("dt-jab").value; muatDashboardTim(); };
@@ -2377,28 +2452,33 @@ function renderNudgePanduan(){
   if($("btn-nudge-panduan")) $("btn-nudge-panduan").onclick = ()=> bukaPanduan(null);
 }
 $("btn-tna-pusat").onclick = ()=> bukaPusatMatrix();
-/* ---------- Pusat Matrix L&D (v3.16): competency & training matrix per jabatan / dept / divisi / BBM, siap ekspor PDF ---------- */
-const mx = { data:null, hasil:null, jenis:"komp", sumber:"standar", lingkup:"div", pilih:"" };
+/* ---------- Pusat Matrix L&D (v3.18): competency & training matrix bergaya laporan konsultan, siap ekspor PDF ---------- */
+const mx = { data:null, hasil:null, jenis:"komp", sumber:"standar", lingkup:"div", pilih:"", fk:{ Behavioral:1, Leadership:1, Technical:1 }, ft:{ W:1, G:1, I:1, P:1 } };
 const MX_KAT = ["Behavioral","Leadership","Technical"];
+const MX_LV = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
 const MX_BOBOT = { 3:"Inti", 2:"Penting", 1:"Pendukung" };
+const MX_KLASTER = { CB01:"Change Agility", CB09:"Change Agility", CB03:"Professionalism", CB08:"Professionalism", CB02:"Interpersonal Mastery", CB10:"Interpersonal Mastery", CB04:"Leadership Integrity", CB05:"Leadership Integrity", CB06:"Strategic for Excellent", CB07:"Strategic for Excellent" };
+const MX_KLASTER_URUT = ["Change Agility","Professionalism","Interpersonal Mastery","Leadership Integrity","Strategic for Excellent"];
 const MX_TANDA = {
   W:["Wajib","Wajib diikuti seluruh pemegang jabatan (program korporat, program jabatan, sertifikasi)"],
   G:["Wajib bila gap","Wajib bila hasil asesmen menunjukkan gap pada kompetensi terkait"],
   I:["IHT Sabtu","In-house training Sabtu di cabang (pola jam 2026)"],
-  P:["Dianjurkan","Pengayaan opsional, baik untuk diikuti; mengisi target 3 jam/bulan"]
+  P:["Dianjurkan","Pengayaan opsional; baik diikuti untuk mengisi target 3 jam per bulan"]
 };
-function mxKat(k){ return k === "Behavioral" ? "Behavioral" : (k === "Technical" ? "Technical" : "Leadership"); }
+const MX_ST = { Kompeten:"K", Minor:"Mi", Moderate:"Mo", Major:"Ma" };
+const MX_MAKS = 120;
+const mxKat = k => k === "Behavioral" ? "Behavioral" : (k === "Technical" ? "Technical" : "Leadership");
+const mxNama = kk => (mx.data.kamus[kk] || [kk])[0];
+const mxKatKomp = kk => mxKat((mx.data.kamus[kk] || ["",""])[1]);
+
 async function bukaPusatMatrix(){
   bukaLayar("scr-tna-pusat");
-  mx.data = null; mx.hasil = null; // selalu ambil data terbaru (penilaian & output bisa berubah sejak dibuka terakhir)
-  if(!mx.data){
-    $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div>';
-    try{ mx.data = await tnaApi("tnaMatrixOutput"); }
-    catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return; }
-  }
+  mx.data = null; mx.hasil = null; // selalu data terbaru
+  $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div>';
+  try{ mx.data = await tnaApi("tnaMatrixOutput"); }
+  catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return; }
   mxSegar();
 }
-// Data per orang (gap live & ITP) dimuat saat dibutuhkan: sumber "Hasil asesmen" atau lingkup "Tim Saya"
 async function mxMuatHasil(){
   if(mx.hasil) return true;
   $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung hasil asesmen&hellip;</div>';
@@ -2407,7 +2487,7 @@ async function mxMuatHasil(){
 }
 async function mxSegar(){
   if((mx.sumber === "hasil" || mx.lingkup === "tim") && !(await mxMuatHasil())) return;
-  mxIsiPilihan(); renderMatrix();
+  mxIsiPilihan(); mxIsiFilter(); renderMatrix();
 }
 function mxOrangLingkup(){
   const H = mx.hasil, O = H.orang.map(o=>({ nik:o[0], nama:o[1], kj:o[2], jabatan:o[3], cabang:o[4], dept:o[5], div:o[6] }));
@@ -2419,11 +2499,13 @@ function mxOrangLingkup(){
 }
 function mxJabatanLingkup(){
   const J = mx.data.jabatan;
-  if(mx.lingkup === "all") return J;
-  if(mx.lingkup === "tim"){ const kjs = new Set(mxOrangLingkup().map(o=>o.kj)); return J.filter(j=>kjs.has(j.kode)); }
-  if(mx.lingkup === "jab") return J.filter(j=>j.kode===mx.pilih);
-  if(mx.lingkup === "dept") return J.filter(j=>j.dept===mx.pilih);
-  return J.filter(j=>j.div===mx.pilih);
+  let r;
+  if(mx.lingkup === "all") r = J;
+  else if(mx.lingkup === "tim"){ const kjs = new Set(mxOrangLingkup().map(o=>o.kj)); r = J.filter(j=>kjs.has(j.kode)); }
+  else if(mx.lingkup === "jab") r = J.filter(j=>j.kode===mx.pilih);
+  else if(mx.lingkup === "dept") r = J.filter(j=>j.dept===mx.pilih);
+  else r = J.filter(j=>j.div===mx.pilih);
+  return r.slice().sort((a,b)=> a.div.localeCompare(b.div) || a.dept.localeCompare(b.dept) || a.title.localeCompare(b.title));
 }
 function mxIsiPilihan(){
   const J = mx.data.jabatan.slice().sort((a,b)=> a.div.localeCompare(b.div) || a.dept.localeCompare(b.dept) || a.title.localeCompare(b.title));
@@ -2435,151 +2517,304 @@ function mxIsiPilihan(){
   if(!opsi.some(o=>o[0]===mx.pilih)) mx.pilih = opsi.length ? opsi[0][0] : "";
   $("mx-pilih").innerHTML = opsi.map(o=>'<option value="'+esc(o[0])+'"'+(o[0]===mx.pilih?' selected':'')+'>'+esc(o[1])+'</option>').join("");
 }
+function mxIsiFilter(){
+  const komp = mx.jenis === "komp";
+  const item = komp ? MX_KAT.map(k=>[k,k,mx.fk[k]]) : ["W","G","I","P"].map(k=>[k,MX_TANDA[k][0],mx.ft[k]]);
+  $("mx-filter").innerHTML = item.map(([k,t,on])=>'<button type="button" data-f="'+k+'" aria-pressed="'+(!!on)+'">'+esc(t)+'</button>').join("");
+}
 function mxJudulLingkup(js){
   if(mx.lingkup === "all") return "Seluruh BBM";
   if(mx.lingkup === "tim") return "Tim " + (state.nama || "Saya");
   if(mx.lingkup === "jab") return js[0] ? js[0].title : "-";
   return (mx.lingkup === "div" ? "Divisi " : "Dept ") + mx.pilih;
 }
+const mxTgl = ()=> new Date().toLocaleDateString("id-ID",{ day:"numeric", month:"long", year:"numeric" });
+const mxPct = (a,b)=> b ? Math.round(a/b*100) : 0;
+
+// ---------- kerangka tabel ----------
+function mxMode(n){ return n <= 8 ? { cw:92, slant:false } : (n <= 18 ? { cw:54, slant:true } : { cw:40, slant:true }); }
+// cols: [{ id, title, sub, band, tip, jab }]
+function mxTabel(cols, mode, rowsHtml, totHtml, adaSum, labelKiri){
+  const bands = []; cols.forEach(c=>{ const bt = String(c.band||"").replace(" (JUNIOR & SENIOR)"," J/S"); const l = bands[bands.length-1]; if(l && l.t===bt) l.n++; else bands.push({ t:bt, n:1 }); });
+  const ekstra = (adaSum?1:0) + (mode.slant?1:0);
+  const bandRow = bands.length > 1 ? '<tr class="mx-bandrow"><th class="mx-rh"></th>'+bands.map((b,i)=>'<th class="mx-band b'+(i%2)+'" colspan="'+b.n+'" title="'+esc(b.t)+'">'+esc(b.t)+'</th>').join("")+(ekstra?'<th colspan="'+ekstra+'"></th>':'')+'</tr>' : '';
+  const th = cols.map(c=>{
+    const isi = mode.slant ? '<span class="t" title="'+esc(c.tip||c.title)+'">'+esc(c.title)+'</span><span class="s">'+esc(c.sub||"")+'</span>' : '<span class="t">'+esc(c.title)+'</span><span class="s">'+esc(c.sub||"")+'</span>';
+    const btn = c.jab ? '<button type="button" data-jab="'+esc(c.jab)+'" aria-label="Buka profil '+esc(c.title)+'">'+isi+'</button>' : '<button type="button" tabindex="-1" style="cursor:default">'+isi+'</button>';
+    return '<th class="'+(mode.slant?'mx-sl':'mx-h')+'" scope="col" title="'+esc(c.tip||c.title)+'">'+btn+'</th>';
+  }).join("");
+  const head = '<thead>'+bandRow+'<tr><th class="mx-rh" scope="col">'+esc(labelKiri)+'</th>'+th+(adaSum?'<th class="mx-sum">'+esc(adaSum)+'</th>':'')+(mode.slant?'<th class="mx-sp"></th>':'')+'</tr></thead>';
+  return '<div class="mx-wrap"><table class="mx'+(mode.slant?'':' isi')+'" style="--cw:'+mode.cw+'px">'+head+'<tbody>'+rowsHtml+(totHtml||'')+'</tbody></table></div>';
+}
+const mxSpan = (cols, mode, adaSum)=> cols.length + 1 + (adaSum?1:0) + (mode.slant?1:0);
+const mxGrp = (txt, span)=> '<tr class="mx-grp"><td colspan="'+span+'">'+txt+'</td></tr>';
+const mxSub = (txt, span)=> '<tr class="mx-sub"><td colspan="'+span+'">'+txt+'</td></tr>';
+function mxAside(legend, cara, insights){
+  return '<aside class="mx-aside"><div><h4>Cara membaca</h4><ul>'+cara.map(x=>'<li>'+x+'</li>').join("")+'</ul>'+legend+'</div>'+
+    (insights.length ? '<div><h4>Sorotan</h4><div class="ins">'+insights.map(i=>'<div><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("")+'</div></div>' : '')+'</aside>';
+}
+const mxRamp = ()=> '<div class="ramp">'+[1,2,3,4,5].map(l=>'<div><i class="lv'+l+'">'+l+'</i>'+MX_LV[l]+'</div>').join("")+'</div>';
+function mxLaporan(eyebrow, judul, meta, stats, tabelHtml, aside, sumber){
+  return '<div class="card mx-rpt"><div class="mx-cover"><div><div class="rpt-eyebrow">'+esc(eyebrow)+'</div><div class="mx-title">'+esc(judul)+'</div><div class="mx-meta">'+esc(meta)+'</div></div>'+
+    '<div class="mx-stats">'+stats.map(s=>'<div class="mx-stat"><b>'+esc(String(s[1]))+'</b><span>'+esc(s[0])+'</span></div>').join("")+'</div></div>'+
+    '<div class="mx-grid"><div class="mx-main">'+tabelHtml+'</div>'+aside+'</div><div class="mx-cetak">'+esc(sumber)+' Dicetak '+mxTgl()+'. Dokumen internal L&D.</div></div>';
+}
+
+// ---------- render utama ----------
 function renderMatrix(){
-  if(mx.sumber === "hasil") return renderMatrixHasil();
   const js = mxJabatanLingkup();
+  if(mx.sumber === "hasil") return renderMatrixHasil();
   if(!js.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Tidak ada jabatan pada pilihan ini.</div></div>'; return; }
+  const out = mx.jenis === "komp" ? mxKompStandar(js) : mxTrainStandar(js);
   const org = js.reduce((a,j)=>a+j.jml,0);
-  const tgl = new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
-  const isi = mx.jenis === "komp" ? mxKompetensi(js) : mxTraining(js);
-  const head = '<div class="mx-head"><div><div class="rpt-eyebrow">'+(mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+' 2027</div>'+
-    '<div class="mx-title">'+esc(mxJudulLingkup(js))+'</div><div class="mx-meta">'+(js.length===1?esc(js[0].dept+" · Divisi "+js[0].div):js.length+" jabatan")+' · '+org+' karyawan · disusun '+tgl+'</div></div>'+
-    '<div class="mx-stats">'+isi.stats.map(s=>'<div class="mx-stat"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>').join("")+'</div></div>';
-  $("mx-body").innerHTML = '<div class="card">'+head+isi.html+'<div class="mx-cetak">Sumber: BBLC TNA Engine 2027 (Kamus Kompetensi Bosowa 2022 untuk behavioral; Job Description untuk technical). Dicetak '+tgl+'.</div></div>';
+  const meta = (js.length===1 ? js[0].dept+" · Divisi "+js[0].div : js.length+" jabatan")+" · "+org+" karyawan · disusun "+mxTgl();
+  $("mx-body").innerHTML = mxLaporan((mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+" 2027", mxJudulLingkup(js), meta, out.stats, out.tabel, out.aside, "Sumber: BBLC TNA Engine 2027 (Kamus Kompetensi Bosowa 2022 untuk behavioral; Job Description untuk technical).");
 }
-function mxKompetensi(js){
-  const D = mx.data, set = new Set(js.map(j=>j.kode)), sel = {};
-  D.matriks.forEach(([kj,kk,req,bb])=>{ if(set.has(kj)) (sel[kk] = sel[kk] || {})[kj] = [req,bb]; });
-  const kode = Object.keys(sel).sort((a,b)=> MX_KAT.indexOf(mxKat(D.kamus[a][1])) - MX_KAT.indexOf(mxKat(D.kamus[b][1])) || (a.startsWith("CB")&&b.startsWith("CB") ? a.localeCompare(b) : Object.keys(sel[b]).length - Object.keys(sel[a]).length || D.kamus[a][0].localeCompare(D.kamus[b][0])));
-  const nKat = k => kode.filter(x=>mxKat(D.kamus[x][1])===k).length;
-  const stats = [["Behavioral", nKat("Behavioral")],["Leadership", nKat("Leadership")],["Technical", nKat("Technical")]];
-  const legend = '<div class="mx-legend"><span>Angka = level yang dipersyaratkan (1 Awareness s/d 5 Expert)</span>'+[1,2,3,4,5].map(l=>'<span><i class="mx-cell lv'+l+'" style="width:18px;height:18px;font-size:10px">'+l+'</i></span>').join("")+
-    '<span><i class="mx-cell lv3 inti" style="width:18px;height:18px;font-size:10px">3</i>Kompetensi inti jabatan (bobot tertinggi)</span></div>';
-  if(js.length === 1){
-    const kj = js[0].kode;
-    const rows = MX_KAT.map(k=>{ const ks = kode.filter(x=>mxKat(D.kamus[x][1])===k); if(!ks.length) return "";
-      return '<div class="prof-grp-h" style="margin-top:12px">'+k+' <em>'+ks.length+' kompetensi</em></div>'+ks.map(x=>{ const [req,bb] = sel[x][kj];
-        return '<div class="mx-one"><div class="n">'+esc(D.kamus[x][0])+'</div><div class="pips" aria-label="Level '+req+'">'+[1,2,3,4,5].map(l=>'<i class="'+(l<=req?'on':'')+'"></i>').join("")+'</div>'+
-          '<div class="bobot'+(bb>=3?' b3':'')+'">'+(MX_BOBOT[bb]||bb)+'</div><div class="d">Level '+req+' · '+["","Awareness","Basic","Intermediate","Advanced","Expert"][req]+'</div></div>'; }).join(""); }).join("");
-    return { stats, html: legend + rows };
-  }
-  let t = '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Kompetensi</div><div class="s">Jabatan →</div></th>'+
-    js.map(j=>'<th class="mx-jh" title="'+esc(j.title+" · "+j.dept+" · "+j.jml+" orang")+'"><span>'+esc(j.title)+'</span><small>'+j.jml+'</small></th>').join("")+'</tr></thead><tbody>';
-  MX_KAT.forEach(k=>{ const ks = kode.filter(x=>mxKat(D.kamus[x][1])===k); if(!ks.length) return;
-    t += '<tr class="mx-grp"><td colspan="'+(js.length+1)+'">'+k+' · '+ks.length+' kompetensi</td></tr>';
-    ks.forEach(x=>{ t += '<tr><th class="mx-rh" scope="row"><div class="n">'+esc(D.kamus[x][0])+'</div><div class="s">dipakai '+Object.keys(sel[x]).length+' dari '+js.length+' jabatan</div></th>'+
-      js.map(j=>{ const v = sel[x][j.kode]; return '<td class="mx-c">'+(v?'<span class="mx-cell lv'+v[0]+(v[1]>=3?' inti':'')+'" title="'+esc(D.kamus[x][0]+" · "+j.title+": level "+v[0]+" · "+(MX_BOBOT[v[1]]||""))+'">'+v[0]+'</span>':'')+'</td>'; }).join("")+'</tr>'; });
+
+// ---------- competency matrix: standar jabatan ----------
+function mxBarisKomp(kode, sel, cols, N, cellFn, sumFn, rowHeader){
+  const d = mx.data;
+  let h = "";
+  MX_KAT.forEach(k=>{
+    if(!mx.fk[k]) return;
+    const ks = kode.filter(x=>mxKatKomp(x)===k); if(!ks.length) return;
+    h += mxGrp(k+' · '+ks.length+' kompetensi', cols.span);
+    let klasterLalu = "";
+    ks.forEach(x=>{
+      if(k==="Behavioral"){ const kl = MX_KLASTER[x] || ""; if(kl !== klasterLalu){ h += mxSub(kl, cols.span); klasterLalu = kl; } }
+      h += '<tr><th class="mx-rh" scope="row">'+rowHeader(x)+'</th>'+cols.list.map(c=>cellFn(x,c)).join("")+(cols.sum?sumFn(x):'')+(cols.slant?'<td></td>':'')+'</tr>';
+    });
   });
-  return { stats, html: legend + t + '</tbody></table></div>' };
+  return h;
 }
-function mxTraining(js){
-  const D = mx.data, set = new Set(js.map(j=>j.kode));
-  const tanda = {}; // kode -> {kj: {m,k}}
+function mxKompStandar(js){
+  const D = mx.data, set = new Set(js.map(j=>j.kode)), N = js.length, mode = mxMode(N);
+  const sel = {}; D.matriks.forEach(([kj,kk,req,bb])=>{ if(set.has(kj)) (sel[kk] = sel[kk] || {})[kj] = [req,bb]; });
+  const urutKlaster = x => { const k = mxKatKomp(x); return k==="Behavioral" ? MX_KLASTER_URUT.indexOf(MX_KLASTER[x]) : 0; };
+  const kode = Object.keys(sel).sort((a,b)=> MX_KAT.indexOf(mxKatKomp(a)) - MX_KAT.indexOf(mxKatKomp(b)) || urutKlaster(a) - urutKlaster(b) ||
+    (mxKatKomp(a)==="Behavioral" ? a.localeCompare(b) : Object.keys(sel[b]).length - Object.keys(sel[a]).length || mxNama(a).localeCompare(mxNama(b))));
+  const tampil = kode.filter(x=>mx.fk[mxKatKomp(x)]);
+  const cols = js.map(j=>({ id:j.kode, title:j.title, sub:j.jml+" org", band:j.dept, tip:j.title+" · "+j.dept+" · "+j.jml+" orang", jab:j.kode }));
+  const C = { list:cols, span:mxSpan(cols, mode, true), sum:true, slant:mode.slant };
+  const rows = mxBarisKomp(kode, sel, C, N,
+    (x,c)=>{ const v = sel[x][c.id]; return '<td class="mx-c">'+(v?'<div class="cl lv'+v[0]+(v[1]>=3?' inti':'')+'" title="'+esc(mxNama(x)+" · "+c.title+": level "+v[0]+" "+MX_LV[v[0]]+" · bobot "+(MX_BOBOT[v[1]]||""))+'">'+v[0]+'</div>':'')+'</td>'; },
+    x=>{ const n = Object.keys(sel[x]).length, mxL = Math.max(...Object.values(sel[x]).map(v=>v[0]));
+      return '<td class="mx-sm"><div class="sm-bar"><i style="width:'+mxPct(n,N)+'%;background:var(--r4)"></i></div><div class="sm-t"><b>'+n+'</b> dari '+N+' · maks L'+mxL+'</div></td>'; },
+    x=>'<div class="n">'+esc(mxNama(x))+'</div>');
+  const jml = js.map(j=> tampil.filter(x=>sel[x][j.kode]).length), inti = js.map(j=> tampil.filter(x=>sel[x][j.kode] && sel[x][j.kode][1]>=3).length);
+  const tot = '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Jumlah kompetensi</div></th>'+js.map((j,i)=>'<td class="mx-c">'+jml[i]+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>'+
+    '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Kompetensi inti</div><div class="s">bobot tertinggi, dibingkai</div></th>'+js.map((j,i)=>'<td class="mx-c">'+inti[i]+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>';
+  // sorotan
+  const ins = [];
+  const uni = tampil.filter(x=>Object.keys(sel[x]).length===N);
+  if(N>1 && uni.length) ins.push(["Kompetensi universal", uni.length+" kompetensi dipakai semua "+N+" jabatan, antara lain "+uni.slice(0,2).map(mxNama).join(" dan ")]);
+  const tot3 = js.map(j=>[j, tampil.reduce((a,x)=>a+(sel[x][j.kode]?sel[x][j.kode][0]:0),0)]).sort((a,b)=>b[1]-a[1])[0];
+  if(N>1 && tot3) ins.push(["Jabatan paling menuntut", tot3[0].title+", total level "+tot3[1]]);
+  const intiK = tampil.map(x=>[x, Object.values(sel[x]).filter(v=>v[1]>=3).length]).sort((a,b)=>b[1]-a[1])[0];
+  if(intiK && intiK[1]) ins.push(["Paling sering menjadi inti", mxNama(intiK[0])+" ("+intiK[1]+" jabatan)"]);
+  const lvTop = tampil.map(x=>[x, Math.max(...Object.values(sel[x]).map(v=>v[0]))]).sort((a,b)=>b[1]-a[1])[0];
+  if(lvTop) ins.push(["Level tertinggi disyaratkan", mxNama(lvTop[0])+" · level "+lvTop[1]+" ("+MX_LV[lvTop[1]]+")"]);
+  const aside = mxAside(mxRamp(), ["Angka = level yang dipersyaratkan (1 sampai 5)","Kosong = belum dipersyaratkan untuk jabatan itu","Bingkai terang = kompetensi <b>inti</b> jabatan (bobot tertinggi)","Arahkan kursor untuk menyorot kolom; klik nama jabatan untuk profil lengkapnya"], ins);
+  const stats = [["Jabatan", N],["Kompetensi", tampil.length],["Behavioral", tampil.filter(x=>mxKatKomp(x)==="Behavioral").length],["Technical", tampil.filter(x=>mxKatKomp(x)==="Technical").length]];
+  if(N === 1) return { stats:[["Kompetensi", tampil.length],["Inti", inti[0]],["Behavioral", tampil.filter(x=>mxKatKomp(x)==="Behavioral").length],["Technical", tampil.filter(x=>mxKatKomp(x)==="Technical").length]], tabel:mxKompSatu(js[0], tampil, sel), aside };
+  return { stats, tabel: mxTabel(cols, mode, rows, tot, "Pemakaian", "Kompetensi"), aside };
+}
+function mxKompSatu(j, tampil, sel){
+  let h = '<div class="mx-wrap" style="max-height:none">';
+  MX_KAT.forEach(k=>{ if(!mx.fk[k]) return; const ks = tampil.filter(x=>mxKatKomp(x)===k); if(!ks.length) return;
+    h += '<div class="mx-gh">'+k+' <em>'+ks.length+' kompetensi</em></div>';
+    ks.forEach(x=>{ const [req,bb] = sel[x][j.kode];
+      h += '<div class="mx-one"><div class="n">'+esc(mxNama(x))+(k==="Behavioral"?'<div class="d">'+esc(MX_KLASTER[x]||"")+'</div>':'')+'</div><div class="pips" role="img" aria-label="Level '+req+'">'+[1,2,3,4,5].map(l=>'<i class="'+(l<=req?'on lv'+req:'')+'"></i>').join("")+'</div>'+
+        '<div class="bobot'+(bb>=3?' b3':'')+'">'+(MX_BOBOT[bb]||bb)+'</div><div class="d">Level '+req+' · '+MX_LV[req]+'</div></div>'; });
+  });
+  return h + '</div>';
+}
+
+// ---------- training matrix: standar jabatan ----------
+function mxInfoTr(kd){ const t = mx.data.training[kd] || [kd,"","","","",""]; return [t[2]!==""?t[2]+" jam":"durasi mengikuti penyelenggara", t[4], t[3]==="USULAN_PENGADAAN"?"materi disiapkan L&D":""].filter(Boolean).join(" · "); }
+function mxTrainStandar(js){
+  const D = mx.data, N = js.length, mode = mxMode(N), tanda = {};
   js.forEach(j=> Object.entries(D.tanda[j.kode]||{}).forEach(([kd,t])=> (tanda[kd] = tanda[kd] || {})[j.kode] = t));
   Object.keys(D.training).forEach(kd=>{ if(D.training[kd][1]==="Pengayaan"){ tanda[kd] = {}; js.forEach(j=> tanda[kd][j.kode] = { m:"P" }); } });
   const grupOf = kd => { const ms = Object.values(tanda[kd]).map(t=>t.m); return ms.includes("W") ? "W" : (ms.includes("G") ? "G" : (ms.includes("I") ? "I" : "P")); };
   const GRUP = [["W","Wajib"],["G","Wajib bila ada gap"],["I","IHT Sabtu di cabang"],["P","Dianjurkan (pengayaan opsional)"]];
   const kode = Object.keys(tanda).sort((a,b)=> GRUP.findIndex(g=>g[0]===grupOf(a)) - GRUP.findIndex(g=>g[0]===grupOf(b)) || Object.keys(tanda[b]).length - Object.keys(tanda[a]).length || D.training[a][0].localeCompare(D.training[b][0]));
   const n = m => kode.filter(k=>grupOf(k)===m).length;
-  const stats = [["Wajib", n("W")],["Wajib bila gap", n("G")],["IHT", n("I")],["Dianjurkan", n("P")]];
-  const legend = '<div class="mx-legend">'+["W","G","I","P"].map(m=>'<span><i class="mx-cell mk-'+m+'" style="width:20px;height:20px;font-size:10.5px">'+(m==="P"?"•":m)+'</i>'+MX_TANDA[m][0]+'</span>').join("")+
-    '<span>Behavioral catch-up 2026 ditetapkan per orang (tidak tampil di matrix jabatan).</span></div>';
-  const info = kd => { const t = D.training[kd]; return [t[2]!==""?t[2]+" jam":"durasi mengikuti penyelenggara", t[4], t[3]==="USULAN_PENGADAAN"?"materi disiapkan L&D":""].filter(Boolean).join(" · "); };
-  if(js.length === 1){
-    const kj = js[0].kode;
-    const wj = kode.filter(k=>tanda[k][kj] && tanda[k][kj].m==="W"), tanpaJam = wj.filter(k=>D.training[k][2]==="").length;
-    stats.push([tanpaJam ? "Jam wajib terhitung (+"+tanpaJam+" program APM)" : "Jam wajib", wj.reduce((a,k)=>a+(Number(D.training[k][2])||0),0)]);
-    const rows = GRUP.map(([m,nm])=>{ const ks = kode.filter(k=>tanda[k][kj] && tanda[k][kj].m===m); if(!ks.length) return "";
-      return '<div class="prof-grp-h" style="margin-top:12px">'+nm+' <em>'+ks.length+' training</em></div>'+ks.map(k=>'<div class="mx-tr"><span class="mx-cell mk-'+m+'">'+(m==="P"?"•":m)+'</span><div><div class="n">'+trn(k, D.training[k][0])+'</div><div class="d">'+esc(info(k))+(m==="G"&&tanda[k][kj].k?' · untuk gap '+esc((D.kamus[tanda[k][kj].k]||[""])[0]):'')+'</div></div><div class="j">'+esc(D.training[k][2]!==""?D.training[k][2]+" jam":"")+'</div></div>').join(""); }).join("");
-    return { stats, html: legend + rows };
+  const cols = js.map(j=>({ id:j.kode, title:j.title, sub:j.jml+" org", band:j.dept, tip:j.title+" · "+j.dept+" · "+j.jml+" orang", jab:j.kode }));
+  const span = mxSpan(cols, mode, true);
+  const jamW = js.map(j=> kode.filter(k=>tanda[k][j.kode] && tanda[k][j.kode].m==="W").reduce((a,k)=>a+(Number(D.training[k][2])||0),0));
+  const adaTanpaJam = js.map(j=> kode.filter(k=>tanda[k][j.kode] && tanda[k][j.kode].m==="W" && D.training[k][2]==="").length);
+  const insights = [];
+  const luas = kode.filter(k=>!/^W-(AFA|AIDW)$/.test(k)).map(k=>[k, Object.keys(tanda[k]).length]).sort((a,b)=>b[1]-a[1])[0];
+  if(N>1 && luas) insights.push(["Training paling luas (di luar program korporat)", D.training[luas[0]][0]+" · "+luas[1]+" jabatan"]);
+  const bw = js.map((j,i)=>[j,jamW[i]]).sort((a,b)=>b[1]-a[1])[0];
+  if(bw && bw[1]) insights.push(["Beban jam wajib tertinggi", bw[0].title+" · "+bw[1]+" jam"+(adaTanpaJam[js.indexOf(bw[0])]?" (+ program APM)":"")]);
+  insights.push(["Komposisi", n("W")+" wajib · "+n("G")+" wajib bila gap · "+n("I")+" IHT"+" · "+n("P")+" pengayaan"]);
+  const legend = '<div class="klg">'+["W","G","I","P"].map(m=>'<div><span class="tgk '+m+'">'+(m==="P"?"•":m)+'</span><span><b>'+MX_TANDA[m][0]+'</b><br>'+MX_TANDA[m][1]+'</span></div>').join("")+'</div>';
+  const aside = mxAside(legend, ["Baris = training, kolom = jabatan","Bentuk berbeda per jenis: terisi (wajib), garis tegas (bila gap), garis putus (IHT), titik (dianjurkan)","Behavioral catch-up 2026 ditetapkan per orang, tidak tampil di matrix jabatan"], insights);
+  if(N === 1){
+    const kj = js[0].kode, wj = kode.filter(k=>tanda[k][kj] && tanda[k][kj].m==="W");
+    const stats = [["Wajib", wj.length],["Wajib bila gap", kode.filter(k=>tanda[k][kj] && tanda[k][kj].m==="G").length],["IHT", kode.filter(k=>tanda[k][kj] && tanda[k][kj].m==="I").length],[adaTanpaJam[0] ? "Jam wajib (+"+adaTanpaJam[0]+" program APM)" : "Jam wajib", jamW[0]]];
+    let h = '<div class="mx-wrap" style="max-height:none">';
+    GRUP.forEach(([m,nm])=>{ if(!mx.ft[m]) return; const ks = kode.filter(k=>tanda[k][kj] && tanda[k][kj].m===m); if(!ks.length) return;
+      h += '<div class="mx-gh">'+nm+' <em>'+ks.length+' training</em></div>'+ks.map(k=>'<div class="mx-tr"><span class="tgk '+m+'">'+(m==="P"?"•":m)+'</span><div><div class="n">'+trn(k, D.training[k][0])+'</div><div class="d">'+esc(mxInfoTr(k))+(m==="G"&&tanda[k][kj].k?' · untuk gap '+esc(mxNama(tanda[k][kj].k)):'')+'</div></div><div class="j">'+esc(D.training[k][2]!==""?D.training[k][2]+" jam":"")+'</div></div>').join(""); });
+    return { stats, tabel:h+'</div>', aside };
   }
-  let t = '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Training</div><div class="s">Jabatan →</div></th>'+
-    js.map(j=>'<th class="mx-jh" title="'+esc(j.title+" · "+j.dept+" · "+j.jml+" orang")+'"><span>'+esc(j.title)+'</span><small>'+j.jml+'</small></th>').join("")+'</tr></thead><tbody>';
-  GRUP.forEach(([m,nm])=>{ const ks = kode.filter(k=>grupOf(k)===m); if(!ks.length) return;
-    t += '<tr class="mx-grp"><td colspan="'+(js.length+1)+'">'+nm+' · '+ks.length+' training</td></tr>';
-    ks.forEach(k=>{ t += '<tr><th class="mx-rh" scope="row"><div class="n">'+trn(k, D.training[k][0])+'</div><div class="s">'+esc(info(k))+'</div></th>'+
-      js.map(j=>{ const v = tanda[k][j.kode]; return '<td class="mx-c">'+(v?'<span class="mx-cell mk-'+v.m+'" title="'+esc(D.training[k][0]+" · "+j.title+": "+MX_TANDA[v.m][0]+(v.k?" ("+(D.kamus[v.k]||[""])[0]+")":""))+'">'+(v.m==="P"?"•":v.m)+'</span>':'')+'</td>'; }).join("")+'</tr>'; });
+  let rows = "";
+  GRUP.forEach(([m,nm])=>{ if(!mx.ft[m]) return; const ks = kode.filter(k=>grupOf(k)===m); if(!ks.length) return;
+    rows += mxGrp(nm+' · '+ks.length+' training', span);
+    ks.forEach(k=>{ const pakai = Object.keys(tanda[k]).length;
+      rows += '<tr><th class="mx-rh" scope="row"><div class="n">'+trn(k, D.training[k][0])+'</div><div class="s">'+esc(mxInfoTr(k))+'</div></th>'+
+        cols.map(c=>{ const v = tanda[k][c.id]; return '<td class="mx-c">'+(v?'<div class="tg '+v.m+'" title="'+esc(D.training[k][0]+" · "+c.title+": "+MX_TANDA[v.m][0]+(v.k?" ("+mxNama(v.k)+")":""))+'">'+(v.m==="P"?"•":v.m)+'</div>':'')+'</td>'; }).join("")+
+        '<td class="mx-sm"><div class="sm-bar"><i style="width:'+mxPct(pakai,N)+'%;background:var(--r4)"></i></div><div class="sm-t"><b>'+pakai+'</b> dari '+N+' jabatan</div></td>'+(mode.slant?'<td></td>':'')+'</tr>'; });
   });
-  return { stats, html: legend + t + '</tbody></table></div>' };
+  const tot = '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Jam wajib</div><div class="s">jumlah jam program wajib (W)</div></th>'+js.map((j,i)=>'<td class="mx-c">'+jamW[i]+(adaTanpaJam[i]?'+':'')+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>';
+  const stats = [["Jabatan", N],["Wajib", n("W")],["Wajib bila gap", n("G")],["IHT & dianjurkan", n("I")+n("P")]];
+  return { stats, tabel: mxTabel(cols, mode, rows, tot, "Cakupan", "Training"), aside };
 }
-// Hasil asesmen: kolom = orang. Competency: nilai aktual berwarna status. Training: ITP nyata (bulan di tooltip).
-const MX_MAKS = 120;
-const MX_ST = { Kompeten:"K", Minor:"Mi", Moderate:"Mo", Major:"Ma" };
+
+// ---------- hasil asesmen ----------
 function renderMatrixHasil(){
   const H = mx.hasil, D = mx.data; let org = mxOrangLingkup();
-  const tgl = new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
   if(!org.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">'+(mx.lingkup==="tim"?'Belum ada anggota tim di bawah Anda menurut rantai penilai.':'Tidak ada karyawan pada pilihan ini.')+'</div></div>'; return; }
   org.sort((a,b)=> a.jabatan.localeCompare(b.jabatan) || a.nama.localeCompare(b.nama));
   const total = org.length, potong = total > MX_MAKS; if(potong) org = org.slice(0, MX_MAKS);
-  const set = new Set(org.map(o=>o.nik));
-  const colH = org.map(o=>'<th class="mx-ph" title="'+esc(o.nama+" · "+o.jabatan+" · "+o.cabang)+'"><span>'+esc(o.nama)+' <em>· '+esc(o.jabatan)+'</em></span></th>').join("");
-  let html = "", stats = [], judul = mx.jenis === "komp" ? "Competency Matrix" : "Training Matrix";
-  if(mx.jenis === "komp"){
-    const g = {}; H.gap.forEach(([n,kk,a,req,st])=>{ if(set.has(n)) (g[kk] = g[kk] || {})[n] = [a,req,st]; });
-    const kode = Object.keys(g).sort((a,b)=> MX_KAT.indexOf(mxKat((D.kamus[a]||["",""])[1])) - MX_KAT.indexOf(mxKat((D.kamus[b]||["",""])[1])) || (a.startsWith("CB")&&b.startsWith("CB") ? a.localeCompare(b) : (D.kamus[a]||[a])[0].localeCompare((D.kamus[b]||[b])[0])));
-    const sel = Object.values(g).flatMap(o=>Object.values(o)), dinilai = sel.filter(x=>x[0]!==null);
-    const nOrgDinilai = org.filter(o=>kode.some(k=>g[k][o.nik] && g[k][o.nik][0]!==null)).length;
-    stats = [["Orang", total],["Sudah dinilai", nOrgDinilai],["Sel kompeten", dinilai.length ? Math.round(dinilai.filter(x=>x[2]==="Kompeten").length/dinilai.length*100)+"%" : "-"],["Gap Major", dinilai.filter(x=>x[2]==="Major").length]];
-    html = '<div class="mx-legend"><span>Angka = nilai aktual (70% atasan + 30% self)</span>'+[["K","Kompeten"],["Mi","Minor"],["Mo","Moderate"],["Ma","Major"]].map(([c,t])=>'<span><i class="mx-cell w2 st-'+c+'" style="height:20px;font-size:10px">'+(c==="K"?"3":"2,5")+'</i>'+t+'</span>').join("")+'<span><i class="mx-cell st-B" style="height:20px">·</i>belum dinilai</span></div>'+
-      '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Kompetensi</div><div class="s">Karyawan →</div></th>'+colH+'</tr></thead><tbody>';
-    MX_KAT.forEach(k=>{ const ks = kode.filter(x=>mxKat((D.kamus[x]||["",""])[1])===k); if(!ks.length) return;
-      html += '<tr class="mx-grp"><td colspan="'+(org.length+1)+'">'+k+' · '+ks.length+' kompetensi</td></tr>';
-      ks.forEach(x=>{ const v = Object.values(g[x]).filter(y=>y[0]!==null), ok = v.filter(y=>y[2]==="Kompeten").length;
-        html += '<tr><th class="mx-rh" scope="row"><div class="n">'+esc((D.kamus[x]||[x])[0])+'</div><div class="s">'+(v.length?ok+' dari '+v.length+' kompeten':'belum dinilai')+'</div></th>'+
-          org.map(o=>{ const c = g[x][o.nik]; if(!c) return '<td class="mx-c"></td>';
-            if(c[0]===null) return '<td class="mx-c"><span class="mx-cell st-B" title="'+esc(o.nama+" · "+(D.kamus[x]||[x])[0]+": belum dinilai, syarat "+c[1])+'">·</span></td>';
-            return '<td class="mx-c"><span class="mx-cell w2 st-'+(MX_ST[c[2]]||"Mi")+'" title="'+esc(o.nama+" · "+(D.kamus[x]||[x])[0]+": aktual "+vFmt(c[0])+", syarat "+c[1]+" ("+c[2]+")")+'">'+vFmt(c[0])+'</span></td>'; }).join("")+'</tr>'; });
-    });
-    html += '</tbody></table></div>';
-  } else {
-    if(!H.itp.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Training matrix hasil asesmen tersedia setelah output TNA digenerate (Panel Admin TNA → Generate). Sementara itu, gunakan sumber <b>Standar jabatan</b>.</div></div>'; return; }
-    const t = {}, KM = { Wajib:"W", WajibGap:"G", IHT:"I", Pengayaan:"P" };
-    H.itp.forEach(([n,kd,kat,bln,jam,st])=>{ if(!set.has(n)) return; const o = (t[kd] = t[kd] || {}); const c = o[n] = o[n] || { m:KM[kat]||"P", bln:[], jam:0, ops: st==="OPSIONAL" }; c.bln.push(bln); c.jam += jam; });
-    const grup = kd => { const ms = Object.values(t[kd]).map(c=>c.m); return ms.includes("W") ? "W" : (ms.includes("G") ? "G" : (ms.includes("I") ? "I" : "P")); };
-    const GR = [["W","Wajib"],["G","Wajib untuk menutup gap"],["I","IHT Sabtu di cabang"],["P","Pengayaan (opsional)"]];
-    const kode = Object.keys(t).sort((a,b)=> GR.findIndex(x=>x[0]===grup(a)) - GR.findIndex(x=>x[0]===grup(b)) || Object.keys(t[b]).length - Object.keys(t[a]).length);
-    const jam = H.itp.filter(r=>set.has(r[0]) && r[5]!=="OPSIONAL").reduce((a,r)=>a+r[4],0);
-    stats = [["Orang", total],["Training", kode.length],["Jam terencana", Math.round(jam)],["Rata-rata/orang", Math.round(jam/org.length)+" jam"]];
-    html = '<div class="mx-legend">'+["W","G","I","P"].map(m=>'<span><i class="mx-cell mk-'+m+'" style="width:20px;height:20px;font-size:10.5px">'+(m==="P"?"•":m)+'</i>'+({W:"Wajib",G:"Menutup gap",I:"IHT Sabtu",P:"Pengayaan"})[m]+'</span>').join("")+'<span>Arahkan kursor ke sel untuk melihat bulan pelaksanaan.</span></div>'+
-      '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Training</div><div class="s">Karyawan →</div></th>'+colH+'</tr></thead><tbody>';
-    GR.forEach(([m,nm])=>{ const ks = kode.filter(k=>grup(k)===m); if(!ks.length) return;
-      html += '<tr class="mx-grp"><td colspan="'+(org.length+1)+'">'+nm+' · '+ks.length+' training</td></tr>';
-      ks.forEach(k=>{ const tr = D.training[k] || [k,"","","",""];
-        html += '<tr><th class="mx-rh" scope="row"><div class="n">'+trn(k, tr[0])+'</div><div class="s">'+Object.keys(t[k]).length+' orang'+(tr[4]?' · '+esc(tr[4]):'')+'</div></th>'+
-          org.map(o=>{ const c = t[k][o.nik]; return '<td class="mx-c">'+(c?'<span class="mx-cell mk-'+c.m+'" title="'+esc(o.nama+" · "+tr[0]+": "+[...new Set(c.bln)].join(", ")+" · "+c.jam+" jam")+'">'+(c.m==="P"?"•":c.m)+'</span>':'')+'</td>'; }).join("")+'</tr>'; });
-    });
-    html += '</tbody></table></div>';
-  }
-  const sub = (mx.lingkup==="tim" ? "seluruh anggota di bawah Anda menurut rantai penilai" : mxJudulLingkup(mxJabatanLingkup()))+' · '+total+' orang'+(potong?' (ditampilkan '+MX_MAKS+' pertama; persempit lingkup untuk melihat semua)':'')+' · '+tgl;
-  $("mx-body").innerHTML = '<div class="card"><div class="mx-head"><div><div class="rpt-eyebrow">'+judul+' · hasil asesmen 2027</div><div class="mx-title">'+esc(mx.lingkup==="tim" ? "Tim "+(state.nama||"Saya") : mxJudulLingkup(mxJabatanLingkup()))+'</div><div class="mx-meta">'+esc(sub)+'</div></div>'+
-    '<div class="mx-stats">'+stats.map(s=>'<div class="mx-stat"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>').join("")+'</div></div>'+html+
-    '<div class="mx-cetak">Sumber: BBLC TNA Engine 2027, hasil asesmen per '+tgl+(H.outputTerakhir?' · ITP dari output '+esc(new Date(H.outputTerakhir).toLocaleString("id-ID")):'')+'. Dokumen internal L&amp;D.</div></div>';
+  const set = new Set(org.map(o=>o.nik)), mode = mxMode(org.length), N = org.length;
+  const cols = org.map(o=>({ id:o.nik, title:o.nama, sub:o.jabatan.length>16 && !mode.slant ? o.jabatan.slice(0,15)+"…" : (mode.slant ? "" : o.jabatan), band:o.jabatan, tip:o.nama+" · "+o.jabatan+" · "+o.cabang }));
+  const judul = mx.lingkup==="tim" ? "Tim "+(state.nama||"Saya") : mxJudulLingkup(mxJabatanLingkup());
+  const meta = (mx.lingkup==="tim" ? "seluruh anggota di bawah Anda menurut rantai penilai · " : "")+total+" orang"+(potong?" (ditampilkan "+MX_MAKS+" pertama; persempit lingkup untuk melihat semua)":"")+" · disusun "+mxTgl();
+  let out;
+  if(mx.jenis === "komp") out = mxKompHasil(org, cols, set, mode);
+  else { if(!H.itp.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Training matrix hasil asesmen tersedia setelah output TNA digenerate (Panel Admin TNA, tombol Generate). Sementara itu, gunakan sumber <b>Standar jabatan</b>.</div></div>'; return; }
+    out = mxTrainHasil(org, cols, set, mode); }
+  $("mx-body").innerHTML = mxLaporan((mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+" · hasil asesmen 2027", judul, meta, out.stats, out.tabel, out.aside, "Sumber: BBLC TNA Engine 2027, hasil asesmen"+(H.outputTerakhir?" dan ITP dari output "+new Date(H.outputTerakhir).toLocaleString("id-ID"):"")+".");
 }
+function mxKompHasil(org, cols, set, mode){
+  const H = mx.hasil, N = org.length;
+  const g = {}; H.gap.forEach(([n,kk,a,req,st])=>{ if(set.has(n)) (g[kk] = g[kk] || {})[n] = [a,req,st]; });
+  const urutKlaster = x => { const k = mxKatKomp(x); return k==="Behavioral" ? MX_KLASTER_URUT.indexOf(MX_KLASTER[x]) : 0; };
+  const kode = Object.keys(g).sort((a,b)=> MX_KAT.indexOf(mxKatKomp(a)) - MX_KAT.indexOf(mxKatKomp(b)) || urutKlaster(a) - urutKlaster(b) || (mxKatKomp(a)==="Behavioral" ? a.localeCompare(b) : mxNama(a).localeCompare(mxNama(b))));
+  const tampil = kode.filter(x=>mx.fk[mxKatKomp(x)]);
+  const C = { list:cols, span:mxSpan(cols, mode, true), sum:true, slant:mode.slant };
+  const rows = mxBarisKomp(kode, g, C, N,
+    (x,c)=>{ const v = g[x][c.id]; if(!v) return '<td class="mx-c"></td>';
+      if(v[0]===null) return '<td class="mx-c"><div class="cl st-B" title="'+esc(c.title+" · "+mxNama(x)+": belum dinilai, syarat "+v[1])+'">·</div></td>';
+      return '<td class="mx-c"><div class="cl st-'+(MX_ST[v[2]]||"Mi")+'" title="'+esc(c.title+" · "+mxNama(x)+": aktual "+v[0]+", syarat "+v[1]+" ("+v[2]+")")+'">'+v[0]+(v[0]<v[1]?'<small>/'+v[1]+'</small>':'')+'</div></td>'; },
+    x=>{ const v = Object.values(g[x]).filter(y=>y[0]!==null), c = { K:0, Mi:0, Mo:0, Ma:0 }; v.forEach(y=>c[MX_ST[y[2]]||"Mi"]++);
+      const w = { K:"var(--green)", Mi:"var(--line-strong)", Mo:"var(--amber)", Ma:"var(--red)" };
+      return '<td class="mx-sm">'+(v.length?'<div class="sm-bar">'+["K","Mi","Mo","Ma"].filter(k=>c[k]).map(k=>'<i style="width:'+mxPct(c[k],v.length)+'%;background:'+w[k]+'"></i>').join("")+'</div><div class="sm-t"><b>'+mxPct(c.K,v.length)+'%</b> kompeten</div>':'<div class="sm-t">belum dinilai</div>')+'</td>'; },
+    x=>'<div class="n">'+esc(mxNama(x))+'</div>');
+  const perOrang = org.map(o=>{ const v = tampil.map(x=>g[x][o.nik]).filter(y=>y && y[0]!==null); return { n:v.length, k:v.filter(y=>y[2]==="Kompeten").length, ma:v.filter(y=>y[2]==="Major").length }; });
+  const tot = '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Kompeten</div><div class="s">persen kompetensi memenuhi syarat</div></th>'+perOrang.map(p=>'<td class="mx-c">'+(p.n?mxPct(p.k,p.n)+'%':'·')+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>'+
+    '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Gap Major</div></th>'+perOrang.map(p=>'<td class="mx-c">'+(p.n?p.ma:'·')+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>';
+  const sel = tampil.flatMap(x=>Object.values(g[x])), dinilai = sel.filter(y=>y[0]!==null);
+  const nDinilai = perOrang.filter(p=>p.n).length;
+  const stats = [["Orang", N],["Sudah dinilai", nDinilai],["Kompeten", dinilai.length ? mxPct(dinilai.filter(y=>y[2]==="Kompeten").length, dinilai.length)+"%" : "-"],["Gap Major", dinilai.filter(y=>y[2]==="Major").length]];
+  const ins = [];
+  const gapK = tampil.map(x=>[x, Object.values(g[x]).filter(y=>y[0]!==null && y[0]<y[1]).length]).sort((a,b)=>b[1]-a[1])[0];
+  if(gapK && gapK[1]) ins.push(["Gap terbanyak", mxNama(gapK[0])+" · "+gapK[1]+" orang di bawah syarat"]);
+  const gapO = org.map((o,i)=>[o, perOrang[i].n ? perOrang[i].n - perOrang[i].k : -1]).sort((a,b)=>b[1]-a[1])[0];
+  if(gapO && gapO[1] > 0) ins.push(["Gap terbanyak per orang", gapO[0].nama+" · "+gapO[1]+" kompetensi"]);
+  const kuat = tampil.map(x=>[x, Object.values(g[x]).filter(y=>y[0]!==null && y[0]>=y[1]).length, Object.values(g[x]).filter(y=>y[0]!==null).length]).filter(a=>a[2]).sort((a,b)=>b[1]/b[2]-a[1]/a[2])[0];
+  if(kuat) ins.push(["Paling kuat", mxNama(kuat[0])+" · "+mxPct(kuat[1],kuat[2])+"% memenuhi syarat"]);
+  if(N - nDinilai) ins.push(["Belum dinilai", (N - nDinilai)+" dari "+N+" orang"]);
+  const leg = '<div class="klg" style="margin-top:10px">'+[["K","Kompeten","aktual memenuhi atau melampaui syarat"],["Mi","Minor","kurang 1 level"],["Mo","Moderate","kurang 2 level"],["Ma","Major","kurang 3 level atau lebih"]].map(([c,t,d])=>'<div><span class="cl st-'+c+'" style="width:30px;height:22px;font-size:11px;flex:0 0 auto">'+(c==="K"?"3":(c==="Mi"?"2":(c==="Mo"?"1":"0")))+'</span><span><b>'+t+'</b><br>'+d+'</span></div>').join("")+'</div>';
+  const aside = mxAside(leg, ["Angka = level aktual (pembulatan 70% atasan + 30% self)","\"2/3\" = aktual 2, syarat 3","Titik = belum dinilai","Kolom di kanan = sebaran status per kompetensi"], ins);
+  return { stats, tabel: mxTabel(cols, mode, rows, tot, "Sebaran status", "Kompetensi"), aside };
+}
+function mxTrainHasil(org, cols, set, mode){
+  const H = mx.hasil, D = mx.data, N = org.length, KM = { Wajib:"W", WajibGap:"G", IHT:"I", Pengayaan:"P" };
+  const t = {};
+  H.itp.forEach(([n,kd,kat,bln,jam,st])=>{ if(!set.has(n)) return; const o = (t[kd] = t[kd] || {}); const c = o[n] = o[n] || { m:KM[kat]||"P", bln:[], jam:0, ops: st==="OPSIONAL" }; c.bln.push(bln); c.jam += jam; });
+  const grup = kd => { const ms = Object.values(t[kd]).map(c=>c.m); return ms.includes("W") ? "W" : (ms.includes("G") ? "G" : (ms.includes("I") ? "I" : "P")); };
+  const GR = [["W","Wajib"],["G","Wajib untuk menutup gap"],["I","IHT Sabtu di cabang"],["P","Pengayaan (opsional)"]];
+  const kode = Object.keys(t).sort((a,b)=> GR.findIndex(x=>x[0]===grup(a)) - GR.findIndex(x=>x[0]===grup(b)) || Object.keys(t[b]).length - Object.keys(t[a]).length);
+  const span = mxSpan(cols, mode, true);
+  const jamO = org.map(o=> kode.reduce((a,k)=> a + (t[k][o.nik] && !t[k][o.nik].ops ? t[k][o.nik].jam : 0), 0));
+  const nO = org.map(o=> kode.filter(k=>t[k][o.nik] && !t[k][o.nik].ops).length);
+  let rows = "";
+  GR.forEach(([m,nm])=>{ if(!mx.ft[m]) return; const ks = kode.filter(k=>grup(k)===m); if(!ks.length) return;
+    rows += mxGrp(nm+' · '+ks.length+' training', span);
+    ks.forEach(k=>{ const tr = D.training[k] || [k,"","","",""], pakai = Object.keys(t[k]).length;
+      rows += '<tr><th class="mx-rh" scope="row"><div class="n">'+trn(k, tr[0])+'</div><div class="s">'+esc(tr[4]||mxInfoTr(k))+'</div></th>'+
+        org.map(o=>{ const c = t[k][o.nik]; return '<td class="mx-c">'+(c?'<div class="tg '+c.m+'" title="'+esc(o.nama+" · "+tr[0]+": "+[...new Set(c.bln)].join(", ")+" · "+c.jam+" jam")+'">'+(c.m==="P"?"•":c.m)+(!mode.slant && c.m!=="P"?'<small>'+esc([...new Set(c.bln)][0]||"")+'</small>':'')+'</div>':'')+'</td>'; }).join("")+
+        '<td class="mx-sm"><div class="sm-bar"><i style="width:'+mxPct(pakai,N)+'%;background:var(--r4)"></i></div><div class="sm-t"><b>'+pakai+'</b> dari '+N+' orang</div></td>'+(mode.slant?'<td></td>':'')+'</tr>'; });
+  });
+  const tot = '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Jam terencana</div><div class="s">tanpa pengayaan opsional</div></th>'+jamO.map(j=>'<td class="mx-c">'+Math.round(j)+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>'+
+    '<tr class="mx-tot"><th class="mx-rh" scope="row"><div class="n">Jumlah training</div></th>'+nO.map(x=>'<td class="mx-c">'+x+'</td>').join("")+'<td></td>'+(mode.slant?'<td></td>':'')+'</tr>';
+  const jam = jamO.reduce((a,b)=>a+b,0);
+  const stats = [["Orang", N],["Training", kode.length],["Jam terencana", Math.round(jam)],["Rata-rata per orang", Math.round(jam/N)+" jam"]];
+  const ins = [];
+  const maks = org.map((o,i)=>[o,jamO[i]]).sort((a,b)=>b[1]-a[1])[0]; if(maks) ins.push(["Jam terbanyak", maks[0].nama+" · "+Math.round(maks[1])+" jam setahun"]);
+  const luas = kode.filter(k=>!/^W-(AFA|AIDW)$/.test(k) && grup(k)!=="P").map(k=>[k,Object.keys(t[k]).length]).sort((a,b)=>b[1]-a[1])[0]; if(luas) ins.push(["Training terluas", (D.training[luas[0]]||[luas[0]])[0]+" · "+luas[1]+" orang"]);
+  const bln = {}; H.itp.forEach(([n,kd,kat,b,jm,st])=>{ if(set.has(n) && st!=="OPSIONAL") bln[b] = (bln[b]||0) + jm; });
+  const pb = Object.entries(bln).sort((a,b)=>b[1]-a[1])[0]; if(pb) ins.push(["Bulan terpadat", pb[0]+" · "+Math.round(pb[1])+" jam seluruh peserta"]);
+  const legend = '<div class="klg">'+["W","G","I","P"].map(m=>'<div><span class="tgk '+m+'">'+(m==="P"?"•":m)+'</span><span><b>'+({W:"Wajib",G:"Menutup gap",I:"IHT Sabtu",P:"Pengayaan"})[m]+'</b></span></div>').join("")+'</div>';
+  return { stats, tabel: mxTabel(cols, mode, rows, tot, "Cakupan", "Training"), aside: mxAside(legend, ["Baris = training, kolom = karyawan; sel = rencana ITP 2027","Bulan pelaksanaan tertera di sel (kolom lebar) atau saat kursor diarahkan","Gap kompetensi menentukan training bertanda G"], ins) };
+}
+
+// ---------- profil jabatan (laci samping) ----------
+async function mxBukaJabatan(kode){
+  const dr = $("mx-drawer"); dr.hidden = false;
+  $("mx-sheet-isi").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat profil jabatan&hellip;</div>';
+  try{
+    const r = await tnaApi("tnaMatriksJabatan", { kodeJabatan:kode });
+    const j = r.jabatan, jm = mx.data.jabatan.find(x=>x.kode===kode) || {};
+    const ks = r.kompetensi.slice().sort((a,b)=> MX_KAT.indexOf(mxKat(a.kategori)) - MX_KAT.indexOf(mxKat(b.kategori)) || b.bobot - a.bobot);
+    const tugas = [...new Set(r.task.map(t=>t.TugasUtama).filter(Boolean))].slice(0,8);
+    let h = '<button type="button" class="btn btn-ghost btn-kecil x" id="mx-tutup">Tutup</button><div class="rpt-eyebrow">Profil jabatan</div><h3>'+esc(j.JobTitle)+'</h3><div class="mx-meta">'+esc(j.Dept+" · Divisi "+(jm.div||"")+" · "+j.JmlIncumbent+" karyawan · JD: "+j.StatusJD)+'</div>';
+    if(tugas.length) h += '<div class="mx-gh">Tugas utama <em>'+tugas.length+'</em></div><ul style="margin:8px 0 0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--text)">'+tugas.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
+    MX_KAT.forEach(k=>{ const l = ks.filter(x=>mxKat(x.kategori)===k); if(!l.length) return;
+      h += '<div class="mx-gh">'+k+' <em>'+l.length+' kompetensi</em></div>'+l.map(x=>'<div class="dr-k"><div class="h"><b>'+esc(x.nama)+'</b><span class="bobot'+(x.bobot>=3?' b3':'')+'">'+(MX_BOBOT[x.bobot]||x.bobot)+' · L'+x.required+'</span></div>'+
+        '<div class="pips" style="margin-top:6px">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=x.required?'on lv'+x.required:'')+'"></i>').join("")+'</div>'+
+        '<p><b style="font-size:12px;color:var(--muted)">Level '+x.required+' · '+MX_LV[x.required]+':</b> '+esc(x.levels[x.required-1]||"")+'</p>'+(x.flag?'<div class="m">'+esc(x.flag)+'</div>':'')+'</div>').join(""); });
+    $("mx-sheet-isi").innerHTML = h; $("mx-tutup").onclick = mxTutupLaci; $("mx-tutup").focus();
+  }catch(e){ $("mx-sheet-isi").innerHTML = '<div class="err show">'+esc(e.message)+'</div><button type="button" class="btn btn-ghost" id="mx-tutup">Tutup</button>'; $("mx-tutup").onclick = mxTutupLaci; }
+}
+function mxTutupLaci(){ $("mx-drawer").hidden = true; }
+$("mx-drawer").addEventListener("click", e=>{ if(e.target === $("mx-drawer")) mxTutupLaci(); });
+document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !$("mx-drawer").hidden) mxTutupLaci(); });
+$("mx-body").addEventListener("click", e=>{ const b = e.target.closest("[data-jab]"); if(b) mxBukaJabatan(b.dataset.jab); });
+// sorot kolom saat kursor melintas (crosshair), baris disorot lewat CSS
+$("mx-body").addEventListener("mouseover", e=>{
+  const td = e.target.closest("td.mx-c"); if(!td) return; const tb = td.closest("table.mx"); if(!tb) return; const idx = td.cellIndex;
+  if(tb._hl === idx) return; tb._hl = idx;
+  tb.querySelectorAll("td.hlc").forEach(x=>x.classList.remove("hlc"));
+  tb.querySelectorAll("tbody tr").forEach(tr=>{ const c = tr.cells[idx]; if(c && c.classList.contains("mx-c")) c.classList.add("hlc"); });
+});
+$("mx-body").addEventListener("mouseleave", ()=>{ document.querySelectorAll("#mx-body td.hlc").forEach(x=>x.classList.remove("hlc")); document.querySelectorAll("#mx-body table.mx").forEach(t=>t._hl = null); });
+
+// ---------- kontrol ----------
 function mxSeg(id, key, cb){
   document.querySelectorAll("#"+id+" button").forEach(b=> b.onclick = ()=>{
     mx[key] = b.dataset.v; document.querySelectorAll("#"+id+" button").forEach(x=> x.setAttribute("aria-pressed", String(x===b))); cb();
   });
 }
-mxSeg("mx-jenis", "jenis", renderMatrix);
+mxSeg("mx-jenis", "jenis", ()=>{ mxIsiFilter(); renderMatrix(); });
 mxSeg("mx-sumber", "sumber", mxSegar);
 mxSeg("mx-lingkup", "lingkup", mxSegar);
 $("mx-pilih").onchange = ()=>{ mx.pilih = $("mx-pilih").value; renderMatrix(); };
-// Ekspor PDF: cetak bersih (tema terang, tanpa kontrol), kertas A4/A3 lanskap mengikuti jumlah kolom
-$("btn-mx-pdf").onclick = ()=>{
-  const n = mx.sumber === "hasil" ? Math.min(mxOrangLingkup().length, MX_MAKS) : mxJabatanLingkup().length, temaLama = document.documentElement.getAttribute("data-theme");
+$("mx-filter").addEventListener("click", e=>{
+  const b = e.target.closest("[data-f]"); if(!b) return; const k = b.dataset.f, peta = mx.jenis==="komp" ? mx.fk : mx.ft;
+  const aktif = Object.values(peta).filter(Boolean).length;
+  if(peta[k] && aktif === 1) return; // minimal satu tetap menyala
+  peta[k] = peta[k] ? 0 : 1; mxIsiFilter(); renderMatrix();
+});
+// Ekspor PDF: cetak bersih (tema terang), kertas A4/A3 lanskap mengikuti lebar tabel, skala otomatis agar muat satu lebar halaman
+function mxSiapCetak(){
+  const tb = document.querySelector("#mx-body table.mx"), lebar = tb ? tb.scrollWidth + 24 : 1000;
+  const a3 = lebar > 1000, halaman = a3 ? 1480 : 1000, z = Math.min(1, halaman / lebar);
   let st = $("mx-page"); if(!st){ st = document.createElement("style"); st.id = "mx-page"; document.head.appendChild(st); }
-  st.textContent = "@page{size:"+(n > 24 ? "A3" : "A4")+" landscape;margin:10mm}";
-  document.body.classList.add("cetak-matrix"); document.documentElement.setAttribute("data-theme","light");
-  const pulih = ()=>{ document.body.classList.remove("cetak-matrix"); if(temaLama) document.documentElement.setAttribute("data-theme", temaLama); else document.documentElement.removeAttribute("data-theme"); window.removeEventListener("afterprint", pulih); };
-  window.addEventListener("afterprint", pulih);
-  const judul = document.title; document.title = (mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+" 2027 - "+mxJudulLingkup(mxJabatanLingkup());
-  setTimeout(()=>{ window.print(); document.title = judul; setTimeout(pulih, 500); }, 50);
+  st.textContent = "@page{size:"+(a3 ? "A3" : "A4")+" landscape;margin:10mm 10mm 14mm;@bottom-left{content:'BBLC TNA 2027 · Dokumen internal L&D';font:8pt sans-serif;color:#64748b}@bottom-right{content:'Halaman ' counter(page) ' dari ' counter(pages);font:8pt sans-serif;color:#64748b}}";
+  const temaLama = document.documentElement.getAttribute("data-theme"), main = document.querySelector("#mx-body .mx-main"), zLama = main ? main.style.zoom : "";
+  document.body.classList.add("cetak-matrix"); document.documentElement.setAttribute("data-theme","light"); if(main) main.style.zoom = z;
+  return ()=>{ document.body.classList.remove("cetak-matrix"); if(temaLama) document.documentElement.setAttribute("data-theme", temaLama); else document.documentElement.removeAttribute("data-theme"); if(main) main.style.zoom = zLama; };
+}
+$("btn-mx-pdf").onclick = ()=>{
+  const selesai = mxSiapCetak(), judul = document.title;
+  document.title = (mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+" 2027 - "+mxJudulLingkup(mxJabatanLingkup());
+  window.addEventListener("afterprint", function f(){ selesai(); document.title = judul; window.removeEventListener("afterprint", f); });
+  setTimeout(()=>{ window.print(); }, 60);
 };
 
 /* ---------- Hasil live & validasi Head unit ---------- */
