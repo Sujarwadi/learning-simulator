@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.17, 27 Okt 2026. Perubahan: Pusat Matrix menambah sumber "Hasil asesmen" (competency matrix nilai aktual per orang berwarna status, training matrix dari ITP per orang) dan lingkup "Tim Saya" (seluruh anggota di bawah admin menurut rantai penilai); data dimuat ulang tiap kali dibuka; grafik profil: angka skala tidak lagi tertutup penanda syarat. -->
 <!-- BBLC Studio v3.16, 27 Okt 2026. Perubahan: Panduan Pengisian (tombol di halaman masuk, ubin & kartu pengingat di beranda, wajib dibuka sebelum penilaian pertama); Pusat Matrix L&D khusus admin (competency matrix & training matrix per jabatan, dept, divisi, seluruh BBM; penanda Wajib, Wajib bila gap, IHT, Dianjurkan; ekspor PDF A4/A3 lanskap); bagian asumsi, cara pembuktian, dan catatan kebijakan di Landasan Metodologi hanya tampil untuk admin L&D. -->
 <!-- BBLC Studio v3.15, 27 Okt 2026. Perubahan: hasil asesmen menjadi laporan visual bergaya laporan asesor (ringkasan kesesuaian standar + komposisi status, kekuatan & prioritas, profil kompetensi skala 1-5 dengan penanda syarat/atasan/self/aktual, radar 10 behavioral vs standar jenjang, matriks prioritas gap x bobot, persepsi diri vs atasan, rencana 70/20/10 bernomor, navigasi bagian); ITP menjadi Peta Belajar 2027 (jam terencana vs target, strip 12 bulan yang bisa diketuk, agenda per bulan dengan kompetensi yang dikembangkan); tabel tetap tersedia sebagai tampilan alternatif. -->
 <!-- BBLC Studio v3.14, 27 Okt 2026. Perubahan (koreksi simulasi tim L&D): semua training penutup gap tampil di "Training Wajib 2027" (dikelompokkan: menutup gap kompetensi, program wajib jabatan & korporat), tidak ada lagi batas 4 training/tahun maupun status ditunda, validator hanya bisa mengganti modul (opsi "tidak perlu training" dihapus); tombol "Dasar ilmiah" dipindah ke catatan kecil di bagian bawah form dan hasil (rujukan opsional, bukan bacaan wajib penilai); label kategori "Dianjurkan" diganti "Wajib · tutup gap"; parameter Maks training Dianjurkan dihapus dari Panel Admin. -->
@@ -287,15 +288,15 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .prof-row:last-child{border-bottom:0}
 .prof-name{font-size:13px;color:var(--ink);line-height:1.3}
 .prof-name .f{display:block;font-size:11px;color:var(--red);font-weight:600}
-.prof-track{position:relative;height:30px}
-.prof-track .ax{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
-.prof-track .tk{position:absolute;top:calc(50% - 5px);width:1px;height:10px;background:var(--line-strong);opacity:.5}
-.prof-track .tkl{position:absolute;bottom:-3px;font-size:9.5px;color:var(--muted);transform:translateX(-50%)}
-.prof-track .gapseg{position:absolute;top:calc(50% - 3px);height:6px;border-radius:3px}
-.prof-track .req{position:absolute;top:4px;width:3px;height:22px;margin-left:-1.5px;border-radius:2px;background:var(--ink)}
-.prof-track .sup{position:absolute;top:calc(50% - 4px);width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 2px var(--surface)}
-.prof-track .slf{position:absolute;top:calc(50% - 5px);width:10px;height:10px;margin-left:-5px;border-radius:50%;border:2px solid var(--muted);box-sizing:border-box;background:var(--surface)}
-.prof-track .act{position:absolute;top:calc(50% - 7px);width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 2px var(--surface)}
+.prof-track{position:relative;height:36px}
+.prof-track .ax{position:absolute;left:0;right:0;top:13px;height:1px;background:var(--line)}
+.prof-track .tk{position:absolute;top:9px;width:1px;height:9px;background:var(--line-strong);opacity:.5}
+.prof-track .tkl{position:absolute;top:24px;font-size:9.5px;line-height:1;color:var(--muted);transform:translateX(-50%)}
+.prof-track .gapseg{position:absolute;top:10px;height:6px;border-radius:3px}
+.prof-track .req{position:absolute;top:2px;width:4px;height:22px;margin-left:-2px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+.prof-track .sup{position:absolute;top:9px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 2px var(--surface)}
+.prof-track .slf{position:absolute;top:8px;width:10px;height:10px;margin-left:-5px;border-radius:50%;border:2px solid var(--muted);box-sizing:border-box;background:var(--surface)}
+.prof-track .act{position:absolute;top:6px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 2px var(--surface)}
 .prof-row:hover{background:var(--inset)}
 .prof-st{text-align:right}
 /* Radar & matriks prioritas (SVG) */
@@ -449,11 +450,18 @@ td.mx-c{width:30px;height:30px}
 .mx-tr .d{color:var(--muted);font-size:12px}
 .mx-tr .j{text-align:right;font-weight:700;color:var(--text)}
 .mx-cetak{display:none}
+.st-K{background:var(--green-soft);color:var(--green);box-shadow:inset 0 0 0 1px var(--green-line)}.st-Mi{background:var(--subtle);color:var(--text)}
+.st-Mo{background:var(--amber-soft);color:var(--amber);box-shadow:inset 0 0 0 1px var(--accent-line)}.st-Ma{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1px var(--red-line)}
+.st-B{color:var(--muted);font-weight:400}
+.mx-cell.w2{width:30px}
+table.mx thead th.mx-ph{width:36px;min-width:36px;max-width:36px;height:190px;padding:6px 0}
+.mx-ph span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-weight:600;color:var(--ink);font-size:11px;display:inline-block;max-height:176px;overflow:hidden;text-overflow:ellipsis}
+.mx-ph span em{font-style:normal;font-weight:400;color:var(--muted)}
 @media (max-width:720px){#mx-pilih{min-width:0;width:100%}.mx-ctl{width:100%}.mx-pdf{margin-left:0}.mx-one{grid-template-columns:minmax(0,1fr) auto}.mx-one .d,.mx-one .pips{grid-column:1 / -1}
   table.mx .mx-rh{min-width:170px;max-width:200px}.mx-ctrl{position:static}}
 @media print{
   body.cetak-matrix *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.cetak-matrix .screen:not(#scr-tna-pusat),body.cetak-matrix header.app,body.cetak-matrix .mx-ctrl,body.cetak-matrix .demo-bar,body.cetak-matrix #demo-fab,body.cetak-matrix #demo-panel{display:none !important}
+  body.cetak-matrix .screen:not(#scr-tna-pusat),body.cetak-matrix header.app,body.cetak-matrix .mx-ctrl,body.cetak-matrix .demo-bar,body.cetak-matrix #demo-fab,body.cetak-matrix #demo-panel,body.cetak-matrix #demo-toasts{display:none !important}
   body.cetak-matrix .body-wrap{max-width:none;padding:0}
   body.cetak-matrix .mx-wrap{max-height:none;overflow:visible;border:0}
   body.cetak-matrix table.mx thead th{position:static}
@@ -947,8 +955,10 @@ td.mx-c{width:30px;height:30px}
       <div class="card mx-ctrl">
         <div class="mx-ctl"><span class="mx-lbl">Tampilan</span><div class="seg" role="group" aria-label="Jenis matrix" id="mx-jenis">
           <button type="button" data-v="komp" aria-pressed="true">Competency Matrix</button><button type="button" data-v="train" aria-pressed="false">Training Matrix</button></div></div>
+        <div class="mx-ctl"><span class="mx-lbl">Sumber</span><div class="seg" role="group" aria-label="Sumber data" id="mx-sumber">
+          <button type="button" data-v="standar" aria-pressed="true">Standar jabatan</button><button type="button" data-v="hasil" aria-pressed="false">Hasil asesmen</button></div></div>
         <div class="mx-ctl"><span class="mx-lbl">Lingkup</span><div class="seg" role="group" aria-label="Lingkup" id="mx-lingkup">
-          <button type="button" data-v="jab" aria-pressed="false">Jabatan</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="all" aria-pressed="false">Seluruh BBM</button></div></div>
+          <button type="button" data-v="tim" aria-pressed="false">Tim Saya</button><button type="button" data-v="jab" aria-pressed="false">Jabatan</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="all" aria-pressed="false">Seluruh BBM</button></div></div>
         <div class="mx-ctl" id="mx-pilih-wrap"><label class="mx-lbl" for="mx-pilih">Pilih</label><select id="mx-pilih"></select></div>
         <button class="btn btn-ghost mx-pdf" id="btn-mx-pdf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>Ekspor PDF</button>
       </div>
@@ -2186,10 +2196,10 @@ function vizProfil(gap){
       const lo = Math.min(act, req), hi = Math.max(act, req);
       if(act < req) tr += '<i class="gapseg" style="left:'+vPos(lo)+'%;width:'+(vPos(hi)-vPos(lo))+'%;background:'+(ST_WARNA[g.KategoriGap]||"var(--line)")+'"></i>';
     }
-    tr += '<i class="req" style="left:'+vPos(req)+'%"></i>';
     if(slf !== null && act !== null && Math.abs(slf-act) > .05) tr += '<i class="slf" style="left:'+vPos(slf)+'%"></i>';
     if(sup !== null && act !== null && Math.abs(sup-act) > .05) tr += '<i class="sup" style="left:'+vPos(sup)+'%"></i>';
     if(act !== null) tr += '<i class="act" style="left:'+vPos(act)+'%"></i>';
+    tr += '<i class="req" style="left:'+vPos(req)+'%"></i>';
     tr += '</div>';
     const st = act === null ? '<span class="badge badge-grey">Belum</span>' : '<span class="badge '+(ST_CLS[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+(Number(g.Gap)>0?' '+vFmt(vNum(g.Gap)):'')+'</span>';
     return '<div class="prof-row"><div class="prof-name">'+esc(g.Kompetensi)+(g.Flag?'<span class="f">'+esc(g.Flag)+'</span>':'')+'</div>'+tr+'<div class="prof-st">'+st+'</div></div>';
@@ -2368,7 +2378,7 @@ function renderNudgePanduan(){
 }
 $("btn-tna-pusat").onclick = ()=> bukaPusatMatrix();
 /* ---------- Pusat Matrix L&D (v3.16): competency & training matrix per jabatan / dept / divisi / BBM, siap ekspor PDF ---------- */
-const mx = { data:null, jenis:"komp", lingkup:"div", pilih:"" };
+const mx = { data:null, hasil:null, jenis:"komp", sumber:"standar", lingkup:"div", pilih:"" };
 const MX_KAT = ["Behavioral","Leadership","Technical"];
 const MX_BOBOT = { 3:"Inti", 2:"Penting", 1:"Pendukung" };
 const MX_TANDA = {
@@ -2380,16 +2390,37 @@ const MX_TANDA = {
 function mxKat(k){ return k === "Behavioral" ? "Behavioral" : (k === "Technical" ? "Technical" : "Leadership"); }
 async function bukaPusatMatrix(){
   bukaLayar("scr-tna-pusat");
+  mx.data = null; mx.hasil = null; // selalu ambil data terbaru (penilaian & output bisa berubah sejak dibuka terakhir)
   if(!mx.data){
     $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div>';
     try{ mx.data = await tnaApi("tnaMatrixOutput"); }
     catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return; }
   }
+  mxSegar();
+}
+// Data per orang (gap live & ITP) dimuat saat dibutuhkan: sumber "Hasil asesmen" atau lingkup "Tim Saya"
+async function mxMuatHasil(){
+  if(mx.hasil) return true;
+  $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung hasil asesmen&hellip;</div>';
+  try{ const r = await tnaApi("tnaMatrixOutput", { sumber:"hasil" }); mx.hasil = r.hasil; Object.assign(mx.data.training, r.training); return true; }
+  catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return false; }
+}
+async function mxSegar(){
+  if((mx.sumber === "hasil" || mx.lingkup === "tim") && !(await mxMuatHasil())) return;
   mxIsiPilihan(); renderMatrix();
+}
+function mxOrangLingkup(){
+  const H = mx.hasil, O = H.orang.map(o=>({ nik:o[0], nama:o[1], kj:o[2], jabatan:o[3], cabang:o[4], dept:o[5], div:o[6] }));
+  if(mx.lingkup === "tim"){ const t = new Set(H.timSaya); return O.filter(o=>t.has(o.nik)); }
+  if(mx.lingkup === "all") return O;
+  if(mx.lingkup === "jab") return O.filter(o=>o.kj===mx.pilih);
+  if(mx.lingkup === "dept") return O.filter(o=>o.dept===mx.pilih);
+  return O.filter(o=>o.div===mx.pilih);
 }
 function mxJabatanLingkup(){
   const J = mx.data.jabatan;
   if(mx.lingkup === "all") return J;
+  if(mx.lingkup === "tim"){ const kjs = new Set(mxOrangLingkup().map(o=>o.kj)); return J.filter(j=>kjs.has(j.kode)); }
   if(mx.lingkup === "jab") return J.filter(j=>j.kode===mx.pilih);
   if(mx.lingkup === "dept") return J.filter(j=>j.dept===mx.pilih);
   return J.filter(j=>j.div===mx.pilih);
@@ -2400,16 +2431,18 @@ function mxIsiPilihan(){
   if(mx.lingkup === "jab") opsi = J.map(j=>[j.kode, j.title+" · "+j.dept]);
   else if(mx.lingkup === "dept") opsi = [...new Set(J.map(j=>j.dept))].map(d=>[d, d+" ("+J.filter(j=>j.dept===d).length+" jabatan)"]);
   else if(mx.lingkup === "div") opsi = [...new Set(J.map(j=>j.div))].map(d=>[d, d+" ("+J.filter(j=>j.div===d).length+" jabatan)"]);
-  $("mx-pilih-wrap").style.display = mx.lingkup === "all" ? "none" : "";
+  $("mx-pilih-wrap").style.display = (mx.lingkup === "all" || mx.lingkup === "tim") ? "none" : "";
   if(!opsi.some(o=>o[0]===mx.pilih)) mx.pilih = opsi.length ? opsi[0][0] : "";
   $("mx-pilih").innerHTML = opsi.map(o=>'<option value="'+esc(o[0])+'"'+(o[0]===mx.pilih?' selected':'')+'>'+esc(o[1])+'</option>').join("");
 }
 function mxJudulLingkup(js){
   if(mx.lingkup === "all") return "Seluruh BBM";
+  if(mx.lingkup === "tim") return "Tim " + (state.nama || "Saya");
   if(mx.lingkup === "jab") return js[0] ? js[0].title : "-";
   return (mx.lingkup === "div" ? "Divisi " : "Dept ") + mx.pilih;
 }
 function renderMatrix(){
+  if(mx.sumber === "hasil") return renderMatrixHasil();
   const js = mxJabatanLingkup();
   if(!js.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Tidak ada jabatan pada pilihan ini.</div></div>'; return; }
   const org = js.reduce((a,j)=>a+j.jml,0);
@@ -2475,17 +2508,71 @@ function mxTraining(js){
   });
   return { stats, html: legend + t + '</tbody></table></div>' };
 }
+// Hasil asesmen: kolom = orang. Competency: nilai aktual berwarna status. Training: ITP nyata (bulan di tooltip).
+const MX_MAKS = 120;
+const MX_ST = { Kompeten:"K", Minor:"Mi", Moderate:"Mo", Major:"Ma" };
+function renderMatrixHasil(){
+  const H = mx.hasil, D = mx.data; let org = mxOrangLingkup();
+  const tgl = new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+  if(!org.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">'+(mx.lingkup==="tim"?'Belum ada anggota tim di bawah Anda menurut rantai penilai.':'Tidak ada karyawan pada pilihan ini.')+'</div></div>'; return; }
+  org.sort((a,b)=> a.jabatan.localeCompare(b.jabatan) || a.nama.localeCompare(b.nama));
+  const total = org.length, potong = total > MX_MAKS; if(potong) org = org.slice(0, MX_MAKS);
+  const set = new Set(org.map(o=>o.nik));
+  const colH = org.map(o=>'<th class="mx-ph" title="'+esc(o.nama+" · "+o.jabatan+" · "+o.cabang)+'"><span>'+esc(o.nama)+' <em>· '+esc(o.jabatan)+'</em></span></th>').join("");
+  let html = "", stats = [], judul = mx.jenis === "komp" ? "Competency Matrix" : "Training Matrix";
+  if(mx.jenis === "komp"){
+    const g = {}; H.gap.forEach(([n,kk,a,req,st])=>{ if(set.has(n)) (g[kk] = g[kk] || {})[n] = [a,req,st]; });
+    const kode = Object.keys(g).sort((a,b)=> MX_KAT.indexOf(mxKat((D.kamus[a]||["",""])[1])) - MX_KAT.indexOf(mxKat((D.kamus[b]||["",""])[1])) || (a.startsWith("CB")&&b.startsWith("CB") ? a.localeCompare(b) : (D.kamus[a]||[a])[0].localeCompare((D.kamus[b]||[b])[0])));
+    const sel = Object.values(g).flatMap(o=>Object.values(o)), dinilai = sel.filter(x=>x[0]!==null);
+    const nOrgDinilai = org.filter(o=>kode.some(k=>g[k][o.nik] && g[k][o.nik][0]!==null)).length;
+    stats = [["Orang", total],["Sudah dinilai", nOrgDinilai],["Sel kompeten", dinilai.length ? Math.round(dinilai.filter(x=>x[2]==="Kompeten").length/dinilai.length*100)+"%" : "-"],["Gap Major", dinilai.filter(x=>x[2]==="Major").length]];
+    html = '<div class="mx-legend"><span>Angka = nilai aktual (70% atasan + 30% self)</span>'+[["K","Kompeten"],["Mi","Minor"],["Mo","Moderate"],["Ma","Major"]].map(([c,t])=>'<span><i class="mx-cell w2 st-'+c+'" style="height:20px;font-size:10px">'+(c==="K"?"3":"2,5")+'</i>'+t+'</span>').join("")+'<span><i class="mx-cell st-B" style="height:20px">·</i>belum dinilai</span></div>'+
+      '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Kompetensi</div><div class="s">Karyawan →</div></th>'+colH+'</tr></thead><tbody>';
+    MX_KAT.forEach(k=>{ const ks = kode.filter(x=>mxKat((D.kamus[x]||["",""])[1])===k); if(!ks.length) return;
+      html += '<tr class="mx-grp"><td colspan="'+(org.length+1)+'">'+k+' · '+ks.length+' kompetensi</td></tr>';
+      ks.forEach(x=>{ const v = Object.values(g[x]).filter(y=>y[0]!==null), ok = v.filter(y=>y[2]==="Kompeten").length;
+        html += '<tr><th class="mx-rh" scope="row"><div class="n">'+esc((D.kamus[x]||[x])[0])+'</div><div class="s">'+(v.length?ok+' dari '+v.length+' kompeten':'belum dinilai')+'</div></th>'+
+          org.map(o=>{ const c = g[x][o.nik]; if(!c) return '<td class="mx-c"></td>';
+            if(c[0]===null) return '<td class="mx-c"><span class="mx-cell st-B" title="'+esc(o.nama+" · "+(D.kamus[x]||[x])[0]+": belum dinilai, syarat "+c[1])+'">·</span></td>';
+            return '<td class="mx-c"><span class="mx-cell w2 st-'+(MX_ST[c[2]]||"Mi")+'" title="'+esc(o.nama+" · "+(D.kamus[x]||[x])[0]+": aktual "+vFmt(c[0])+", syarat "+c[1]+" ("+c[2]+")")+'">'+vFmt(c[0])+'</span></td>'; }).join("")+'</tr>'; });
+    });
+    html += '</tbody></table></div>';
+  } else {
+    if(!H.itp.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Training matrix hasil asesmen tersedia setelah output TNA digenerate (Panel Admin TNA → Generate). Sementara itu, gunakan sumber <b>Standar jabatan</b>.</div></div>'; return; }
+    const t = {}, KM = { Wajib:"W", WajibGap:"G", IHT:"I", Pengayaan:"P" };
+    H.itp.forEach(([n,kd,kat,bln,jam,st])=>{ if(!set.has(n)) return; const o = (t[kd] = t[kd] || {}); const c = o[n] = o[n] || { m:KM[kat]||"P", bln:[], jam:0, ops: st==="OPSIONAL" }; c.bln.push(bln); c.jam += jam; });
+    const grup = kd => { const ms = Object.values(t[kd]).map(c=>c.m); return ms.includes("W") ? "W" : (ms.includes("G") ? "G" : (ms.includes("I") ? "I" : "P")); };
+    const GR = [["W","Wajib"],["G","Wajib untuk menutup gap"],["I","IHT Sabtu di cabang"],["P","Pengayaan (opsional)"]];
+    const kode = Object.keys(t).sort((a,b)=> GR.findIndex(x=>x[0]===grup(a)) - GR.findIndex(x=>x[0]===grup(b)) || Object.keys(t[b]).length - Object.keys(t[a]).length);
+    const jam = H.itp.filter(r=>set.has(r[0]) && r[5]!=="OPSIONAL").reduce((a,r)=>a+r[4],0);
+    stats = [["Orang", total],["Training", kode.length],["Jam terencana", Math.round(jam)],["Rata-rata/orang", Math.round(jam/org.length)+" jam"]];
+    html = '<div class="mx-legend">'+["W","G","I","P"].map(m=>'<span><i class="mx-cell mk-'+m+'" style="width:20px;height:20px;font-size:10.5px">'+(m==="P"?"•":m)+'</i>'+({W:"Wajib",G:"Menutup gap",I:"IHT Sabtu",P:"Pengayaan"})[m]+'</span>').join("")+'<span>Arahkan kursor ke sel untuk melihat bulan pelaksanaan.</span></div>'+
+      '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Training</div><div class="s">Karyawan →</div></th>'+colH+'</tr></thead><tbody>';
+    GR.forEach(([m,nm])=>{ const ks = kode.filter(k=>grup(k)===m); if(!ks.length) return;
+      html += '<tr class="mx-grp"><td colspan="'+(org.length+1)+'">'+nm+' · '+ks.length+' training</td></tr>';
+      ks.forEach(k=>{ const tr = D.training[k] || [k,"","","",""];
+        html += '<tr><th class="mx-rh" scope="row"><div class="n">'+trn(k, tr[0])+'</div><div class="s">'+Object.keys(t[k]).length+' orang'+(tr[4]?' · '+esc(tr[4]):'')+'</div></th>'+
+          org.map(o=>{ const c = t[k][o.nik]; return '<td class="mx-c">'+(c?'<span class="mx-cell mk-'+c.m+'" title="'+esc(o.nama+" · "+tr[0]+": "+[...new Set(c.bln)].join(", ")+" · "+c.jam+" jam")+'">'+(c.m==="P"?"•":c.m)+'</span>':'')+'</td>'; }).join("")+'</tr>'; });
+    });
+    html += '</tbody></table></div>';
+  }
+  const sub = (mx.lingkup==="tim" ? "seluruh anggota di bawah Anda menurut rantai penilai" : mxJudulLingkup(mxJabatanLingkup()))+' · '+total+' orang'+(potong?' (ditampilkan '+MX_MAKS+' pertama; persempit lingkup untuk melihat semua)':'')+' · '+tgl;
+  $("mx-body").innerHTML = '<div class="card"><div class="mx-head"><div><div class="rpt-eyebrow">'+judul+' · hasil asesmen 2027</div><div class="mx-title">'+esc(mx.lingkup==="tim" ? "Tim "+(state.nama||"Saya") : mxJudulLingkup(mxJabatanLingkup()))+'</div><div class="mx-meta">'+esc(sub)+'</div></div>'+
+    '<div class="mx-stats">'+stats.map(s=>'<div class="mx-stat"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>').join("")+'</div></div>'+html+
+    '<div class="mx-cetak">Sumber: BBLC TNA Engine 2027, hasil asesmen per '+tgl+(H.outputTerakhir?' · ITP dari output '+esc(new Date(H.outputTerakhir).toLocaleString("id-ID")):'')+'. Dokumen internal L&amp;D.</div></div>';
+}
 function mxSeg(id, key, cb){
   document.querySelectorAll("#"+id+" button").forEach(b=> b.onclick = ()=>{
     mx[key] = b.dataset.v; document.querySelectorAll("#"+id+" button").forEach(x=> x.setAttribute("aria-pressed", String(x===b))); cb();
   });
 }
 mxSeg("mx-jenis", "jenis", renderMatrix);
-mxSeg("mx-lingkup", "lingkup", ()=>{ mxIsiPilihan(); renderMatrix(); });
+mxSeg("mx-sumber", "sumber", mxSegar);
+mxSeg("mx-lingkup", "lingkup", mxSegar);
 $("mx-pilih").onchange = ()=>{ mx.pilih = $("mx-pilih").value; renderMatrix(); };
 // Ekspor PDF: cetak bersih (tema terang, tanpa kontrol), kertas A4/A3 lanskap mengikuti jumlah kolom
 $("btn-mx-pdf").onclick = ()=>{
-  const n = mxJabatanLingkup().length, temaLama = document.documentElement.getAttribute("data-theme");
+  const n = mx.sumber === "hasil" ? Math.min(mxOrangLingkup().length, MX_MAKS) : mxJabatanLingkup().length, temaLama = document.documentElement.getAttribute("data-theme");
   let st = $("mx-page"); if(!st){ st = document.createElement("style"); st.id = "mx-page"; document.head.appendChild(st); }
   st.textContent = "@page{size:"+(n > 24 ? "A3" : "A4")+" landscape;margin:10mm}";
   document.body.classList.add("cetak-matrix"); document.documentElement.setAttribute("data-theme","light");

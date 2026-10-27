@@ -1,8 +1,10 @@
-/* BBLC TNA Engine v2.4, 27 Okt 2026. Perubahan: tnaMatrixOutput (khusus admin L&D) untuk Pusat Matrix: Competency Matrix dan
+/* BBLC TNA Engine v2.4.1, 27 Okt 2026. Perubahan: tnaMatrixOutput sumber "hasil" (gap live /* BBLC TNA Engine v2.4, 27 Okt 2026. ITP per orang, tim saya).
+ * BBLC TNA Engine v2.4, 27 Okt 2026. Perubahan: tnaMatrixOutput (khusus admin L&D) untuk Pusat Matrix: Competency Matrix dan
  * Training Matrix per jabatan, dept, divisi, atau seluruh BBM. Penanda training memakai aturan yang sama dengan mesin rekomendasi:
  * W = wajib (Mandatory jabatan/korporat), G = wajib bila ada gap (modul yang dipilih mesin untuk gap dari level 1 sampai syarat-1,
  * menghormati SasaranJabatan & tanpa dobel dengan W), I = IHT Sabtu (pola 2026), P = pengayaan opsional. Divisi diturunkan dari Dept
- * (TNA_DIVISI, keputusan user 27 Okt: pengelompokan fungsional).
+ * (TNA_DIVISI, keputusan user 27 Okt: pengelompokan fungsional). Dengan sumber "hasil": data per orang (gap live dari penilaian
+ * yang masuk, ITP dari output terakhir) dan daftar "tim saya" (seluruh orang di bawah admin menurut rantai PenilaiNIK).
  * BBLC TNA Engine v2.3.1, 27 Okt 2026. Perubahan: tnaITPSaya menyertakan nama kompetensi training penutup gap dan targetJam.
  * BBLC TNA Engine v2.3, 27 Okt 2026. Perubahan (koreksi user 27 Okt): setiap kompetensi yang gap WAJIB mendapat training
  * penutup gap (kategori ITP "WajibGap"), tanpa batas jumlah per tahun, tanpa ditunda, dan untuk semua kategori kompetensi
@@ -53,7 +55,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.4";
+var TNA_VERSION = "2.4.1";
 
 /* ============================================================
  * SKEMA TAB
@@ -699,8 +701,23 @@ function tnaMatrixOutput(ss, req) {
     var c = katBy[k];
     train[k] = [c.Judul, String(c.Kategori), c.DurasiJam === "" ? "" : Number(c.DurasiJam), String(c.Status || ""), kompList(c).map(function (x) { return (kamus[x] || [x])[0]; }).join(", "), c.LevelTarget === "" ? "" : Number(c.LevelTarget)];
   });
+  var hasil = null;
+  if (req.sumber === "hasil") {
+    var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
+    var bawah = {}; Object.keys(km).forEach(function (n) { var a = String(km[n].PenilaiNIK || ""); (bawah[a] = bawah[a] || []).push(n); });
+    var tim = [], antre = (bawah[auth.nik] || []).slice(), lihat = {};
+    while (antre.length) { var n = antre.shift(); if (lihat[n]) continue; lihat[n] = true; tim.push(n); antre = antre.concat(bawah[n] || []); }
+    hasil = {
+      orang: Object.keys(km).map(function (n) { var k = km[n]; return [n, k.Nama, k.KodeJabatan, k.Jabatan, k.Cabang, k.Dept, tnaDivisi(k.Dept)]; }),
+      timSaya: tim,
+      gap: tnaHitungGap(ss, p, km).map(function (g) { return [String(g.NIK), g.KodeKompetensi, g.Actual === "" ? null : Number(g.Actual), Number(g.Required), g.KategoriGap]; }),
+      itp: tnaBaca(ss, "ITP").map(function (r) { return [String(r.NIK), r.KodeTraining, r.Kategori, r.Bulan, Number(r.Jam || 0), r.Status]; }),
+      outputTerakhir: String(p.OutputTerakhir || "")
+    };
+    tnaBaca(ss, "ITP").forEach(function (r) { var c = katBy[r.KodeTraining]; if (c && !train[r.KodeTraining]) train[r.KodeTraining] = [c.Judul, String(c.Kategori), c.DurasiJam === "" ? "" : Number(c.DurasiJam), String(c.Status || ""), kompList(c).map(function (x) { return (kamus[x] || [x])[0]; }).join(", "), c.LevelTarget === "" ? "" : Number(c.LevelTarget)]; });
+  }
   return {
-    ok: true, dibuat: new Date().toISOString(),
+    ok: true, dibuat: new Date().toISOString(), hasil: hasil,
     jabatan: jab.map(function (j) { return { kode: j.KodeJabatan, title: j.JobTitle, dept: j.Dept, div: tnaDivisi(j.Dept), jml: Number(j.JmlIncumbent || 0), lokasi: j.Lokasi, statusJD: j.StatusJD }; }),
     kamus: kamus,
     matriks: mat.filter(function (m) { return tanda[m.KodeJabatan]; }).map(function (m) { return [m.KodeJabatan, m.KodeKompetensi, Number(m.RequiredLevel), Number(m.Bobot || 2)]; }),
