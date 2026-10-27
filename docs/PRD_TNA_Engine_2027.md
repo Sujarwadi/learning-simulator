@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 2.1, 26 Okt 2026 (FR14.5 kalender program 2027 satu program tatap muka per bulan, BMDP/SSDP menggantikan istilah Kacab Academy; sebelumnya 2.0: FR10.9 struktur kompetensi: setiap jabatan Behavioral + Technical + Leadership tanpa tumpang tindih; Level 1 tampil di form; sebelumnya hasil self-audit: basis batas IHT = jam karyawan, ringkasan IHT di ITP, label program usulan, silabus 11 program baru; sebelumnya M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
+**Versi dokumen:** 2.2, 27 Okt 2026 (FR10.10 behavioral resmi: 10 kompetensi Kamus Kompetensi Bosowa 2022 dengan Matriks Standar per jenjang, BH-01..08 & LD-05 dihapus, Leadership hanya untuk atasan; sebelumnya 2.1: FR14.5 kalender program 2027 satu program tatap muka per bulan, BMDP/SSDP menggantikan istilah Kacab Academy; sebelumnya 2.0: FR10.9 struktur kompetensi: setiap jabatan Behavioral + Technical + Leadership tanpa tumpang tindih; Level 1 tampil di form; sebelumnya hasil self-audit: basis batas IHT = jam karyawan, ringkasan IHT di ITP, label program usulan, silabus 11 program baru; sebelumnya M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -155,11 +155,16 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR10.6 Lokasi kelas:** kelas tatap muka dibentuk **per cabang**; kelas online digabung lintas cabang.
 - **FR10.7 Durasi:** AFA 2 jam, AIDW 3 jam, BST/IST/AST masing-masing 12 jam (2 hari).
 - **FR10.8 Sales Leadership Framework & Kacab Academy:** 11 kompetensi SL-01..SL-11 + LD-03/LD-04 dengan required level per tahap jalur Sales Operation (Trainee, Junior, Senior, Supervisor, Branch Head, NOH), menggantikan LD-01/LD-02 generik di jabatan jalur tersebut. Baseline TNA 2027 dipakai untuk Kacab Academy (Track A Kacab existing, Track B SPV future talent). Readiness SPV = proporsi kompetensi dengan Actual >= Required Branch Head.
+- **FR10.10 Behavioral resmi BBM (keputusan 27 Okt, menggantikan bagian Behavioral & LD-05 di FR10.9):**
+  - Sumber tunggal: **Kamus Kompetensi Bosowa 2022 (BBM Thriving Competency Model)**, bab G (definisi, perilaku kunci, indikator per level) dan bab H Tabel 5 **Matriks Standar Kompetensi Behavioral**. Behavioral tidak lagi diturunkan dari JD.
+  - 10 kompetensi, kode sesuai KAMUS KODE KOMPETENSI: CB01 Adaptive, CB02 Communication, CB03 Dedicated, CB04 Monitoring, CB05 Leading with Integrity, CB06 Target Orientation, CB07 Strategic Thinking, CB08 Continuous Learning, CB09 Innovative, CB10 Self-Openness. Checklist L2–L5 = indikator perilaku level tersebut di kamus.
+  - Level dipersyaratkan = kolom jenjang Matriks Standar (Direksi, Div Head, Dept Head, Branch Head, Section Head, SPV, Officers/Specialist, Staff HO, Staff Cabang). Jenjang jabatan ditentukan dari nama jabatan (aturan di file Pemetaan_Behavioral_per_Jabatan).
+  - BH-01..BH-08 dan LD-05 dihapus. **Leadership hanya untuk jabatan atasan** (LD-01..LD-04 dan SL jalur sales); definisi LD-01 dan LD-04 dipertegas supaya tidak dobel dengan CB04 Monitoring dan CB07 Strategic Thinking.
+  - Riwayat training behavioral 2026 (kode CBxx-Ly) langsung dipetakan ke kompetensi CBxx.
 - **FR10.9 Struktur kompetensi (keputusan 26 Okt):**
-  - Setiap jabatan wajib punya tiga kelompok: **Behavioral** (8 kompetensi korporat), **Technical**, dan **Leadership**.
-  - Jabatan staf memakai **LD-05 Self-Leadership & Integrity** (jujur, menepati komitmen, bertanggung jawab atas hasil tanpa diawasi). Level dipersyaratkan: Staff 2, Officer/Supervisor 3, Manager ke atas 4. LD-05 juga menggantikan SL-01 di jalur sales. Program behavioral CB05 "Leading with Integrity" dipetakan ke LD-05.
+  - Setiap jabatan wajib punya tiga kelompok: **Behavioral**, **Technical**, dan **Leadership** (diperbarui FR10.10: Behavioral = 10 kompetensi kamus BBM; Leadership hanya untuk atasan).
   - Tumpang tindih dihapus supaya satu perilaku tidak dinilai dua kali:
-    - LD-03 menjadi **Decision Making** saja (pemecahan masalah dinilai di BH-01 Analytical Thinking).
+    - LD-03 menjadi **Decision Making** saja.
     - TK Coaching & Counseling dihapus dari jabatan yang punya LD-02/SL-02.
     - TK Sales Management & Strategy dan TK Strategic Planning Management dihapus dari jabatan yang punya SL-03/SL-09.
     - TK Marketing Management dihapus dari Sales Force (sudah tercakup SL-06).
