@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.16, 27 Okt 2026. Perubahan: Panduan Pengisian (tombol di halaman masuk, ubin & kartu pengingat di beranda, wajib dibuka sebelum penilaian pertama); Pusat Matrix L&D khusus admin (competency matrix & training matrix per jabatan, dept, divisi, seluruh BBM; penanda Wajib, Wajib bila gap, IHT, Dianjurkan; ekspor PDF A4/A3 lanskap); bagian asumsi, cara pembuktian, dan catatan kebijakan di Landasan Metodologi hanya tampil untuk admin L&D. -->
 <!-- BBLC Studio v3.15, 27 Okt 2026. Perubahan: hasil asesmen menjadi laporan visual bergaya laporan asesor (ringkasan kesesuaian standar + komposisi status, kekuatan & prioritas, profil kompetensi skala 1-5 dengan penanda syarat/atasan/self/aktual, radar 10 behavioral vs standar jenjang, matriks prioritas gap x bobot, persepsi diri vs atasan, rencana 70/20/10 bernomor, navigasi bagian); ITP menjadi Peta Belajar 2027 (jam terencana vs target, strip 12 bulan yang bisa diketuk, agenda per bulan dengan kompetensi yang dikembangkan); tabel tetap tersedia sebagai tampilan alternatif. -->
 <!-- BBLC Studio v3.14, 27 Okt 2026. Perubahan (koreksi simulasi tim L&D): semua training penutup gap tampil di "Training Wajib 2027" (dikelompokkan: menutup gap kompetensi, program wajib jabatan & korporat), tidak ada lagi batas 4 training/tahun maupun status ditunda, validator hanya bisa mengganti modul (opsi "tidak perlu training" dihapus); tombol "Dasar ilmiah" dipindah ke catatan kecil di bagian bawah form dan hasil (rujukan opsional, bukan bacaan wajib penilai); label kategori "Dianjurkan" diganti "Wajib · tutup gap"; parameter Maks training Dianjurkan dihapus dari Panel Admin. -->
 <!-- BBLC Studio v3.13, 27 Okt 2026. Perubahan: bahasa desain disamakan dengan Vokasta (keluarga produk yang sama): tema gelap bawaan dengan toggle tema terang di setiap header, header sticky blur, kartu slate, aksen amber, tombol kirim emerald, badge pill, halaman pembuka dengan kartu masuk menonjol, ubin menu berkelompok (Saya, Tim, Referensi, Admin), kartu window berstatus. Logika tidak berubah. -->
@@ -355,6 +356,112 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
   .yr{gap:2px}.yr .jm{font-size:9.5px}
 }
 @media print{.rpt-nav{display:none}}
+/* ---------- Panduan pengisian (v3.16) ---------- */
+.pd-h{font-size:22px;line-height:1.35;color:var(--ink);margin:8px 0 10px;font-weight:800;letter-spacing:-.3px}
+.pd p{color:var(--text);line-height:1.6;font-size:14px}
+.pd-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
+.pd-flow div{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center;font-size:13px;color:var(--text)}
+.pd-flow b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-size:13px}
+.pd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px}
+.pd-grid h4{margin:0 0 4px;font-size:14px;color:var(--ink)}
+.pd-grid p{margin:0;font-size:13.5px}
+.pd-steps{margin:0;padding-left:20px;display:grid;gap:10px;font-size:14px;color:var(--text);line-height:1.55}
+.pd-steps b{color:var(--ink)}
+.pd-ex{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
+.pd-ex-c{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:12px}
+.pd-ex-t{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.4px;margin-bottom:8px;text-transform:uppercase}
+.pd-chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:3px 0}
+.pd-chk::before{content:"";width:16px;height:16px;border-radius:4px;border:2px solid var(--line-strong);box-sizing:border-box;flex:0 0 auto}
+.pd-chk.on{color:var(--ink)}
+.pd-chk.on::before{background:var(--green-cta);border-color:var(--green-cta);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");background-size:12px;background-position:center;background-repeat:no-repeat}
+.pd-ex-r{margin-top:8px;font-size:12.5px;color:var(--text);line-height:1.45;border-top:1px solid var(--line);padding-top:8px}
+.pd-time{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pd-time div{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
+.pd-time b{display:block;color:var(--ink);font-size:14px}
+.pd-time span{font-size:12.5px;color:var(--muted)}
+.pd-faq details{border-bottom:1px solid var(--line);padding:10px 0}
+.pd-faq details:last-child{border-bottom:0}
+.pd-faq summary{cursor:pointer;font-weight:600;color:var(--ink);font-size:14px}
+.pd-faq p{margin:8px 0 0;font-size:13.5px}
+.pd-done{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:30px}
+.pd-nudge{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--radius);padding:14px 18px;margin-bottom:var(--s4)}
+.pd-nudge b{color:var(--ink)}
+.pd-nudge .hint{margin:2px 0 0}
+.lp-guide{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:12px 14px;border-radius:12px;border:1px dashed var(--accent-line);background:var(--accent-soft);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-align:left;min-height:44px}
+.lp-guide:hover,.lp-guide:focus-visible{border-style:solid}
+.lp-guide svg{width:20px;height:20px;stroke:var(--link);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.khusus-ld{display:none}
+body.role-admin .khusus-ld{display:block}
+body.role-admin span.khusus-ld{display:inline}
+@media (max-width:720px){.pd-flow,.pd-grid,.pd-ex,.pd-time{grid-template-columns:1fr}.pd-h{font-size:19px}}
+/* ---------- Pusat Matrix L&D (v3.16) ---------- */
+.mx-ctrl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;position:sticky;top:64px;z-index:6}
+.mx-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mx-lbl{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.seg{display:inline-flex;background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;min-height:36px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#mx-pilih{min-width:260px;max-width:420px;margin:0}
+.mx-pdf{width:auto;margin-left:auto;display:inline-flex;gap:8px;align-items:center}
+.mx-pdf svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mx-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 20px;align-items:flex-end;margin:4px 0 12px}
+.mx-title{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.3px;margin:2px 0}
+.mx-meta{font-size:12.5px;color:var(--muted)}
+.mx-stats{display:flex;gap:10px;flex-wrap:wrap}
+.mx-stat{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-width:92px}
+.mx-stat b{display:block;font-size:20px;color:var(--ink)}
+.mx-stat span{font-size:11.5px;color:var(--muted)}
+.mx-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted);margin:0 0 10px;align-items:center}
+.mx-legend span{display:inline-flex;align-items:center;gap:6px}
+.mx-wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.mx{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content}
+table.mx th{text-transform:none;letter-spacing:normal;font-weight:400}
+table.mx th,table.mx td{border-bottom:1px solid var(--line);padding:0;text-align:center}
+table.mx thead th{position:sticky;top:0;z-index:2;background:var(--surface);vertical-align:bottom;border-bottom:1px solid var(--line-strong)}
+table.mx thead th.mx-jh{width:30px;min-width:30px;max-width:30px;height:170px;padding:6px 0}
+.mx-jh span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-weight:600;color:var(--text);font-size:11px;display:inline-block;max-height:158px;overflow:hidden;text-overflow:ellipsis}
+.mx-jh small{display:block;font-size:9.5px;color:var(--muted);margin-top:4px}
+table.mx .mx-rh{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;padding:6px 12px;min-width:300px;max-width:340px;border-right:1px solid var(--line-strong)}
+table.mx thead .mx-rh{z-index:3}
+.mx-rh .n{color:var(--ink);font-weight:600;font-size:12.5px;line-height:1.3}
+.mx-rh .s{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.3}
+tr.mx-grp td{position:sticky;left:0;background:var(--inset);text-align:left;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+td.mx-c{width:30px;height:30px}
+.mx-cell{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-weight:700;font-size:11.5px}
+.lv1{background:rgba(56,189,248,.10);color:var(--text)}.lv2{background:rgba(56,189,248,.22);color:var(--ink)}.lv3{background:rgba(56,189,248,.40);color:var(--ink)}
+.lv4{background:rgba(56,189,248,.62);color:#0B1120}.lv5{background:rgba(56,189,248,.88);color:#0B1120}
+.mx-cell.inti{box-shadow:inset 0 0 0 2px var(--ink)}
+.mk-W{background:var(--red);color:#fff}.mk-G{background:var(--amber);color:#0B1120}.mk-I{background:var(--green);color:#0B1120}.mk-P{background:var(--subtle);color:var(--muted);font-size:14px}
+:root[data-theme="light"] .mk-I{color:#fff}
+.mx-one{display:grid;grid-template-columns:minmax(0,1.2fr) 150px 92px minmax(0,1.6fr);gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.mx-one:last-child{border-bottom:0}
+.mx-one .n{color:var(--ink);font-weight:600}
+.mx-one .d{color:var(--muted);font-size:12px;line-height:1.4}
+.pips{display:flex;gap:3px}
+.pips i{width:22px;height:8px;border-radius:3px;background:var(--subtle)}
+.pips i.on{background:var(--sky)}
+.bobot{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);text-align:center}
+.bobot.b3{color:var(--ink);border-color:var(--ink)}
+.mx-tr{display:grid;grid-template-columns:34px minmax(0,1fr) 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.mx-tr:last-child{border-bottom:0}
+.mx-tr .n{color:var(--ink);font-weight:600}
+.mx-tr .d{color:var(--muted);font-size:12px}
+.mx-tr .j{text-align:right;font-weight:700;color:var(--text)}
+.mx-cetak{display:none}
+@media (max-width:720px){#mx-pilih{min-width:0;width:100%}.mx-ctl{width:100%}.mx-pdf{margin-left:0}.mx-one{grid-template-columns:minmax(0,1fr) auto}.mx-one .d,.mx-one .pips{grid-column:1 / -1}
+  table.mx .mx-rh{min-width:170px;max-width:200px}.mx-ctrl{position:static}}
+@media print{
+  body.cetak-matrix *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.cetak-matrix .screen:not(#scr-tna-pusat),body.cetak-matrix header.app,body.cetak-matrix .mx-ctrl,body.cetak-matrix .demo-bar,body.cetak-matrix #demo-fab,body.cetak-matrix #demo-panel{display:none !important}
+  body.cetak-matrix .body-wrap{max-width:none;padding:0}
+  body.cetak-matrix .mx-wrap{max-height:none;overflow:visible;border:0}
+  body.cetak-matrix table.mx thead th{position:static}
+  body.cetak-matrix table.mx .mx-rh,body.cetak-matrix tr.mx-grp td{position:static}
+  body.cetak-matrix .card{box-shadow:none;border:0;padding:0}
+  body.cetak-matrix .mx-cetak{display:block;font-size:10px;color:#475569;margin-top:8px}
+  body.cetak-matrix tr{break-inside:avoid}
+}
 </style>
 <script>
 /* Tema: gelap bawaan, terang opsional (disimpan di perangkat ini saja) */
@@ -397,6 +504,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
           <div class="hint">Login pertama kali akan diminta membuat PIN baru.</div>
           <div class="err" id="err-login" role="alert"></div>
           <div style="margin-top:20px"><button class="btn btn-red" id="btn-login">Masuk <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+          <button type="button" class="lp-guide" id="btn-lp-panduan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg><span>Belum pernah mengisi? <u>Baca Panduan Pengisian</u> (3 menit)</span></button>
           <div class="lp-when"><div><b>27 Okt – 3 Nov 2026</b>Window asesmen</div><div><b>4 Nov 2026</b>Hasil, ITP &amp; kalender terbit</div></div>
         </div>
       </main>
@@ -574,6 +682,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
     </header>
     <div class="body-wrap">
       <div class="card" id="tna-window-card" style="padding:14px 18px"></div>
+      <div id="tna-panduan-card"></div>
       <div id="tna-todo-card"></div>
       <div id="tna-home-loading"><div class="loading"><div class="spinner"></div>Memuat tugas asesmen Anda&hellip;</div></div>
       <div id="tna-home-body" style="display:none">
@@ -589,6 +698,8 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
           <button class="tile" id="btn-tna-itp"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg></span><span class="bd"><span class="tile-g">Saya</span><span class="tile-t">ITP &amp; Kalender Training Saya</span><span class="tile-d">Training, coaching, dan penugasan Anda selama 2027</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-tim" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Dashboard Tim &amp; Training Tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Competency &amp; training matrix per jabatan, dept, divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan Pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-matriks"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Matriks Kompetensi Jabatan</span><span class="tile-d">Kompetensi dan level yang dipersyaratkan</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-katalog"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Katalog Training &amp; Silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-landasan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Landasan Metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
@@ -730,6 +841,120 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
   </section>
 
   <!-- ============ TNA 2027: LANDASAN METODOLOGI ============ -->
+  <!-- ============ PANDUAN PENGISIAN (dibaca sebelum mengisi) ============ -->
+  <section class="screen" id="scr-tna-panduan">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div style="min-width:0"><div class="app-title">PANDUAN PENGISIAN</div><div class="app-sub">Baca 3 menit sebelum mulai menilai</div></div>
+      <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
+    </header>
+    <div class="body-wrap pd" style="max-width:860px">
+      <div class="pd-nudge" id="pd-gerbang" style="display:none">Sebelum mengisi penilaian pertama Anda, baca panduan singkat ini sampai selesai, lalu tekan <b>Saya sudah membaca</b> di bagian bawah.</div>
+      <nav class="rpt-nav" aria-label="Bagian panduan">
+        <a href="#pd-1" data-lompat="pd-1">Tujuan</a><a href="#pd-2" data-lompat="pd-2">Siapa mengisi</a><a href="#pd-3" data-lompat="pd-3">Langkah</a>
+        <a href="#pd-4" data-lompat="pd-4">Cara level dihitung</a><a href="#pd-5" data-lompat="pd-5">Menilai dengan adil</a><a href="#pd-6" data-lompat="pd-6">Jadwal</a><a href="#pd-7" data-lompat="pd-7">Tanya jawab</a>
+      </nav>
+
+      <div class="card pd-hero" id="pd-1">
+        <div class="rpt-eyebrow">Tujuan TNA 2027</div>
+        <h2 class="pd-h">Menemukan kebutuhan belajar setiap karyawan, lalu menyusunnya menjadi rencana training 2027.</h2>
+        <p>Hasil penilaian dipakai <b>untuk pengembangan</b>: menentukan training, coaching, dan penugasan yang paling Anda dan tim butuhkan. Hasil ini <b>tidak dipakai</b> untuk keputusan gaji, bonus, promosi, atau sanksi. Karena itu, nilailah sejujur mungkin.</p>
+        <div class="pd-flow">
+          <div><b>1</b><span>Karyawan menilai diri</span></div><div><b>2</b><span>Atasan menilai</span></div><div><b>3</b><span>Head unit memvalidasi</span></div><div><b>4</b><span>ITP &amp; kalender terbit</span></div>
+        </div>
+      </div>
+
+      <h2 class="sect" id="pd-2">Siapa mengisi apa</h2>
+      <div class="card">
+        <div class="pd-grid">
+          <div><h4>Semua karyawan</h4><p>Mengisi <b>Penilaian Diri</b> sekali. Tombolnya ada di beranda: "Nilai diri saya".</p></div>
+          <div><h4>Atasan langsung</h4><p>Menilai setiap anggota tim di daftar <b>Tim yang Anda Nilai</b>. Untuk sales junior, penilaian dilakukan per kelompok.</p></div>
+          <div><h4>Head unit (validator)</h4><p>Memeriksa hasil, boleh mengubah rencana pengembangan, lalu <b>Setujui</b> atau <b>Kembalikan ke Penilai</b>.</p></div>
+          <div><h4>Delegasi</h4><p>Bila tim sangat besar, atasan dapat meminta Leader mengisi lebih dulu. Atasan tetap meninjau dan menyetujui.</p></div>
+        </div>
+      </div>
+
+      <h2 class="sect" id="pd-3">Langkah mengisi</h2>
+      <div class="card">
+        <ol class="pd-steps">
+          <li><b>Buka nama yang akan dinilai.</b> Setiap kompetensi tampil sebagai satu kartu, lengkap dengan definisinya.</li>
+          <li><b>Baca kalimat perilaku Level 2 sampai Level 5.</b> Setiap kalimat menggambarkan apa yang terlihat di pekerjaan sehari-hari.</li>
+          <li><b>Centang perilaku yang benar-benar terlihat secara konsisten dalam 3 sampai 6 bulan terakhir.</b> Bukan sekali dua kali, bukan "pasti bisa kalau diminta".</li>
+          <li><b>Pilih N/A</b> hanya bila kompetensi itu memang tidak bisa dinilai (misalnya belum pernah ada kesempatan), lalu tulis alasannya.</li>
+          <li><b>Tekan Kirim Penilaian.</b> Isian tersimpan otomatis selama mengisi, jadi Anda bisa melanjutkan dari perangkat lain.</li>
+          <li><b>Lihat hasilnya.</b> Atasan langsung mendapat laporan profil, prioritas, dan rencana 70/20/10. Karyawan menerima ITP dan kalender setelah output terbit.</li>
+        </ol>
+      </div>
+
+      <h2 class="sect" id="pd-4">Cara level dihitung</h2>
+      <div class="card">
+        <p style="margin-top:0">Anda tidak memilih angka. Sistem menghitung level dari centang Anda: <b>Level 1</b> adalah titik awal, lalu naik satu level untuk setiap centang <b>berurutan</b> mulai Level 2.</p>
+        <div class="pd-ex">
+          <div class="pd-ex-c"><div class="pd-ex-t">Contoh A</div>
+            <div class="pd-chk on">Level 2</div><div class="pd-chk on">Level 3</div><div class="pd-chk">Level 4</div><div class="pd-chk">Level 5</div>
+            <div class="pd-ex-r">Hasil: <b>Level 3 · Intermediate</b></div></div>
+          <div class="pd-ex-c"><div class="pd-ex-t">Contoh B (melompat)</div>
+            <div class="pd-chk on">Level 2</div><div class="pd-chk">Level 3</div><div class="pd-chk on">Level 4</div><div class="pd-chk">Level 5</div>
+            <div class="pd-ex-r">Hasil: <b>Level 2</b>, dan sistem memberi tanda supaya Anda cek ulang Level 3</div></div>
+          <div class="pd-ex-c"><div class="pd-ex-t">Contoh C</div>
+            <div class="pd-chk">Level 2</div><div class="pd-chk">Level 3</div><div class="pd-chk">Level 4</div><div class="pd-chk">Level 5</div>
+            <div class="pd-ex-r">Hasil: <b>Level 1 · Awareness</b></div></div>
+        </div>
+        <p class="hint">Skala: 1 Awareness, 2 Basic, 3 Intermediate, 4 Advanced, 5 Expert. Setiap jabatan punya level yang dipersyaratkan; selisihnya menjadi dasar rencana belajar.</p>
+      </div>
+
+      <h2 class="sect" id="pd-5">Menilai dengan adil</h2>
+      <div class="card">
+        <div class="pd-grid">
+          <div><h4>Nilai yang terlihat, bukan kesan</h4><p>Ingat contoh kejadian nyata. Bila tidak ada contohnya, jangan dicentang.</p></div>
+          <div><h4>Satu kompetensi, satu penilaian</h4><p>Hindari menilai semua kompetensi tinggi hanya karena orangnya unggul di satu hal.</p></div>
+          <div><h4>Lihat 3 sampai 6 bulan</h4><p>Jangan hanya mengingat kejadian minggu lalu, baik yang bagus maupun yang kurang.</p></div>
+          <div><h4>Jujur lebih menolong</h4><p>Nilai yang terlalu tinggi membuat orang kehilangan training yang sebenarnya ia butuhkan.</p></div>
+        </div>
+      </div>
+
+      <h2 class="sect" id="pd-6">Jadwal</h2>
+      <div class="card">
+        <div class="pd-time">
+          <div><b>27 Okt – 3 Nov 2026</b><span>Window penilaian, ditutup 3 Nov pukul 23.59 WITA</span></div>
+          <div><b>Selama window</b><span>Head unit memvalidasi hasil yang sudah masuk</span></div>
+          <div><b>4 Nov 2026</b><span>Hasil, ITP, dan kalender training 2027 terbit</span></div>
+        </div>
+      </div>
+
+      <h2 class="sect" id="pd-7">Tanya jawab</h2>
+      <div class="card pd-faq">
+        <details><summary>Apakah atasan melihat penilaian diri saya?</summary><p>Ya. Atasan dan Head unit melihat penilaian diri sebagai bahan diskusi. Nilai akhir menggabungkan penilaian atasan dan penilaian diri.</p></details>
+        <details><summary>Bisakah saya mengubah isian setelah dikirim?</summary><p>Bisa, selama window penilaian masih dibuka. Bila hasilnya sudah disetujui Head unit, perubahan Anda akan ditinjau ulang olehnya.</p></details>
+        <details><summary>Ada kompetensi yang menurut saya tidak sesuai dengan pekerjaan saya.</summary><p>Nilai apa adanya, lalu sampaikan ke L&amp;D. Masukan Anda dipakai untuk menyempurnakan matriks kompetensi jabatan.</p></details>
+        <details><summary>Siapa yang bisa dihubungi bila ada kendala?</summary><p>Tim Learning &amp; Development (BBLC) di HO Makassar.</p></details>
+      </div>
+
+      <div class="card pd-done">
+        <div><b>Siap mulai?</b><div class="hint" style="margin:2px 0 0">Panduan ini selalu bisa dibuka lagi dari beranda.</div></div>
+        <button class="btn btn-red" id="btn-pd-selesai" style="width:auto">Saya sudah membaca</button>
+      </div>
+    </div>
+  </section>
+  <!-- ============ PUSAT MATRIX L&D (admin) ============ -->
+  <section class="screen" id="scr-tna-pusat">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div style="min-width:0"><div class="app-title">PUSAT MATRIX L&amp;D</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
+      <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:1280px">
+      <div class="card mx-ctrl">
+        <div class="mx-ctl"><span class="mx-lbl">Tampilan</span><div class="seg" role="group" aria-label="Jenis matrix" id="mx-jenis">
+          <button type="button" data-v="komp" aria-pressed="true">Competency Matrix</button><button type="button" data-v="train" aria-pressed="false">Training Matrix</button></div></div>
+        <div class="mx-ctl"><span class="mx-lbl">Lingkup</span><div class="seg" role="group" aria-label="Lingkup" id="mx-lingkup">
+          <button type="button" data-v="jab" aria-pressed="false">Jabatan</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="all" aria-pressed="false">Seluruh BBM</button></div></div>
+        <div class="mx-ctl" id="mx-pilih-wrap"><label class="mx-lbl" for="mx-pilih">Pilih</label><select id="mx-pilih"></select></div>
+        <button class="btn btn-ghost mx-pdf" id="btn-mx-pdf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>Ekspor PDF</button>
+      </div>
+      <div id="mx-body"><div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div></div>
+    </div>
+  </section>
   <section class="screen" id="scr-tna-landasan">
     <header class="app">
       <div class="logo-mark">CD</div>
@@ -752,19 +977,20 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
         <h3>4. Level dihitung berjenjang</h3>
         <p>Level = jumlah centang berurutan dari Level 2 ke atas. Bila centang melompat (misalnya L4 dicentang tapi L3 tidak), sistem memberi tanda karena perilaku level atas seharusnya mencakup level di bawahnya (skala kumulatif Guttman, 1944).</p>
         <h3>5. Penilaian atasan diberi bobot lebih besar</h3>
-        <p>Nilai aktual = 70% penilaian atasan + 30% penilaian diri. Riset menunjukkan penilaian diri cenderung lebih tinggi dan kesesuaiannya dengan penilaian atasan rendah (Harris &amp; Schaubroeck, 1988; Heidemeier &amp; Moser, 2009). <b>Catatan:</b> arah pembobotan berdasar riset, tetapi angka 70/30 adalah keputusan kebijakan L&amp;D, bukan angka baku dari riset.</p>
+        <p>Nilai aktual = 70% penilaian atasan + 30% penilaian diri. Riset menunjukkan penilaian diri cenderung lebih tinggi dan kesesuaiannya dengan penilaian atasan rendah (Harris &amp; Schaubroeck, 1988; Heidemeier &amp; Moser, 2009). <span class="khusus-ld"><b>Catatan internal L&amp;D:</b> arah pembobotan berdasar riset, tetapi angka 70/30 adalah keputusan kebijakan L&amp;D, bukan angka baku dari riset.</span></p>
         <h3>6. Menjaga kualitas penilaian</h3>
         <p>Kepala Cabang dinilai dua penilai (dua NOH). Sistem menandai pola yang perlu dicek: semua level sama (straight-lining), mayoritas Level 5 (leniency), dan perbedaan besar antara atasan dan diri sendiri. Dasarnya: penilaian satu atasan memiliki keandalan terbatas, rata-rata sekitar 0,52 (Viswesvaran, Ones &amp; Schmidt, 1996), dan kesalahan penilai yang umum (Saal, Downey &amp; Lahey, 1980).</p>
         <h3>7. Analisis kebutuhan tiga lapis</h3>
         <p>Organisasi (tema 2027: technical skill dan leadership), tugas (matriks kompetensi jabatan), dan orang (hasil asesmen). Kerangka ini standar dalam analisis kebutuhan pelatihan (McGehee &amp; Thayer, 1961; Goldstein &amp; Ford, 2002).</p>
         <h3>8. Prioritas = gap × bobot</h3>
-        <p>Kompetensi dengan selisih terbesar pada aspek yang paling penting bagi jabatan didahulukan. Ini mengikuti model skor kebutuhan berbobot (Borich, 1980). Bobot per kompetensi saat ini ditetapkan L&amp;D dan masih akan diuji bersama ahli (SME).</p>
+        <p>Kompetensi dengan selisih terbesar pada aspek yang paling penting bagi jabatan didahulukan. Ini mengikuti model skor kebutuhan berbobot (Borich, 1980). <span class="khusus-ld">Catatan internal L&amp;D: bobot per kompetensi saat ini ditetapkan L&amp;D dan masih akan diuji bersama ahli (SME).</span></p>
         <h3>9. Rekomendasi 70/20/10</h3>
-        <p>Tiga jalur belajar: penugasan nyata (70), coaching dan mentoring (20), training formal (10). Masing-masing jalur didukung riset: belajar dari tantangan kerja (DeRue &amp; Wellman, 2009), coaching (Jones, Woods &amp; Guillaume, 2016), mentoring (Allen dkk., 2004). <b>Catatan:</b> angka 70/20/10 dipakai sebagai pengingat tiga jalur, bukan proporsi wajib, karena rasionya sendiri tidak didukung data empiris (Clardy, 2018).</p>
+        <p>Tiga jalur belajar: penugasan nyata (70), coaching dan mentoring (20), training formal (10). Masing-masing jalur didukung riset: belajar dari tantangan kerja (DeRue &amp; Wellman, 2009), coaching (Jones, Woods &amp; Guillaume, 2016), mentoring (Allen dkk., 2004). <span class="khusus-ld"><b>Catatan internal L&amp;D:</b> angka 70/20/10 dipakai sebagai pengingat tiga jalur, bukan proporsi wajib, karena rasionya sendiri tidak didukung data empiris (Clardy, 2018).</span></p>
         <h3>10. Desain program kepemimpinan</h3>
         <p>SSDP (Sales Supervisor) dan BMDP (Kepala Cabang) mengikuti tahapan Leadership Pipeline (Charan, Drotter &amp; Noel, 2011) dan prinsip pelatihan kepemimpinan yang efektif: berbasis kebutuhan, ada praktik dan umpan balik, berjarak, dan dikerjakan di tempat kerja (Lacerenza dkk., 2017).</p>
       </div>
 
+      <div class="khusus-ld"><div class="hint" style="margin:18px 0 0;color:var(--amber)">Bagian berikut hanya terlihat oleh admin L&amp;D.</div>
       <h2 class="sect">Yang masih berupa asumsi</h2>
       <div class="card" style="padding:4px 18px 16px">
         <ul>
@@ -785,7 +1011,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
           <li><b>Stabilitas dan dampak:</b> asesmen ulang tengah tahun 2027.</li>
           <li><b>Briefing penilai:</b> Frame-of-Reference training 30 menit sebelum menilai, terbukti meningkatkan akurasi penilaian (Woehr &amp; Huffcutt, 1994; Roch dkk., 2012).</li>
         </ol>
-      </div>
+      </div></div>
 
       <h2 class="sect">Daftar pustaka</h2>
       <div class="card" style="padding:12px 18px">
@@ -1480,11 +1706,15 @@ async function masukTNA(loginResp){
   $("tna-nama").textContent = state.nama + (state.jabatan ? " · " + state.jabatan : "");
   $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
   $("btn-tna-studio").style.display = tna.isAdmin ? "" : "none";
+  $("btn-tna-pusat").style.display = tna.isAdmin ? "" : "none";
+  document.body.classList.toggle("role-admin", tna.isAdmin);
+  pdPindahkanTanda();
   show("scr-tna-home");
   await muatBerandaTNA();
 }
 
 async function muatBerandaTNA(){
+  renderNudgePanduan();
   $("tna-home-loading").style.display = "block"; $("tna-home-body").style.display = "none";
   try{
     const r = await tnaApi("tnaKonteks");
@@ -1586,6 +1816,7 @@ function itemOrang(t){
 /* ---------- Form asesmen: checklist perilaku L2..L5, skor Guttman ---------- */
 let tnaFormMode = "isi";
 async function bukaFormTNA(sasaran, mode){
+  if((mode || "isi") === "isi" && !pdSudah()){ bukaPanduan(()=> bukaFormTNA(sasaran, mode)); return; }
   tnaFormMode = mode || "isi";
   show("scr-tna-form");
   $("tna-form-list").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat kompetensi&hellip;</div>';
@@ -2106,6 +2337,163 @@ function vizPetaBelajar(r, bulanAktif){
   }).join("");
   return hero + strip + '<h2 class="sect">Agenda Belajar</h2><div class="card">'+agenda+'<div class="hint" style="margin-top:12px">Ketuk nama training untuk melihat tujuan, materi, dan cara evaluasinya. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>';
 }
+
+
+/* ---------- Panduan pengisian: dibaca sebelum penilaian pertama (v3.16) ---------- */
+// Tanda "sudah membaca" disimpan di perangkat (per NIK); hanya kenyamanan, bukan data penting.
+function pdKunci(){ return "bblc_panduan_" + (state.nik || "pra"); }
+function pdSudah(){ try{ return localStorage.getItem(pdKunci()) === "1"; }catch(e){ return false; } }
+function pdTandai(){ try{ localStorage.setItem(pdKunci(), "1"); }catch(e){} }
+function pdPindahkanTanda(){ try{ if(localStorage.getItem("bblc_panduan_pra") === "1") localStorage.setItem(pdKunci(), "1"); }catch(e){} }
+let pdLanjut = null;
+function bukaPanduan(lanjut){
+  pdLanjut = lanjut || null;
+  $("pd-gerbang").style.display = lanjut ? "" : "none";
+  bukaLayar("scr-tna-panduan");
+}
+$("btn-lp-panduan").onclick = ()=> bukaPanduan(null);
+$("btn-tna-panduan").onclick = ()=> bukaPanduan(null);
+$("btn-pd-selesai").onclick = ()=>{
+  pdTandai();
+  const lanjut = pdLanjut; pdLanjut = null;
+  if(lanjut){ navStack.pop(); lanjut(); return; }
+  const tujuan = navStack.pop() || (state.nik ? "scr-tna-home" : "scr-login");
+  show(tujuan); window.scrollTo(0,0);
+  if(tujuan === "scr-tna-home") muatBerandaTNA();
+};
+function renderNudgePanduan(){
+  const el = $("tna-panduan-card"); if(!el) return;
+  el.innerHTML = pdSudah() ? "" : '<div class="pd-nudge"><div><b>Langkah pertama: baca Panduan Pengisian</b><div class="hint">3 menit. Menjelaskan cara menilai dan cara level dihitung, supaya hasilnya adil dan akurat.</div></div><button class="btn btn-red" style="width:auto" id="btn-nudge-panduan">Baca panduan</button></div>';
+  if($("btn-nudge-panduan")) $("btn-nudge-panduan").onclick = ()=> bukaPanduan(null);
+}
+$("btn-tna-pusat").onclick = ()=> bukaPusatMatrix();
+/* ---------- Pusat Matrix L&D (v3.16): competency & training matrix per jabatan / dept / divisi / BBM, siap ekspor PDF ---------- */
+const mx = { data:null, jenis:"komp", lingkup:"div", pilih:"" };
+const MX_KAT = ["Behavioral","Leadership","Technical"];
+const MX_BOBOT = { 3:"Inti", 2:"Penting", 1:"Pendukung" };
+const MX_TANDA = {
+  W:["Wajib","Wajib diikuti seluruh pemegang jabatan (program korporat, program jabatan, sertifikasi)"],
+  G:["Wajib bila gap","Wajib bila hasil asesmen menunjukkan gap pada kompetensi terkait"],
+  I:["IHT Sabtu","In-house training Sabtu di cabang (pola jam 2026)"],
+  P:["Dianjurkan","Pengayaan opsional, baik untuk diikuti; mengisi target 3 jam/bulan"]
+};
+function mxKat(k){ return k === "Behavioral" ? "Behavioral" : (k === "Technical" ? "Technical" : "Leadership"); }
+async function bukaPusatMatrix(){
+  bukaLayar("scr-tna-pusat");
+  if(!mx.data){
+    $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div>';
+    try{ mx.data = await tnaApi("tnaMatrixOutput"); }
+    catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return; }
+  }
+  mxIsiPilihan(); renderMatrix();
+}
+function mxJabatanLingkup(){
+  const J = mx.data.jabatan;
+  if(mx.lingkup === "all") return J;
+  if(mx.lingkup === "jab") return J.filter(j=>j.kode===mx.pilih);
+  if(mx.lingkup === "dept") return J.filter(j=>j.dept===mx.pilih);
+  return J.filter(j=>j.div===mx.pilih);
+}
+function mxIsiPilihan(){
+  const J = mx.data.jabatan.slice().sort((a,b)=> a.div.localeCompare(b.div) || a.dept.localeCompare(b.dept) || a.title.localeCompare(b.title));
+  let opsi = [];
+  if(mx.lingkup === "jab") opsi = J.map(j=>[j.kode, j.title+" · "+j.dept]);
+  else if(mx.lingkup === "dept") opsi = [...new Set(J.map(j=>j.dept))].map(d=>[d, d+" ("+J.filter(j=>j.dept===d).length+" jabatan)"]);
+  else if(mx.lingkup === "div") opsi = [...new Set(J.map(j=>j.div))].map(d=>[d, d+" ("+J.filter(j=>j.div===d).length+" jabatan)"]);
+  $("mx-pilih-wrap").style.display = mx.lingkup === "all" ? "none" : "";
+  if(!opsi.some(o=>o[0]===mx.pilih)) mx.pilih = opsi.length ? opsi[0][0] : "";
+  $("mx-pilih").innerHTML = opsi.map(o=>'<option value="'+esc(o[0])+'"'+(o[0]===mx.pilih?' selected':'')+'>'+esc(o[1])+'</option>').join("");
+}
+function mxJudulLingkup(js){
+  if(mx.lingkup === "all") return "Seluruh BBM";
+  if(mx.lingkup === "jab") return js[0] ? js[0].title : "-";
+  return (mx.lingkup === "div" ? "Divisi " : "Dept ") + mx.pilih;
+}
+function renderMatrix(){
+  const js = mxJabatanLingkup();
+  if(!js.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Tidak ada jabatan pada pilihan ini.</div></div>'; return; }
+  const org = js.reduce((a,j)=>a+j.jml,0);
+  const tgl = new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+  const isi = mx.jenis === "komp" ? mxKompetensi(js) : mxTraining(js);
+  const head = '<div class="mx-head"><div><div class="rpt-eyebrow">'+(mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+' 2027</div>'+
+    '<div class="mx-title">'+esc(mxJudulLingkup(js))+'</div><div class="mx-meta">'+(js.length===1?esc(js[0].dept+" · Divisi "+js[0].div):js.length+" jabatan")+' · '+org+' karyawan · disusun '+tgl+'</div></div>'+
+    '<div class="mx-stats">'+isi.stats.map(s=>'<div class="mx-stat"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>').join("")+'</div></div>';
+  $("mx-body").innerHTML = '<div class="card">'+head+isi.html+'<div class="mx-cetak">Sumber: BBLC TNA Engine 2027 (Kamus Kompetensi Bosowa 2022 untuk behavioral; Job Description untuk technical). Dicetak '+tgl+'.</div></div>';
+}
+function mxKompetensi(js){
+  const D = mx.data, set = new Set(js.map(j=>j.kode)), sel = {};
+  D.matriks.forEach(([kj,kk,req,bb])=>{ if(set.has(kj)) (sel[kk] = sel[kk] || {})[kj] = [req,bb]; });
+  const kode = Object.keys(sel).sort((a,b)=> MX_KAT.indexOf(mxKat(D.kamus[a][1])) - MX_KAT.indexOf(mxKat(D.kamus[b][1])) || (a.startsWith("CB")&&b.startsWith("CB") ? a.localeCompare(b) : Object.keys(sel[b]).length - Object.keys(sel[a]).length || D.kamus[a][0].localeCompare(D.kamus[b][0])));
+  const nKat = k => kode.filter(x=>mxKat(D.kamus[x][1])===k).length;
+  const stats = [["Behavioral", nKat("Behavioral")],["Leadership", nKat("Leadership")],["Technical", nKat("Technical")]];
+  const legend = '<div class="mx-legend"><span>Angka = level yang dipersyaratkan (1 Awareness s/d 5 Expert)</span>'+[1,2,3,4,5].map(l=>'<span><i class="mx-cell lv'+l+'" style="width:18px;height:18px;font-size:10px">'+l+'</i></span>').join("")+
+    '<span><i class="mx-cell lv3 inti" style="width:18px;height:18px;font-size:10px">3</i>Kompetensi inti jabatan (bobot tertinggi)</span></div>';
+  if(js.length === 1){
+    const kj = js[0].kode;
+    const rows = MX_KAT.map(k=>{ const ks = kode.filter(x=>mxKat(D.kamus[x][1])===k); if(!ks.length) return "";
+      return '<div class="prof-grp-h" style="margin-top:12px">'+k+' <em>'+ks.length+' kompetensi</em></div>'+ks.map(x=>{ const [req,bb] = sel[x][kj];
+        return '<div class="mx-one"><div class="n">'+esc(D.kamus[x][0])+'</div><div class="pips" aria-label="Level '+req+'">'+[1,2,3,4,5].map(l=>'<i class="'+(l<=req?'on':'')+'"></i>').join("")+'</div>'+
+          '<div class="bobot'+(bb>=3?' b3':'')+'">'+(MX_BOBOT[bb]||bb)+'</div><div class="d">Level '+req+' · '+["","Awareness","Basic","Intermediate","Advanced","Expert"][req]+'</div></div>'; }).join(""); }).join("");
+    return { stats, html: legend + rows };
+  }
+  let t = '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Kompetensi</div><div class="s">Jabatan →</div></th>'+
+    js.map(j=>'<th class="mx-jh" title="'+esc(j.title+" · "+j.dept+" · "+j.jml+" orang")+'"><span>'+esc(j.title)+'</span><small>'+j.jml+'</small></th>').join("")+'</tr></thead><tbody>';
+  MX_KAT.forEach(k=>{ const ks = kode.filter(x=>mxKat(D.kamus[x][1])===k); if(!ks.length) return;
+    t += '<tr class="mx-grp"><td colspan="'+(js.length+1)+'">'+k+' · '+ks.length+' kompetensi</td></tr>';
+    ks.forEach(x=>{ t += '<tr><th class="mx-rh" scope="row"><div class="n">'+esc(D.kamus[x][0])+'</div><div class="s">dipakai '+Object.keys(sel[x]).length+' dari '+js.length+' jabatan</div></th>'+
+      js.map(j=>{ const v = sel[x][j.kode]; return '<td class="mx-c">'+(v?'<span class="mx-cell lv'+v[0]+(v[1]>=3?' inti':'')+'" title="'+esc(D.kamus[x][0]+" · "+j.title+": level "+v[0]+" · "+(MX_BOBOT[v[1]]||""))+'">'+v[0]+'</span>':'')+'</td>'; }).join("")+'</tr>'; });
+  });
+  return { stats, html: legend + t + '</tbody></table></div>' };
+}
+function mxTraining(js){
+  const D = mx.data, set = new Set(js.map(j=>j.kode));
+  const tanda = {}; // kode -> {kj: {m,k}}
+  js.forEach(j=> Object.entries(D.tanda[j.kode]||{}).forEach(([kd,t])=> (tanda[kd] = tanda[kd] || {})[j.kode] = t));
+  Object.keys(D.training).forEach(kd=>{ if(D.training[kd][1]==="Pengayaan"){ tanda[kd] = {}; js.forEach(j=> tanda[kd][j.kode] = { m:"P" }); } });
+  const grupOf = kd => { const ms = Object.values(tanda[kd]).map(t=>t.m); return ms.includes("W") ? "W" : (ms.includes("G") ? "G" : (ms.includes("I") ? "I" : "P")); };
+  const GRUP = [["W","Wajib"],["G","Wajib bila ada gap"],["I","IHT Sabtu di cabang"],["P","Dianjurkan (pengayaan opsional)"]];
+  const kode = Object.keys(tanda).sort((a,b)=> GRUP.findIndex(g=>g[0]===grupOf(a)) - GRUP.findIndex(g=>g[0]===grupOf(b)) || Object.keys(tanda[b]).length - Object.keys(tanda[a]).length || D.training[a][0].localeCompare(D.training[b][0]));
+  const n = m => kode.filter(k=>grupOf(k)===m).length;
+  const stats = [["Wajib", n("W")],["Wajib bila gap", n("G")],["IHT", n("I")],["Dianjurkan", n("P")]];
+  const legend = '<div class="mx-legend">'+["W","G","I","P"].map(m=>'<span><i class="mx-cell mk-'+m+'" style="width:20px;height:20px;font-size:10.5px">'+(m==="P"?"•":m)+'</i>'+MX_TANDA[m][0]+'</span>').join("")+
+    '<span>Behavioral catch-up 2026 ditetapkan per orang (tidak tampil di matrix jabatan).</span></div>';
+  const info = kd => { const t = D.training[kd]; return [t[2]!==""?t[2]+" jam":"durasi mengikuti penyelenggara", t[4], t[3]==="USULAN_PENGADAAN"?"materi disiapkan L&D":""].filter(Boolean).join(" · "); };
+  if(js.length === 1){
+    const kj = js[0].kode;
+    const wj = kode.filter(k=>tanda[k][kj] && tanda[k][kj].m==="W"), tanpaJam = wj.filter(k=>D.training[k][2]==="").length;
+    stats.push([tanpaJam ? "Jam wajib terhitung (+"+tanpaJam+" program APM)" : "Jam wajib", wj.reduce((a,k)=>a+(Number(D.training[k][2])||0),0)]);
+    const rows = GRUP.map(([m,nm])=>{ const ks = kode.filter(k=>tanda[k][kj] && tanda[k][kj].m===m); if(!ks.length) return "";
+      return '<div class="prof-grp-h" style="margin-top:12px">'+nm+' <em>'+ks.length+' training</em></div>'+ks.map(k=>'<div class="mx-tr"><span class="mx-cell mk-'+m+'">'+(m==="P"?"•":m)+'</span><div><div class="n">'+trn(k, D.training[k][0])+'</div><div class="d">'+esc(info(k))+(m==="G"&&tanda[k][kj].k?' · untuk gap '+esc((D.kamus[tanda[k][kj].k]||[""])[0]):'')+'</div></div><div class="j">'+esc(D.training[k][2]!==""?D.training[k][2]+" jam":"")+'</div></div>').join(""); }).join("");
+    return { stats, html: legend + rows };
+  }
+  let t = '<div class="mx-wrap"><table class="mx"><thead><tr><th class="mx-rh"><div class="n">Training</div><div class="s">Jabatan →</div></th>'+
+    js.map(j=>'<th class="mx-jh" title="'+esc(j.title+" · "+j.dept+" · "+j.jml+" orang")+'"><span>'+esc(j.title)+'</span><small>'+j.jml+'</small></th>').join("")+'</tr></thead><tbody>';
+  GRUP.forEach(([m,nm])=>{ const ks = kode.filter(k=>grupOf(k)===m); if(!ks.length) return;
+    t += '<tr class="mx-grp"><td colspan="'+(js.length+1)+'">'+nm+' · '+ks.length+' training</td></tr>';
+    ks.forEach(k=>{ t += '<tr><th class="mx-rh" scope="row"><div class="n">'+trn(k, D.training[k][0])+'</div><div class="s">'+esc(info(k))+'</div></th>'+
+      js.map(j=>{ const v = tanda[k][j.kode]; return '<td class="mx-c">'+(v?'<span class="mx-cell mk-'+v.m+'" title="'+esc(D.training[k][0]+" · "+j.title+": "+MX_TANDA[v.m][0]+(v.k?" ("+(D.kamus[v.k]||[""])[0]+")":""))+'">'+(v.m==="P"?"•":v.m)+'</span>':'')+'</td>'; }).join("")+'</tr>'; });
+  });
+  return { stats, html: legend + t + '</tbody></table></div>' };
+}
+function mxSeg(id, key, cb){
+  document.querySelectorAll("#"+id+" button").forEach(b=> b.onclick = ()=>{
+    mx[key] = b.dataset.v; document.querySelectorAll("#"+id+" button").forEach(x=> x.setAttribute("aria-pressed", String(x===b))); cb();
+  });
+}
+mxSeg("mx-jenis", "jenis", renderMatrix);
+mxSeg("mx-lingkup", "lingkup", ()=>{ mxIsiPilihan(); renderMatrix(); });
+$("mx-pilih").onchange = ()=>{ mx.pilih = $("mx-pilih").value; renderMatrix(); };
+// Ekspor PDF: cetak bersih (tema terang, tanpa kontrol), kertas A4/A3 lanskap mengikuti jumlah kolom
+$("btn-mx-pdf").onclick = ()=>{
+  const n = mxJabatanLingkup().length, temaLama = document.documentElement.getAttribute("data-theme");
+  let st = $("mx-page"); if(!st){ st = document.createElement("style"); st.id = "mx-page"; document.head.appendChild(st); }
+  st.textContent = "@page{size:"+(n > 24 ? "A3" : "A4")+" landscape;margin:10mm}";
+  document.body.classList.add("cetak-matrix"); document.documentElement.setAttribute("data-theme","light");
+  const pulih = ()=>{ document.body.classList.remove("cetak-matrix"); if(temaLama) document.documentElement.setAttribute("data-theme", temaLama); else document.documentElement.removeAttribute("data-theme"); window.removeEventListener("afterprint", pulih); };
+  window.addEventListener("afterprint", pulih);
+  const judul = document.title; document.title = (mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+" 2027 - "+mxJudulLingkup(mxJabatanLingkup());
+  setTimeout(()=>{ window.print(); document.title = judul; setTimeout(pulih, 500); }, 50);
+};
 
 /* ---------- Hasil live & validasi Head unit ---------- */
 async function bukaHasil(sasaran, baruSubmit){

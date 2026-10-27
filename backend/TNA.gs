@@ -1,4 +1,9 @@
-/* BBLC TNA Engine v2.3.1, 27 Okt 2026. Perubahan: tnaITPSaya menyertakan nama kompetensi training penutup gap dan targetJam.
+/* BBLC TNA Engine v2.4, 27 Okt 2026. Perubahan: tnaMatrixOutput (khusus admin L&D) untuk Pusat Matrix: Competency Matrix dan
+ * Training Matrix per jabatan, dept, divisi, atau seluruh BBM. Penanda training memakai aturan yang sama dengan mesin rekomendasi:
+ * W = wajib (Mandatory jabatan/korporat), G = wajib bila ada gap (modul yang dipilih mesin untuk gap dari level 1 sampai syarat-1,
+ * menghormati SasaranJabatan & tanpa dobel dengan W), I = IHT Sabtu (pola 2026), P = pengayaan opsional. Divisi diturunkan dari Dept
+ * (TNA_DIVISI, keputusan user 27 Okt: pengelompokan fungsional).
+ * BBLC TNA Engine v2.3.1, 27 Okt 2026. Perubahan: tnaITPSaya menyertakan nama kompetensi training penutup gap dan targetJam.
  * BBLC TNA Engine v2.3, 27 Okt 2026. Perubahan (koreksi user 27 Okt): setiap kompetensi yang gap WAJIB mendapat training
  * penutup gap (kategori ITP "WajibGap"), tanpa batas jumlah per tahun, tanpa ditunda, dan untuk semua kategori kompetensi
  * (Technical, Behavioral, Leadership). Parameter MaksDianjurkan & KategoriDianjurkan dihapus; validator hanya bisa mengganti
@@ -48,7 +53,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.3.1";
+var TNA_VERSION = "2.4";
 
 /* ============================================================
  * SKEMA TAB
@@ -145,6 +150,7 @@ function handleTNA(req) {
     case "tnaApprove": return tnaApprove(ss, req);
     case "tnaProgres": return tnaProgres(ss, req);
     case "tnaMatriksJabatan": return tnaMatriksJabatan(ss, req);
+    case "tnaMatrixOutput": return tnaMatrixOutput(ss, req);
     case "tnaApproveMatriks": return tnaApproveMatriks(ss, req);
     case "tnaSetParameter": return tnaSetParameter(ss, req);
     case "tnaGenerateOutput": return tnaGenerateOutputEndpoint(ss, req);
@@ -638,6 +644,68 @@ function tnaMatriksJabatan(ss, req) {
   tnaBaca(ss, "Matriks").forEach(function (m) { if (m.KodeJabatan === req.kodeJabatan) flags[m.KodeKompetensi] = { flag: m.Flag, sumber: m.Sumber }; });
   var komp = tnaKompetensiJabatan(ss, req.kodeJabatan).map(function (k) { k.flag = (flags[k.kode] || {}).flag || ""; k.sumber = (flags[k.kode] || {}).sumber || ""; return k; });
   return { ok: true, jabatan: mj, kompetensi: komp, task: task };
+}
+
+/* ============================================================
+ * PUSAT MATRIX L&D: competency matrix & training matrix per lingkup (jabatan / dept / divisi / BBM)
+ * ============================================================ */
+var TNA_DIVISI = {
+  "HC & GA": "HC & GA", "IT": "HC & GA",
+  "HO FINANCE": "Finance", "FINANCE ADMIN": "Finance",
+  "HO ASS SERVICE": "After Sales", "HO ASS SPARE PART": "After Sales", "OPERATION SERVICE": "After Sales", "OPERATION SPARE PART": "After Sales",
+  "HO OPERATION": "Operation (Sales & Marketing)", "OPERATION SALES": "Operation (Sales & Marketing)",
+  "OPERATION SALES (JUNIOR & SENIOR)": "Operation (Sales & Marketing)", "HO MARKETING": "Operation (Sales & Marketing)",
+  "OTHER HO": "Direksi & Perwakilan", "OTHER PERWAKILAN": "Direksi & Perwakilan"
+};
+function tnaDivisi(dept) { return TNA_DIVISI[String(dept || "").toUpperCase()] || "Lainnya"; }
+
+function tnaMatrixOutput(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (auth.role !== "admin") return { ok: false, error: "Pusat Matrix hanya untuk admin L&D." };
+  var jab = tnaBaca(ss, "MasterJabatan").filter(function (j) { return String(j.StatusMatriks) !== "DIKECUALIKAN"; });
+  var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = [k.Nama, k.Kategori]; });
+  var mat = tnaBaca(ss, "Matriks");
+  var katalog = tnaBaca(ss, "Katalog").filter(function (c) { return String(c.Status).toUpperCase() !== "NONAKTIF"; });
+  var katBy = {}; katalog.forEach(function (c) { katBy[c.KodeTraining] = c; });
+  var mand = tnaBaca(ss, "Mandatory"), iht = {}; tnaBaca(ss, "IHT").forEach(function (r) { iht[r.KodeJabatan] = r; });
+  var kompList = function (c) { return String(c.KodeKompetensi || "").split(/[,;]\s*/).filter(String); };
+  var perJab = {}; mat.forEach(function (m) { (perJab[m.KodeJabatan] = perJab[m.KodeJabatan] || []).push(m); });
+  var tanda = {};
+  jab.forEach(function (j) {
+    var kj = j.KodeJabatan, t = tanda[kj] = {};
+    var wajib = mand.filter(function (m) { return (m.KodeJabatan === "*" || m.KodeJabatan === kj) && katBy[m.KodeTraining]; }).map(function (m) { return katBy[m.KodeTraining]; });
+    wajib.forEach(function (c) { t[c.KodeTraining] = { m: "W" }; });
+    (perJab[kj] || []).forEach(function (m) {
+      for (var lv = 1; lv < Number(m.RequiredLevel); lv++) {
+        var tutup = wajib.some(function (c) { return kompList(c).indexOf(m.KodeKompetensi) !== -1 && Number(c.LevelTarget || 5) > lv; });
+        if (tutup) continue;
+        var opsi = katalog.filter(function (c) {
+          var sas = String(c.SasaranJabatan || "").trim();
+          return String(c.Kategori) !== "Pengayaan" && String(c.Kategori) !== "IHT" && kompList(c).indexOf(m.KodeKompetensi) !== -1 &&
+            Number(c.LevelTarget || 5) > lv && (!sas || sas.split(/[,;]\s*/).indexOf(kj) !== -1);
+        }).sort(function (a, b) { return Number(a.LevelTarget || 5) - Number(b.LevelTarget || 5); });
+        if (!opsi.length || t[opsi[0].KodeTraining]) continue;
+        t[opsi[0].KodeTraining] = { m: "G", k: m.KodeKompetensi };
+      }
+    });
+    var ih = iht[kj];
+    if (ih) [["IHT-SELL", "JamSelling"], ["IHT-PK", "JamPK"], ["IHT-ASV", "JamASS"], ["IHT-SELF", "JamSelf"]].forEach(function (x) {
+      if (Number(ih[x[1]]) > 0 && katBy[x[0]]) t[x[0]] = { m: "I" };
+    });
+  });
+  var dipakai = {}; Object.keys(tanda).forEach(function (kj) { Object.keys(tanda[kj]).forEach(function (k) { dipakai[k] = true; }); });
+  katalog.forEach(function (c) { if (String(c.Kategori) === "Pengayaan") dipakai[c.KodeTraining] = true; });
+  var train = {}; Object.keys(dipakai).forEach(function (k) {
+    var c = katBy[k];
+    train[k] = [c.Judul, String(c.Kategori), c.DurasiJam === "" ? "" : Number(c.DurasiJam), String(c.Status || ""), kompList(c).map(function (x) { return (kamus[x] || [x])[0]; }).join(", "), c.LevelTarget === "" ? "" : Number(c.LevelTarget)];
+  });
+  return {
+    ok: true, dibuat: new Date().toISOString(),
+    jabatan: jab.map(function (j) { return { kode: j.KodeJabatan, title: j.JobTitle, dept: j.Dept, div: tnaDivisi(j.Dept), jml: Number(j.JmlIncumbent || 0), lokasi: j.Lokasi, statusJD: j.StatusJD }; }),
+    kamus: kamus,
+    matriks: mat.filter(function (m) { return tanda[m.KodeJabatan]; }).map(function (m) { return [m.KodeJabatan, m.KodeKompetensi, Number(m.RequiredLevel), Number(m.Bobot || 2)]; }),
+    tanda: tanda, training: train
+  };
 }
 
 function tnaApproveMatriks(ss, req) {
