@@ -1,4 +1,10 @@
-/* BBLC TNA Engine v2.2, 26 Okt 2026. Perubahan: default JendelaKhusus mengikuti kalender program 2027 yang disepakati
+/* BBLC TNA Engine v2.3, 27 Okt 2026. Perubahan (koreksi user 27 Okt): setiap kompetensi yang gap WAJIB mendapat training
+ * penutup gap (kategori ITP "WajibGap"), tanpa batas jumlah per tahun, tanpa ditunda, dan untuk semua kategori kompetensi
+ * (Technical, Behavioral, Leadership). Parameter MaksDianjurkan & KategoriDianjurkan dihapus; validator hanya bisa mengganti
+ * modul, tidak bisa meniadakan training (opsi "TANPA" lama diabaikan). tnaHasil.wajib memuat program wajib + training penutup gap.
+ * Kolom Katalog.SasaranJabatan (opsional, KodeJabatan dipisah koma): modul program/peran (BMDP, SSDP, jalur sales/aftersales,
+ * sertifikasi peran) hanya ditawarkan sebagai penutup gap untuk jabatan sasarannya; kosong = semua jabatan.
+ * BBLC TNA Engine v2.2, 26 Okt 2026. Perubahan: default JendelaKhusus mengikuti kalender program 2027 yang disepakati
  * (satu program tatap muka per bulan): BMDP kelas Jan (modul online mandiri dirilis Jan) & Jul, IST Feb/Mei/Agu/Nov,
  * AST Mar/Jun/Sep/Des, SSDP Apr & Okt (shadowing bengkel bulan berikutnya). Tab TNA_Parameter yang sudah ada tidak ditimpa.
  * BBLC TNA Engine v2.1, 26 Okt 2026. Perubahan: batas porsi IHT dihitung dari jam karyawan saja (kursi proyeksi calon BST tidak
@@ -39,7 +45,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.2";
+var TNA_VERSION = "2.3";
 
 /* ============================================================
  * SKEMA TAB
@@ -55,7 +61,7 @@ var TNA_TAB = {
   Matriks: ["KodeJabatan", "KodeKompetensi", "RequiredLevel", "Bobot", "Sumber", "Flag"],
   Task: ["KodeJabatan", "NoTugas", "TugasUtama", "Task", "KodeKompetensi"],
   Intervensi: ["KodeKompetensi", "Tipe", "Deskripsi"],
-  Katalog: ["KodeTraining", "Judul", "Kategori", "KodeKompetensi", "LevelTarget", "Metode", "DurasiJam", "SumberFile", "Link", "Status"],
+  Katalog: ["KodeTraining", "Judul", "Kategori", "KodeKompetensi", "LevelTarget", "Metode", "DurasiJam", "SumberFile", "Link", "Status", "SasaranJabatan"],
   Mandatory: ["KodeJabatan", "KodeTraining", "Dasar"],
   Riwayat: ["NIK", "KodeTraining", "Tanggal", "Sumber"],
   Silabus: ["KodeTraining", "Judul", "Rumpun", "Kompetensi", "Sasaran", "Tujuan", "Outline", "Metode", "Durasi", "Evaluasi", "Sumber",
@@ -86,10 +92,8 @@ var TNA_PARAM_DEFAULT = [
   ["TahunITP", 2027, "Tahun rencana ITP"],
   ["TargetJamBulan", 3, "Target jam belajar per orang per bulan"],
   ["KapasitasKelas", 20, "Default peserta per batch kelas"],
-  ["MaksDianjurkan", 4, "Maksimal training Dianjurkan per orang per tahun"],
-  ["KategoriDianjurkan", "Technical,Leadership", "Kategori kompetensi yang gap-nya dijadwalkan training Dianjurkan (fokus 2027)"],
   ["DurasiDefaultJam", 4, "Durasi training bila katalog kosong"],
-  ["KoefTraining", 0.5, "Kenaikan level proyeksi per training Dianjurkan"],
+  ["KoefTraining", 0.5, "Kenaikan level proyeksi per training penutup gap"],
   ["KoefCoaching", 0.5, "Kenaikan level proyeksi dari coaching terstruktur"],
   ["KoefPenugasan", 0.5, "Kenaikan level proyeksi dari penugasan"],
   ["JamCoachingPerGap", 1, "Jam coaching terstruktur per kompetensi gap per tahun (dihitung jam belajar)"],
@@ -655,8 +659,8 @@ function tnaApproveMatriks(ss, req) {
 function tnaSetParameter(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
-  var boleh = ["WindowBuka", "WindowTutup", "BobotAtasan", "BobotSelf", "TargetJamBulan", "KapasitasKelas", "MaksDianjurkan", "DurasiDefaultJam",
-    "KategoriDianjurkan", "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT", "ProyeksiPesertaBST"];
+  var boleh = ["WindowBuka", "WindowTutup", "BobotAtasan", "BobotSelf", "TargetJamBulan", "KapasitasKelas", "DurasiDefaultJam",
+    "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT", "ProyeksiPesertaBST"];
   var sh = tnaSheet(ss, "Parameter");
   var v = sh.getDataRange().getValues();
   var ubah = req.parameter || {};
@@ -753,25 +757,27 @@ function tnaSiapRekom(ss, p, km, gapRows) {
   // Indeks calon mentor per kompetensi: actual tinggi
   cx.mentor = {};
   gapRows.forEach(function (g) { if (g.Actual !== "" && Number(g.Actual) >= 4) (cx.mentor[g.KodeKompetensi] = cx.mentor[g.KodeKompetensi] || []).push(g); });
-  cx.maksD = Number(p.MaksDianjurkan);
-  cx.katDianjurkan = String(p.KategoriDianjurkan || "Technical,Behavioral,Leadership").split(/[,;]\s*/);
   return cx;
 }
 
 // Opsi training katalog untuk satu gap (urut LevelTarget terendah yang masih di atas level sekarang).
+// Modul ber-SasaranJabatan hanya untuk jabatan sasarannya (BMDP tidak ditawarkan ke non-Kacab, dst).
 function tnaOpsiTraining(cx, nik, g) {
   var lvlNow = Math.floor(Number(g.Actual));
   return cx.katalog.filter(function (c) {
+    var sas = String(c.SasaranJabatan || "").trim();
     return String(c.Kategori) !== "Pengayaan" && String(c.Kategori) !== "IHT" && String(c.KodeKompetensi).split(/[,;]\s*/).indexOf(g.KodeKompetensi) !== -1 &&
-      Number(c.LevelTarget || 5) > lvlNow && !cx.lulus[nik + "|" + c.KodeTraining];
-  }).sort(function (a, b) { return Number(a.LevelTarget) - Number(b.LevelTarget); });
+      Number(c.LevelTarget || 5) > lvlNow && !cx.lulus[nik + "|" + c.KodeTraining] &&
+      (!sas || sas.split(/[,;]\s*/).indexOf(String(g.KodeJabatan)) !== -1);
+  }).sort(function (a, b) { return Number(a.LevelTarget || 5) - Number(b.LevelTarget || 5); });
 }
 
 // gapList: baris Gap orang ini yang Gap > 0. edit: {KodeKompetensi: {r70, r20, r10}} dari validator,
-// r10 = KodeTraining pilihan validator atau "TANPA". Hasil: baris Rekomendasi + training Dianjurkan.
+// r10 = KodeTraining pengganti pilihan validator. Hasil: baris Rekomendasi + training penutup gap (wajib, tanpa batas,
+// tidak ditunda; keputusan user 27 Okt). Nilai lama "TANPA" diabaikan: training wajib tidak bisa ditiadakan.
 function tnaRekomOrang(cx, nik, gapList, edit) {
   edit = edit || {};
-  var k = cx.km[nik] || {}, rekom = [], dianjurkan = [], nD = 0, sudah = {};
+  var k = cx.km[nik] || {}, rekom = [], dianjurkan = [], sudah = {};
   gapList.slice().sort(function (a, b) { return Number(b.Prioritas) - Number(a.Prioritas); }).forEach(function (g) {
     var e = edit[g.KodeKompetensi] || {};
     var tasks = cx.taskMap[g.KodeJabatan + "|" + g.KodeKompetensi] || [];
@@ -783,25 +789,21 @@ function tnaRekomOrang(cx, nik, gapList, edit) {
       (cand.length ? "; mentoring/shadowing: " + cand.slice(0, 2).map(function (m) { return m.Nama + " (" + m.Cabang + ")"; }).join(", ") : "") +
       ((cx.intervensi[g.KodeKompetensi] || {})["20"] ? "; " + cx.intervensi[g.KodeKompetensi]["20"] : "");
     var r10, kodeR10 = "";
-    if (e.r10 === "TANPA") r10 = "Tidak dijadwalkan training formal (keputusan validator).";
-    else if (e.r10 && cx.katByKode[e.r10]) {
-      kodeR10 = e.r10; r10 = e.r10 + " " + cx.katByKode[e.r10].Judul + " (dipilih validator)";
-    } else if (cx.katDianjurkan.indexOf(String(g.Kategori)) === -1) {
-      r10 = "Tidak dijadwalkan training formal (fokus 2027: " + cx.katDianjurkan.join(" & ") + "); dikembangkan lewat 70/20 dan program wajib.";
+    var pakaiEdit = e.r10 && e.r10 !== "TANPA" && cx.katByKode[e.r10];
+    if (pakaiEdit) {
+      kodeR10 = e.r10; r10 = e.r10 + " " + cx.katByKode[e.r10].Judul + " (wajib, dipilih validator)";
     } else {
       var opsi = tnaOpsiTraining(cx, nik, g);
-      if (!opsi.length) r10 = "GAP KATALOG: belum ada modul untuk kompetensi ini";
-      else if (nD >= cx.maksD) r10 = opsi[0].KodeTraining + " " + opsi[0].Judul + " (ditunda: melewati batas " + cx.maksD + " training/tahun)";
-      else { kodeR10 = opsi[0].KodeTraining; r10 = opsi[0].KodeTraining + " " + opsi[0].Judul; }
+      if (!opsi.length) r10 = "GAP KATALOG: belum ada modul untuk kompetensi ini (L&D menyiapkan/mengadakan)";
+      else { kodeR10 = opsi[0].KodeTraining; r10 = opsi[0].KodeTraining + " " + opsi[0].Judul + " (wajib)"; }
     }
     if (kodeR10 && !sudah[kodeR10]) {
-      sudah[kodeR10] = true; dianjurkan.push({ kode: kodeR10, kompetensi: g.KodeKompetensi, prioritas: Number(g.Prioritas) });
-      if (!e.r10) nD++;
+      sudah[kodeR10] = true; dianjurkan.push({ kode: kodeR10, kompetensi: g.KodeKompetensi, namaKompetensi: g.Kompetensi, prioritas: Number(g.Prioritas) });
     }
     var diubah = [];
     if (e.r70) { r70 = String(e.r70); diubah.push("70"); }
     if (e.r20) { r20 = String(e.r20); diubah.push("20"); }
-    if (e.r10) diubah.push("10");
+    if (pakaiEdit) diubah.push("10");
     rekom.push({ NIK: nik, Nama: g.Nama, KodeKompetensi: g.KodeKompetensi, Kompetensi: g.Kompetensi, Gap: g.Gap, Prioritas: g.Prioritas,
       R70_Penugasan: r70, R20_Sosial: r20, R10_Training: r10, DiubahValidator: diubah.join(",") });
   });
@@ -885,7 +887,13 @@ function tnaHasil(ss, req) {
   tnaBaca(ss, "Mandatory").forEach(function (m) {
     if (m.KodeJabatan !== "*" && m.KodeJabatan !== w.KodeJabatan && m.KodeJabatan !== "NIK:" + w.NIK) return;
     var c = cx.katByKode[m.KodeTraining];
-    if (c && !cx.lulus[w.NIK + "|" + m.KodeTraining]) wajib.push({ kode: c.KodeTraining, judul: c.Judul, jam: c.DurasiJam, dasar: m.Dasar });
+    if (c && !cx.lulus[w.NIK + "|" + m.KodeTraining]) wajib.push({ kode: c.KodeTraining, judul: c.Judul, jam: c.DurasiJam || Number(p.DurasiDefaultJam) || "", dasar: m.Dasar, jenis: "PROGRAM" });
+  });
+  // Training penutup gap juga wajib (keputusan user 27 Okt); program yang sudah wajib tidak dobel
+  var adaW = {}; wajib.forEach(function (x) { adaW[x.kode] = true; });
+  hasil.dianjurkan.forEach(function (d) {
+    var c = cx.katByKode[d.kode] || {}; if (adaW[d.kode]) return; adaW[d.kode] = true;
+    wajib.push({ kode: d.kode, judul: c.Judul, jam: c.DurasiJam || Number(p.DurasiDefaultJam) || "", dasar: "Menutup gap " + (d.namaKompetensi || d.kompetensi), jenis: "GAP", kompetensi: d.kompetensi });
   });
   var dinilai = gapT.some(function (g) { return g.SkorAtasan !== ""; });
   return {
@@ -1321,7 +1329,7 @@ function tnaBangunOutput(ss) {
   var gapRows = tnaHitungGap(ss, p, km);
 
   var cx = tnaSiapRekom(ss, p, km, gapRows);
-  var katalog = cx.katalog, katByKode = cx.katByKode, lulus = cx.lulus, maksD = cx.maksD;
+  var katalog = cx.katalog, katByKode = cx.katByKode, lulus = cx.lulus;
   var durDefault = Number(p.DurasiDefaultJam);
   function jamTraining(c) { var d = Number(c && c.DurasiJam); return d > 0 ? d : durDefault; }
   var mandatory = tnaBaca(ss, "Mandatory");
@@ -1358,7 +1366,7 @@ function tnaBangunOutput(ss) {
     var v = val[tnaKunciValidasi(km[nik])] || {};
     var hasil = tnaRekomOrang(cx, nik, gapPerOrang[nik], tnaParseEdit(v.Edit));
     hasil.rekom.forEach(function (r) { r.StatusValidasi = statusValidasi(km[nik]); rekom.push(r); });
-    hasil.dianjurkan.forEach(function (d) { tambahTraining(nik, d.kode, "Dianjurkan", d.kompetensi, d.prioritas); });
+    hasil.dianjurkan.forEach(function (d) { tambahTraining(nik, d.kode, "WajibGap", d.kompetensi, d.prioritas); });
   });
 
   // ---------- Penjadwalan bulan (Wajib di depan, beban jam per orang dirata-ratakan) ----------
@@ -1371,7 +1379,7 @@ function tnaBangunOutput(ss) {
     var kh = (khusus[kode] || []).map(Number).filter(function (b) { return b >= 1 && b <= 12; });
     if (kh.length) return kh.map(function (b) { return b - 1; });
     if (kategori === "Wajib") return /^W-(AFA|AIDW)$/.test(kode) ? [0, 1, 2] : [0, 1, 2, 3, 4, 5];
-    if (kategori === "Dianjurkan") return [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    if (kategori === "WajibGap") return [2, 3, 4, 5, 6, 7, 8, 9, 10];
     return [3, 4, 5, 6, 7, 8, 9, 10];
   }
   function pilihBulan(nik, win, jam) {
@@ -1386,7 +1394,7 @@ function tnaBangunOutput(ss) {
     var nGap = (gapPerOrang[nik] || []).length;
     if (nGap && jamCoach > 0) { var tot = nGap * jamCoach; for (var m = 2; m <= 10; m++) beban[nik][m] += tot / 9; }
     var list = (perOrang[nik] || { list: [] }).list.sort(function (a, b) {
-      var urut = { Wajib: 0, Dianjurkan: 1, Pengayaan: 2 }; return urut[a.kategori] - urut[b.kategori] || b.prioritas - a.prioritas;
+      var urut = { Wajib: 0, WajibGap: 1, Pengayaan: 2 }; return urut[a.kategori] - urut[b.kategori] || b.prioritas - a.prioritas;
     });
     list.forEach(function (x) {
       var c = katByKode[x.kode], jam = jamTraining(c);
@@ -1570,7 +1578,7 @@ function tnaBangunOutput(ss) {
 
   // ---------- Proyeksi jam & readiness ----------
   var kT = Number(p.KoefTraining), kC = Number(p.KoefCoaching), kP = Number(p.KoefPenugasan);
-  var dianjurkanPer = {}; itp.forEach(function (r) { if (r.Kategori === "Dianjurkan") dianjurkanPer[r.NIK + "|" + r.KodeKompetensi] = true; });
+  var dianjurkanPer = {}; itp.forEach(function (r) { if (r.Kategori === "WajibGap") dianjurkanPer[r.NIK + "|" + r.KodeKompetensi] = true; });
   var ready = {};
   gapRows.forEach(function (g) {
     var o = ready[g.NIK] = ready[g.NIK] || { n: 0, now: 0, proj: 0, dinilai: false };
@@ -1791,7 +1799,7 @@ function tnaEksporDokumen(ss) {
   itpAll.forEach(function (r) {
     var key = r.KodeJabatan + "|" + r.JobTitle; kolom[r.KodeTraining + " " + r.Judul] = true;
     var o = jt[key] = jt[key] || {}; var c = r.KodeTraining + " " + r.Judul;
-    var kode = r.Kategori === "Wajib" ? "W" : (r.Kategori === "Dianjurkan" ? "D" : "P");
+    var kode = r.Kategori === "Wajib" ? "W" : (r.Kategori === "WajibGap" ? "G" : (r.Kategori === "IHT" ? "I" : "P"));
     o[c] = o[c] || {}; o[c][kode] = (o[c][kode] || 0) + 1;
   });
   var kolList = Object.keys(kolom).sort();
@@ -1879,7 +1887,7 @@ function tnaImport(fileIdImport) {
       if (v[i].join("") === "") continue;
       var o = {}; h.forEach(function (k, c) { o[k] = v[i][c]; }); rows.push(o);
     }
-    var opsional = { Karyawan: ["ValidatorNIK"] }[nama] || [];
+    var opsional = { Karyawan: ["ValidatorNIK"], Katalog: ["SasaranJabatan"] }[nama] || [];
     var hilang = TNA_TAB[nama].filter(function (k) { return h.indexOf(k) === -1 && opsional.indexOf(k) === -1; });
     if (hilang.length) throw new Error("Tab " + nama + " kekurangan kolom: " + hilang.join(", "));
     tnaTulisUlang(ss, nama, rows);

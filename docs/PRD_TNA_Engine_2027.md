@@ -2,7 +2,7 @@
 
 **Produk:** perluasan *BBLC Competency Development Studio* (`/kompetensi`) + backend Apps Script yang sudah ada
 **Pemilik:** Sujarwadi, Learning & Development Dept. Head, PT Bosowa Berlian Motor
-**Versi dokumen:** 2.2, 27 Okt 2026 (FR10.10 behavioral resmi: 10 kompetensi Kamus Kompetensi Bosowa 2022 dengan Matriks Standar per jenjang, BH-01..08 & LD-05 dihapus, Leadership hanya untuk atasan; sebelumnya 2.1: FR14.5 kalender program 2027 satu program tatap muka per bulan, BMDP/SSDP menggantikan istilah Kacab Academy; sebelumnya 2.0: FR10.9 struktur kompetensi: setiap jabatan Behavioral + Technical + Leadership tanpa tumpang tindih; Level 1 tampil di form; sebelumnya hasil self-audit: basis batas IHT = jam karyawan, ringkasan IHT di ITP, label program usulan, silabus 11 program baru; sebelumnya M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
+**Versi dokumen:** 2.3, 27 Okt 2026 (FR15 koreksi simulasi tim L&D: setiap gap wajib ditutup training tanpa batas & tanpa ditunda, sasaran jabatan modul program, katalog behavioral Level 1-5, Training Supervisor tanpa kompetensi teknis otomotif); 2.2, 27 Okt 2026 (FR10.10 behavioral resmi: 10 kompetensi Kamus Kompetensi Bosowa 2022 dengan Matriks Standar per jenjang, BH-01..08 & LD-05 dihapus, Leadership hanya untuk atasan; sebelumnya 2.1: FR14.5 kalender program 2027 satu program tatap muka per bulan, BMDP/SSDP menggantikan istilah Kacab Academy; sebelumnya 2.0: FR10.9 struktur kompetensi: setiap jabatan Behavioral + Technical + Leadership tanpa tumpang tindih; Level 1 tampil di form; sebelumnya hasil self-audit: basis batas IHT = jam karyawan, ringkasan IHT di ITP, label program usulan, silabus 11 program baru; sebelumnya M14 Program Pengembangan 2027: jalur sales, aftersales SA/CS, enablers academy; M13: proyeksi peserta BST dari batch terakhir; sebelumnya 1.6: slot BST awal bulan, IHT Sabtu, batas porsi IHT 20%, nilai lulus BST 70)
 **Status:** Disetujui untuk dibangun
 
 ---
@@ -114,7 +114,7 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR6.3** Admin mereview & mengoreksi hasil tagging sebelum dipakai (status `TAGGED_AI` → `VERIFIED`).
 - **FR6.4** **Klasifikasi** per jabatan:
   - **Wajib (Mandatory)**: harus diikuti, tidak bisa ditawar, tanpa melihat gap. Sumbernya: (a) **Training wajib korporat untuk SEMUA karyawan: _Anti Fraud Awareness_ dan _AI for Daily Work_**; (b) syarat pelatihan di JD; (c) regulasi, sertifikasi prinsipal, K3. Dikelola di tabel `TrainingMandatory`.
-  - **Dianjurkan (Recommended)**: sangat disarankan untuk menutup gap pada kompetensi jabatan (semua besaran gap). Prioritasnya mengikuti `Gap × Bobot`. Boleh ditunda ke periode berikutnya, alasannya dicatat.
+  - **Wajib · tutup gap** (dulu "Dianjurkan"; diubah FR15.1): training penutup gap pada kompetensi jabatan (semua besaran gap, semua kategori). Prioritas jadwal mengikuti `Gap × Bobot`. **Tidak bisa ditunda dan tidak dibatasi jumlahnya.** Di katalog, modul jenis ini tetap berlabel "Modul penutup gap".
   - **Pengayaan (Enrichment)**: *nice to have*, untuk menambah wawasan. Tidak terkait langsung dengan kompetensi jabatan (contoh: Financial Literacy). Tidak ditentukan dari gap. Ditawarkan sebagai pilihan dan dipakai sistem untuk mengisi kekurangan jam bila ITP seseorang di bawah target 3 jam/bulan.
 
 ### M7 — Rekomendasi 70/20/10 & ITP 2027
@@ -122,14 +122,14 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
   - **70 Experiential**: penugasan/stretch assignment diturunkan dari task di `TaskBreakdown` yang terkait kompetensi tsb.
   - **20 Social**: coaching oleh atasan, mentoring/shadowing oleh incumbent lain dengan `Actual ≥ Required + 1` pada kompetensi yang sama (lintas cabang boleh).
   - **10 Formal**: training dari katalog dengan kompetensi sama dan `LevelTarget ≥ Actual + 1`. Bila tidak ada → tandai `GAP KATALOG` (masukan untuk pengembangan modul baru).
-- **FR7.2** **ITP** per orang: daftar training (Wajib + Dianjurkan + Pengayaan), kategori, kompetensi yang ditutup, bulan rencana (Jan–Des 2027), durasi, status (`PLANNED` → `SCHEDULED` → `DONE` / `CANCELLED`).
+- **FR7.2** **ITP** per orang: daftar training (Wajib + Wajib·tutup gap + Pengayaan), kategori, kompetensi yang ditutup, bulan rencana (Jan–Des 2027), durasi, status (`PLANNED` → `SCHEDULED` → `DONE` / `CANCELLED`).
 - **FR7.2a** Training Wajib yang sudah lulus (tab `Riwayat`: NIK, KodeTraining, Tanggal, Sumber) tidak dijadwalkan ulang.
-- **FR7.3** Prioritas penjadwalan: Wajib → Dianjurkan (urut Prioritas tertinggi) → Pengayaan (pengisi target jam, status `OPSIONAL`).
+- **FR7.3** Prioritas penjadwalan: Wajib → Wajib·tutup gap (`WajibGap`, urut Prioritas tertinggi) → Pengayaan (pengisi target jam, status `OPSIONAL`).
 
 ### M8 — Proyeksi Jam, Training Matrix, Kalender & Ekspor
 - **FR8.1** **Proyeksi jam belajar** per orang, per bulan & tahun = Σ durasi training ITP + jam coaching terstruktur yang direncanakan. Ditampilkan vs target 3 jam/orang/bulan, agregat per cabang/dept/BBM. Flag: `UNDER` (<80% target), `ON TARGET`, `OVER` (>150%).
 - **FR8.2** **Fungsi prediktif/proyektif:**
-  - *Projected proficiency* akhir 2027 per orang per kompetensi: `Actual + Σ kontribusi intervensi` (default: training Dianjurkan +0,5 level, coaching terstruktur +0,5, penugasan +0,5, maks = Required + 1). Koefisien bisa diubah Admin di tab `Parameter`.
+  - *Projected proficiency* akhir 2027 per orang per kompetensi: `Actual + Σ kontribusi intervensi` (default: training penutup gap +0,5 level, coaching terstruktur +0,5, penugasan +0,5, maks = Required + 1). Koefisien bisa diubah Admin di tab `Parameter`.
   - *Projected readiness* % = proporsi kompetensi wajib yang diproyeksikan ≥ Required pada Des 2027.
   - *Proyeksi pencapaian jam* L&D per bulan vs target, termasuk kapasitas kelas (lihat FR8.3).
 - **FR8.3** **Training Calendar 2027**: sistem membentuk *batch* per training (kapasitas default 20 peserta/kelas, bisa per training), mengelompokkan peserta per wilayah, dan menyebar batch per bulan agar beban jam per bulan merata (±20% dari rata-rata), Wajib di Q1 (Anti Fraud Awareness & AI for Daily Work: Q1 untuk semua karyawan). Kelas tatap muka dikonsolidasi: peserta satu training di satu wilayah dikumpulkan ke `ceil(n/kapasitas)` bulan di dalam jendela kategorinya. Wilayah = provinsi cabang. Admin bisa geser manual; ITP ikut ter-update.
@@ -149,7 +149,7 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 ### M10 — Keputusan 24 Okt 2026 (v1.3)
 - **FR10.1 Garis lapor:** penilai mengikuti atasan langsung di JD bila jabatan atasan itu ada (tunggal) di cabang yang sama; bila tidak, pakai aturan lama. Konfirmasi spesifik user sebelumnya (Bone, Jayapura, daftar terlampir) tetap berlaku.
 - **FR10.2 C-level dikecualikan:** CEO, COO, CFO berstatus `ModeAsesmen = DIKECUALIKAN`. Mereka tidak dinilai, tidak masuk Gap/ITP (pengembangan by request ke institusi luar), tetapi tetap menilai timnya.
-- **FR10.3 Fokus 2027 = Technical & Leadership:** parameter `KategoriDianjurkan = Technical,Leadership`. Gap Behavioral tetap dilaporkan dan mendapat rekomendasi 70/20, tetapi tidak dijadwalkan training Dianjurkan.
+- **FR10.3 ~~Fokus 2027 = Technical & Leadership~~ (dicabut FR15.1):** parameter `KategoriDianjurkan` dihapus; gap Behavioral juga wajib ditutup training.
 - **FR10.4 Behavioral catch-up:** modul Behavioral 2026 (CBxx-Ly) menjadi **Wajib 2027 hanya bagi yang belum hadir**. Sumbernya master data training 2026 (STATUS KEHADIRAN). Karyawan yang tidak terplot di 2026 mendapat modul default jabatannya (modul yang diplot ke >= 50% incumbent). Wajib per orang disimpan sebagai `Mandatory.KodeJabatan = "NIK:<nik>"`.
 - **FR10.5 Riwayat:** training yang sudah lulus (master data 2025 COMPLETE + 2026 HADIR) tidak dijadwalkan ulang, baik Wajib maupun Dianjurkan. Sertifikasi APM (Step/FSA/MSA) hanya dihitung dari pelatihan resmi, bukan IHT. Sesi behavioral yang masih terjadwal Nov–Des 2026 dicatat `TERJADWAL_2026`; pada Januari 2027 baris peserta yang ternyata tidak hadir dihapus, lalu output di-generate ulang.
 - **FR10.6 Lokasi kelas:** kelas tatap muka dibentuk **per cabang**; kelas online digabung lintas cabang.
@@ -204,6 +204,15 @@ Login tetap memakai NIK + PIN yang sudah ada (mekanisme `login` backend v3.5).
 - **FR14.5 Jendela bulan per program** (`JendelaKhusus`, JSON): mengikuti kalender program 2027 di proposal Sales & Branch Leadership Academy v3, satu program tatap muka per bulan: BMDP (Kepala Cabang) kelas Jan & Jul (modul online mandiri dirilis Jan), IST Feb/Mei/Agu/Nov, AST Mar/Jun/Sep/Des, SSDP (Sales Supervisor, kode D-SPV 24 jam) Apr & Okt dengan shadowing bengkel bulan berikutnya. Program 2027 lain tetap tersebar Feb–Nov. Nama "Kacab Academy" diganti BMDP.
 - **FR14.6** Semua modul baru berstatus `USULAN_PENGADAAN` sampai materi/vendor siap; ITP, Training Tim, Katalog, dan Silabus menampilkan label "Materi disiapkan L&D". Draf silabus 11 program baru tersedia (`DRAF_AI`). Simulasi skala penuh: non-IHT 41,2 jam/karyawan, IHT 10,3 jam/karyawan (20,0% dari jam karyawan, 67% kebutuhan pola 2026).
 - **FR14.7 Tampilan IHT:** ITP memisahkan IHT ke kartu "IHT Sabtu di cabang" per rumpun (jumlah Sabtu, jam, tanggal bisa dibuka); Training Tim meringkas IHT per bulan per rumpun.
+
+
+### M15 — Koreksi Simulasi Tim L&D (v2.3, keputusan user 27 Okt)
+- **FR15.1 Setiap gap = training wajib:** setiap kompetensi dengan gap > 0 mendapat satu training penutup gap (kategori ITP `WajibGap`), untuk semua kategori kompetensi, **tanpa batas jumlah per tahun dan tanpa status ditunda**. Parameter `MaksDianjurkan` dan `KategoriDianjurkan` dihapus. Validator hanya boleh **mengganti modul**, tidak bisa meniadakan training (opsi "tidak perlu training formal" dihapus).
+- **FR15.2 Tampilan hasil:** kartu "Training Wajib 2027" memuat dua kelompok: *Menutup gap kompetensi* dan *Program wajib jabatan & korporat*; kompetensi gap tanpa modul ditandai untuk disiapkan L&D. Tautan "dasar ilmiah" dipindah ke catatan kecil di bagian bawah form dan hasil (rujukan opsional, bukan bacaan wajib penilai).
+- **FR15.3 Sasaran jabatan modul:** kolom opsional `Katalog.SasaranJabatan` (KodeJabatan, dipisah koma). Modul program/peran (BMDP → Kacab; SSDP → Sales Supervisor; IST/AST/BST/Leasing/Fleet/Mentor → jalur sales; SA & CS Master Class dan lanjutannya → SA/CS; Instructor Course → Instructor; Gada, Sertifikasi GA, Brevet → jabatan yang mensyaratkan) hanya ditawarkan ke jabatan sasarannya. Kompetensi yang modul umumnya belum mencapai Level 5 mendapat usulan modul `U-<kode>` (Level 5, `USULAN_PENGADAAN`).
+- **FR15.4 Modul behavioral per level:** `LevelTarget` modul `W-CBxx-Ly` = y. Level yang belum diselenggarakan 2026 diambil dari desain Training Matrix Behavioral 2026 (sheet MATRIX) berstatus `USULAN_PENGADAAN`, sehingga katalog behavioral lengkap 10 kompetensi × 5 level. Gap L2→L3 ditutup modul Level 3, bukan Level 1.
+- **FR15.5 Training Supervisor (J023, belum ada JD):** acuan JD L&D Section Head **hanya kompetensi pengelolaan training** (ADDIE, Presentation Slide Design, Training Management, Communication Skill, TNA, Training Design & Delivery, Training Evaluation); kompetensi teknis otomotif tidak dipakai. Masih menunggu konfirmasi user.
+- **FR15.6 Dampak (simulasi sintetis 807 karyawan):** training penutup gap naik dari 1.789 menjadi ±3.180 baris; jam non-IHT dari 42,4 menjadi 47,2 jam/karyawan (Kacab ±169 jam, Head lain ±69 jam). Rekonsiliasi Plan = ITP = Calendar tetap selisih 0.
 
 ## 6. Data Model (Google Sheets "Learning Simulator DB")
 
