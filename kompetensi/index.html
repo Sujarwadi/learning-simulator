@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.15, 27 Okt 2026. Perubahan: hasil asesmen menjadi laporan visual bergaya laporan asesor (ringkasan kesesuaian standar + komposisi status, kekuatan & prioritas, profil kompetensi skala 1-5 dengan penanda syarat/atasan/self/aktual, radar 10 behavioral vs standar jenjang, matriks prioritas gap x bobot, persepsi diri vs atasan, rencana 70/20/10 bernomor, navigasi bagian); ITP menjadi Peta Belajar 2027 (jam terencana vs target, strip 12 bulan yang bisa diketuk, agenda per bulan dengan kompetensi yang dikembangkan); tabel tetap tersedia sebagai tampilan alternatif. -->
 <!-- BBLC Studio v3.14, 27 Okt 2026. Perubahan (koreksi simulasi tim L&D): semua training penutup gap tampil di "Training Wajib 2027" (dikelompokkan: menutup gap kompetensi, program wajib jabatan & korporat), tidak ada lagi batas 4 training/tahun maupun status ditunda, validator hanya bisa mengganti modul (opsi "tidak perlu training" dihapus); tombol "Dasar ilmiah" dipindah ke catatan kecil di bagian bawah form dan hasil (rujukan opsional, bukan bacaan wajib penilai); label kategori "Dianjurkan" diganti "Wajib · tutup gap"; parameter Maks training Dianjurkan dihapus dari Panel Admin. -->
 <!-- BBLC Studio v3.13, 27 Okt 2026. Perubahan: bahasa desain disamakan dengan Vokasta (keluarga produk yang sama): tema gelap bawaan dengan toggle tema terang di setiap header, header sticky blur, kartu slate, aksen amber, tombol kirim emerald, badge pill, halaman pembuka dengan kartu masuk menonjol, ubin menu berkelompok (Saya, Tim, Referensi, Admin), kartu window berstatus. Logika tidak berubah. -->
 <!-- BBLC Studio v3.12, 26 Okt 2026. Perubahan: desain ulang tampilan berbasis audit UI/UX (Nielsen, WCAG 2.2 AA): layar masuk menjadi halaman pembuka dua kolom (alur 3 langkah, skala 5 level, jadwal window); menu beranda menjadi ubin berikon dengan deskripsi; kartu window dengan hitung mundur; token warna, tipografi Plus Jakarta Sans, skala spasi 4/8; kontras teks & border input lolos AA; fokus keyboard terlihat; target sentuh minimal 44 px. Logika tidak berubah. -->
@@ -247,6 +248,113 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .tile .ar{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;flex:0 0 16px}
 .tile.tile-admin{border:2px solid var(--accent-line);background:linear-gradient(140deg,var(--surface),var(--surface) 55%,rgba(245,158,11,.10))}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.01ms!important}}
+/* ---------- Laporan visual (v3.15): profil kompetensi bergaya laporan asesor ---------- */
+.rpt-nav{position:sticky;top:64px;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0 10px;margin:0 0 var(--s3);background:linear-gradient(var(--bg) 70%,transparent);scrollbar-width:none}
+.rpt-nav::-webkit-scrollbar{display:none}
+.rpt-nav a{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-a);min-height:32px;display:inline-flex;align-items:center}
+.rpt-nav a:hover,.rpt-nav a:focus-visible{color:var(--ink);border-color:var(--line-strong)}
+.rpt-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:var(--s5);align-items:center}
+.rpt-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.rpt-big{font-size:56px;line-height:1;font-weight:800;color:var(--ink);letter-spacing:-1.5px;margin:6px 0 4px}
+.rpt-big small{font-size:20px;font-weight:700;color:var(--muted);letter-spacing:0;margin-left:4px}
+.rpt-lead{font-size:14px;color:var(--text);line-height:1.55;margin:6px 0 0}
+.meter{height:10px;border-radius:999px;background:var(--subtle);overflow:hidden;display:flex;gap:2px;margin:12px 0 6px}
+.meter i{display:block;height:100%}
+.meter-key{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.meter-key b{color:var(--ink);font-weight:700}
+.key-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:0}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile-s{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile-s .l{font-size:12px;color:var(--muted)}
+.tile-s .v{font-size:26px;font-weight:800;color:var(--ink);margin-top:2px}
+.tile-s .d{font-size:11.5px;color:var(--muted);margin-top:2px}
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-top:var(--s4)}
+.sw h4{margin:0 0 8px;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.sw ol{margin:0;padding-left:18px;font-size:13px;color:var(--text);line-height:1.7}
+.sw .meta{color:var(--muted);font-size:12px}
+/* Profil: satu baris per kompetensi pada skala 1-5 */
+.prof-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted);margin:0 0 10px}
+.prof-legend span{display:inline-flex;align-items:center;gap:6px}
+.lg-req{width:3px;height:14px;background:var(--ink);border-radius:2px;display:inline-block}
+.lg-act{width:12px;height:12px;border-radius:50%;background:var(--sky);display:inline-block}
+.lg-sup{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.lg-self{width:10px;height:10px;border-radius:50%;border:2px solid var(--muted);display:inline-block;box-sizing:border-box}
+.prof-grp{margin-top:14px}
+.prof-grp-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--line)}
+.prof-grp-h em{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
+.prof-row{display:grid;grid-template-columns:minmax(0,34%) minmax(0,1fr) 92px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.prof-row:last-child{border-bottom:0}
+.prof-name{font-size:13px;color:var(--ink);line-height:1.3}
+.prof-name .f{display:block;font-size:11px;color:var(--red);font-weight:600}
+.prof-track{position:relative;height:30px}
+.prof-track .ax{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.prof-track .tk{position:absolute;top:calc(50% - 5px);width:1px;height:10px;background:var(--line-strong);opacity:.5}
+.prof-track .tkl{position:absolute;bottom:-3px;font-size:9.5px;color:var(--muted);transform:translateX(-50%)}
+.prof-track .gapseg{position:absolute;top:calc(50% - 3px);height:6px;border-radius:3px}
+.prof-track .req{position:absolute;top:4px;width:3px;height:22px;margin-left:-1.5px;border-radius:2px;background:var(--ink)}
+.prof-track .sup{position:absolute;top:calc(50% - 4px);width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 2px var(--surface)}
+.prof-track .slf{position:absolute;top:calc(50% - 5px);width:10px;height:10px;margin-left:-5px;border-radius:50%;border:2px solid var(--muted);box-sizing:border-box;background:var(--surface)}
+.prof-track .act{position:absolute;top:calc(50% - 7px);width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 2px var(--surface)}
+.prof-row:hover{background:var(--inset)}
+.prof-st{text-align:right}
+/* Radar & matriks prioritas (SVG) */
+.viz-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s4)}
+.viz-svg{width:100%;height:auto;display:block}
+.viz-svg text{font-family:inherit}
+.viz-note{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:8px}
+.q-list{margin:10px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12.5px;color:var(--text)}
+.q-list li{display:flex;gap:8px;align-items:baseline}
+.q-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff}
+/* Persepsi diri vs atasan */
+.dumb-row{display:grid;grid-template-columns:minmax(0,34%) minmax(0,1fr) 120px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.dumb-row:last-child{border-bottom:0}
+.dumb-track{position:relative;height:24px}
+.dumb-track .ax{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.dumb-track .bar{position:absolute;top:calc(50% - 1.5px);height:3px;border-radius:2px;background:var(--line-strong)}
+.dumb-track .p{position:absolute;top:calc(50% - 6px);width:12px;height:12px;margin-left:-6px;border-radius:50%;box-shadow:0 0 0 2px var(--surface)}
+.dumb-track .p.s{background:var(--surface);border:2px solid var(--muted);box-sizing:border-box}
+.dumb-track .p.a{background:var(--sky)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.blind{color:var(--red);border-color:var(--red-line);background:var(--red-soft)}
+.tag.hidden{color:var(--green);border-color:var(--green-line);background:var(--green-soft)}
+/* Rencana: kartu bernomor */
+.plan{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.plan:last-child{border-bottom:0}
+.plan-n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:var(--inset);border:1px solid var(--line);color:var(--ink)}
+.plan-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-weight:700;color:var(--ink);font-size:14px}
+.plan-r{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;margin-top:8px;font-size:13px;color:var(--text);line-height:1.5}
+.plan-r dt{font-weight:700;color:var(--muted);font-size:11.5px;letter-spacing:.4px;padding-top:2px}
+.plan-r dd{margin:0}
+/* Peta belajar 2027 (karyawan) */
+.yr{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;margin-top:8px}
+.yr button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 4px;border-radius:10px;min-height:44px}
+.yr button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.yr .col{width:70%;max-width:26px;border-radius:4px 4px 0 0;background:var(--sky);opacity:.85;min-height:3px}
+.yr .col.nol{background:var(--line);opacity:1}
+.yr .bl{font-size:11px;color:var(--muted);font-weight:600}
+.yr .jm{font-size:10.5px;color:var(--text);min-height:14px}
+.yr button[aria-pressed="true"]{background:var(--inset)}
+.yr button[aria-pressed="true"] .bl{color:var(--ink)}
+.mon{margin-top:var(--s4)}
+.mon-h{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;color:var(--ink);font-size:14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.mon-h span{font-weight:500;font-size:12.5px;color:var(--muted)}
+.ev{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.ev:last-child{border-bottom:0}
+.ev-d{text-align:center;background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:6px 0;line-height:1.1}
+.ev-d b{display:block;font-size:17px;color:var(--ink)}
+.ev-d span{font-size:10.5px;color:var(--muted);text-transform:uppercase}
+.ev-t{font-size:13.5px;color:var(--ink);font-weight:600}
+.ev-m{font-size:12px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.ev-j{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap}
+@media (max-width:720px){
+  .rpt-hero,.viz-2,.sw-grid{grid-template-columns:1fr}
+  .rpt-big{font-size:46px}
+  .prof-row,.dumb-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}
+  .prof-row .prof-track,.dumb-row .dumb-track{grid-column:1 / -1;grid-row:2}
+  .q-list{grid-template-columns:1fr}
+  .yr{gap:2px}.yr .jm{font-size:9.5px}
+}
+@media print{.rpt-nav{display:none}}
 </style>
 <script>
 /* Tema: gelap bawaan, terang opsional (disimpan di perangkat ini saja) */
@@ -1790,6 +1898,215 @@ function renderDashTraining(r){
   pasangFilterCabang();
 }
 
+/* ---------- Laporan visual (v3.15): profil kompetensi bergaya laporan asesor ---------- */
+// Warna status dipakai identik di semua grafik & badge: Kompeten hijau, Minor abu, Moderate amber, Major merah.
+const ST_WARNA = { Kompeten:"var(--green)", Minor:"var(--line-strong)", Moderate:"var(--amber)", Major:"var(--red)" };
+const ST_URUT = ["Kompeten","Minor","Moderate","Major"];
+const ST_CLS = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
+const vPos = v => Math.max(0, Math.min(100, (Number(v) - 1) / 4 * 100));
+const vNum = v => v === "" || v === null || v === undefined ? null : Number(v);
+const vFmt = v => v === null ? "-" : (Math.round(v * 10) / 10).toString().replace(".", ",");
+function vKatGrup(k){ k = String(k||""); return k === "Behavioral" ? "Behavioral" : (k === "Technical" ? "Technical" : "Leadership"); }
+function vDinilai(gap){ return gap.filter(g => g.Actual !== "" && g.Actual !== null && g.Actual !== undefined); }
+
+// 1. Ringkasan: angka utama, komposisi status, kekuatan & prioritas
+function vizRingkas(gap, opt){
+  const d = vDinilai(gap), n = d.length;
+  if(!n) return "";
+  const cnt = {}; ST_URUT.forEach(s => cnt[s] = d.filter(g => g.KategoriGap === s).length);
+  const pct = Math.round(cnt.Kompeten / n * 100);
+  const kuat = d.filter(g => Number(g.Actual) >= Number(g.Required)).sort((a,b)=> (Number(b.Actual)-Number(b.Required)) - (Number(a.Actual)-Number(a.Required)) || Number(b.Actual)-Number(a.Actual)).slice(0,3);
+  const prio = d.filter(g => Number(g.Gap) > 0).sort((a,b)=> Number(b.Prioritas)-Number(a.Prioritas)).slice(0,3);
+  const beda = d.filter(g => g.SkorSelf !== "" && g.SkorAtasan !== "" && Math.abs(Number(g.SkorSelf)-Number(g.SkorAtasan)) >= 1).length;
+  const lead = pct >= 80 ? "Profil sudah kuat terhadap standar jabatan; pengembangan diarahkan untuk mempertajam beberapa area."
+    : (pct >= 50 ? "Separuh lebih kompetensi sudah memenuhi standar; ada area yang perlu ditutup terarah sepanjang 2027."
+    : "Masih banyak kompetensi di bawah standar jabatan; rencana pengembangan 2027 perlu dikawal ketat oleh atasan.");
+  const meter = '<div class="meter" role="img" aria-label="'+ST_URUT.map(s=>s+' '+cnt[s]).join(", ")+'">'+ST_URUT.filter(s=>cnt[s]).map(s=>'<i style="width:'+(cnt[s]/n*100)+'%;background:'+ST_WARNA[s]+'"></i>').join("")+'</div>'+
+    '<div class="meter-key">'+ST_URUT.map(s=>'<span><i class="key-dot" style="background:'+ST_WARNA[s]+'"></i>'+s+' <b>'+cnt[s]+'</b></span>').join("")+'</div>';
+  const tile = (l,v,dsc)=>'<div class="tile-s"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(dsc?'<div class="d">'+dsc+'</div>':'')+'</div>';
+  const wj = opt && opt.wajib ? opt.wajib : null;
+  const tiles = '<div class="tiles">'+
+    tile("Perlu dikembangkan", cnt.Minor+cnt.Moderate+cnt.Major, cnt.Major ? cnt.Major+" berstatus Major" : "tidak ada yang Major")+
+    tile("Persepsi berbeda", beda, beda ? "selisih self vs atasan ≥ 1 level" : "self &amp; atasan selaras")+
+    (wj ? tile("Training wajib 2027", wj.n, wj.jam+" jam") : tile("Kompetensi dinilai", n, "dari "+gap.length))+'</div>';
+  const daftar = (arr, f) => arr.length ? '<ol>'+arr.map(f).join("")+'</ol>' : '<div class="meta">Belum ada.</div>';
+  return '<div class="card" id="rpt-ringkas"><div class="rpt-hero"><div>'+
+      '<div class="rpt-eyebrow">Kesesuaian dengan standar jabatan</div>'+
+      '<div class="rpt-big">'+pct+'%<small>'+cnt.Kompeten+' dari '+n+' kompetensi</small></div>'+meter+
+      '<p class="rpt-lead">'+lead+'</p></div>'+tiles+'</div>'+
+    '<div class="sw-grid"><div class="sw"><h4><i class="key-dot" style="background:var(--green)"></i>Kekuatan utama</h4>'+
+      daftar(kuat, g=>'<li>'+esc(g.Kompetensi)+' <span class="meta">aktual '+vFmt(vNum(g.Actual))+' · syarat '+esc(g.Required)+'</span></li>')+'</div>'+
+    '<div class="sw"><h4><i class="key-dot" style="background:var(--red)"></i>Prioritas pengembangan</h4>'+
+      daftar(prio, g=>'<li>'+esc(g.Kompetensi)+' <span class="meta">gap '+vFmt(vNum(g.Gap))+' · '+esc(g.KategoriGap)+'</span></li>')+'</div></div></div>';
+}
+
+// 2. Profil kompetensi: satu baris per kompetensi pada skala 1-5 (syarat, atasan, self, aktual)
+function vizProfil(gap){
+  if(!vDinilai(gap).length) return "";
+  const grup = { Behavioral:[], Leadership:[], Technical:[] };
+  gap.forEach(g => grup[vKatGrup(g.Kategori)].push(g));
+  grup.Technical.sort((a,b)=> Number(b.Gap||0) - Number(a.Gap||0));
+  const tick = [1,2,3,4,5].map(v=>'<i class="tk" style="left:'+vPos(v)+'%"></i><span class="tkl" style="left:'+vPos(v)+'%">'+v+'</span>').join("");
+  const baris = g => {
+    const req = vNum(g.Required), act = vNum(g.Actual), sup = vNum(g.SkorAtasan), slf = vNum(g.SkorSelf);
+    const ket = "Syarat "+req+" · Aktual "+vFmt(act)+(sup!==null?" · Atasan "+vFmt(sup):"")+(slf!==null?" · Self "+vFmt(slf):"");
+    let tr = '<div class="prof-track" title="'+esc(ket)+'" role="img" aria-label="'+esc(g.Kompetensi+": "+ket)+'"><i class="ax"></i>'+tick;
+    if(act !== null){
+      const lo = Math.min(act, req), hi = Math.max(act, req);
+      if(act < req) tr += '<i class="gapseg" style="left:'+vPos(lo)+'%;width:'+(vPos(hi)-vPos(lo))+'%;background:'+(ST_WARNA[g.KategoriGap]||"var(--line)")+'"></i>';
+    }
+    tr += '<i class="req" style="left:'+vPos(req)+'%"></i>';
+    if(slf !== null && act !== null && Math.abs(slf-act) > .05) tr += '<i class="slf" style="left:'+vPos(slf)+'%"></i>';
+    if(sup !== null && act !== null && Math.abs(sup-act) > .05) tr += '<i class="sup" style="left:'+vPos(sup)+'%"></i>';
+    if(act !== null) tr += '<i class="act" style="left:'+vPos(act)+'%"></i>';
+    tr += '</div>';
+    const st = act === null ? '<span class="badge badge-grey">Belum</span>' : '<span class="badge '+(ST_CLS[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+(Number(g.Gap)>0?' '+vFmt(vNum(g.Gap)):'')+'</span>';
+    return '<div class="prof-row"><div class="prof-name">'+esc(g.Kompetensi)+(g.Flag?'<span class="f">'+esc(g.Flag)+'</span>':'')+'</div>'+tr+'<div class="prof-st">'+st+'</div></div>';
+  };
+  const nama = { Behavioral:"Behavioral · Kamus Kompetensi BBM", Leadership:"Leadership", Technical:"Technical · kebutuhan jabatan" };
+  const isi = ["Behavioral","Leadership","Technical"].filter(k=>grup[k].length).map(k=>{
+    const ok = grup[k].filter(g=>g.KategoriGap==="Kompeten").length;
+    return '<div class="prof-grp"><div class="prof-grp-h">'+nama[k]+' <em>'+ok+' dari '+grup[k].length+' memenuhi</em></div>'+grup[k].map(baris).join("")+'</div>';
+  }).join("");
+  const tabel = '<details style="margin-top:12px"><summary class="hint" style="cursor:pointer">Lihat dalam bentuk tabel</summary><div style="overflow-x:auto;margin-top:8px"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Atasan</th><th>Self</th><th>Aktual</th><th>Status</th></tr>'+
+    gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.SkorAtasan===""?"-":vFmt(vNum(g.SkorAtasan)))+'</td><td>'+esc(g.SkorSelf===""?"-":g.SkorSelf)+'</td><td><b>'+esc(g.Actual===""?"-":vFmt(vNum(g.Actual)))+'</b></td><td>'+esc(g.KategoriGap)+'</td></tr>').join("")+'</table></div></details>';
+  return '<h2 class="sect" id="rpt-profil">Profil Kompetensi</h2><div class="card">'+
+    '<div class="prof-legend"><span><i class="lg-req"></i>Syarat jabatan</span><span><i class="lg-act"></i>Aktual (70% atasan + 30% self)</span><span><i class="lg-sup"></i>Atasan</span><span><i class="lg-self"></i>Self</span>'+
+    '<span><i class="key-dot" style="background:var(--line-strong);width:8px;height:6px;margin-right:2px"></i><i class="key-dot" style="background:var(--amber);width:8px;height:6px;margin-right:2px"></i><i class="key-dot" style="background:var(--red);width:8px;height:6px"></i>Gap ke syarat (warna = Minor, Moderate, Major)</span></div>'+isi+tabel+'</div>';
+}
+
+// 3. Radar 10 kompetensi behavioral: bentuk profil vs standar jenjang
+function vizRadar(gap){
+  const b = gap.filter(g => vKatGrup(g.Kategori) === "Behavioral" && g.Actual !== "");
+  if(b.length < 3) return "";
+  const W = 520, H = 440, cx = W/2, cy = H/2 + 2, R = 140, n = b.length;
+  const pt = (i, v) => { const a = -Math.PI/2 + i * 2*Math.PI/n, r = R * Math.max(0, Number(v)) / 5; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+  let s = '<svg class="viz-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Radar 10 kompetensi behavioral: aktual dibanding standar jabatan">';
+  [1,2,3,4,5].forEach(l=>{ s += '<polygon points="'+b.map((g,i)=>pt(i,l).join(",")).join(" ")+'" fill="none" stroke="var(--line)" stroke-width="1"/>'; });
+  b.forEach((g,i)=>{ const p = pt(i,5); s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="var(--line)" stroke-width="1"/>'; });
+  s += '<polygon points="'+b.map((g,i)=>pt(i,g.Required).join(",")).join(" ")+'" fill="var(--ink)" fill-opacity=".05" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>';
+  s += '<polygon points="'+b.map((g,i)=>pt(i,g.Actual).join(",")).join(" ")+'" fill="var(--sky)" fill-opacity=".14" stroke="var(--sky)" stroke-width="2" stroke-linejoin="round"/>';
+  b.forEach((g,i)=>{ const p = pt(i,g.Actual); s += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="'+(ST_WARNA[g.KategoriGap]||"var(--sky)")+'" stroke="var(--surface)" stroke-width="2"><title>'+esc(g.Kompetensi+": aktual "+vFmt(vNum(g.Actual))+", syarat "+g.Required)+'</title></circle>'; });
+  b.forEach((g,i)=>{
+    const p = pt(i, 5.95), anc = Math.abs(p[0]-cx) < 8 ? "middle" : (p[0] > cx ? "start" : "end");
+    // nama panjang dipecah dua baris supaya tidak terpotong di layar sempit
+    const kata = String(g.Kompetensi).split(" "), baris = kata.length > 1 && g.Kompetensi.length > 11 ? [kata.slice(0, Math.ceil(kata.length/2)).join(" "), kata.slice(Math.ceil(kata.length/2)).join(" ")] : [g.Kompetensi];
+    const y0 = p[1] + 4 - (baris.length - 1) * 7;
+    s += baris.map((t,j)=>'<text x="'+p[0]+'" y="'+(y0 + j*14)+'" text-anchor="'+anc+'" font-size="13" fill="var(--text)" font-weight="600">'+esc(t)+'</text>').join("")+
+      '<text x="'+p[0]+'" y="'+(y0 + baris.length*14)+'" text-anchor="'+anc+'" font-size="12" fill="var(--muted)">'+vFmt(vNum(g.Actual))+' / '+esc(g.Required)+'</text>';
+  });
+  s += '</svg>';
+  const kurang = b.filter(g=>Number(g.Gap)>0).length;
+  return '<div class="card" id="rpt-radar"><div class="rpt-eyebrow">Bentuk profil behavioral</div>'+s+
+    '<div class="prof-legend" style="margin-top:4px"><span><i class="lg-req" style="width:14px;height:2px"></i>Standar jenjang</span><span><i class="lg-act"></i>Aktual</span></div>'+
+    '<div class="viz-note">'+(kurang ? kurang+' dari '+b.length+' kompetensi behavioral masih di dalam garis standar (titik berwarna = status gap).' : 'Seluruh kompetensi behavioral sudah menyentuh atau melewati standar jenjang.')+'</div></div>';
+}
+
+// 4. Matriks prioritas: besar gap (x) vs bobot kepentingan jabatan (y)
+function vizKuadran(gap){
+  const g = gap.filter(x => Number(x.Gap) > 0).sort((a,b)=> Number(b.Prioritas)-Number(a.Prioritas));
+  if(!g.length) return "";
+  const W = 420, H = 300, L = 62, Rr = 14, T = 18, B = 44, pw = W-L-Rr, ph = H-T-B;
+  const maxX = Math.max(2, Math.ceil(Math.max(...g.map(x=>Number(x.Gap))) * 2) / 2);
+  const X = v => L + Number(v)/maxX*pw, Y = v => T + (3.5-Number(v))/3 * ph;
+  const xm = X(1), ym = Y(2.5);
+  let s = '<svg class="viz-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Matriks prioritas pengembangan: besar gap dan bobot kepentingan jabatan">';
+  s += '<rect x="'+xm+'" y="'+T+'" width="'+(L+pw-xm)+'" height="'+(ym-T)+'" fill="var(--red)" fill-opacity=".07"/>';
+  s += '<line x1="'+xm+'" y1="'+T+'" x2="'+xm+'" y2="'+(T+ph)+'" stroke="var(--line-strong)" stroke-width="1"/><line x1="'+L+'" y1="'+ym+'" x2="'+(L+pw)+'" y2="'+ym+'" stroke="var(--line-strong)" stroke-width="1"/>';
+  s += '<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(L+pw)+'" y2="'+(T+ph)+'" stroke="var(--line)" stroke-width="1"/>';
+  const q = (x,y,t,anc)=>'<text x="'+x+'" y="'+y+'" text-anchor="'+anc+'" font-size="11" font-weight="700" fill="var(--muted)" letter-spacing=".6">'+t+'</text>';
+  s += q(L+pw-6, T+14, "PRIORITAS UTAMA", "end") + q(L+6, T+14, "TUNTASKAN CEPAT", "start") + q(L+pw-6, T+ph-8, "PERBAIKI TERARAH", "end") + q(L+6, T+ph-8, "PANTAU", "start");
+  for(let v=0; v<=maxX; v+=.5) s += '<text x="'+X(v)+'" y="'+(T+ph+16)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+vFmt(v)+'</text>';
+  s += '<text x="'+(L+pw/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="11" fill="var(--muted)">Besar gap ke syarat (level)</text>';
+  [["Tinggi",3],["Sedang",2],["Dasar",1]].forEach(([t,v])=>{ s += '<text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+t+'</text>'; });
+  s += '<text transform="translate(12 '+(T+ph/2)+') rotate(-90)" text-anchor="middle" font-size="11" fill="var(--muted)">Bobot jabatan</text>';
+  const pakai = {};
+  g.forEach((x,i)=>{
+    const key = Math.round(Number(x.Gap)*4)+"|"+x.Bobot, k = pakai[key] = (pakai[key]||0) + 1;
+    // titik dengan gap & bobot sama disebar mendatar supaya nomor tidak bertumpuk
+    const off = (k % 2 ? 1 : -1) * Math.floor(k / 2) * 23;
+    const px = X(x.Gap) + off, py = Y(Number(x.Bobot)||2);
+    s += '<g><title>'+esc((i+1)+". "+x.Kompetensi+": gap "+vFmt(vNum(x.Gap))+", bobot "+x.Bobot)+'</title><circle cx="'+px+'" cy="'+py+'" r="10" fill="'+(ST_WARNA[x.KategoriGap]||"var(--sky)")+'" stroke="var(--surface)" stroke-width="2"/>'+
+      '<text x="'+px+'" y="'+(py+3.8)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="'+(x.KategoriGap==="Moderate"?"#0B1120":"#fff")+'">'+(i+1)+'</text></g>';
+  });
+  s += '</svg>';
+  return '<div class="card" id="rpt-prioritas"><div class="rpt-eyebrow">Matriks prioritas pengembangan</div>'+s+
+    '<ol class="q-list">'+g.map((x,i)=>'<li><span class="q-num" style="background:'+(ST_WARNA[x.KategoriGap]||"var(--sky)")+(x.KategoriGap==="Moderate"?';color:#0B1120':'')+'">'+(i+1)+'</span><span>'+esc(x.Kompetensi)+' <span class="hint" style="margin:0">gap '+vFmt(vNum(x.Gap))+'</span></span></li>').join("")+'</ol>'+
+    '<div class="viz-note">Kanan atas = gap besar pada kompetensi yang paling menentukan jabatan. Urutan nomor = urutan prioritas (gap × bobot).</div></div>';
+}
+
+// 5. Persepsi diri vs atasan (blind spot & kekuatan tersembunyi)
+function vizPersepsi(gap){
+  const p = gap.filter(g => g.SkorSelf !== "" && g.SkorAtasan !== "" && g.SkorSelf !== null && g.SkorAtasan !== null)
+    .map(g => Object.assign({ d: Number(g.SkorSelf) - Number(g.SkorAtasan) }, g)).sort((a,b)=> Math.abs(b.d) - Math.abs(a.d));
+  if(!p.length) return "";
+  const blind = p.filter(x=>x.d >= 1).length, hid = p.filter(x=>x.d <= -1).length;
+  const baris = x => {
+    const a = Number(x.SkorAtasan), sf = Number(x.SkorSelf), lo = Math.min(a,sf), hi = Math.max(a,sf);
+    const tag = x.d >= 1 ? '<span class="tag blind">Self lebih tinggi '+vFmt(x.d)+'</span>' : (x.d <= -1 ? '<span class="tag hidden">Atasan lebih tinggi '+vFmt(-x.d)+'</span>' : '<span class="tag">Selaras</span>');
+    return '<div class="dumb-row"><div class="prof-name">'+esc(x.Kompetensi)+'</div><div class="dumb-track" title="'+esc("Self "+vFmt(sf)+" · Atasan "+vFmt(a))+'"><i class="ax"></i>'+
+      '<i class="bar" style="left:'+vPos(lo)+'%;width:'+(vPos(hi)-vPos(lo))+'%"></i><i class="p s" style="left:'+vPos(sf)+'%"></i><i class="p a" style="left:'+vPos(a)+'%"></i></div><div class="prof-st">'+tag+'</div></div>';
+  };
+  const utama = p.filter(x=>Math.abs(x.d) >= 1), lain = p.filter(x=>Math.abs(x.d) < 1);
+  return '<h2 class="sect" id="rpt-persepsi">Persepsi Diri vs Atasan</h2><div class="card">'+
+    '<div class="prof-legend"><span><i class="lg-self"></i>Self</span><span><i class="lg-act"></i>Atasan</span></div>'+
+    '<p class="rpt-lead" style="margin:0 0 8px">'+(blind||hid ? (blind ? '<b>'+blind+'</b> kompetensi dinilai diri lebih tinggi dari atasan (bahan diskusi umpan balik)'+(hid?'; ':'.') : '')+(hid ? '<b>'+hid+'</b> kompetensi dinilai atasan lebih tinggi dari diri sendiri (kekuatan yang belum disadari).' : '') : 'Penilaian diri dan atasan selaras pada semua kompetensi (selisih di bawah 1 level).')+'</p>'+
+    (utama.length ? utama.map(baris).join("") : '')+
+    (lain.length ? '<details'+(utama.length?'':' open')+'><summary class="hint" style="cursor:pointer;margin:8px 0">'+lain.length+' kompetensi selaras</summary>'+lain.map(baris).join("")+'</details>' : '')+'</div>';
+}
+
+// 6. Rencana 70/20/10 (baca saja): kartu bernomor sesuai prioritas
+function vizRencana(rek, gap){
+  if(!rek.length) return "";
+  const st = {}; gap.forEach(g=> st[g.KodeKompetensi] = g.KategoriGap);
+  return rek.slice().sort((a,b)=> Number(b.Prioritas)-Number(a.Prioritas)).map((x,i)=>'<div class="plan"><div class="plan-n">'+(i+1)+'</div><div>'+
+    '<div class="plan-h">'+esc(x.Kompetensi)+' <span class="badge '+(ST_CLS[st[x.KodeKompetensi]]||"badge-amber")+'">'+esc(st[x.KodeKompetensi]||"Gap")+' '+vFmt(vNum(x.Gap))+'</span>'+(x.DiubahValidator?'<span class="hint" style="margin:0">diubah validator</span>':'')+'</div>'+
+    '<dl class="plan-r"><dt>70 · KERJA</dt><dd>'+esc(x.R70_Penugasan)+'</dd><dt>20 · ORANG</dt><dd>'+esc(x.R20_Sosial)+'</dd><dt>10 · KELAS</dt><dd>'+trnTeks(x.R10_Training)+'</dd></dl></div></div>').join("");
+}
+
+function vizNav(items){
+  return '<nav class="rpt-nav" aria-label="Bagian laporan">'+items.filter(Boolean).map(([id,t])=>'<a href="#'+id+'" data-lompat="'+id+'">'+t+'</a>').join("")+'</nav>';
+}
+document.addEventListener("click", e=>{
+  const a = e.target.closest && e.target.closest("[data-lompat]"); if(!a) return;
+  e.preventDefault(); const el = document.getElementById(a.dataset.lompat); if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
+});
+
+// 7. Peta belajar 2027 (ITP karyawan): strip 12 bulan + agenda per bulan
+const VBLN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const VBLN_P = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+function vizPetaBelajar(r, bulanAktif){
+  const wajib = r.itp.filter(t=>t.Status!=="OPSIONAL"), ops = r.itp.filter(t=>t.Status==="OPSIONAL");
+  const jamW = wajib.reduce((a,t)=>a+Number(t.Jam||0),0), target = Number(r.targetJam || 36);
+  const jamBln = VBLN.map(b=> wajib.filter(t=>t.Bulan===b).reduce((a,t)=>a+Number(t.Jam||0),0));
+  const maxB = Math.max(1, ...jamBln);
+  const nGap = wajib.filter(t=>t.Kategori==="WajibGap").length, jamIHT = wajib.filter(t=>t.Kategori==="IHT").reduce((a,t)=>a+Number(t.Jam||0),0);
+  const komp = [...new Set(wajib.map(t=>t.Kompetensi).filter(Boolean))];
+  const pct = Math.min(100, Math.round(jamW/target*100));
+  const tile = (l,v,d)=>'<div class="tile-s"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="d">'+d+'</div></div>';
+  const hero = '<div class="card"><div class="rpt-hero"><div><div class="rpt-eyebrow">Jam belajar terencana 2027</div>'+
+    '<div class="rpt-big">'+jamW+'<small>jam</small></div><div class="meter" role="img" aria-label="'+pct+'% dari target '+target+' jam"><i style="width:'+pct+'%;background:var(--sky)"></i></div>'+
+    '<div class="meter-key"><span>Target minimal <b>'+target+' jam</b> setahun (3 jam/bulan)</span>'+(jamW>=target?'<span style="color:var(--green)"><b style="color:var(--green)">Terpenuhi</b></span>':'')+'</div>'+
+    '<p class="rpt-lead">'+(komp.length ? 'Tahun ini Anda mengembangkan <b>'+komp.length+' kompetensi</b>, antara lain '+komp.slice(0,3).map(esc).join(", ")+(komp.length>3?', dan lainnya':'')+'.' : 'Rencana belajar Anda berisi program wajib jabatan dan korporat.')+'</p></div>'+
+    '<div class="tiles">'+tile("Training", wajib.filter(t=>t.Kategori!=="IHT").length, nGap+" menutup kompetensi")+tile("IHT Sabtu", jamIHT+" jam", "di cabang")+tile("Pengayaan", ops.length, "opsional")+'</div></div></div>';
+  const strip = '<div class="card"><div class="rpt-eyebrow">Sebaran per bulan · ketuk bulan untuk melihat agendanya</div><div class="yr" role="group" aria-label="Jam belajar per bulan">'+
+    VBLN.map((b,i)=>'<button type="button" data-bulan="'+b+'" aria-pressed="'+(bulanAktif===b)+'" aria-label="'+VBLN_P[i]+': '+jamBln[i]+' jam"><span class="jm">'+(jamBln[i]?jamBln[i]:"")+'</span><span class="col'+(jamBln[i]?'':' nol')+'" style="height:'+(jamBln[i]?Math.max(6, jamBln[i]/maxB*84):3)+'px"></span><span class="bl">'+b+'</span></button>').join("")+'</div>'+
+    (bulanAktif ? '<div class="hint">Menampilkan '+VBLN_P[VBLN.indexOf(bulanAktif)]+'. <a href="#" data-bulan="">Tampilkan semua bulan</a></div>' : '')+'</div>';
+  const lokasi = t => t.Lokasi==="ONLINE" ? "Online" : (t.Lokasi==="TERPUSAT" ? "Kelas terpusat" : (t.Lokasi||""));
+  const ev = t => { const d = t.TanggalMulai ? new Date(t.TanggalMulai) : null;
+    return '<div class="ev"><div class="ev-d">'+(d?'<b>'+d.getDate()+'</b><span>'+VBLN[d.getMonth()]+'</span>':'<b>·</b><span>'+esc(t.Bulan)+'</span>')+'</div><div><div class="ev-t">'+trn(t.KodeTraining, t.Judul)+'</div>'+
+      '<div class="ev-m"><span class="badge '+(KAT_CLS[t.Kategori]||"badge-grey")+'">'+esc(labelKat(t.Kategori))+'</span>'+badgeUsulan(t.StatusKatalog)+(lokasi(t)?'<span>'+esc(lokasi(t))+'</span>':'')+(t.Kompetensi?'<span>Mengembangkan: <b style="color:var(--text)">'+esc(t.Kompetensi)+'</b></span>':'')+'</div></div><div class="ev-j">'+esc(t.Jam)+' jam</div></div>'; };
+  const bulanTampil = bulanAktif ? [bulanAktif] : VBLN;
+  const agenda = bulanTampil.map(b=>{
+    const list = r.itp.filter(t=>t.Bulan===b && t.Kategori!=="IHT"), iht = r.itp.filter(t=>t.Bulan===b && t.Kategori==="IHT");
+    if(!list.length && !iht.length) return bulanAktif ? '<div class="mon"><div class="empty">Tidak ada agenda di bulan ini.</div></div>' : '';
+    const jamIhtB = iht.reduce((a,t)=>a+Number(t.Jam||0),0);
+    return '<div class="mon"><div class="mon-h">'+VBLN_P[VBLN.indexOf(b)]+' 2027 <span>'+jamBln[VBLN.indexOf(b)]+' jam</span></div>'+list.map(ev).join("")+
+      (iht.length ? '<div class="ev"><div class="ev-d"><b>'+iht.length+'×</b><span>Sabtu</span></div><div><div class="ev-t">IHT Sabtu di cabang</div><div class="ev-m">'+[...new Set(iht.map(t=>t.Judul))].map(esc).join(" · ")+'</div></div><div class="ev-j">'+jamIhtB+' jam</div></div>' : '')+'</div>';
+  }).join("");
+  return hero + strip + '<h2 class="sect">Agenda Belajar</h2><div class="card">'+agenda+'<div class="hint" style="margin-top:12px">Ketuk nama training untuk melihat tujuan, materi, dan cara evaluasinya. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>';
+}
+
 /* ---------- Hasil live & validasi Head unit ---------- */
 async function bukaHasil(sasaran, baruSubmit){
   show("scr-tna-hasil");
@@ -1813,11 +2130,13 @@ function renderHasil(baruSubmit){
     '<div class="btn-row">'+(!r.kelompok && r.sasaran.target ? '<button type="button" class="btn btn-ghost btn-kecil" data-rekam="'+esc(r.sasaran.target)+'" data-nama="'+esc(r.nama)+'">Riwayat training</button>' : '')+
     '</div></div>';
   if(!r.dinilai){ $("tna-hasil-body").innerHTML = banner + '<div class="card"><div class="empty">Belum ada penilaian atasan yang final untuk dihitung.</div></div>'; return; }
-  const gap = '<h2 class="sect">Gap Kompetensi</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
-    r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'<div class="hint" style="margin:0">'+esc(g.Kategori)+(g.Flag?' · <b style="color:var(--red)">'+esc(g.Flag)+'</b>':'')+'</div></td><td>'+esc(g.Required)+'</td><td><b>'+esc(g.Actual===""?"-":g.Actual)+'</b><div class="hint" style="margin:0;white-space:nowrap">A '+esc(g.SkorAtasan===""?"-":g.SkorAtasan)+' · S '+esc(g.SkorSelf===""?"-":g.SkorSelf)+'</div></td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+(Number(g.Gap)>0?' '+esc(g.Gap):'')+'</span></td></tr>').join("")+'</table>'+
-    '<div class="hint">Aktual = '+'70% atasan (A) + 30% self (S); tanpa self = nilai atasan.</div></div>';
+  const jamW = r.wajib.reduce((a,w)=>a+Number(w.jam||0),0);
+  const viz = vizRingkas(r.gap, { wajib:{ n:r.wajib.length, jam:jamW } }) + vizProfil(r.gap) +
+    ((vizRadar(r.gap) || vizKuadran(r.gap)) ? '<h2 class="sect">Bentuk Profil &amp; Prioritas</h2><div class="viz-2">'+vizRadar(r.gap)+vizKuadran(r.gap)+'</div>' : '') + vizPersepsi(r.gap);
+  const nav = vizNav([["rpt-ringkas","Ringkasan"],["rpt-profil","Profil"],(vizRadar(r.gap)?["rpt-radar","Behavioral"]:null),(vizKuadran(r.gap)?["rpt-prioritas","Prioritas"]:null),
+    (vizPersepsi(r.gap)?["rpt-persepsi","Persepsi"]:null),(r.wajib.length?["rpt-wajib","Training wajib"]:null),(r.rekomendasi.length?["rpt-rencana","Rencana 70/20/10"]:null)]);
   const bk = r.bukti || {};
-  const bukti = (bisa && Object.keys(bk).length) ? '<details class="card" style="padding:14px 18px"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Lihat perilaku yang dicentang penilai</summary>'+
+  const bukti = (bisa && Object.keys(bk).length) ? '<details class="card" id="rpt-bukti" style="padding:14px 18px"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Lihat perilaku yang dicentang penilai</summary>'+
     r.gap.map(g=>{
       const b = bk[g.KodeKompetensi]; if(!b) return '';
       return '<div style="margin-top:12px"><b>'+esc(g.Kompetensi)+'</b>'+b.penilai.map(pn=>'<div class="hint" style="margin:4px 0 2px;color:var(--text)">'+esc(pn.rater)+' ('+esc(pn.peran==="SELF"?"self":(pn.peran==="ATASAN2"?"penilai kedua":"atasan"))+'): '+
@@ -1828,14 +2147,14 @@ function renderHasil(baruSubmit){
   const wGap = r.wajib.filter(w=>w.jenis==="GAP"), wProg = r.wajib.filter(w=>w.jenis!=="GAP");
   const tanpaModul = r.rekomendasi.filter(x=>/^GAP KATALOG/.test(x.R10_Training));
   const barisW = w=>'<div class="idp-line">• '+trn(w.kode, w.judul)+' <span class="hint">('+esc(w.jam||"-")+' jam · '+esc(w.dasar)+')</span></div>';
-  const wajib = (r.wajib.length || tanpaModul.length) ? '<h2 class="sect">Training Wajib 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+r.wajib.length+' training</span></h2><div class="card">'+
+  const wajib = (r.wajib.length || tanpaModul.length) ? '<h2 class="sect" id="rpt-wajib">Training Wajib 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+r.wajib.length+' training</span></h2><div class="card">'+
     (wGap.length ? '<div class="sub-h">Menutup gap kompetensi ('+wGap.length+')</div>'+wGap.map(barisW).join("") : '')+
     (tanpaModul.length ? '<div class="hint" style="color:var(--amber)">'+tanpaModul.length+' kompetensi gap belum punya modul di katalog ('+tanpaModul.map(x=>esc(x.Kompetensi)).join(", ")+'); L&amp;D menyiapkan modulnya.</div>' : '')+
     (wProg.length ? '<div class="sub-h">Program wajib jabatan &amp; korporat ('+wProg.length+')</div>'+wProg.map(barisW).join("") : '')+'</div>' : '';
-  const rek = r.rekomendasi.length ? '<h2 class="sect">Rekomendasi 70/20/10'+(bisa?' (bisa Anda edit)':'')+'</h2>'+r.rekomendasi.map((x,i)=>{
+  const rek = !r.rekomendasi.length ? '<div class="card"><div class="empty">Tidak ada gap. Semua kompetensi sudah memenuhi syarat.</div></div>' :
+    !bisa ? '<h2 class="sect" id="rpt-rencana">Rencana Pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' :
+    '<h2 class="sect" id="rpt-rencana">Rencana Pengembangan 70/20/10 (bisa Anda edit)</h2>'+r.rekomendasi.map((x,i)=>{
     const e = (r.edit||{})[x.KodeKompetensi] || {}, ops = r.opsiTraining[x.KodeKompetensi] || [];
-    if(!bisa) return '<div class="idp-card"><div class="idp-comp">'+esc(x.Kompetensi)+' <span class="badge badge-amber">gap '+esc(x.Gap)+'</span></div>'+
-      '<div class="idp-line"><b>70 Penugasan:</b> '+esc(x.R70_Penugasan)+'</div><div class="idp-line"><b>20 Sosial:</b> '+esc(x.R20_Sosial)+'</div><div class="idp-line"><b>10 Training:</b> '+trnTeks(x.R10_Training)+'</div>'+(x.DiubahValidator?'<div class="hint">Diubah validator</div>':'')+'</div>';
     return '<div class="idp-card" data-rek="'+i+'"><div class="idp-comp">'+esc(x.Kompetensi)+' <span class="badge badge-amber">gap '+esc(x.Gap)+'</span></div>'+
       '<label>70 Penugasan</label><textarea class="rek-70" rows="2">'+esc(e.r70||x.R70_Penugasan)+'</textarea>'+
       '<label>20 Sosial (coaching / mentoring)</label><textarea class="rek-20" rows="2">'+esc(e.r20||x.R20_Sosial)+'</textarea>'+
@@ -1843,7 +2162,7 @@ function renderHasil(baruSubmit){
       ops.map(o=>'<option value="'+esc(o.kode)+'"'+(e.r10===o.kode?' selected':'')+'>'+esc(o.kode+" "+o.judul)+' (target L'+esc(o.level)+')</option>').join("")+
       '</select>'+
       (ops.length ? '<div class="hint">Lihat silabus: '+ops.map(o=>trn(o.kode, o.kode)).join(" · ")+'</div>' : '')+'</div>';
-  }).join("") : '<div class="card"><div class="empty">Tidak ada gap. Semua kompetensi sudah memenuhi syarat.</div></div>';
+  }).join("");
   const aksiVal = bisa ? '<div class="card"><label>Catatan validasi (wajib bila dikembalikan)</label><textarea id="inp-val-catatan" rows="2" placeholder="Contoh: rating Product Knowledge terlalu tinggi, mohon cek ulang"></textarea>'+
     '<div class="err" id="err-tna-val"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">'+
     '<button class="btn btn-primary" id="btn-val-setujui">Setujui</button><button class="btn btn-ghost" id="btn-val-kembali">Kembalikan ke Penilai</button></div></div>' : '';
@@ -1856,7 +2175,7 @@ function renderHasil(baruSubmit){
   tna.berikut = (!bisa && baruSubmit && antre.length) ? antre[0] : null;
   const lanjut = tna.berikut ? '<button class="btn btn-primary" id="btn-hasil-lanjut" style="margin:6px 0 30px">Nilai berikutnya: '+esc(tna.berikut.nama)+' ('+antre.length+' tersisa)</button>' : '';
   const kaki = '<div class="kaki-ref">Rujukan (opsional): <button type="button" class="link-ref" data-landasan="1">dasar ilmiah perhitungan gap &amp; rekomendasi</button></div>';
-  $("tna-hasil-body").innerHTML = banner + gap + bukti + wajib + rek + aksiVal + revisi + lanjut + kaki;
+  $("tna-hasil-body").innerHTML = banner + nav + viz + bukti + wajib + rek + aksiVal + revisi + lanjut + kaki;
   if($("btn-hasil-lanjut")) $("btn-hasil-lanjut").onclick = ()=> bukaFormTNA(tna.berikut.s);
   if($("btn-hasil-revisi")) $("btn-hasil-revisi").onclick = ()=> bukaFormTNA(r.sasaran);
   if(bisa){
@@ -1887,6 +2206,7 @@ async function kirimValidasi(aksi){
 
 /* ---------- ITP & hasil ---------- */
 $("btn-tna-itp").onclick = ()=> bukaITP(state.nik);
+let itpData = null;
 async function bukaITP(nik){
   show("scr-tna-itp");
   $("tna-itp-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
@@ -1894,25 +2214,19 @@ async function bukaITP(nik){
     const r = await tnaApi("tnaITPSaya", { target: nik });
     $("tna-itp-sub").textContent = r.nama + " · " + r.jabatan;
     if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP &amp; kalender training belum diterbitkan. Output TNA 2027 terbit setelah window asesmen ditutup dan hasil divalidasi.</div></div>'; return; }
-    const katCls = KAT_CLS;
-    const inti = r.itp.filter(t=>t.Kategori!=="IHT"), ihtList = r.itp.filter(t=>t.Kategori==="IHT"), ihtGrup = {};
-    ihtList.forEach(t=>{ const g = ihtGrup[t.KodeTraining] = ihtGrup[t.KodeTraining] || { judul:t.Judul, jam:0, tgl:[] }; g.jam += Number(t.Jam||0); if(t.TanggalMulai) g.tgl.push(t.TanggalMulai); });
-    const ihtJam = ihtList.reduce((a,t)=>a+Number(t.Jam||0),0);
-    const gapCls = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
-    $("tna-itp-body").innerHTML =
-      '<h2 class="sect">Rencana &amp; Kalender Training 2027</h2><div class="card" style="overflow-x:auto"><table><tr><th>Jadwal</th><th>Training</th><th>Jam</th></tr>'+
-      inti.map(t=>'<tr><td style="white-space:nowrap"><b>'+esc(t.Bulan)+'</b>'+(t.TanggalMulai?'<div class="hint" style="margin:0">'+(t.Kategori==="IHT"?'Sabtu ':'mulai ')+esc(new Date(t.TanggalMulai).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+'</div>':'')+'</td><td>'+trn(t.KodeTraining, t.Judul)+'<div style="margin-top:3px"><span class="badge '+(katCls[t.Kategori]||"badge-grey")+'">'+esc(labelKat(t.Kategori))+'</span> '+badgeUsulan(t.StatusKatalog)+'<span class="hint">'+esc(t.Lokasi==="ONLINE"?"Online":(t.Lokasi==="TERPUSAT"?"Kelas terpusat":(t.Lokasi||"")))+'</span></div></td><td>'+esc(t.Jam)+'</td></tr>').join("")+'</table>'+
-      '<div class="hint">Total '+r.itp.reduce((a,t)=>a+Number(t.Jam||0),0)+' jam'+(ihtList.length?' (termasuk IHT Sabtu '+ihtJam+' jam)':'')+'. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>'+
-      (ihtList.length ? '<h2 class="sect">IHT Sabtu di cabang</h2><div class="card"><div class="hint" style="margin-top:0">Sesi 2 jam di cabang, dibawakan instruktur cabang. Topik per bulan diumumkan L&amp;D.</div>'+
-        Object.keys(ihtGrup).map(k=>{ const g = ihtGrup[k]; return '<div class="idp-line" style="margin:10px 0"><b>'+trn(k, g.judul)+'</b> <span class="badge badge-green">IHT</span>'+
-          '<div class="hint" style="margin:2px 0">'+g.tgl.length+' Sabtu · '+g.jam+' jam</div><details><summary class="hint" style="cursor:pointer">Lihat tanggal</summary><div style="font-size:12.5px;margin-top:4px">'+
-          g.tgl.map(d=>esc(new Date(d).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))).join(" · ")+'</div></details></div>'; }).join("")+'</div>' : '')+
-      '<h2 class="sect"'+(r.gap.length?'':' style="display:none"')+'>Hasil Kompetensi</h2><div class="card" style="overflow-x:auto'+(r.gap.length?'':';display:none')+'"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Aktual</th><th>Status</th></tr>'+
-      r.gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.Actual)+'</td><td><span class="badge '+(gapCls[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+'</span></td></tr>').join("")+'</table></div>'+
-      (r.rekomendasi.length ? '<h2 class="sect">Rencana Pengembangan 70/20/10</h2>'+r.rekomendasi.map(x=>'<div class="idp-card"><div class="idp-comp">'+esc(x.Kompetensi)+'</div>'+
-        '<div class="idp-line"><b>70 Penugasan:</b> '+esc(x.R70_Penugasan)+'</div><div class="idp-line"><b>20 Sosial:</b> '+esc(x.R20_Sosial)+'</div><div class="idp-line"><b>10 Training:</b> '+trnTeks(x.R10_Training)+'</div></div>').join("") : '')+
-      '<div class="hint" style="margin:10px 0 24px">Ketuk nama training untuk melihat tujuan, materi, dan cara evaluasinya.</div>';
+    itpData = r; renderITP("");
   }catch(e){ $("tna-itp-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+}
+// Peta belajar 2027: karyawan melihat rencana & kalendernya; atasan/validator juga melihat profil & rencana 70/20/10.
+function renderITP(bulan){
+  const r = itpData; if(!r) return;
+  const peta = r.itp.length ? vizPetaBelajar(r, bulan) : '';
+  const profil = r.gap.length ? vizProfil(r.gap) : '';
+  const rencana = r.rekomendasi.length ? '<h2 class="sect">Rencana Pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' : '';
+  $("tna-itp-body").innerHTML = peta + profil + rencana + '<div style="height:24px"></div>';
+  document.querySelectorAll("#tna-itp-body [data-bulan]").forEach(el=> el.onclick = ev=>{
+    ev.preventDefault(); const b = el.dataset.bulan; renderITP(b && b !== bulan ? b : "");
+  });
 }
 
 /* ---------- Matriks jabatan (baca saja, untuk dibagikan ke Dept Head) ---------- */

@@ -1,10 +1,12 @@
-/* BBLC TNA Engine v2.3, 27 Okt 2026. Perubahan (koreksi user 27 Okt): setiap kompetensi yang gap WAJIB mendapat training
+/* BBLC TNA Engine v2.3.1, 27 Okt 2026. Perubahan: tnaITPSaya menyertakan nama kompetensi training penutup gap dan targetJam.
+ * BBLC TNA Engine v2.3, 27 Okt 2026. Perubahan (koreksi user 27 Okt): setiap kompetensi yang gap WAJIB mendapat training
  * penutup gap (kategori ITP "WajibGap"), tanpa batas jumlah per tahun, tanpa ditunda, dan untuk semua kategori kompetensi
  * (Technical, Behavioral, Leadership). Parameter MaksDianjurkan & KategoriDianjurkan dihapus; validator hanya bisa mengganti
  * modul, tidak bisa meniadakan training (opsi "TANPA" lama diabaikan). tnaHasil.wajib memuat program wajib + training penutup gap.
  * Kolom Katalog.SasaranJabatan (opsional, KodeJabatan dipisah koma): modul program/peran (BMDP, SSDP, jalur sales/aftersales,
  * sertifikasi peran) hanya ditawarkan sebagai penutup gap untuk jabatan sasarannya; kosong = semua jabatan. Gap yang kompetensinya
  * sudah dicakup program Wajib orang itu (mis. SL-02 Kacab oleh BMDP-02) tidak diberi training tambahan (tidak dobel).
+ * tnaITPSaya menyertakan nama kompetensi yang dikembangkan tiap training penutup gap (tanpa skor) dan targetJam setahun.
  * BBLC TNA Engine v2.2, 26 Okt 2026. Perubahan: default JendelaKhusus mengikuti kalender program 2027 yang disepakati
  * (satu program tatap muka per bulan): BMDP kelas Jan (modul online mandiri dirilis Jan) & Jul, IST Feb/Mei/Agu/Nov,
  * AST Mar/Jun/Sep/Des, SSDP Apr & Okt (shadowing bengkel bulan berikutnya). Tab TNA_Parameter yang sudah ada tidak ditimpa.
@@ -46,7 +48,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.3";
+var TNA_VERSION = "2.3.1";
 
 /* ============================================================
  * SKEMA TAB
@@ -1678,18 +1680,21 @@ function tnaITPSaya(ss, req) {
   if (target !== auth.nik && t.PenilaiNIK !== auth.nik && t.Penilai2NIK !== auth.nik && !tnaAdalahValidator(auth.nik, t.ValidatorNIK) && auth.role !== "admin") return { ok: false, error: "Tidak berwenang." };
   var batch = {}; tnaBaca(ss, "Batch").forEach(function (b) { batch[b.BatchID] = b; });
   var katStatus = {}; tnaBaca(ss, "Katalog").forEach(function (c) { katStatus[c.KodeTraining] = String(c.Status || ""); });
+  var namaK = {}; tnaBaca(ss, "Kamus").forEach(function (k) { namaK[k.KodeKompetensi] = k.Nama; });
   var itp = tnaBaca(ss, "ITP").filter(function (r) { return String(r.NIK) === target; }).map(function (r) {
     var b = batch[r.BatchID] || {};
     return { Bulan: r.Bulan, KodeTraining: r.KodeTraining, Judul: r.Judul, Kategori: r.Kategori, Jam: r.Jam, Status: r.Status,
-      BatchID: r.BatchID, TanggalMulai: b.TanggalMulai || "", Lokasi: b.Lokasi || "", Metode: b.Metode || "", StatusKatalog: katStatus[r.KodeTraining] || "" };
+      BatchID: r.BatchID, TanggalMulai: b.TanggalMulai || "", Lokasi: b.Lokasi || "", Metode: b.Metode || "", StatusKatalog: katStatus[r.KodeTraining] || "",
+      Kompetensi: r.Kategori === "WajibGap" ? (namaK[r.KodeKompetensi] || "") : "" };
   }).sort(function (x, y) { // urut kalender: bulan, lalu tanggal mulai
     return TNA_BULAN.indexOf(x.Bulan) - TNA_BULAN.indexOf(y.Bulan) || new Date(x.TanggalMulai || 0) - new Date(y.TanggalMulai || 0);
   });
   // Karyawan sendiri hanya ITP & kalender; gap & rekomendasi untuk penilai, validator, admin.
-  if (target === auth.nik && auth.role !== "admin") return { ok: true, nama: t.Nama, jabatan: t.Jabatan, itp: itp, gap: [], rekomendasi: [], hanyaITP: true };
+  var targetJam = Number(tnaParam(ss).TargetJamBulan || 3) * 12;
+  if (target === auth.nik && auth.role !== "admin") return { ok: true, nama: t.Nama, jabatan: t.Jabatan, itp: itp, gap: [], rekomendasi: [], hanyaITP: true, targetJam: targetJam };
   var gap = tnaBaca(ss, "Gap").filter(function (r) { return String(r.NIK) === target; });
   var rek = tnaBaca(ss, "Rekomendasi").filter(function (r) { return String(r.NIK) === target; });
-  return { ok: true, nama: t.Nama, jabatan: t.Jabatan, itp: itp, gap: gap, rekomendasi: rek };
+  return { ok: true, nama: t.Nama, jabatan: t.Jabatan, itp: itp, gap: gap, rekomendasi: rek, targetJam: targetJam };
 }
 
 /* ============================================================
