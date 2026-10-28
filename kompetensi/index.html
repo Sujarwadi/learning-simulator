@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
 <!-- BBLC Studio v3.18, 27 Okt 2026. Perubahan: nilai aktual & gap tampil sebagai angka bulat (mesin TNA v2.5, pembulatan 70/30); Pusat Matrix dirancang ulang bergaya laporan konsultan: cover laporan dengan angka ringkas, heatmap bertingkat satu warna (1-5) dengan kompetensi inti berbingkai, pengelompokan klaster behavioral, band departemen, kolom ringkasan (pemakaian / sebaran status), baris total, sorotan otomatis, panel Cara Membaca, sorot baris & kolom saat kursor melintas, profil jabatan lengkap di laci samping, filter kategori, training matrix dengan bentuk berbeda per jenis (terisi, garis tegas, garis putus, titik) agar terbaca di cetak hitam putih, ekspor PDF dengan skala otomatis, nomor halaman, dan judul kolom berulang. -->
 <!-- BBLC Studio v3.17, 27 Okt 2026. Perubahan: Pusat Matrix menambah sumber "Hasil asesmen" (competency matrix nilai aktual per orang berwarna status, training matrix dari ITP per orang) dan lingkup "Tim Saya" (seluruh anggota di bawah admin menurut rantai penilai); data dimuat ulang tiap kali dibuka; grafik profil: angka skala tidak lagi tertutup penanda syarat. -->
 <!-- BBLC Studio v3.16, 27 Okt 2026. Perubahan: Panduan Pengisian (tombol di halaman masuk, ubin & kartu pengingat di beranda, wajib dibuka sebelum penilaian pertama); Pusat Matrix L&D khusus admin (competency matrix & training matrix per jabatan, dept, divisi, seluruh BBM; penanda Wajib, Wajib bila gap, IHT, Dianjurkan; ekspor PDF A4/A3 lanskap); bagian asumsi, cara pembuktian, dan catatan kebijakan di Landasan Metodologi hanya tampil untuk admin L&D. -->
@@ -252,6 +253,8 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .tile.tile-admin{border:2px solid var(--accent-line);background:linear-gradient(140deg,var(--surface),var(--surface) 55%,rgba(245,158,11,.10))}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.01ms!important}}
 /* ---------- Laporan visual (v3.15): profil kompetensi bergaya laporan asesor ---------- */
+.prog-val{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.prog-val-i{display:inline-flex;align-items:center;gap:8px}
 .rpt-nav{position:sticky;top:64px;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0 10px;margin:0 0 var(--s3);background:linear-gradient(var(--bg) 70%,transparent);scrollbar-width:none}
 .rpt-nav::-webkit-scrollbar{display:none}
 .rpt-nav a{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-a);min-height:32px;display:inline-flex;align-items:center}
@@ -266,7 +269,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .meter-key{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
 .meter-key b{color:var(--ink);font-weight:700}
 .key-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:0}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile-s{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .tile-s .l{font-size:12px;color:var(--muted)}
 .tile-s .v{font-size:26px;font-weight:800;color:var(--ink);margin-top:2px}
@@ -355,6 +358,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
   .prof-row,.dumb-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}
   .prof-row .prof-track,.dumb-row .dumb-track{grid-column:1 / -1;grid-row:2}
   .q-list{grid-template-columns:1fr}
+  .stat-tiles{grid-template-columns:1fr 1fr}
   .yr{gap:2px}.yr .jm{font-size:9.5px}
 }
 @media print{.rpt-nav{display:none}}
@@ -388,13 +392,17 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .pd-done{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:30px}
 .pd-nudge{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--radius);padding:14px 18px;margin-bottom:var(--s4)}
 .pd-nudge b{color:var(--ink)}
+.kual{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--radius);padding:14px 18px;margin-bottom:var(--s4);font-size:13px;color:var(--text);line-height:1.55}
+.kual h4{margin:0 0 6px;font-size:13px;color:var(--ink);display:flex;gap:8px;align-items:center}
+.kual ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+.kual .m{color:var(--muted);font-size:12px}
 .pd-nudge .hint{margin:2px 0 0}
 .lp-guide{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:12px 14px;border-radius:12px;border:1px dashed var(--accent-line);background:var(--accent-soft);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-align:left;min-height:44px}
 .lp-guide:hover,.lp-guide:focus-visible{border-style:solid}
 .lp-guide svg{width:20px;height:20px;stroke:var(--link);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .khusus-ld{display:none}
-body.role-admin .khusus-ld{display:block}
-body.role-admin span.khusus-ld{display:inline}
+body.internal .khusus-ld{display:block}
+body.internal span.khusus-ld{display:inline}
 @media (max-width:720px){.pd-flow,.pd-grid,.pd-ex,.pd-time{grid-template-columns:1fr}.pd-h{font-size:19px}}
 /* ---------- Pusat Matrix L&D (v3.18): bahasa visual laporan konsultan ---------- */
 #scr-tna-pusat{
@@ -588,7 +596,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <div class="lp-when"><div><b>27 Okt – 3 Nov 2026</b>Window asesmen</div><div><b>4 Nov 2026</b>Hasil, ITP &amp; kalender terbit</div></div>
         </div>
       </main>
-      <footer class="lp-foot">Created by Sujarwadi · Bosowa Berlian Learning Center · Satu backend dengan Learning Simulator</footer>
+      <footer class="lp-foot">Created by Sujarwadi · Bosowa Berlian Learning Center</footer>
     </div>
   </section>
 
@@ -929,7 +937,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap pd" style="max-width:860px">
-      <div class="pd-nudge" id="pd-gerbang" style="display:none">Sebelum mengisi penilaian pertama Anda, baca panduan singkat ini sampai selesai, lalu tekan <b>Saya sudah membaca</b> di bagian bawah.</div>
+      <div class="pd-nudge" id="pd-gerbang" style="display:none"><div>Sebelum mengisi penilaian pertama Anda, baca panduan singkat ini sampai selesai, lalu tekan <b>Saya sudah membaca</b> di bagian bawah.</div></div>
       <nav class="rpt-nav" aria-label="Bagian panduan">
         <a href="#pd-1" data-lompat="pd-1">Tujuan</a><a href="#pd-2" data-lompat="pd-2">Siapa mengisi</a><a href="#pd-3" data-lompat="pd-3">Langkah</a>
         <a href="#pd-4" data-lompat="pd-4">Cara level dihitung</a><a href="#pd-5" data-lompat="pd-5">Menilai dengan adil</a><a href="#pd-6" data-lompat="pd-6">Jadwal</a><a href="#pd-7" data-lompat="pd-7">Tanya jawab</a>
@@ -1030,7 +1038,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div class="mx-ctl"><span class="mx-lbl">Sumber</span><div class="seg" role="group" aria-label="Sumber data" id="mx-sumber">
           <button type="button" data-v="standar" aria-pressed="true">Standar jabatan</button><button type="button" data-v="hasil" aria-pressed="false">Hasil asesmen</button></div></div>
         <div class="mx-ctl"><span class="mx-lbl">Lingkup</span><div class="seg" role="group" aria-label="Lingkup" id="mx-lingkup">
-          <button type="button" data-v="tim" aria-pressed="false">Tim Saya</button><button type="button" data-v="jab" aria-pressed="false">Jabatan</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="all" aria-pressed="false">Seluruh BBM</button></div></div>
+          <button type="button" data-v="langsung" aria-pressed="false">Tim Langsung</button><button type="button" data-v="tim" aria-pressed="false">Seluruh Bawahan</button><button type="button" data-v="jab" aria-pressed="false">Jabatan</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="all" aria-pressed="false">Seluruh BBM</button></div></div>
         <div class="mx-ctl" id="mx-pilih-wrap"><label class="mx-lbl" for="mx-pilih">Pilih</label><select id="mx-pilih"></select></div>
         <div class="mx-ctl"><span class="mx-lbl">Tampilkan</span><div class="chips" id="mx-filter" role="group" aria-label="Saring isi matrix"></div></div>
         <button class="btn btn-ghost mx-pdf" id="btn-mx-pdf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>Ekspor PDF</button>
@@ -1062,9 +1070,9 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <h3>4. Level dihitung berjenjang</h3>
         <p>Level = jumlah centang berurutan dari Level 2 ke atas. Bila centang melompat (misalnya L4 dicentang tapi L3 tidak), sistem memberi tanda karena perilaku level atas seharusnya mencakup level di bawahnya (skala kumulatif Guttman, 1944).</p>
         <h3>5. Penilaian atasan diberi bobot lebih besar</h3>
-        <p>Nilai aktual = 70% penilaian atasan + 30% penilaian diri. Riset menunjukkan penilaian diri cenderung lebih tinggi dan kesesuaiannya dengan penilaian atasan rendah (Harris &amp; Schaubroeck, 1988; Heidemeier &amp; Moser, 2009). <span class="khusus-ld"><b>Catatan internal L&amp;D:</b> arah pembobotan berdasar riset, tetapi angka 70/30 adalah keputusan kebijakan L&amp;D, bukan angka baku dari riset.</span></p>
+        <p>Nilai aktual = 70% penilaian atasan + 30% penilaian diri, dibulatkan ke level utuh. Riset menunjukkan penilaian diri cenderung lebih tinggi dan kesesuaiannya dengan penilaian atasan rendah (Harris &amp; Schaubroeck, 1988; Heidemeier &amp; Moser, 2009). <span class="khusus-ld"><b>Catatan internal L&amp;D:</b> arah pembobotan berdasar riset, tetapi angka 70/30 adalah keputusan kebijakan L&amp;D, bukan angka baku dari riset.</span></p>
         <h3>6. Menjaga kualitas penilaian</h3>
-        <p>Kepala Cabang dinilai dua penilai (dua NOH). Sistem menandai pola yang perlu dicek: semua level sama (straight-lining), mayoritas Level 5 (leniency), dan perbedaan besar antara atasan dan diri sendiri. Dasarnya: penilaian satu atasan memiliki keandalan terbatas, rata-rata sekitar 0,52 (Viswesvaran, Ones &amp; Schmidt, 1996), dan kesalahan penilai yang umum (Saal, Downey &amp; Lahey, 1980).</p>
+        <p>Kepala Cabang dinilai dua penilai (dua NOH), dan seluruh hasil divalidasi Head unit sebelum dipakai. <span class="khusus-ld"><b>Catatan internal L&amp;D:</b> sistem juga menandai pola yang perlu dicek, yaitu level yang seragam di hampir semua kompetensi (straight-lining), rata-rata yang jauh di atas penilai lain (leniency), dan selisih besar antara atasan dan diri sendiri.</span> Dasarnya: penilaian satu atasan memiliki keandalan terbatas, rata-rata sekitar 0,52 (Viswesvaran, Ones &amp; Schmidt, 1996), dan kesalahan penilai yang umum (Saal, Downey &amp; Lahey, 1980).</p>
         <h3>7. Analisis kebutuhan tiga lapis</h3>
         <p>Organisasi (tema 2027: technical skill dan leadership), tugas (matriks kompetensi jabatan), dan orang (hasil asesmen). Kerangka ini standar dalam analisis kebutuhan pelatihan (McGehee &amp; Thayer, 1961; Goldstein &amp; Ford, 2002).</p>
         <h3>8. Prioritas = gap × bobot</h3>
@@ -1075,7 +1083,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <p>SSDP (Sales Supervisor) dan BMDP (Kepala Cabang) mengikuti tahapan Leadership Pipeline (Charan, Drotter &amp; Noel, 2011) dan prinsip pelatihan kepemimpinan yang efektif: berbasis kebutuhan, ada praktik dan umpan balik, berjarak, dan dikerjakan di tempat kerja (Lacerenza dkk., 2017).</p>
       </div>
 
-      <div class="khusus-ld"><div class="hint" style="margin:18px 0 0;color:var(--amber)">Bagian berikut hanya terlihat oleh admin L&amp;D.</div>
+      <div class="khusus-ld"><div class="hint" style="margin:18px 0 0;color:var(--amber)">Bagian berikut hanya terlihat oleh tim L&amp;D.</div>
       <h2 class="sect">Yang masih berupa asumsi</h2>
       <div class="card" style="padding:4px 18px 16px">
         <ul>
@@ -1681,17 +1689,49 @@ async function muatKatalog(){
 }
 // Silabus perilaku berlaku per rumpun: W-CB03-L2 memakai silabus W-CB03.
 function cariSilabus(kat, kode){ return kat.silabus[kode] || (/^W-CB\d\d-L\d$/.test(kode) ? kat.silabus[kode.slice(0,6)] : null) || null; }
-const SIL_BADGE = { FINAL:'<span class="badge badge-green">Silabus final</span>', DRAF_AI:'<span class="badge badge-amber">Draf AI, belum direview L&amp;D</span>', BELUM_ADA_SILABUS:'<span class="badge badge-grey">Silabus belum tersedia</span>' };
-function badgeSilabus(s){ return s ? (SIL_BADGE[s.Status]||SIL_BADGE.DRAF_AI) : SIL_BADGE.BELUM_ADA_SILABUS; }
+/* ---------- Catatan internal L&D: hanya tampil untuk admin & tim L&D (tna.internal) ---------- */
+const FLAG_TEKS = {
+  "STRAIGHT-LINING":["Pola isian seragam","Penilai memilih level yang sama pada hampir semua kompetensi (90% atau lebih dari seluruh isiannya). Perlu dipastikan penilaian benar-benar membedakan kemampuan tiap kompetensi."],
+  "LENIENCY":["Cenderung memberi nilai tinggi","Rata-rata level dari penilai ini jauh di atas rata-rata penilai lain."],
+  "KALIBRASI":["Selisih self dan atasan besar","Penilaian diri dan penilaian atasan berbeda 2 level atau lebih."],
+  "RATER TUNGGAL":["Hanya satu penilai","Seharusnya dinilai dua penilai, tetapi baru satu yang mengisi."],
+  "JD_ACUAN_TERDEKAT":["Memakai JD acuan terdekat","Jabatan ini belum punya JD sendiri."],
+  "DRAFT_AI_TANPA_JD":["Draf tanpa JD","Daftar kompetensi disusun tanpa JD."],
+  "TIDAK DIDUKUNG TASK":["Belum didukung tugas JD","Kompetensi ini tidak ditemukan pada tugas utama JD."]
+};
+const flagList = f => String(f||"").split(/[,;]\s*/).map(x=>x.trim()).filter(Boolean);
+const flagLabel = k => (FLAG_TEKS[k]||[k])[0];
+// Satu kotak ringkas per hasil (bukan label di tiap baris kompetensi)
+function kotakKualitas(gap){
+  if(!tna.internal) return "";
+  const rater = [...new Set(gap.flatMap(g=>flagList(g.Flag)).filter(k=>k==="STRAIGHT-LINING"||k==="LENIENCY"))];
+  const per = k => gap.filter(g=>flagList(g.Flag).includes(k)).map(g=>g.Kompetensi);
+  const kal = per("KALIBRASI"), tung = per("RATER TUNGGAL");
+  if(!rater.length && !kal.length && !tung.length) return "";
+  return '<div class="kual"><h4>Catatan kualitas penilaian <span class="badge badge-grey">khusus L&amp;D</span></h4>'+
+    '<ul>'+rater.map(k=>'<li><b>'+esc(flagLabel(k))+'.</b> '+esc(FLAG_TEKS[k][1])+'</li>').join("")+
+    (kal.length ? '<li><b>'+esc(flagLabel("KALIBRASI"))+'</b> pada '+kal.map(esc).join(", ")+'. <span class="m">Bahan diskusi umpan balik, bukan kesalahan.</span></li>' : '')+
+    (tung.length ? '<li><b>'+esc(flagLabel("RATER TUNGGAL"))+'</b> pada '+tung.map(esc).join(", ")+'.</li>' : '')+'</ul></div>';
+}
+// Teks rekomendasi training untuk pengguna umum: tanpa istilah teknis internal
+const teksR10 = t => (!tna.internal && /^GAP KATALOG/.test(String(t||""))) ? "Training akan dijadwalkan L&D" : t;
+const SIL_BADGE = { FINAL:'<span class="badge badge-green">Silabus final</span>', DRAF_AI:'<span class="badge badge-amber">Draf · perlu review L&amp;D</span>', BELUM_ADA_SILABUS:'<span class="badge badge-grey">Belum ada silabus</span>' };
+function badgeSilabus(s){ if(!tna.internal) return ""; return s ? (SIL_BADGE[s.Status]||SIL_BADGE.DRAF_AI) : SIL_BADGE.BELUM_ADA_SILABUS; }
 
 async function bukaKatalog(){
   bukaLayar("scr-tna-katalog");
+  // pilihan penyaring: pengguna umum hanya melihat pilihan yang bermakna bagi mereka
+  const sel = $("sel-kat-jenis"), lama = sel.value;
+  sel.innerHTML = tna.internal
+    ? '<option value="">Semua program</option><option value="SILABUS">Yang sudah punya silabus</option><option value="Wajib">Kategori Wajib</option><option value="Dianjurkan">Modul penutup gap</option><option value="Pengayaan">Kategori Pengayaan</option><option value="IHT">IHT Sabtu (rumpun)</option><option value="INTERNAL">Program internal BBLC (IHT dll.)</option>'
+    : '<option value="">Semua program</option><option value="Wajib">Wajib</option><option value="IHT">IHT Sabtu</option><option value="Pengayaan">Pengayaan</option>';
+  if([...sel.options].some(o=>o.value===lama)) sel.value = lama;
   $("kat-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat katalog&hellip;</div>';
   try{ await muatKatalog(); renderKatalog(); }
   catch(e){ $("kat-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
 // Program katalog berstatus usulan: jadwalnya sudah direncanakan, materi/vendor masih disiapkan L&D.
-function badgeUsulan(status){ return status==="USULAN_PENGADAAN" ? '<span class="badge badge-amber">Materi disiapkan L&amp;D</span> ' : ''; }
+function badgeUsulan(status){ return tna.internal && status==="USULAN_PENGADAAN" ? '<span class="badge badge-amber">Materi belum siap</span> ' : ''; }
 function daftarKatalog(){
   const kat = tna.kat, ada = {};
   const list = kat.katalog.map(c=>{ ada[c.kode] = true; const s = cariSilabus(kat, c.kode); return { kode:c.kode, judul:c.judul, kategori:c.kategori, metode:c.metode, jam:c.jam, kompetensi:c.kompetensi, status:c.status, sil:s, internal:false }; });
@@ -1713,11 +1753,11 @@ function renderKatalog(){
     return (x.kode+" "+x.judul+" "+(x.kompetensi||"")+" "+(x.sil?x.sil.Outline+" "+x.sil.Sasaran:"")).toLowerCase().includes(q);
   }).sort((a,b)=> (b.sil&&b.sil.Status!=="BELUM_ADA_SILABUS"?1:0)-(a.sil&&a.sil.Status!=="BELUM_ADA_SILABUS"?1:0) || String(a.judul).localeCompare(String(b.judul)));
   const nSil = semua.filter(x=>x.sil && x.sil.Status!=="BELUM_ADA_SILABUS").length;
-  $("kat-sub").textContent = semua.length + " program · " + nSil + " sudah punya silabus";
+  $("kat-sub").textContent = tna.internal ? semua.length + " program · " + nSil + " sudah punya silabus" : semua.length + " program";
   const katCls = KAT_CLS;
   $("kat-body").innerHTML = list.length ? list.slice(0,200).map(x=>
     '<button type="button" class="kat-item" data-trn="'+esc(x.kode)+'"><b>'+esc(x.judul)+'</b> <span class="hint">'+esc(x.kode)+'</span>'+
-    '<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge '+(katCls[x.kategori]||"badge-grey")+'">'+esc(x.internal?"Internal: "+(x.kategori||""):labelKat(x.kategori))+'</span>'+badgeSilabus(x.sil)+badgeUsulan(x.status)+
+    '<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge '+(katCls[x.kategori]||"badge-grey")+'">'+esc(x.internal?(tna.internal?"Internal: ":"")+(x.kategori||""):labelKat(x.kategori))+'</span>'+badgeSilabus(x.sil)+badgeUsulan(x.status)+
     '<span class="hint" style="margin:0">'+esc([x.metode, x.jam?x.jam+" jam":""].filter(Boolean).join(" · "))+'</span></div>'+
     (x.kompetensi?'<div class="hint" style="margin:4px 0 0">Kompetensi: '+esc(x.kompetensi)+'</div>':'')+'</button>').join("") +
     (list.length>200?'<div class="hint">Menampilkan 200 dari '+list.length+'. Persempit pencarian.</div>':'')
@@ -1733,27 +1773,37 @@ async function bukaSilabus(kode){
   try{ await muatKatalog(); renderSilabus(kode); }
   catch(e){ $("sil-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
+// Sumber: "RUJUKAN: a | b | c" = daftar pustaka (tampil untuk semua); selain itu = lokasi materi internal (hanya L&D)
+function rujukanSilabus(s, c){
+  const sm = String((s&&s.Sumber) || "");
+  if(/^RUJUKAN:/i.test(sm)){
+    const l = sm.replace(/^RUJUKAN:\s*/i,"").split(/\s*\|\s*/).filter(Boolean);
+    return '<div class="sil-blok"><h3>Rujukan</h3><ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--text)">'+l.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+  }
+  const lain = sm || (c&&c.sumber) || "";
+  return tna.internal && lain ? '<div class="sil-blok"><h3>Sumber materi (internal L&amp;D)</h3><div style="font-size:13.5px">'+esc(lain)+'</div></div>' : '';
+}
 function renderSilabus(kode){
   const kat = tna.kat, c = kat.byKode[kode] || null, s = cariSilabus(kat, kode);
   if(!c && !s){ $("sil-body").innerHTML = '<div class="card"><div class="empty">Training '+esc(kode)+' tidak ada di katalog.</div></div>'; return; }
   const judul = c ? c.judul : s.Judul;
   $("sil-sub").textContent = kode;
-  const blok = (lbl, isi)=> isi ? '<div class="sil-blok"><h3>'+lbl+'</h3><div style="font-size:13.5px">'+isi+'</div></div>' : '';
+  const blok = (lbl, isi)=> isi && !/^(belum tercantum|lihat katalog|belum ada|tidak ada)\.?$/i.test(String(isi).trim()) ? '<div class="sil-blok"><h3>'+lbl+'</h3><div style="font-size:13.5px">'+isi+'</div></div>' : '';
   const outline = s && s.Outline ? '<ol>'+String(s.Outline).split(/\n+/).filter(Boolean).map(l=>'<li>'+esc(l)+'</li>').join("")+'</ol>' : '';
   const ada = s && s.Status!=="BELUM_ADA_SILABUS";
   $("sil-body").innerHTML =
     '<div class="card" style="padding:16px 18px"><div style="font-size:17px;font-weight:800;color:var(--ink)">'+esc(judul)+'</div>'+
     '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+(c?'<span class="badge badge-grey">'+esc(labelKat(c.kategori))+'</span>':'<span class="badge badge-grey">Program internal BBLC</span>')+badgeSilabus(s)+(c?badgeUsulan(c.status):'')+'</div>'+
-    (s && s.Status==="DRAF_AI" ? '<div class="hint" style="color:var(--amber)">Ringkasan ini disusun otomatis dari materi di Drive L&amp;D dan belum direview L&amp;D. Gunakan sebagai gambaran awal.</div>' : '')+
+    (tna.internal && s && s.Status==="DRAF_AI" ? '<div class="hint" style="color:var(--amber)">Catatan L&amp;D: silabus ini masih berstatus draf dan belum direview.</div>' : '')+
     blok("Kompetensi yang dikembangkan", esc((s&&s.Kompetensi) || (c&&c.kompetensi) || ""))+
     blok("Sasaran peserta", esc(s?s.Sasaran:""))+
     blok("Tujuan", esc(ada?s.Tujuan:""))+
     blok("Materi", outline)+
     blok("Metode", esc((s&&s.Metode) || (c&&c.metode) || ""))+
-    blok("Durasi", esc(c&&c.jam ? c.jam+" jam (katalog TNA 2027)" : (s?s.Durasi:"")))+
+    blok("Durasi", esc(c&&c.jam ? c.jam+" jam" : (s?s.Durasi:"")))+
     blok("Evaluasi", esc(s?s.Evaluasi:""))+
-    blok("Sumber materi", esc((s&&s.Sumber) || (c&&c.sumber) || ""))+
-    (!ada ? '<div class="sil-blok"><div class="empty" style="text-align:left;padding:6px 0">'+esc(s && s.Tujuan ? s.Tujuan : "Silabus untuk training ini belum ada di folder materi L&D. Hubungi L&D untuk detailnya.")+'</div></div>' : '')+
+    rujukanSilabus(s, c)+
+    (!ada ? '<div class="sil-blok"><div class="empty" style="text-align:left;padding:6px 0">'+esc(tna.internal ? (s && s.Tujuan ? s.Tujuan : "Silabus untuk training ini belum ada di folder materi L&D.") : "Rincian materi akan dibagikan L&D sebelum pelaksanaan.")+'</div></div>' : '')+
     (kat.admin && s && s.Status!=="BELUM_ADA_SILABUS" ? '<div class="btn-row"><button class="btn btn-ghost btn-kecil" id="btn-sil-status">'+(s.Status==="FINAL"?"Kembalikan ke status draf":"Tandai silabus final (sudah direview)")+'</button></div><div class="err" id="err-sil"></div>' : '')+
     '</div>';
   if($("btn-sil-status")) $("btn-sil-status").onclick = async ()=>{
@@ -1792,7 +1842,7 @@ async function masukTNA(loginResp){
   $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
   $("btn-tna-studio").style.display = tna.isAdmin ? "" : "none";
   $("btn-tna-pusat").style.display = tna.isAdmin ? "" : "none";
-  document.body.classList.toggle("role-admin", tna.isAdmin);
+  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); // dipastikan ulang dari konteks (tim L&D juga internal)
   pdPindahkanTanda();
   show("scr-tna-home");
   await muatBerandaTNA();
@@ -1803,7 +1853,7 @@ async function muatBerandaTNA(){
   $("tna-home-loading").style.display = "block"; $("tna-home-body").style.display = "none";
   try{
     const r = await tnaApi("tnaKonteks");
-    tna.konteks = r;
+    tna.konteks = r; tna.internal = !!r.internal; document.body.classList.toggle("internal", tna.internal);
     const w = r.window;
     const sisaMs = new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
     const cd = (w!=="DITUTUP" && sisaMs>0) ? '<div class="win-cd">'+sisaH+' hari '+sisaJ+' jam<small>'+(w==="DIBUKA"?"sampai ditutup":"sampai dibuka")+'</small></div>' : '';
@@ -1833,10 +1883,10 @@ async function muatBerandaTNA(){
     const bersih = menunggu.filter(v=> v.ringkasan && !v.ringkasan.flag && !v.ringkasan.major);
     $("tna-validasi-wrap").innerHTML = val.length ? '<h2 class="sect">Validasi Hasil Tim ('+menunggu.length+' menunggu)</h2>'+
       '<div class="hint" style="margin:-6px 0 10px">Tinjau gap &amp; rekomendasi hasil penilaian, lalu setujui, edit, atau kembalikan ke penilai.</div>'+
-      (bersih.length ? '<button class="btn btn-ghost" id="btn-val-massal" style="margin-bottom:10px">Setujui '+bersih.length+' hasil tanpa flag &amp; tanpa gap Major</button>' : '')+
+      (bersih.length ? '<button class="btn btn-ghost" id="btn-val-massal" style="margin-bottom:10px">Setujui '+bersih.length+' hasil yang siap disetujui</button><div class="hint" style="margin:-4px 0 10px">Hasil dengan gap Major atau yang perlu ditinjau khusus tidak ikut; tinjau satu per satu.</div>' : '')+
       '<div class="card">'+val.map(v=>{
         const rg = v.ringkasan||{};
-        const info = (rg.major?'Major '+rg.major+' · ':'')+(rg.moderate?'Moderate '+rg.moderate+' · ':'')+(rg.flag?'<b style="color:var(--red)">Flag '+rg.flag+'</b> · ':'')+'Penilai: '+esc(v.penilai||"-");
+        const info = (rg.major?'Major '+rg.major+' · ':'')+(rg.moderate?'Moderate '+rg.moderate+' · ':'')+(tna.internal && rg.flag?'<b style="color:var(--red)">Catatan: '+esc((rg.jenis||[]).map(flagLabel).join(", ")||rg.flag)+'</b> · ':'')+'Penilai: '+esc(v.penilai||"-");
         return '<div class="team-item" data-val="'+esc(v.kunci)+'"><div class="team-avatar">'+esc((v.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(v.nama)+'</div><div class="team-jabatan">'+esc(v.jabatan||"")+' · '+esc(v.cabang||"")+'<br>'+info+'</div></div>'+badgeValidasi(v.status)+'</div>';
       }).join("")+'</div>' : "";
     // Approval delegasi
@@ -1878,7 +1928,7 @@ async function muatBerandaTNA(){
     document.querySelectorAll("[data-hasil-kel]").forEach(el=> el.onclick = (e)=>{ e.stopPropagation(); bukaHasil({ kelompokId: el.dataset.hasilKel }); });
     document.querySelectorAll("[data-val]").forEach(el=> el.onclick = ()=>{ const k = el.dataset.val; bukaHasil(k.indexOf("K:")===0 ? { kelompokId: k.substring(2) } : { target: k }); });
     if($("btn-val-massal")) $("btn-val-massal").onclick = async ()=>{
-      if(!confirm("Setujui "+bersih.length+" hasil tanpa flag & tanpa gap Major? Hasil lain tetap perlu ditinjau satu per satu.")) return;
+      if(!confirm("Setujui "+bersih.length+" hasil yang siap disetujui? Hasil lain tetap perlu ditinjau satu per satu.")) return;
       try{ const x = await tnaApi("tnaValidasiMassal", { targets: bersih.map(v=>v.kunci) }); alert(x.disetujui+" hasil disetujui."); }catch(e){ alert(e.message); }
       muatBerandaTNA();
     };
@@ -2044,22 +2094,40 @@ async function putuskanDelegasi(setuju){
 $("btn-tna-setujui").onclick = ()=> putuskanDelegasi(true);
 $("btn-tna-tolak").onclick = ()=>{ if(confirm("Tolak isian delegasi ini?")) putuskanDelegasi(false); };
 
+/* ---------- Lingkup tim (switch dipakai Progres, Dashboard Tim, Training Tim, Pusat Matrix) ---------- */
+const LINGKUP_LABEL = { langsung:"Tim langsung", bawahan:"Seluruh bawahan", semua:"Seluruh BBM" };
+function switchLingkup(info, handler, idn){
+  if(!info || !info.jumlah) return "";
+  const urut = ["langsung","bawahan"].concat(info.jumlah.semua!=null ? ["semua"] : []);
+  window["__lk_"+idn] = handler;
+  return '<div class="seg" role="group" aria-label="Lingkup tampilan" style="margin:0 0 var(--s3)">'+urut.map(k=>
+    '<button type="button" aria-pressed="'+(info.pilih===k)+'" onclick="window.__lk_'+idn+'(\''+k+'\')">'+LINGKUP_LABEL[k]+' <b>'+info.jumlah[k]+'</b></button>').join("")+'</div>';
+}
+function judulLingkup(info){ return info && info.jumlah ? LINGKUP_LABEL[info.pilih]+" · "+info.jumlah[info.pilih]+" orang" : ""; }
+
 /* ---------- Progres ---------- */
-$("btn-tna-progres").onclick = async ()=>{
-  show("scr-tna-progres");
+async function muatProgres(lingkup){
   $("tna-progres-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
   try{
-    const r = await tnaApi("tnaProgres");
-    $("tna-progres-sub").textContent = r.selesai+" dari "+r.total+" karyawan sudah dinilai ("+r.persen+"%)";
+    const r = await tnaApi("tnaProgres", lingkup ? { lingkup } : {});
+    const sw = switchLingkup(r.lingkup, muatProgres, "progres");
+    $("tna-progres-sub").textContent = judulLingkup(r.lingkup)+" · "+r.selesai+" dari "+r.total+" sudah dinilai ("+r.persen+"%)";
+    if(!r.total){
+      $("tna-progres-body").innerHTML = sw+'<div class="card"><div class="hint">Tidak ada karyawan pada lingkup ini. Pilih lingkup lain di atas.</div></div>';
+      return;
+    }
     const pp = Object.keys(r.perPenilai).map(n=>[n, r.perPenilai[n]]).sort((a,b)=>b[1]-a[1]);
-    $("tna-progres-body").innerHTML =
-      '<div class="card"><div style="font-size:32px;font-weight:800;color:var(--ink)">'+r.persen+'%</div><div class="hint">'+r.selesai+' / '+r.total+' karyawan sudah punya penilaian atasan final</div>'+
-        (r.validasi ? '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+badgeValidasi("DISETUJUI")+' '+r.validasi.DISETUJUI+' &nbsp; '+badgeValidasi("MENUNGGU_VALIDASI")+' '+r.validasi.MENUNGGU_VALIDASI+' &nbsp; '+badgeValidasi("DIKEMBALIKAN")+' '+r.validasi.DIKEMBALIKAN+'</div>' : '')+'</div>'+
+    const val = r.validasi ? '<div class="prog-val">'+
+      [["DISETUJUI",r.validasi.DISETUJUI],["MENUNGGU_VALIDASI",r.validasi.MENUNGGU_VALIDASI],["DIKEMBALIKAN",r.validasi.DIKEMBALIKAN]].map(x=>
+        '<span class="prog-val-i">'+badgeValidasi(x[0])+'<b>'+x[1]+'</b></span>').join("")+'</div>' : '';
+    $("tna-progres-body").innerHTML = sw+
+      '<div class="card"><div style="font-size:32px;font-weight:800;color:var(--ink)">'+r.persen+'%</div><div class="hint">'+r.selesai+' dari '+r.total+' karyawan ('+esc(LINGKUP_LABEL[r.lingkup.pilih].toLowerCase())+') sudah punya penilaian atasan final</div>'+val+'</div>'+
       '<h2 class="sect">Per Cabang / Unit</h2><div class="card" style="overflow-x:auto"><table><tr><th>Unit</th><th>Selesai</th><th>%</th><th>Self-rating</th></tr>'+
       r.units.map(u=>'<tr><td>'+esc(u.unit)+'</td><td>'+u.selesai+'/'+u.total+'</td><td><span class="badge '+(u.persen>=90?"badge-green":(u.persen>=50?"badge-amber":"badge-red"))+'">'+u.persen+'%</span></td><td>'+u.self+'/'+u.perluSelf+'</td></tr>').join("")+'</table></div>'+
       (pp.length ? '<h2 class="sect">Penilai yang Belum Selesai</h2><div class="card" style="overflow-x:auto"><table><tr><th>Penilai</th><th>Sisa</th></tr>'+pp.map(x=>'<tr><td>'+esc(x[0]||"(belum ada penilai)")+'</td><td>'+x[1]+'</td></tr>').join("")+'</table></div>' : '');
   }catch(e){ $("tna-progres-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
-};
+}
+$("btn-tna-progres").onclick = ()=>{ show("scr-tna-progres"); muatProgres(); };
 
 /* ---------- Nilai per kompetensi (satu jabatan, seluruh tim) ---------- */
 let ftGen = 0;
@@ -2162,17 +2230,18 @@ $("dt-tab-t").onclick = ()=>{ dtTab = "t"; muatDashboardTim(); };
 async function muatDashboardTim(){
   $("dt-tab-k").className = dtTab==="k" ? "on" : ""; $("dt-tab-t").className = dtTab==="t" ? "on" : "";
   $("dt-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung&hellip;</div>';
-  try{ if(dtTab==="k") renderDashKompetensi(await tnaApi("tnaTim", dtFilter)); else renderDashTraining(await tnaApi("tnaTrainingTim", { cabang: dtFilter.cabang||"" })); }
+  try{ if(dtTab==="k") renderDashKompetensi(await tnaApi("tnaTim", dtFilter)); else renderDashTraining(await tnaApi("tnaTrainingTim", { cabang: dtFilter.cabang||"", lingkup: dtFilter.lingkup })); }
   catch(e){ $("dt-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
-function filterCabang(list){
-  return list && list.length > 1 ? '<div class="card" style="padding:12px 16px"><label>Cabang / unit</label><select id="dt-cab"><option value="">Semua ('+list.length+')</option>'+list.map(c=>'<option'+(c===dtFilter.cabang?' selected':'')+'>'+esc(c)+'</option>').join("")+'</select></div>' : '';
+function ubahLingkupTim(k){ dtFilter.lingkup = k; delete dtFilter.cabang; delete dtFilter.kodeJabatan; muatDashboardTim(); }
+function filterCabang(list, lk){
+  return switchLingkup(lk, ubahLingkupTim, "tim") + (list && list.length > 1 ? '<div class="card" style="padding:12px 16px"><label>Cabang / unit</label><select id="dt-cab"><option value="">Semua ('+list.length+')</option>'+list.map(c=>'<option'+(c===dtFilter.cabang?' selected':'')+'>'+esc(c)+'</option>').join("")+'</select></div>' : '');
 }
 function pasangFilterCabang(){ if($("dt-cab")) $("dt-cab").onchange = ()=>{ dtFilter.cabang = $("dt-cab").value; delete dtFilter.kodeJabatan; muatDashboardTim(); }; }
 function renderDashKompetensi(r){
-  if(r.kosong){ $("dt-body").innerHTML = '<div class="card"><div class="empty">Tidak ada anggota tim dalam lingkup Anda.</div></div>'; return; }
+  if(r.kosong){ $("dt-sub").textContent = judulLingkup(r.lingkup); $("dt-body").innerHTML = switchLingkup(r.lingkup, ubahLingkupTim, "tim")+'<div class="card"><div class="empty">Tidak ada karyawan pada lingkup ini. Pilih lingkup lain di atas.</div></div>'; return; }
   const rg = r.ringkasan;
-  $("dt-sub").textContent = rg.orang + " orang dalam lingkup Anda";
+  $("dt-sub").textContent = judulLingkup(r.lingkup) || (rg.orang + " orang");
   const kartu = (n, l, c)=>'<div style="flex:1;min-width:110px;background:var(--bg);border-radius:12px;padding:12px"><div style="font-size:24px;font-weight:800;color:'+c+'">'+n+'</div><div style="font-size:12px;color:var(--muted)">'+l+'</div></div>';
   const ringkas = '<div class="card" style="padding:14px 18px"><div style="display:flex;gap:8px;flex-wrap:wrap">'+kartu(rg.dinilai+'/'+rg.orang,'sudah dinilai','var(--ink)')+kartu(rg.persenKompeten+'%','kompetensi memenuhi syarat','var(--green)')+kartu(r.prioritas.length,'orang prioritas','var(--red)')+'</div>'+
     (rg.dinilai < rg.orang ? '<div class="hint">Angka bertambah seiring penilaian masuk. Yang belum dinilai tidak dihitung sebagai nol.</div>' : '')+'</div>';
@@ -2183,21 +2252,21 @@ function renderDashKompetensi(r){
     '<div class="hint">Skor = jumlah (gap × bobot kompetensi). Ketuk nama untuk melihat detail &amp; rekomendasi.</div></div>' : '';
   const pilihJab = '<div class="card" style="padding:12px 16px"><label>Heatmap jabatan</label><select id="dt-jab">'+r.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===r.kodeJabatan?' selected':'')+'>'+esc(d.jobTitle)+' ('+d.jumlah+')</option>').join("")+'</select></div>';
   const hm = '<div class="card" style="overflow-x:auto;padding:12px"><table class="hm"><tr><th style="text-align:left">Nama</th>'+r.kompetensi.map(c=>'<th title="'+esc(c.nama)+'">'+esc(c.nama.length>22?c.nama.slice(0,20)+"…":c.nama)+'<div style="font-weight:400">syarat '+c.required+'</div></th>').join("")+'</tr>'+
-    r.baris.map(b=>'<tr><td class="nm" data-dt="'+esc(b.nik)+'" title="'+esc(b.nama+" · "+b.cabang)+'">'+esc(b.nama)+'</td>'+b.sel.map(c=>{ const k = c.k==="BELUM DINILAI" ? "BELUM" : c.k; return '<td><span class="c c-'+k+'" title="'+esc(c.k+(c.f?" · "+c.f:""))+'">'+(c.a===""?"·":c.a)+'</span></td>'; }).join("")+'</tr>').join("")+'</table>'+
+    r.baris.map(b=>'<tr><td class="nm" data-dt="'+esc(b.nik)+'" title="'+esc(b.nama+" · "+b.cabang)+'">'+esc(b.nama)+'</td>'+b.sel.map(c=>{ const k = c.k==="BELUM DINILAI" ? "BELUM" : c.k; return '<td><span class="c c-'+k+'" title="'+esc(c.k+(c.f&&tna.internal?" · "+flagLabel(c.f):""))+'">'+(c.a===""?"·":c.a)+'</span></td>'; }).join("")+'</tr>').join("")+'</table>'+
     '<div class="hint" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><span><span class="badge badge-green">Kompeten</span></span><span><span class="badge badge-grey">Minor · kurang 1 level</span></span><span><span class="badge badge-amber">Moderate · kurang 2</span></span><span><span class="badge badge-red">Major · kurang 3+</span></span><span>angka = nilai aktual</span></div></div>';
-  $("dt-body").innerHTML = filterCabang(r.cabangList) + ringkas + top + prio + '<h2 class="sect">Heatmap Orang × Kompetensi</h2>' + pilihJab + hm;
+  $("dt-body").innerHTML = filterCabang(r.cabangList, r.lingkup) + ringkas + top + prio + '<h2 class="sect">Heatmap Orang × Kompetensi</h2>' + pilihJab + hm;
   pasangFilterCabang();
   $("dt-jab").onchange = ()=>{ dtFilter.kodeJabatan = $("dt-jab").value; muatDashboardTim(); };
   document.querySelectorAll("[data-dt]").forEach(el=>{ el.style.cursor = "pointer"; el.onclick = ()=> bukaHasil({ target: el.dataset.dt }); });
 }
 const KAT_CLS = { Wajib:"badge-red", WajibGap:"badge-red", Dianjurkan:"badge-amber", Pengayaan:"badge-grey", IHT:"badge-green" };
 const KAT_LABEL = { WajibGap:"Wajib · tutup gap", Dianjurkan:"Modul penutup gap", Pengayaan:"Pengayaan (opsional)" };
-function labelKat(k){ return KAT_LABEL[k] || k || ""; }
+function labelKat(k){ if(!tna.internal && k==="Dianjurkan") return "Pengembangan kompetensi"; return KAT_LABEL[k] || k || ""; }
 function renderDashTraining(r){
   if(!r.terbit){ $("dt-body").innerHTML = '<div class="card"><div class="empty">Rencana &amp; kalender training tim terbit setelah window asesmen ditutup dan output TNA digenerate (rencana 4 Nov 2026).</div></div>'; return; }
   const BLN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
   const perBulan = {}; r.grup.forEach(g=>{ (perBulan[g.bulan] = perBulan[g.bulan] || []).push(g); });
-  $("dt-sub").textContent = r.orang + " orang · " + r.totalJam + " jam training terencana";
+  $("dt-sub").textContent = (judulLingkup(r.lingkup) || (r.orang + " orang")) + " · " + r.totalJam + " jam training terencana";
   const bulan = BLN.filter(b=>perBulan[b]).map(b=>{
     const gs = perBulan[b].sort((x,y)=> String(x.tanggal).localeCompare(String(y.tanggal)) || y.jumlah - x.jumlah);
     const jamBln = gs.filter(g=>!g.opsional).reduce((a,g)=>a+g.jam*g.jumlah,0), nPes = gs.reduce((a,g)=>a+g.jumlah,0);
@@ -2210,7 +2279,7 @@ function renderDashTraining(r){
     (r.terbanyak.length ? '<div class="hint" style="margin-top:6px">Terbanyak: '+r.terbanyak.map(t=>esc(t.nama)+' '+t.jam+' jam').join(" · ")+'</div>' : '')+
     '<div class="hint">Gunakan untuk mengatur jadwal kerja tim saat anggota mengikuti training.</div>'+
     (!r.denganNama ? '<div class="hint" style="color:var(--amber)">Lingkup Anda besar ('+r.orang+' orang): pilih cabang untuk melihat nama peserta.</div>' : '')+'</div>';
-  $("dt-body").innerHTML = filterCabang(r.cabangList) + ringkas + (bulan || '<div class="card"><div class="empty">Belum ada training terencana untuk tim ini.</div></div>');
+  $("dt-body").innerHTML = filterCabang(r.cabangList, r.lingkup) + ringkas + (bulan || '<div class="card"><div class="empty">Belum ada training terencana pada lingkup ini.</div></div>');
   pasangFilterCabang();
 }
 
@@ -2241,7 +2310,7 @@ function vizRingkas(gap, opt){
     '<div class="meter-key">'+ST_URUT.map(s=>'<span><i class="key-dot" style="background:'+ST_WARNA[s]+'"></i>'+s+' <b>'+cnt[s]+'</b></span>').join("")+'</div>';
   const tile = (l,v,dsc)=>'<div class="tile-s"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(dsc?'<div class="d">'+dsc+'</div>':'')+'</div>';
   const wj = opt && opt.wajib ? opt.wajib : null;
-  const tiles = '<div class="tiles">'+
+  const tiles = '<div class="stat-tiles">'+
     tile("Perlu dikembangkan", cnt.Minor+cnt.Moderate+cnt.Major, cnt.Major ? cnt.Major+" berstatus Major" : "tidak ada yang Major")+
     tile("Persepsi berbeda", beda, beda ? "selisih self vs atasan ≥ 1 level" : "self &amp; atasan selaras")+
     (wj ? tile("Training wajib 2027", wj.n, wj.jam+" jam") : tile("Kompetensi dinilai", n, "dari "+gap.length))+'</div>';
@@ -2277,7 +2346,7 @@ function vizProfil(gap){
     tr += '<i class="req" style="left:'+vPos(req)+'%"></i>';
     tr += '</div>';
     const st = act === null ? '<span class="badge badge-grey">Belum</span>' : '<span class="badge '+(ST_CLS[g.KategoriGap]||"badge-grey")+'">'+esc(g.KategoriGap)+(Number(g.Gap)>0?' '+vFmt(vNum(g.Gap)):'')+'</span>';
-    return '<div class="prof-row"><div class="prof-name">'+esc(g.Kompetensi)+(g.Flag?'<span class="f">'+esc(g.Flag)+'</span>':'')+'</div>'+tr+'<div class="prof-st">'+st+'</div></div>';
+    return '<div class="prof-row"><div class="prof-name">'+esc(g.Kompetensi)+'</div>'+tr+'<div class="prof-st">'+st+'</div></div>';
   };
   const nama = { Behavioral:"Behavioral · Kamus Kompetensi BBM", Leadership:"Leadership", Technical:"Technical · kebutuhan jabatan" };
   const isi = ["Behavioral","Leadership","Technical"].filter(k=>grup[k].length).map(k=>{
@@ -2377,7 +2446,7 @@ function vizRencana(rek, gap){
   const st = {}; gap.forEach(g=> st[g.KodeKompetensi] = g.KategoriGap);
   return rek.slice().sort((a,b)=> Number(b.Prioritas)-Number(a.Prioritas)).map((x,i)=>'<div class="plan"><div class="plan-n">'+(i+1)+'</div><div>'+
     '<div class="plan-h">'+esc(x.Kompetensi)+' <span class="badge '+(ST_CLS[st[x.KodeKompetensi]]||"badge-amber")+'">'+esc(st[x.KodeKompetensi]||"Gap")+' '+vFmt(vNum(x.Gap))+'</span>'+(x.DiubahValidator?'<span class="hint" style="margin:0">diubah validator</span>':'')+'</div>'+
-    '<dl class="plan-r"><dt>70 · KERJA</dt><dd>'+esc(x.R70_Penugasan)+'</dd><dt>20 · ORANG</dt><dd>'+esc(x.R20_Sosial)+'</dd><dt>10 · KELAS</dt><dd>'+trnTeks(x.R10_Training)+'</dd></dl></div></div>').join("");
+    '<dl class="plan-r"><dt>70 · KERJA</dt><dd>'+esc(x.R70_Penugasan)+'</dd><dt>20 · ORANG</dt><dd>'+esc(x.R20_Sosial)+'</dd><dt>10 · KELAS</dt><dd>'+trnTeks(teksR10(x.R10_Training))+'</dd></dl></div></div>').join("");
 }
 
 function vizNav(items){
@@ -2404,7 +2473,7 @@ function vizPetaBelajar(r, bulanAktif){
     '<div class="rpt-big">'+jamW+'<small>jam</small></div><div class="meter" role="img" aria-label="'+pct+'% dari target '+target+' jam"><i style="width:'+pct+'%;background:var(--sky)"></i></div>'+
     '<div class="meter-key"><span>Target minimal <b>'+target+' jam</b> setahun (3 jam/bulan)</span>'+(jamW>=target?'<span style="color:var(--green)"><b style="color:var(--green)">Terpenuhi</b></span>':'')+'</div>'+
     '<p class="rpt-lead">'+(komp.length ? 'Tahun ini Anda mengembangkan <b>'+komp.length+' kompetensi</b>, antara lain '+komp.slice(0,3).map(esc).join(", ")+(komp.length>3?', dan lainnya':'')+'.' : 'Rencana belajar Anda berisi program wajib jabatan dan korporat.')+'</p></div>'+
-    '<div class="tiles">'+tile("Training", wajib.filter(t=>t.Kategori!=="IHT").length, nGap+" menutup kompetensi")+tile("IHT Sabtu", jamIHT+" jam", "di cabang")+tile("Pengayaan", ops.length, "opsional")+'</div></div></div>';
+    '<div class="stat-tiles">'+tile("Training", wajib.filter(t=>t.Kategori!=="IHT").length, nGap+" menutup kompetensi")+tile("IHT Sabtu", jamIHT+" jam", "di cabang")+tile("Pengayaan", ops.length, "opsional")+'</div></div></div>';
   const strip = '<div class="card"><div class="rpt-eyebrow">Sebaran per bulan · ketuk bulan untuk melihat agendanya</div><div class="yr" role="group" aria-label="Jam belajar per bulan">'+
     VBLN.map((b,i)=>'<button type="button" data-bulan="'+b+'" aria-pressed="'+(bulanAktif===b)+'" aria-label="'+VBLN_P[i]+': '+jamBln[i]+' jam"><span class="jm">'+(jamBln[i]?jamBln[i]:"")+'</span><span class="col'+(jamBln[i]?'':' nol')+'" style="height:'+(jamBln[i]?Math.max(6, jamBln[i]/maxB*84):3)+'px"></span><span class="bl">'+b+'</span></button>').join("")+'</div>'+
     (bulanAktif ? '<div class="hint">Menampilkan '+VBLN_P[VBLN.indexOf(bulanAktif)]+'. <a href="#" data-bulan="">Tampilkan semua bulan</a></div>' : '')+'</div>';
@@ -2486,12 +2555,12 @@ async function mxMuatHasil(){
   catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return false; }
 }
 async function mxSegar(){
-  if((mx.sumber === "hasil" || mx.lingkup === "tim") && !(await mxMuatHasil())) return;
+  if((mx.sumber === "hasil" || mx.lingkup === "tim" || mx.lingkup === "langsung") && !(await mxMuatHasil())) return;
   mxIsiPilihan(); mxIsiFilter(); renderMatrix();
 }
 function mxOrangLingkup(){
   const H = mx.hasil, O = H.orang.map(o=>({ nik:o[0], nama:o[1], kj:o[2], jabatan:o[3], cabang:o[4], dept:o[5], div:o[6] }));
-  if(mx.lingkup === "tim"){ const t = new Set(H.timSaya); return O.filter(o=>t.has(o.nik)); }
+  if(mx.lingkup === "tim" || mx.lingkup === "langsung"){ const t = new Set(mx.lingkup === "tim" ? H.timSaya : H.timLangsung); return O.filter(o=>t.has(o.nik)); }
   if(mx.lingkup === "all") return O;
   if(mx.lingkup === "jab") return O.filter(o=>o.kj===mx.pilih);
   if(mx.lingkup === "dept") return O.filter(o=>o.dept===mx.pilih);
@@ -2501,7 +2570,7 @@ function mxJabatanLingkup(){
   const J = mx.data.jabatan;
   let r;
   if(mx.lingkup === "all") r = J;
-  else if(mx.lingkup === "tim"){ const kjs = new Set(mxOrangLingkup().map(o=>o.kj)); r = J.filter(j=>kjs.has(j.kode)); }
+  else if(mx.lingkup === "tim" || mx.lingkup === "langsung"){ const kjs = new Set(mxOrangLingkup().map(o=>o.kj)); r = J.filter(j=>kjs.has(j.kode)); }
   else if(mx.lingkup === "jab") r = J.filter(j=>j.kode===mx.pilih);
   else if(mx.lingkup === "dept") r = J.filter(j=>j.dept===mx.pilih);
   else r = J.filter(j=>j.div===mx.pilih);
@@ -2513,7 +2582,7 @@ function mxIsiPilihan(){
   if(mx.lingkup === "jab") opsi = J.map(j=>[j.kode, j.title+" · "+j.dept]);
   else if(mx.lingkup === "dept") opsi = [...new Set(J.map(j=>j.dept))].map(d=>[d, d+" ("+J.filter(j=>j.dept===d).length+" jabatan)"]);
   else if(mx.lingkup === "div") opsi = [...new Set(J.map(j=>j.div))].map(d=>[d, d+" ("+J.filter(j=>j.div===d).length+" jabatan)"]);
-  $("mx-pilih-wrap").style.display = (mx.lingkup === "all" || mx.lingkup === "tim") ? "none" : "";
+  $("mx-pilih-wrap").style.display = (mx.lingkup === "all" || mx.lingkup === "tim" || mx.lingkup === "langsung") ? "none" : "";
   if(!opsi.some(o=>o[0]===mx.pilih)) mx.pilih = opsi.length ? opsi[0][0] : "";
   $("mx-pilih").innerHTML = opsi.map(o=>'<option value="'+esc(o[0])+'"'+(o[0]===mx.pilih?' selected':'')+'>'+esc(o[1])+'</option>').join("");
 }
@@ -2524,7 +2593,8 @@ function mxIsiFilter(){
 }
 function mxJudulLingkup(js){
   if(mx.lingkup === "all") return "Seluruh BBM";
-  if(mx.lingkup === "tim") return "Tim " + (state.nama || "Saya");
+  if(mx.lingkup === "langsung") return "Tim langsung " + (state.nama || "Saya");
+  if(mx.lingkup === "tim") return "Seluruh bawahan " + (state.nama || "Saya");
   if(mx.lingkup === "jab") return js[0] ? js[0].title : "-";
   return (mx.lingkup === "div" ? "Divisi " : "Dept ") + mx.pilih;
 }
@@ -2553,7 +2623,7 @@ function mxAside(legend, cara, insights){
   return '<aside class="mx-aside"><div><h4>Cara membaca</h4><ul>'+cara.map(x=>'<li>'+x+'</li>').join("")+'</ul>'+legend+'</div>'+
     (insights.length ? '<div><h4>Sorotan</h4><div class="ins">'+insights.map(i=>'<div><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("")+'</div></div>' : '')+'</aside>';
 }
-const mxRamp = ()=> '<div class="ramp">'+[1,2,3,4,5].map(l=>'<div><i class="lv'+l+'">'+l+'</i>'+MX_LV[l]+'</div>').join("")+'</div>';
+const mxRamp = ()=> '<div class="ramp">'+[1,2,3,4,5].map(l=>'<div><i class="lv'+l+'">'+l+'</i><span>'+MX_LV[l]+'</span></div>').join("")+'</div>';
 function mxLaporan(eyebrow, judul, meta, stats, tabelHtml, aside, sumber){
   return '<div class="card mx-rpt"><div class="mx-cover"><div><div class="rpt-eyebrow">'+esc(eyebrow)+'</div><div class="mx-title">'+esc(judul)+'</div><div class="mx-meta">'+esc(meta)+'</div></div>'+
     '<div class="mx-stats">'+stats.map(s=>'<div class="mx-stat"><b>'+esc(String(s[1]))+'</b><span>'+esc(s[0])+'</span></div>').join("")+'</div></div>'+
@@ -2676,13 +2746,13 @@ function mxTrainStandar(js){
 // ---------- hasil asesmen ----------
 function renderMatrixHasil(){
   const H = mx.hasil, D = mx.data; let org = mxOrangLingkup();
-  if(!org.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">'+(mx.lingkup==="tim"?'Belum ada anggota tim di bawah Anda menurut rantai penilai.':'Tidak ada karyawan pada pilihan ini.')+'</div></div>'; return; }
+  if(!org.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">'+(mx.lingkup==="tim"||mx.lingkup==="langsung"?'Belum ada anggota pada lingkup ini menurut rantai penilai.':'Tidak ada karyawan pada pilihan ini.')+'</div></div>'; return; }
   org.sort((a,b)=> a.jabatan.localeCompare(b.jabatan) || a.nama.localeCompare(b.nama));
   const total = org.length, potong = total > MX_MAKS; if(potong) org = org.slice(0, MX_MAKS);
   const set = new Set(org.map(o=>o.nik)), mode = mxMode(org.length), N = org.length;
   const cols = org.map(o=>({ id:o.nik, title:o.nama, sub:o.jabatan.length>16 && !mode.slant ? o.jabatan.slice(0,15)+"…" : (mode.slant ? "" : o.jabatan), band:o.jabatan, tip:o.nama+" · "+o.jabatan+" · "+o.cabang }));
-  const judul = mx.lingkup==="tim" ? "Tim "+(state.nama||"Saya") : mxJudulLingkup(mxJabatanLingkup());
-  const meta = (mx.lingkup==="tim" ? "seluruh anggota di bawah Anda menurut rantai penilai · " : "")+total+" orang"+(potong?" (ditampilkan "+MX_MAKS+" pertama; persempit lingkup untuk melihat semua)":"")+" · disusun "+mxTgl();
+  const judul = (mx.lingkup==="tim"||mx.lingkup==="langsung") ? mxJudulLingkup(null) : mxJudulLingkup(mxJabatanLingkup());
+  const meta = (mx.lingkup==="tim" ? "seluruh anggota di bawah Anda menurut rantai penilai · " : (mx.lingkup==="langsung" ? "orang yang Anda nilai langsung · " : ""))+total+" orang"+(potong?" (ditampilkan "+MX_MAKS+" pertama; persempit lingkup untuk melihat semua)":"")+" · disusun "+mxTgl();
   let out;
   if(mx.jenis === "komp") out = mxKompHasil(org, cols, set, mode);
   else { if(!H.itp.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Training matrix hasil asesmen tersedia setelah output TNA digenerate (Panel Admin TNA, tombol Generate). Sementara itu, gunakan sumber <b>Standar jabatan</b>.</div></div>'; return; }
@@ -2767,7 +2837,7 @@ async function mxBukaJabatan(kode){
     MX_KAT.forEach(k=>{ const l = ks.filter(x=>mxKat(x.kategori)===k); if(!l.length) return;
       h += '<div class="mx-gh">'+k+' <em>'+l.length+' kompetensi</em></div>'+l.map(x=>'<div class="dr-k"><div class="h"><b>'+esc(x.nama)+'</b><span class="bobot'+(x.bobot>=3?' b3':'')+'">'+(MX_BOBOT[x.bobot]||x.bobot)+' · L'+x.required+'</span></div>'+
         '<div class="pips" style="margin-top:6px">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=x.required?'on lv'+x.required:'')+'"></i>').join("")+'</div>'+
-        '<p><b style="font-size:12px;color:var(--muted)">Level '+x.required+' · '+MX_LV[x.required]+':</b> '+esc(x.levels[x.required-1]||"")+'</p>'+(x.flag?'<div class="m">'+esc(x.flag)+'</div>':'')+'</div>').join(""); });
+        '<p><b style="font-size:12px;color:var(--muted)">Level '+x.required+' · '+MX_LV[x.required]+':</b> '+esc(x.levels[x.required-1]||"")+'</p>'+(x.flag?'<div class="m">'+esc(flagList(x.flag).map(flagLabel).join(" · "))+'</div>':'')+'</div>').join(""); });
     $("mx-sheet-isi").innerHTML = h; $("mx-tutup").onclick = mxTutupLaci; $("mx-tutup").focus();
   }catch(e){ $("mx-sheet-isi").innerHTML = '<div class="err show">'+esc(e.message)+'</div><button type="button" class="btn btn-ghost" id="mx-tutup">Tutup</button>'; $("mx-tutup").onclick = mxTutupLaci; }
 }
@@ -2855,11 +2925,11 @@ function renderHasil(baruSubmit){
     }).join("")+'</details>' : '';
   // Semua training penutup gap = wajib (tanpa batas, tidak ditunda) + program wajib jabatan/korporat
   const wGap = r.wajib.filter(w=>w.jenis==="GAP"), wProg = r.wajib.filter(w=>w.jenis!=="GAP");
-  const tanpaModul = r.rekomendasi.filter(x=>/^GAP KATALOG/.test(x.R10_Training));
+  const tanpaModul = tna.internal ? r.rekomendasi.filter(x=>/^GAP KATALOG/.test(x.R10_Training)) : [];
   const barisW = w=>'<div class="idp-line">• '+trn(w.kode, w.judul)+' <span class="hint">('+esc(w.jam||"-")+' jam · '+esc(w.dasar)+')</span></div>';
   const wajib = (r.wajib.length || tanpaModul.length) ? '<h2 class="sect" id="rpt-wajib">Training Wajib 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+r.wajib.length+' training</span></h2><div class="card">'+
     (wGap.length ? '<div class="sub-h">Menutup gap kompetensi ('+wGap.length+')</div>'+wGap.map(barisW).join("") : '')+
-    (tanpaModul.length ? '<div class="hint" style="color:var(--amber)">'+tanpaModul.length+' kompetensi gap belum punya modul di katalog ('+tanpaModul.map(x=>esc(x.Kompetensi)).join(", ")+'); L&amp;D menyiapkan modulnya.</div>' : '')+
+    (tanpaModul.length ? '<div class="hint" style="color:var(--amber)">Catatan L&amp;D: '+tanpaModul.length+' kompetensi gap belum punya modul di katalog ('+tanpaModul.map(x=>esc(x.Kompetensi)).join(", ")+').</div>' : '')+
     (wProg.length ? '<div class="sub-h">Program wajib jabatan &amp; korporat ('+wProg.length+')</div>'+wProg.map(barisW).join("") : '')+'</div>' : '';
   const rek = !r.rekomendasi.length ? '<div class="card"><div class="empty">Tidak ada gap. Semua kompetensi sudah memenuhi syarat.</div></div>' :
     !bisa ? '<h2 class="sect" id="rpt-rencana">Rencana Pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' :
@@ -2868,7 +2938,7 @@ function renderHasil(baruSubmit){
     return '<div class="idp-card" data-rek="'+i+'"><div class="idp-comp">'+esc(x.Kompetensi)+' <span class="badge badge-amber">gap '+esc(x.Gap)+'</span></div>'+
       '<label>70 Penugasan</label><textarea class="rek-70" rows="2">'+esc(e.r70||x.R70_Penugasan)+'</textarea>'+
       '<label>20 Sosial (coaching / mentoring)</label><textarea class="rek-20" rows="2">'+esc(e.r20||x.R20_Sosial)+'</textarea>'+
-      '<label>10 Training (wajib, bisa diganti modul lain)</label><select class="rek-10"><option value="">Sesuai sistem: '+esc(x.R10_Training)+'</option>'+
+      '<label>10 Training (wajib, bisa diganti modul lain)</label><select class="rek-10"><option value="">Sesuai sistem: '+esc(teksR10(x.R10_Training))+'</option>'+
       ops.map(o=>'<option value="'+esc(o.kode)+'"'+(e.r10===o.kode?' selected':'')+'>'+esc(o.kode+" "+o.judul)+' (target L'+esc(o.level)+')</option>').join("")+
       '</select>'+
       (ops.length ? '<div class="hint">Lihat silabus: '+ops.map(o=>trn(o.kode, o.kode)).join(" · ")+'</div>' : '')+'</div>';
@@ -2885,7 +2955,7 @@ function renderHasil(baruSubmit){
   tna.berikut = (!bisa && baruSubmit && antre.length) ? antre[0] : null;
   const lanjut = tna.berikut ? '<button class="btn btn-primary" id="btn-hasil-lanjut" style="margin:6px 0 30px">Nilai berikutnya: '+esc(tna.berikut.nama)+' ('+antre.length+' tersisa)</button>' : '';
   const kaki = '<div class="kaki-ref">Rujukan (opsional): <button type="button" class="link-ref" data-landasan="1">dasar ilmiah perhitungan gap &amp; rekomendasi</button></div>';
-  $("tna-hasil-body").innerHTML = banner + nav + viz + bukti + wajib + rek + aksiVal + revisi + lanjut + kaki;
+  $("tna-hasil-body").innerHTML = banner + kotakKualitas(r.gap) + nav + viz + bukti + wajib + rek + aksiVal + revisi + lanjut + kaki;
   if($("btn-hasil-lanjut")) $("btn-hasil-lanjut").onclick = ()=> bukaFormTNA(tna.berikut.s);
   if($("btn-hasil-revisi")) $("btn-hasil-revisi").onclick = ()=> bukaFormTNA(r.sasaran);
   if(bisa){
@@ -2951,7 +3021,7 @@ function renderDaftarJab(q){
   q = String(q||"").toLowerCase();
   const list = tnaDaftarJab.filter(j=> !q || (j.jobTitle+" "+j.dept).toLowerCase().includes(q));
   $("tna-matriks-body").innerHTML = list.map(j=>'<div class="team-item" data-jab="'+esc(j.kode)+'"><div class="team-avatar" style="font-size:11px">'+esc(j.kode)+'</div><div class="team-info"><div class="team-name">'+esc(j.jobTitle)+'</div><div class="team-jabatan">'+esc(j.dept)+' · '+esc(j.jml)+' orang</div></div>'+
-    '<span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(j.status||"DRAFT")+'</span></div>').join("") || '<div class="empty">Tidak ada jabatan.</div>';
+    (tna.internal ? '<span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+(j.status==="APPROVED"?"Disetujui":"Draf")+'</span>' : '')+'</div>').join("") || '<div class="empty">Tidak ada jabatan.</div>';
   document.querySelectorAll("[data-jab]").forEach(el=> el.onclick = ()=> lihatMatriks(el.dataset.jab));
 }
 async function lihatMatriks(kode){
@@ -2961,9 +3031,9 @@ async function lihatMatriks(kode){
     const grup = { Behavioral:[], Technical:[], Leadership:[] };
     r.kompetensi.forEach(k=> (grup[k.kategori] = grup[k.kategori] || []).push(k));
     $("tna-matriks-body").innerHTML = '<button class="btn btn-ghost" id="btn-jab-kembali" style="margin-bottom:12px">&larr; Daftar jabatan</button>'+
-      '<div class="card"><div class="team-name" style="font-size:16px">'+esc(r.jabatan.JobTitle)+'</div><div class="hint">'+esc(r.jabatan.Dept)+' · Status matriks: '+esc(r.jabatan.StatusMatriks)+(r.jabatan.LinkJD?' · <a href="'+esc(String(r.jabatan.LinkJD).split(" || ")[0])+'" target="_blank" rel="noopener">Buka JD</a>':'')+'</div></div>'+
+      '<div class="card"><div class="team-name" style="font-size:16px">'+esc(r.jabatan.JobTitle)+'</div><div class="hint">'+esc(r.jabatan.Dept)+(tna.internal ? ' · Status matriks: '+(r.jabatan.StatusMatriks==="APPROVED"?"Disetujui":"Draf") : '')+(r.jabatan.LinkJD?' · <a href="'+esc(String(r.jabatan.LinkJD).split(" || ")[0])+'" target="_blank" rel="noopener">Buka JD</a>':'')+'</div></div>'+
       Object.keys(grup).filter(g=>grup[g].length).map(g=>'<h2 class="sect">'+esc(g)+'</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Level</th><th>Bobot</th><th>Definisi</th></tr>'+
-        grup[g].map(k=>'<tr><td><b>'+esc(k.nama)+'</b>'+(k.flag?'<br><span class="badge badge-amber">'+esc(k.flag)+'</span>':'')+'</td><td>'+k.required+'</td><td>'+k.bobot+'</td><td style="font-size:12px">'+esc(k.definisi)+'</td></tr>').join("")+'</table></div>').join("");
+        grup[g].map(k=>'<tr><td><b>'+esc(k.nama)+'</b>'+(tna.internal && k.flag ? '<br>'+flagList(k.flag).map(f=>'<span class="badge badge-amber">'+esc(flagLabel(f))+'</span>').join(" ") : '')+'</td><td>'+k.required+'</td><td>'+k.bobot+'</td><td style="font-size:12px">'+esc(k.definisi)+'</td></tr>').join("")+'</table></div>').join("");
     $("btn-jab-kembali").onclick = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
   }catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }

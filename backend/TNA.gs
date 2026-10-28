@@ -1,4 +1,8 @@
-/* BBLC TNA Engine v2.5, 27 Okt 2026. Perubahan (keputusan user 27 Okt): nilai aktual dibulatkan ke level utuh,
+/* BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
+ * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
+ * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
+ * dan mengembalikan `lingkup` berisi pilihan aktif serta jumlah orang tiap lingkup; tnaRingkasHasil menambah `jenis` (jenis flag unik) agar UI menampilkan catatan kualitas sekali per hasil.
+ * BBLC TNA Engine v2.5, 27 Okt 2026. Perubahan (keputusan user 27 Okt): nilai aktual dibulatkan ke level utuh,
  * Actual = round(70% atasan + 30% self), 0,5 ke atas; gap bulat; kategori gap 1 = Minor, 2 = Moderate, >= 3 = Major.
  * BBLC TNA Engine v2.4.1, 27 Okt 2026. Perubahan: tnaMatrixOutput sumber "hasil" (gap live /* BBLC TNA Engine v2.4, 27 Okt 2026. ITP per orang, tim saya).
  * BBLC TNA Engine v2.4, 27 Okt 2026. Perubahan: tnaMatrixOutput (khusus admin L&D) untuk Pusat Matrix: Competency Matrix dan
@@ -57,7 +61,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.5";
+var TNA_VERSION = "2.6";
 
 /* ============================================================
  * SKEMA TAB
@@ -111,6 +115,7 @@ var TNA_PARAM_DEFAULT = [
   ["JamCoachingPerGap", 1, "Jam coaching terstruktur per kompetensi gap per tahun (dihitung jam belajar)"],
   ["KodeBST", "D-BST", "Kode katalog BST: slot tetap tiap awal bulan (tgl 1-3, Minggu dilewati)"],
   ["ProyeksiPesertaBST", 63, "Proyeksi peserta per batch BST bulanan (calon sales baru + karyawan); referensi BST 1-2 Sep 2026"],
+  ["KodeJabatanLD", "J013,J014,J015,J023", "Kode jabatan tim L&D (Instructor, L&D Dept Head, L&D Section Head, Training Supervisor): melihat catatan internal seperti admin"],
   ["JendelaKhusus", JSON.stringify({ "BMDP-01": [1], "BMDP-02": [1], "BMDP-03": [1], "BMDP-05": [1], "BMDP-10": [1],
     "BMDP-04": [1], "BMDP-07": [1], "BMDP-08": [1], "BMDP-06": [7], "BMDP-09": [7], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     "D-IST": [2, 5, 8, 11], "D-LEAS": [2, 5, 8, 11], "D-AST": [3, 6, 9, 12], "D-FLEET": [3, 6, 9, 12], "D-MENTOR": [3, 6, 9, 12],
@@ -332,6 +337,13 @@ function tnaPeranTerhadap(auth, karyawanMap, target) {
 /* ============================================================
  * KONTEKS: siapa saja yang harus dinilai pengguna + progres
  * ============================================================ */
+// Internal L&D: admin atau pemegang jabatan tim L&D (parameter KodeJabatanLD). Menentukan siapa yang boleh melihat catatan internal.
+function tnaInternalLD(ss, auth, p) {
+  if (auth.role === "admin") return true;
+  var kode = String((p || tnaParam(ss)).KodeJabatanLD || "").split(/[,;]\s*/).filter(String);
+  var saya = tnaPetaKaryawan(ss, true)[auth.nik];
+  return !!saya && kode.indexOf(String(saya.KodeJabatan)) !== -1;
+}
 function tnaKonteks(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var p = tnaParam(ss), win = tnaWindow(p);
@@ -384,7 +396,7 @@ function tnaKonteks(ss, req) {
     saya.ModeAsesmen !== "KELOMPOK" ? (sudah["N:" + auth.nik + "|" + auth.nik] || "BELUM") : "TIDAK_PERLU";
   tugas.sort(function (a, b) { return a.nama.localeCompare(b.nama); });
   return {
-    ok: true, nama: auth.nama, role: auth.role, window: win.status,
+    ok: true, nama: auth.nama, role: auth.role, internal: tnaInternalLD(ss, auth, p), window: win.status,
     windowBuka: win.buka, windowTutup: win.tutup, periode: p.Periode,
     terdaftar: !!saya, jabatan: saya ? saya.Jabatan : "", selfStatus: selfStatus,
     todo: {
@@ -588,17 +600,8 @@ function tnaApprove(ss, req) {
 function tnaProgres(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
-  var lingkup = Object.keys(km).map(function (n) { return km[n]; });
-  if (auth.role !== "admin") {
-    // Non-admin: hanya bawahan langsung + tidak langsung (rantai penilai)
-    var bawah = {}, ubah = true; bawah[auth.nik] = true;
-    while (ubah) {
-      ubah = false;
-      lingkup.forEach(function (k) { if (!bawah[k.NIK] && (bawah[k.PenilaiNIK] || bawah[k.Penilai2NIK])) { bawah[k.NIK] = true; ubah = true; } });
-    }
-    delete bawah[auth.nik];
-    lingkup = lingkup.filter(function (k) { return bawah[k.NIK]; });
-  }
+  var mode = tnaModeLingkup(auth, req, "langsung", km);
+  var lingkup = tnaLingkupTampil(auth, km, "", mode);
   var ases = tnaBaca(ss, "Asesmen").filter(function (a) { return a.Periode === p.Periode && a.Status === "FINAL"; });
   var dinilai = {}, self = {}, kel = {};
   ases.forEach(function (a) {
@@ -626,7 +629,7 @@ function tnaProgres(ss, req) {
     var key = tnaKunciValidasi(k); if (sudahK[key]) return; sudahK[key] = true;
     var v = valMapP[key]; if (v && rekapVal[v.Status] !== undefined) rekapVal[v.Status]++;
   });
-  return { ok: true, total: tot.total, selesai: tot.selesai, persen: tot.total ? Math.round(tot.selesai / tot.total * 100) : 0, validasi: rekapVal,
+  return { ok: true, lingkup: tnaInfoLingkup(auth, km, mode), total: tot.total, selesai: tot.selesai, persen: tot.total ? Math.round(tot.selesai / tot.total * 100) : 0, validasi: rekapVal,
     units: units, belum: belum.slice(0, 300), perPenilai: perPenilai, window: tnaWindow(p).status };
 }
 
@@ -706,12 +709,11 @@ function tnaMatrixOutput(ss, req) {
   var hasil = null;
   if (req.sumber === "hasil") {
     var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
-    var bawah = {}; Object.keys(km).forEach(function (n) { var a = String(km[n].PenilaiNIK || ""); (bawah[a] = bawah[a] || []).push(n); });
-    var tim = [], antre = (bawah[auth.nik] || []).slice(), lihat = {};
-    while (antre.length) { var n = antre.shift(); if (lihat[n]) continue; lihat[n] = true; tim.push(n); antre = antre.concat(bawah[n] || []); }
+    var nikDari = function (arr) { return arr.map(function (k) { return String(k.NIK); }); };
+    var tim = nikDari(tnaLingkupTampil(auth, km, "", "bawahan")), timLangsung = nikDari(tnaLingkupTampil(auth, km, "", "langsung"));
     hasil = {
       orang: Object.keys(km).map(function (n) { var k = km[n]; return [n, k.Nama, k.KodeJabatan, k.Jabatan, k.Cabang, k.Dept, tnaDivisi(k.Dept)]; }),
-      timSaya: tim,
+      timSaya: tim, timLangsung: timLangsung,
       gap: tnaHitungGap(ss, p, km).map(function (g) { return [String(g.NIK), g.KodeKompetensi, g.Actual === "" ? null : Number(g.Actual), Number(g.Required), g.KategoriGap]; }),
       itp: tnaBaca(ss, "ITP").map(function (r) { return [String(r.NIK), r.KodeTraining, r.Kategori, r.Bulan, Number(r.Jam || 0), r.Status]; }),
       outputTerakhir: String(p.OutputTerakhir || "")
@@ -749,7 +751,7 @@ function tnaApproveMatriks(ss, req) {
 function tnaSetParameter(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
-  var boleh = ["WindowBuka", "WindowTutup", "BobotAtasan", "BobotSelf", "TargetJamBulan", "KapasitasKelas", "DurasiDefaultJam",
+  var boleh = ["KodeJabatanLD", "WindowBuka", "WindowTutup", "BobotAtasan", "BobotSelf", "TargetJamBulan", "KapasitasKelas", "DurasiDefaultJam",
     "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT", "ProyeksiPesertaBST"];
   var sh = tnaSheet(ss, "Parameter");
   var v = sh.getDataRange().getValues();
@@ -951,11 +953,12 @@ function tnaSimpanValidasi(ss, p, km, kunci, ubah, olehNik) {
 // Ringkasan untuk daftar validasi: jumlah gap per kategori + flag validitas (KALIBRASI, LENIENCY, dst).
 function tnaRingkasHasil(ss, p, w) {
   var sub = {}; sub[w.NIK] = w;
-  var g = tnaHitungGap(ss, p, sub), r = { major: 0, moderate: 0, minor: 0, kompeten: 0, flag: 0 };
+  var g = tnaHitungGap(ss, p, sub), r = { major: 0, moderate: 0, minor: 0, kompeten: 0, flag: 0, jenis: [] }, jn = {};
   g.forEach(function (x) {
     var k = String(x.KategoriGap).toLowerCase(); if (r[k] !== undefined) r[k]++;
-    if (x.Flag) r.flag++;
+    if (x.Flag) { r.flag++; String(x.Flag).split(/,\s*/).forEach(function (f) { if (f) jn[f] = true; }); }
   });
+  r.jenis = Object.keys(jn); // jenis catatan kualitas (khusus tampilan L&D)
   return JSON.stringify(r);
 }
 function tnaAdalahValidator(nik, daftar) { return String(daftar || "").split(/[,;]\s*/).indexOf(String(nik)) !== -1; }
@@ -1216,11 +1219,45 @@ function tnaLingkup(auth, km, cabang) {
   delete bawah[auth.nik];
   return semua.filter(function (k) { return bawah[k.NIK] && (!cabang || k.Cabang === cabang); });
 }
+// Lingkup tampilan tim (Progres, Dashboard Tim, Training Tim, Pusat Matrix):
+//   langsung = orang yang saya nilai (PenilaiNIK/Penilai2NIK = saya); bawahan = seluruh rantai penilai/validator di bawah saya;
+//   semua = seluruh BBM (hanya admin). Tidak pernah "semua" secara diam-diam: admin pun default ke bawahannya sendiri.
+function tnaLingkupTampil(auth, km, cabang, mode) {
+  var semua = Object.keys(km).map(function (n) { return km[n]; });
+  var saring = function (arr) { return arr.filter(function (k) { return !cabang || k.Cabang === cabang; }); };
+  if (mode === "semua" && auth.role === "admin") return saring(semua);
+  if (mode === "langsung") return saring(semua.filter(function (k) { return k.NIK !== auth.nik && (k.PenilaiNIK === auth.nik || k.Penilai2NIK === auth.nik); }));
+  var bawah = {}, ubah = true; bawah[auth.nik] = true;
+  while (ubah) {
+    ubah = false;
+    semua.forEach(function (k) {
+      if (bawah[k.NIK]) return;
+      if (bawah[k.PenilaiNIK] || bawah[k.Penilai2NIK] || tnaAdalahValidator(auth.nik, k.ValidatorNIK)) { bawah[k.NIK] = true; ubah = true; }
+    });
+  }
+  delete bawah[auth.nik];
+  return saring(semua.filter(function (k) { return bawah[k.NIK]; }));
+}
+function tnaModeLingkup(auth, req, bawaan, km) {
+  var m = String(req.lingkup || "");
+  if (m === "langsung" || m === "bawahan" || (m === "semua" && auth.role === "admin")) return m;
+  // Tidak dipilih eksplisit: mulai dari bawaan, naik satu tingkat bila kosong (admin tanpa tim -> seluruh BBM)
+  var urut = bawaan === "langsung" ? ["langsung", "bawahan"] : ["bawahan"];
+  if (auth.role === "admin") urut.push("semua");
+  for (var i = 0; i < urut.length; i++) if (tnaLingkupTampil(auth, km, "", urut[i]).length) return urut[i];
+  return bawaan;
+}
+function tnaInfoLingkup(auth, km, mode) {
+  var j = { langsung: tnaLingkupTampil(auth, km, "", "langsung").length, bawahan: tnaLingkupTampil(auth, km, "", "bawahan").length };
+  if (auth.role === "admin") j.semua = Object.keys(km).length;
+  return { pilih: mode, jumlah: j };
+}
 function tnaTim(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
-  var lingkup = tnaLingkup(auth, km, req.cabang || "");
-  if (!lingkup.length) return { ok: true, kosong: true, cabangList: [] };
+  var mode = tnaModeLingkup(auth, req, "langsung", km);
+  var lingkup = tnaLingkupTampil(auth, km, req.cabang || "", mode);
+  if (!lingkup.length) return { ok: true, kosong: true, cabangList: [], lingkup: tnaInfoLingkup(auth, km, mode) };
   var di = {}; lingkup.forEach(function (k) { di[k.NIK] = true; });
   var gap = tnaHitungGap(ss, p, km).filter(function (g) { return di[g.NIK]; });
   var val = tnaPetaValidasi(ss, p);
@@ -1267,9 +1304,9 @@ function tnaTim(ss, req) {
     .filter(function (o) { return o.prioritas > 0; }).sort(function (a, b) { return b.prioritas - a.prioritas; }).slice(0, 10);
   var dinilaiN = {}; gap.forEach(function (g) { if (g.Actual !== "") dinilaiN[g.NIK] = true; });
   var komp = gap.filter(function (g) { return g.Actual !== ""; });
-  var cabangSet = {}; tnaLingkup(auth, km, "").forEach(function (k) { cabangSet[k.Cabang] = true; });
+  var cabangSet = {}; tnaLingkupTampil(auth, km, "", mode).forEach(function (k) { cabangSet[k.Cabang] = true; });
   return {
-    ok: true, ringkasan: { orang: lingkup.length, dinilai: Object.keys(dinilaiN).length,
+    ok: true, lingkup: tnaInfoLingkup(auth, km, mode), ringkasan: { orang: lingkup.length, dinilai: Object.keys(dinilaiN).length,
       persenKompeten: komp.length ? Math.round(komp.filter(function (g) { return Number(g.Gap) === 0; }).length / komp.length * 100) : 0 },
     daftar: daftar, kodeJabatan: kode, kompetensi: kompList, baris: baris, topGap: topGap, prioritas: prioritas,
     cabangList: Object.keys(cabangSet).sort(), cabang: req.cabang || ""
@@ -1280,7 +1317,8 @@ function tnaTim(ss, req) {
 function tnaTrainingTim(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
-  var lingkup = tnaLingkup(auth, km, req.cabang || ""), di = {}; lingkup.forEach(function (k) { di[k.NIK] = true; });
+  var mode = tnaModeLingkup(auth, req, "langsung", km);
+  var lingkup = tnaLingkupTampil(auth, km, req.cabang || "", mode), di = {}; lingkup.forEach(function (k) { di[k.NIK] = true; });
   var denganNama = lingkup.length <= 150;
   var batch = {}; tnaBaca(ss, "Batch").forEach(function (b) { batch[b.BatchID] = b; });
   var katStatus = {}; tnaBaca(ss, "Katalog").forEach(function (c) { katStatus[c.KodeTraining] = String(c.Status || ""); });
@@ -1297,8 +1335,8 @@ function tnaTrainingTim(ss, req) {
     if (r.Status !== "OPSIONAL") { totalJam += Number(r.Jam); jamOrang[r.Nama] = (jamOrang[r.Nama] || 0) + Number(r.Jam); }
   });
   var terbanyak = Object.keys(jamOrang).sort(function (x, y) { return jamOrang[y] - jamOrang[x]; }).slice(0, 3).map(function (n) { return { nama: n, jam: tnaR2(jamOrang[n]) }; });
-  var cabangSet = {}; tnaLingkup(auth, km, "").forEach(function (k) { cabangSet[k.Cabang] = true; });
-  return { ok: true, terbit: !!p.OutputTerakhir, terakhir: p.OutputTerakhir, orang: lingkup.length, denganNama: denganNama,
+  var cabangSet = {}; tnaLingkupTampil(auth, km, "", mode).forEach(function (k) { cabangSet[k.Cabang] = true; });
+  return { ok: true, lingkup: tnaInfoLingkup(auth, km, mode), terbit: !!p.OutputTerakhir, terakhir: p.OutputTerakhir, orang: lingkup.length, denganNama: denganNama,
     grup: Object.keys(grup).map(function (k) { return grup[k]; }), totalJam: tnaR2(totalJam), peserta: peserta, terbanyak: terbanyak,
     cabangList: Object.keys(cabangSet).sort(), cabang: req.cabang || "" };
 }
