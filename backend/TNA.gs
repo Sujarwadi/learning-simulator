@@ -1,4 +1,5 @@
-/* BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
+/* BBLC TNA Engine v2.7, 28 Okt 2026. Perubahan: tnaDosierJabatan (dosier satu jabatan tanpa asesmen: tugas, task, kompetensi, 5 level + indikator, intervensi 70/20, training wajib, jalur training bila gap).
+ * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
  * dan mengembalikan `lingkup` berisi pilihan aktif serta jumlah orang tiap lingkup; tnaRingkasHasil menambah `jenis` (jenis flag unik) agar UI menampilkan catatan kualitas sekali per hasil.
@@ -61,7 +62,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.6";
+var TNA_VERSION = "2.7";
 
 /* ============================================================
  * SKEMA TAB
@@ -159,6 +160,7 @@ function handleTNA(req) {
     case "tnaApprove": return tnaApprove(ss, req);
     case "tnaProgres": return tnaProgres(ss, req);
     case "tnaMatriksJabatan": return tnaMatriksJabatan(ss, req);
+    case "tnaDosierJabatan": return tnaDosierJabatan(ss, req);
     case "tnaMatrixOutput": return tnaMatrixOutput(ss, req);
     case "tnaApproveMatriks": return tnaApproveMatriks(ss, req);
     case "tnaSetParameter": return tnaSetParameter(ss, req);
@@ -651,6 +653,72 @@ function tnaMatriksJabatan(ss, req) {
   tnaBaca(ss, "Matriks").forEach(function (m) { if (m.KodeJabatan === req.kodeJabatan) flags[m.KodeKompetensi] = { flag: m.Flag, sumber: m.Sumber }; });
   var komp = tnaKompetensiJabatan(ss, req.kodeJabatan).map(function (k) { k.flag = (flags[k.kode] || {}).flag || ""; k.sumber = (flags[k.kode] || {}).sumber || ""; return k; });
   return { ok: true, jabatan: mj, kompetensi: komp, task: task };
+}
+
+/* ============================================================
+ * DOSIER JABATAN (v2.7): satu jabatan, seluruh rantai dari tugas sampai rencana training, TANPA menunggu asesmen.
+ * Isi: identitas, tugas -> task -> kompetensi, kompetensi + 5 level + indikator per level, intervensi 70/20,
+ * training wajib (dengan dasar), dan jalur training bila ada gap (per level awal). Tidak ada angka per orang.
+ * ============================================================ */
+function tnaDosierJabatan(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var kj = String(req.kodeJabatan || "");
+  var mj = tnaBaca(ss, "MasterJabatan").filter(function (j) { return j.KodeJabatan === kj; })[0];
+  if (!mj) return { ok: false, error: "Kode jabatan tidak ditemukan." };
+  var p = tnaParam(ss), durDef = Number(p.DurasiDefaultJam) || 4;
+  var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = k; });
+  var flags = {}; tnaBaca(ss, "Matriks").forEach(function (m) { if (m.KodeJabatan === kj) flags[m.KodeKompetensi] = { flag: m.Flag, sumber: m.Sumber }; });
+  var interv = {}; tnaBaca(ss, "Intervensi").forEach(function (r) { (interv[r.KodeKompetensi] = interv[r.KodeKompetensi] || {})[String(r.Tipe)] = String(r.Deskripsi || ""); });
+  var katalog = tnaBaca(ss, "Katalog").filter(function (c) { return String(c.Status).toUpperCase() !== "NONAKTIF"; });
+  var katBy = {}; katalog.forEach(function (c) { katBy[c.KodeTraining] = c; });
+  var kompList = function (c) { return String(c.KodeKompetensi || "").split(/[,;]\s*/).filter(String); };
+  var infoTraining = function (c) {
+    var j = Number(c.DurasiJam);
+    return { kode: String(c.KodeTraining), judul: c.Judul, kategori: String(c.Kategori), metode: String(c.Metode || ""), jam: j > 0 ? j : durDef, jamDefault: !(j > 0), status: String(c.Status || "") };
+  };
+  var nama = function (kode) { return (kamus[kode] || {}).Nama || kode; };
+  // tugas -> task -> kompetensi
+  var tugas = [], idx = {}, terkait = {};
+  tnaBaca(ss, "Task").filter(function (t) { return t.KodeJabatan === kj; }).forEach(function (t) {
+    var key = String(t.TugasUtama || "").trim(); // dikelompokkan berdasar teks: NoTugas bisa berbeda antarbaris untuk tugas utama yang sama
+    if (!idx[key]) { idx[key] = { no: tugas.length + 1, utama: key, tasks: [], _t: {} }; tugas.push(idx[key]); }
+    var tg = idx[key], nm = String(t.Task || "");
+    if (!tg._t[nm]) { tg._t[nm] = { task: nm, komp: [] }; tg.tasks.push(tg._t[nm]); }
+    if (t.KodeKompetensi) {
+      tg._t[nm].komp.push({ kode: t.KodeKompetensi, nama: nama(t.KodeKompetensi) });
+      (terkait[t.KodeKompetensi] = terkait[t.KodeKompetensi] || {})[tg.utama] = true;
+    }
+  });
+  tugas.forEach(function (t) { delete t._t; });
+  // kompetensi + level + indikator + intervensi + jalur training bila gap
+  var wajibKode = tnaBaca(ss, "Mandatory").filter(function (m) { return m.KodeJabatan === "*" || m.KodeJabatan === kj; });
+  var wajib = wajibKode.filter(function (m) { return katBy[m.KodeTraining]; }).map(function (m) { var o = infoTraining(katBy[m.KodeTraining]); o.dasar = String(m.Dasar || ""); return o; });
+  var wajibC = wajibKode.map(function (m) { return katBy[m.KodeTraining]; }).filter(Boolean);
+  var komp = tnaKompetensiJabatan(ss, kj).map(function (k) {
+    var jalur = [];
+    for (var lv = Math.max(0, k.required - 1); lv >= 1; lv--) {
+      var tutup = wajibC.some(function (c) { return kompList(c).indexOf(k.kode) !== -1 && Number(c.LevelTarget || 5) > lv; });
+      var opsi = katalog.filter(function (c) {
+        var sas = String(c.SasaranJabatan || "").trim();
+        return String(c.Kategori) !== "Pengayaan" && String(c.Kategori) !== "IHT" && kompList(c).indexOf(k.kode) !== -1 &&
+          Number(c.LevelTarget || 5) > lv && (!sas || sas.split(/[,;]\s*/).indexOf(kj) !== -1);
+      }).sort(function (a, b) { return Number(a.LevelTarget || 5) - Number(b.LevelTarget || 5); });
+      jalur.push({ dariLevel: lv, sudahWajib: tutup, training: opsi.length ? infoTraining(opsi[0]) : null });
+    }
+    var f = flags[k.kode] || {};
+    k.flag = f.flag || ""; k.sumber = f.sumber || "";
+    k.intervensi = { p70: (interv[k.kode] || {})["70"] || "", p20: (interv[k.kode] || {})["20"] || "" };
+    k.tugasTerkait = Object.keys(terkait[k.kode] || {});
+    k.jalur = jalur;
+    return k;
+  });
+  var ih = tnaBaca(ss, "IHT").filter(function (r) { return r.KodeJabatan === kj; })[0];
+  var jamWajib = wajib.reduce(function (a, w) { return a + (w.jamDefault ? 0 : w.jam); }, 0), jamTbd = wajib.filter(function (w) { return w.jamDefault; }).length;
+  return { ok: true,
+    jabatan: { kode: kj, jobTitle: mj.JobTitle, dept: mj.Dept, divisi: tnaDivisi(mj.Dept), jml: Number(mj.JmlIncumbent) || 0, statusJD: mj.StatusJD, linkJD: mj.LinkJD, statusMatriks: mj.StatusMatriks },
+    tugas: tugas, kompetensi: komp, wajib: wajib,
+    iht: ih ? { jamTotal: Number(ih.JamTotal) || 0, selling: Number(ih.JamSelling) || 0, pk: Number(ih.JamPK) || 0, ass: Number(ih.JamASS) || 0, self: Number(ih.JamSelf) || 0 } : null,
+    ringkas: { tugasUtama: tugas.length, kompetensi: komp.length, tanpaTugas: komp.filter(function (k) { return !k.tugasTerkait.length; }).length, jamWajib: jamWajib, jamBelumDitetapkan: jamTbd, durasiDefault: durDef } };
 }
 
 /* ============================================================
