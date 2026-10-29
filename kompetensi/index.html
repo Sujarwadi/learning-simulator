@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.22, 29 Okt 2026. Perubahan (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
 <!-- BBLC Studio v3.21, 29 Okt 2026. Perubahan (koreksi user 29 Okt): Dosier Jabatan menghasilkan dokumen Excel 6 sheet bergaya master kompetensi teknis L&D dengan satu klik (breakdown tugas dan KSA, kamus 5 level + indikator, skala level, matriks departemen, rencana 70/20/10, TNA standar jabatan), dibuat langsung di browser tanpa library; tombol cetak PDF dihapus; layar dosier diringkas menjadi lima tab; kompetensi teknis master Finance dan L&D Section Head menggantikan data otomatis; Communication Skill dibuang dari kompetensi teknis (sudah ada di Behavioral); teks coaching seragam dihapus; kolom pembanding matriks hanya jabatan yang berbagi kompetensi teknis. -->
 <!-- BBLC Studio v3.20, 28 Okt 2026. Perubahan: Dosier Jabatan (tile Referensi, sebelumnya Matriks Kompetensi Jabatan): satu jabatan lengkap tanpa menunggu asesmen, yaitu tugas utama dan task beserta kompetensinya, kompetensi dan level syarat, lima level dengan indikator perilaku, rencana 70/20/10, training wajib dan jalur training bila gap, cetak PDF tema terang; tombol 'Buka dosier lengkap' di laci profil jabatan Pusat Matrix; durasi training baru dari katalog (mesin TNA v2.7). -->
 <!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
@@ -281,6 +282,9 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .ds-cta-h{text-align:center;margin-top:8px}
 .ds-tabs{margin:16px 0 12px;position:sticky;top:64px;z-index:5}
 .ds-menuntut{margin-top:8px;font-size:12.5px;color:var(--muted)}
+.ld-panel{margin-top:18px;border-top:1px dashed var(--line);padding-top:10px;font-size:12.5px;color:var(--muted)}
+.ld-panel summary{cursor:pointer;font-weight:700;letter-spacing:.4px;min-height:32px;display:flex;align-items:center}
+.ld-isi{display:grid;gap:8px;padding:8px 0 4px;color:var(--text)}
 .ds-foot{margin:24px 0 8px;font-size:12px;color:var(--muted)}
 @media (max-width:720px){.ds-task li{grid-template-columns:1fr}}
 }
@@ -447,6 +451,15 @@ body.internal span.khusus-ld{display:inline}
   --tw:#0B2340;--tw-ink:#FFFFFF;
 }
 .mx-ctrl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;position:sticky;top:64px;z-index:20}
+.mx-layout{display:grid;grid-template-columns:268px minmax(0,1fr);gap:16px;align-items:start}
+.mx-utama{min-width:0}
+.mx-ctrl.mx-side{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:18px;position:sticky;top:76px;padding:16px}
+.mx-side .seg{display:flex;flex-direction:column;width:100%}
+.mx-side .seg button{text-align:left;width:100%}
+.mx-side #mx-pilih{width:100%;min-width:0}
+.mx-side .mx-pdf{margin-left:0;width:100%;justify-content:center}
+.mx-side .chips{flex-wrap:wrap}
+@media (max-width:980px){.mx-layout{grid-template-columns:1fr}.mx-ctrl.mx-side{position:static}.mx-side .seg{flex-direction:row;flex-wrap:wrap}.mx-side .seg button{width:auto}}
 .mx-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
 .mx-lbl{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 .seg{display:inline-flex;background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
@@ -575,6 +588,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   body.cetak-matrix .mx-grid{grid-template-columns:1fr}
   body.cetak-matrix .mx-aside{border-left:0;border-top:1px solid #cbd5e1;display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:24px;break-inside:avoid}
   body.cetak-matrix .mx-main{padding:12px 0}
+  body.cetak-matrix .mx-layout{display:block}
   body.cetak-matrix tr{break-inside:avoid}
   body.cetak-matrix .mx-cetak{display:block;font-size:9.5px;color:#475569;padding:8px 16px}
   body.cetak-matrix tr:hover > td,body.cetak-matrix tr:hover > th{background-color:transparent !important}
@@ -1060,8 +1074,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <div style="min-width:0"><div class="app-title">PUSAT MATRIX L&amp;D</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
-    <div class="body-wrap" style="max-width:1480px">
-      <div class="card mx-ctrl">
+    <div class="body-wrap" style="max-width:1480px"><div class="mx-layout">
+      <aside class="card mx-ctrl mx-side" aria-label="Pengaturan tampilan matrix">
         <div class="mx-ctl"><span class="mx-lbl">Tampilan</span><div class="seg" role="group" aria-label="Jenis matrix" id="mx-jenis">
           <button type="button" data-v="komp" aria-pressed="true">Competency Matrix</button><button type="button" data-v="train" aria-pressed="false">Training Matrix</button></div></div>
         <div class="mx-ctl"><span class="mx-lbl">Sumber</span><div class="seg" role="group" aria-label="Sumber data" id="mx-sumber">
@@ -1071,9 +1085,9 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div class="mx-ctl" id="mx-pilih-wrap"><label class="mx-lbl" for="mx-pilih">Pilih</label><select id="mx-pilih"></select></div>
         <div class="mx-ctl"><span class="mx-lbl">Tampilkan</span><div class="chips" id="mx-filter" role="group" aria-label="Saring isi matrix"></div></div>
         <button class="btn btn-ghost mx-pdf" id="btn-mx-pdf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>Ekspor PDF</button>
-      </div>
-      <div id="mx-body"><div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div></div>
-    </div>
+      </aside>
+      <div class="mx-utama"><div id="mx-body"><div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div></div></div>
+    </div></div>
     <div class="mx-drawer" id="mx-drawer" hidden role="dialog" aria-modal="true" aria-label="Profil jabatan"><div class="mx-sheet" id="mx-sheet-isi"></div></div>
   </section>
 
@@ -1745,7 +1759,7 @@ function kotakKualitas(gap){
 // Teks rekomendasi training untuk pengguna umum: tanpa istilah teknis internal
 const teksR10 = t => (!tna.internal && /^GAP KATALOG/.test(String(t||""))) ? "Training akan dijadwalkan L&D" : t;
 const SIL_BADGE = { FINAL:'<span class="badge badge-green">Silabus final</span>', DRAF_AI:'<span class="badge badge-amber">Draf · perlu review L&amp;D</span>', BELUM_ADA_SILABUS:'<span class="badge badge-grey">Belum ada silabus</span>' };
-function badgeSilabus(s){ if(!tna.internal) return ""; return s ? (SIL_BADGE[s.Status]||SIL_BADGE.DRAF_AI) : SIL_BADGE.BELUM_ADA_SILABUS; }
+function badgeSilabus(s){ return ""; } // status draf/final hanya di panel "Khusus tim L&D" pada bagian bawah halaman silabus
 
 async function bukaKatalog(){
   bukaLayar("scr-tna-katalog");
@@ -1760,7 +1774,7 @@ async function bukaKatalog(){
   catch(e){ $("kat-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
 // Program katalog berstatus usulan: jadwalnya sudah direncanakan, materi/vendor masih disiapkan L&D.
-function badgeUsulan(status){ return tna.internal && status==="USULAN_PENGADAAN" ? '<span class="badge badge-amber">Materi belum siap</span> ' : ''; }
+function badgeUsulan(status){ return ''; } // idem
 function daftarKatalog(){
   const kat = tna.kat, ada = {};
   const list = kat.katalog.map(c=>{ ada[c.kode] = true; const s = cariSilabus(kat, c.kode); return { kode:c.kode, judul:c.judul, kategori:c.kategori, metode:c.metode, jam:c.jam, kompetensi:c.kompetensi, status:c.status, sil:s, internal:false }; });
@@ -1786,7 +1800,7 @@ function renderKatalog(){
   const katCls = KAT_CLS;
   $("kat-body").innerHTML = list.length ? list.slice(0,200).map(x=>
     '<button type="button" class="kat-item" data-trn="'+esc(x.kode)+'"><b>'+esc(x.judul)+'</b> <span class="hint">'+esc(x.kode)+'</span>'+
-    '<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge '+(katCls[x.kategori]||"badge-grey")+'">'+esc(x.internal?(tna.internal?"Internal: ":"")+(x.kategori||""):labelKat(x.kategori))+'</span>'+badgeSilabus(x.sil)+badgeUsulan(x.status)+
+    '<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge '+(katCls[x.kategori]||"badge-grey")+'">'+esc(x.internal?(x.kategori||""):labelKat(x.kategori))+'</span>'+badgeSilabus(x.sil)+badgeUsulan(x.status)+
     '<span class="hint" style="margin:0">'+esc([x.metode, x.jam?x.jam+" jam":""].filter(Boolean).join(" · "))+'</span></div>'+
     (x.kompetensi?'<div class="hint" style="margin:4px 0 0">Kompetensi: '+esc(x.kompetensi)+'</div>':'')+'</button>').join("") +
     (list.length>200?'<div class="hint">Menampilkan 200 dari '+list.length+'. Persempit pencarian.</div>':'')
@@ -1809,8 +1823,19 @@ function rujukanSilabus(s, c){
     const l = sm.replace(/^RUJUKAN:\s*/i,"").split(/\s*\|\s*/).filter(Boolean);
     return '<div class="sil-blok"><h3>Rujukan</h3><ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--text)">'+l.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
   }
-  const lain = sm || (c&&c.sumber) || "";
-  return tna.internal && lain ? '<div class="sil-blok"><h3>Sumber materi (internal L&amp;D)</h3><div style="font-size:13.5px">'+esc(lain)+'</div></div>' : '';
+  return '';
+}
+// Catatan proses hanya untuk tim L&D, tidak di halaman baca: tertutup secara bawaan, di bagian paling bawah
+function panelLD(s, c, kode){
+  if(!tna.internal) return "";
+  const st = s ? (s.Status==="FINAL" ? "Final (sudah direview)" : (s.Status==="BELUM_ADA_SILABUS" ? "Belum ada silabus" : "Draf, belum direview")) : "Belum ada silabus";
+  const sm = String((s&&s.Sumber) || ""), lain = /^RUJUKAN:/i.test(sm) ? ((c&&c.sumber)||"") : (sm || (c&&c.sumber) || "");
+  return '<details class="ld-panel"><summary>Khusus tim L&amp;D</summary><div class="ld-isi">'+
+    '<div><b>Status silabus:</b> '+esc(st)+'</div>'+
+    (c && c.status==="USULAN_PENGADAAN" ? '<div><b>Materi:</b> usulan pengadaan, belum tersedia</div>' : '')+
+    (lain ? '<div><b>Sumber materi:</b> '+esc(lain)+'</div>' : '')+
+    (tna.kat.admin && s && s.Status!=="BELUM_ADA_SILABUS" ? '<div class="btn-row"><button class="btn btn-ghost btn-kecil" id="btn-sil-status">'+(s.Status==="FINAL"?"Kembalikan ke status draf":"Tandai silabus final (sudah direview)")+'</button></div><div class="err" id="err-sil"></div>' : '')+
+    '</div></details>';
 }
 function renderSilabus(kode){
   const kat = tna.kat, c = kat.byKode[kode] || null, s = cariSilabus(kat, kode);
@@ -1822,8 +1847,7 @@ function renderSilabus(kode){
   const ada = s && s.Status!=="BELUM_ADA_SILABUS";
   $("sil-body").innerHTML =
     '<div class="card" style="padding:16px 18px"><div style="font-size:17px;font-weight:800;color:var(--ink)">'+esc(judul)+'</div>'+
-    '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+(c?'<span class="badge badge-grey">'+esc(labelKat(c.kategori))+'</span>':'<span class="badge badge-grey">Program internal BBLC</span>')+badgeSilabus(s)+(c?badgeUsulan(c.status):'')+'</div>'+
-    (tna.internal && s && s.Status==="DRAF_AI" ? '<div class="hint" style="color:var(--amber)">Catatan L&amp;D: silabus ini masih berstatus draf dan belum direview.</div>' : '')+
+    '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+(c?'<span class="badge badge-grey">'+esc(labelKat(c.kategori))+'</span>':'<span class="badge badge-grey">Program internal BBLC</span>')+'</div>'+
     blok("Kompetensi yang dikembangkan", esc((s&&s.Kompetensi) || (c&&c.kompetensi) || ""))+
     blok("Sasaran peserta", esc(s?s.Sasaran:""))+
     blok("Tujuan", esc(ada?s.Tujuan:""))+
@@ -1832,8 +1856,8 @@ function renderSilabus(kode){
     blok("Durasi", esc(c&&c.jam ? c.jam+" jam" : (s?s.Durasi:"")))+
     blok("Evaluasi", esc(s?s.Evaluasi:""))+
     rujukanSilabus(s, c)+
-    (!ada ? '<div class="sil-blok"><div class="empty" style="text-align:left;padding:6px 0">'+esc(tna.internal ? (s && s.Tujuan ? s.Tujuan : "Silabus untuk training ini belum ada di folder materi L&D.") : "Rincian materi akan dibagikan L&D sebelum pelaksanaan.")+'</div></div>' : '')+
-    (kat.admin && s && s.Status!=="BELUM_ADA_SILABUS" ? '<div class="btn-row"><button class="btn btn-ghost btn-kecil" id="btn-sil-status">'+(s.Status==="FINAL"?"Kembalikan ke status draf":"Tandai silabus final (sudah direview)")+'</button></div><div class="err" id="err-sil"></div>' : '')+
+    (!ada ? '<div class="sil-blok"><div class="empty" style="text-align:left;padding:6px 0">'+esc("Rincian materi akan dibagikan L&D sebelum pelaksanaan.")+'</div></div>' : '')+
+    panelLD(s, c, kode)+
     '</div>';
   if($("btn-sil-status")) $("btn-sil-status").onclick = async ()=>{
     const baru = s.Status==="FINAL" ? "DRAF_AI" : "FINAL";
@@ -1869,9 +1893,9 @@ async function masukTNA(loginResp){
   tna.punyaLama = tna.isAdmin || state.role === "atasan" || !!loginResp.isAtasan;
   $("tna-nama").textContent = state.nama + (state.jabatan ? " · " + state.jabatan : "");
   $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
-  $("btn-tna-studio").style.display = tna.isAdmin ? "" : "none";
+  $("btn-tna-studio").style.display = "none"; // fitur lama dipensiunkan dari menu
   $("btn-tna-pusat").style.display = tna.isAdmin ? "" : "none";
-  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); // dipastikan ulang dari konteks (tim L&D juga internal)
+  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; // dipastikan ulang dari konteks (tim L&D juga internal)
   pdPindahkanTanda();
   show("scr-tna-home");
   await muatBerandaTNA();
@@ -1883,6 +1907,7 @@ async function muatBerandaTNA(){
   try{
     const r = await tnaApi("tnaKonteks");
     tna.konteks = r; tna.internal = !!r.internal; document.body.classList.toggle("internal", tna.internal);
+    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-matriks").querySelector(".tile-d").textContent = tna.internal ? "Tugas, kompetensi, level, dan rencana training per jabatan" : "Standar tugas dan kompetensi jabatan Anda";
     const w = r.window;
     const sisaMs = new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
     const cd = (w!=="DITUTUP" && sisaMs>0) ? '<div class="win-cd">'+sisaH+' hari '+sisaJ+' jam<small>'+(w==="DIBUKA"?"sampai ditutup":"sampai dibuka")+'</small></div>' : '';
@@ -1893,7 +1918,7 @@ async function muatBerandaTNA(){
       : (w==="BELUM_DIBUKA" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Window asesmen dibuka <b>'+esc(fmtTgl(r.windowBuka))+'</b>.</div>'
         : '<span class="badge badge-red">Window ditutup</span><div style="margin-top:6px">Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.</div>'))+'</div>'+cd+'</div>';
     // Studio lama hanya untuk admin selama TNA berjalan; atasan bisa memakainya lagi setelah window ditutup.
-    $("btn-tna-studio").style.display = (tna.isAdmin || (tna.punyaLama && w==="DITUTUP")) ? "" : "none";
+    $("btn-tna-studio").style.display = "none";
     // Kartu To-do
     const td = r.todo || {}, nVal = (r.validasi||[]).filter(v=>v.status==="MENUNGGU_VALIDASI").length;
     const sisaHari = Math.ceil((new Date(r.windowTutup) - new Date()) / 86400000);
@@ -2956,7 +2981,7 @@ function renderHasil(baruSubmit){
     }).join("")+'</details>' : '';
   // Semua training penutup gap = wajib (tanpa batas, tidak ditunda) + program wajib jabatan/korporat
   const wGap = r.wajib.filter(w=>w.jenis==="GAP"), wProg = r.wajib.filter(w=>w.jenis!=="GAP");
-  const tanpaModul = tna.internal ? r.rekomendasi.filter(x=>/^GAP KATALOG/.test(x.R10_Training)) : [];
+  const tanpaModul = []; // modul yang belum ada diurus L&D di panel admin, bukan di halaman hasil pengguna
   const barisW = w=>'<div class="idp-line">• '+trn(w.kode, w.judul)+' <span class="hint">('+esc(w.jam||"-")+' jam · '+esc(w.dasar)+')</span></div>';
   const wajib = (r.wajib.length || tanpaModul.length) ? '<h2 class="sect" id="rpt-wajib">Training Wajib 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+r.wajib.length+' training</span></h2><div class="card">'+
     (wGap.length ? '<div class="sub-h">Menutup gap kompetensi ('+wGap.length+')</div>'+wGap.map(barisW).join("") : '')+
@@ -3044,7 +3069,7 @@ function renderITP(bulan){
 let tnaDaftarJab = [];
 $("btn-tna-matriks").onclick = async ()=>{
   show("scr-tna-matriks");
-  try{ const r = await tnaApi("tnaMatriksJabatan"); tnaDaftarJab = r.jabatan; renderDaftarJab(""); }
+  try{ const r = await tnaApi("tnaMatriksJabatan"); tnaDaftarJab = r.jabatan; if(tnaDaftarJab.length === 1) lihatMatriks(tnaDaftarJab[0].kode); else renderDaftarJab(""); }
   catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 };
 $("inp-tna-cari-jab").oninput = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
@@ -3255,10 +3280,15 @@ function dsDokumen(r){
   return sheets;
 }
 const TNA_LV_NAMA = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
-function dsUnduh(r){
+// Di dalam pratinjau claude.ai, unduhan langsung diblokir sandbox: file ditawarkan lewat kapabilitas "downloads" (viewer yang menyimpan).
+// Di aplikasi biasa (GitHub Pages) dipakai tautan unduh bawaan browser.
+async function dsUnduh(r){
   const blob = XL.build(dsDokumen(r)), nama = "Dosier_"+r.jabatan.jobTitle.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_TNA2027_v1.xlsx";
+  let dl = null; try{ dl = (window.claude && typeof window.claude.use === "function") ? await window.claude.use("downloads") : null; }catch(e){ dl = null; }
+  if(dl){ try{ await dl.save({ filename:nama, data:blob }); return { nama, cara:"viewer" }; }catch(e){ if(e && e.code === "declined") return { nama, cara:"batal" }; throw e; } }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nama; document.body.appendChild(a); a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  return { nama, cara:"browser" };
 }
 
 async function lihatMatriks(kode){
@@ -3274,7 +3304,7 @@ async function lihatMatriks(kode){
       '<div class="hint">'+esc(j.dept)+' · Divisi '+esc(j.divisi)+(j.jml ? ' · '+j.jml+' karyawan' : '')+jd+(tna.internal ? ' · '+esc(dsSumber(r).replace("Sumber: ","Sumber ")) : '')+'</div>'+
       '<div class="stat-tiles" style="margin-top:14px">'+chip(rg.tugasUtama,"tugas utama")+chip(rg.kompetensi,"kompetensi")+chip(r.wajib.length,"training wajib")+'</div>'+
       '<button class="btn btn-primary ds-cta" id="btn-ds-unduh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>Unduh dokumen lengkap (Excel)</button>'+
-      '<div class="hint ds-cta-h">6 sheet: breakdown tugas dan KSA · kamus 5 level · skala level · matriks departemen · rencana 70/20/10 · TNA standar jabatan</div></div>'+
+      '<div class="hint ds-cta-h">6 sheet: breakdown tugas dan KSA · kamus 5 level · skala level · matriks departemen · rencana 70/20/10 · TNA standar jabatan</div><div class="ds-cta-h" id="ds-status" role="status" aria-live="polite" style="font-size:12.5px;color:var(--green);min-height:18px"></div></div>'+
       '<div class="seg ds-tabs" role="tablist" aria-label="Bagian dosier">'+[["tugas","Tugas"],["komp","Kompetensi"],["level","Level"],["dev","70/20/10"],["tna","Training"]].map((t,i)=>'<button type="button" role="tab" data-ds="'+t[0]+'" aria-pressed="'+(i===0)+'">'+t[1]+'</button>').join("")+'</div><div id="ds-isi"></div>';
     const tabs = {};
     tabs.tugas = ()=> (r.tugas.length ? r.tugas.map(t=>{
@@ -3310,8 +3340,16 @@ async function lihatMatriks(kode){
     const tampil = (k)=>{ $("ds-isi").innerHTML = tabs[k](); document.querySelectorAll("#tna-matriks-body [data-ds]").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.ds===k))); };
     document.querySelectorAll("#tna-matriks-body [data-ds]").forEach(b=> b.onclick = ()=> tampil(b.dataset.ds));
     tampil("tugas");
+    if(tnaDaftarJab.length <= 1) $("btn-jab-kembali").style.display = "none";
     $("btn-jab-kembali").onclick = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
-    $("btn-ds-unduh").onclick = ()=>{ try{ dsUnduh(r); }catch(e){ alert("Dokumen belum bisa dibuat. Coba lagi, atau hubungi L&D."); } };
+    $("btn-ds-unduh").onclick = async ()=>{
+      const b = $("btn-ds-unduh"), st = $("ds-status"), asal = b.innerHTML; b.disabled = true; st.textContent = "Menyiapkan dokumen…";
+      try{
+        const h = await dsUnduh(r);
+        st.textContent = h.cara==="batal" ? "" : (h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama+". Jika unduhan tidak muncul, izinkan unduhan pada browser Anda.");
+      }catch(e){ st.textContent = "Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."; }
+      b.disabled = false; b.innerHTML = asal;
+    };
   }catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
 

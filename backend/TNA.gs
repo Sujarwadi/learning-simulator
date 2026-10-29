@@ -347,6 +347,16 @@ function tnaInternalLD(ss, auth, p) {
   var saya = tnaPetaKaryawan(ss, true)[auth.nik];
   return !!saya && kode.indexOf(String(saya.KodeJabatan)) !== -1;
 }
+// Jabatan yang boleh dibuka dosier/matriksnya: admin dan tim L&D semua; selain itu hanya jabatan sendiri dan jabatan bawahannya.
+// Hasil null = semua jabatan. Pemeriksaan di backend (aturan wajib otorisasi), bukan hanya menu.
+function tnaJabatanBoleh(ss, auth) {
+  var p = tnaParam(ss);
+  if (tnaInternalLD(ss, auth, p)) return null;
+  var km = tnaPetaKaryawan(ss), ok = {}, saya = km[auth.nik];
+  if (saya) ok[String(saya.KodeJabatan)] = true;
+  tnaLingkupTampil(auth, km, "", "bawahan").forEach(function (k) { ok[String(k.KodeJabatan)] = true; });
+  return ok;
+}
 function tnaKonteks(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var p = tnaParam(ss), win = tnaWindow(p);
@@ -641,7 +651,8 @@ function tnaProgres(ss, req) {
  * ============================================================ */
 function tnaMatriksJabatan(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
-  var jab = tnaBaca(ss, "MasterJabatan");
+  var jab = tnaBaca(ss, "MasterJabatan"), boleh = tnaJabatanBoleh(ss, auth);
+  if (boleh) jab = jab.filter(function (j) { return boleh[String(j.KodeJabatan)]; });
   if (!req.kodeJabatan) {
     return { ok: true, jabatan: jab.map(function (j) {
       return { kode: j.KodeJabatan, jobTitle: j.JobTitle, dept: j.Dept, jml: j.JmlIncumbent, status: j.StatusMatriks, statusJD: j.StatusJD, link: j.LinkJD };
@@ -675,9 +686,10 @@ var TNA_SKALA = [
 function tnaDosierJabatan(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var kj = String(req.kodeJabatan || "");
-  var jabAll = tnaBaca(ss, "MasterJabatan");
+  var jabAll = tnaBaca(ss, "MasterJabatan"), boleh = tnaJabatanBoleh(ss, auth);
   var mj = jabAll.filter(function (j) { return j.KodeJabatan === kj; })[0];
   if (!mj) return { ok: false, error: "Kode jabatan tidak ditemukan." };
+  if (boleh && !boleh[kj]) return { ok: false, error: "Dosier ini hanya untuk jabatan Anda dan jabatan tim Anda." };
   var p = tnaParam(ss), durDef = Number(p.DurasiDefaultJam) || 4;
   var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = k; });
   var indik = {}; tnaBaca(ss, "Indikator").forEach(function (r) { (indik[r.KodeKompetensi] = indik[r.KodeKompetensi] || {})[Number(r.Level)] = r; });
@@ -754,7 +766,7 @@ function tnaDosierJabatan(ss, req) {
   // kolom pembanding: jabatan se-departemen yang berbagi minimal satu kompetensi TEKNIS (kompetensi perilaku dimiliki semua jabatan, tidak informatif)
   var teknisIni = lvBy[kj] || {};
   var kolom = Object.keys(lvBy).filter(function (c) {
-    return c !== kj && Object.keys(lvBy[c]).some(function (kk) { return teknisIni[kk] && (kamus[kk] || {}).Kategori === "Technical"; });
+    return c !== kj && (!boleh || boleh[c]) && Object.keys(lvBy[c]).some(function (kk) { return teknisIni[kk] && (kamus[kk] || {}).Kategori === "Technical"; });
   }).sort();
   kolom.unshift(kj);
   var kompMat = {}; kolom.forEach(function (c) { Object.keys(lvBy[c] || {}).forEach(function (kk) { kompMat[kk] = true; }); });
