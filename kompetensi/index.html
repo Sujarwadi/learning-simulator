@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.21, 29 Okt 2026. Perubahan (koreksi user 29 Okt): Dosier Jabatan menghasilkan dokumen Excel 6 sheet bergaya master kompetensi teknis L&D dengan satu klik (breakdown tugas dan KSA, kamus 5 level + indikator, skala level, matriks departemen, rencana 70/20/10, TNA standar jabatan), dibuat langsung di browser tanpa library; tombol cetak PDF dihapus; layar dosier diringkas menjadi lima tab; kompetensi teknis master Finance dan L&D Section Head menggantikan data otomatis; Communication Skill dibuang dari kompetensi teknis (sudah ada di Behavioral); teks coaching seragam dihapus; kolom pembanding matriks hanya jabatan yang berbagi kompetensi teknis. -->
 <!-- BBLC Studio v3.20, 28 Okt 2026. Perubahan: Dosier Jabatan (tile Referensi, sebelumnya Matriks Kompetensi Jabatan): satu jabatan lengkap tanpa menunggu asesmen, yaitu tugas utama dan task beserta kompetensinya, kompetensi dan level syarat, lima level dengan indikator perilaku, rencana 70/20/10, training wajib dan jalur training bila gap, cetak PDF tema terang; tombol 'Buka dosier lengkap' di laci profil jabatan Pusat Matrix; durasi training baru dari katalog (mesin TNA v2.7). -->
 <!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
 <!-- BBLC Studio v3.18, 27 Okt 2026. Perubahan: nilai aktual & gap tampil sebagai angka bulat (mesin TNA v2.5, pembulatan 70/30); Pusat Matrix dirancang ulang bergaya laporan konsultan: cover laporan dengan angka ringkas, heatmap bertingkat satu warna (1-5) dengan kompetensi inti berbingkai, pengelompokan klaster behavioral, band departemen, kolom ringkasan (pemakaian / sebaran status), baris total, sorotan otomatis, panel Cara Membaca, sorot baris & kolom saat kursor melintas, profil jabatan lengkap di laci samping, filter kategori, training matrix dengan bentuk berbeda per jenis (terisi, garis tegas, garis putus, titik) agar terbaca di cetak hitam putih, ekspor PDF dengan skala otomatis, nomor halaman, dan judul kolom berulang. -->
@@ -262,8 +263,8 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .ds-tugas{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start}
 .ds-no{width:30px;height:30px;border-radius:50%;background:var(--inset);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--ink)}
 .ds-task{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
-.ds-task li{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:6px 14px;font-size:13px;color:var(--text);padding:6px 0;border-top:1px solid var(--line)}
-.ds-kc{display:flex;flex-wrap:wrap;gap:4px}
+.ds-task li{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:6px 14px;font-size:13px;color:var(--text);padding:6px 0;border-top:1px solid var(--line)}
+.ds-kc{font-size:12px;color:var(--muted)}
 .ds-t td,.ds-t th{vertical-align:top}
 .ds-det{padding:0}
 .ds-det summary{cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;list-style:none;min-height:44px}
@@ -275,16 +276,13 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .ds-pips{display:inline-flex;gap:3px}
 .ds-pips i{display:block;width:16px;height:8px;border-radius:3px;background:var(--line)}
 .ds-pips i.on{background:var(--sky)}
+.ds-cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:16px;min-height:52px;font-size:15px}
+.ds-cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ds-cta-h{text-align:center;margin-top:8px}
+.ds-tabs{margin:16px 0 12px;position:sticky;top:64px;z-index:5}
+.ds-menuntut{margin-top:8px;font-size:12.5px;color:var(--muted)}
 .ds-foot{margin:24px 0 8px;font-size:12px;color:var(--muted)}
 @media (max-width:720px){.ds-task li{grid-template-columns:1fr}}
-@media print{
-  body.cetak-dosier *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.cetak-dosier .screen:not(#scr-tna-matriks),body.cetak-dosier header.app,body.cetak-dosier .rpt-nav,body.cetak-dosier .ds-actions,body.cetak-dosier #demo-fab,body.cetak-dosier #demo-panel,body.cetak-dosier #demo-toasts,body.cetak-dosier .demo-bar,body.cetak-dosier .card:has(#inp-tna-cari-jab){display:none !important}
-  body.cetak-dosier{background:#fff !important}
-  body.cetak-dosier .body-wrap{max-width:none !important;padding:0 !important}
-  body.cetak-dosier .card{box-shadow:none;break-inside:avoid}
-  body.cetak-dosier tr{break-inside:avoid}
-  body.cetak-dosier .sect{break-after:avoid}
 }
 .rpt-nav{position:sticky;top:64px;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0 10px;margin:0 0 var(--s3);background:linear-gradient(var(--bg) 70%,transparent);scrollbar-width:none}
 .rpt-nav::-webkit-scrollbar{display:none}
@@ -3052,88 +3050,268 @@ $("btn-tna-matriks").onclick = async ()=>{
 $("inp-tna-cari-jab").oninput = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
 function renderDaftarJab(q){
   q = String(q||"").toLowerCase();
+  $("inp-tna-cari-jab").closest(".card").style.display = "";
   const list = tnaDaftarJab.filter(j=> !q || (j.jobTitle+" "+j.dept).toLowerCase().includes(q));
   $("tna-matriks-body").innerHTML = list.map(j=>'<div class="team-item" data-jab="'+esc(j.kode)+'"><div class="team-avatar" style="font-size:11px">'+esc(j.kode)+'</div><div class="team-info"><div class="team-name">'+esc(j.jobTitle)+'</div><div class="team-jabatan">'+esc(j.dept)+' · '+esc(j.jml)+' orang</div></div>'+
     (tna.internal ? '<span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+(j.status==="APPROVED"?"Disetujui":"Draf")+'</span>' : '')+'</div>').join("") || '<div class="empty">Tidak ada jabatan.</div>';
   document.querySelectorAll("[data-jab]").forEach(el=> el.onclick = ()=> lihatMatriks(el.dataset.jab));
 }
-const DS_KAT = ["Behavioral","Technical","Leadership"];
-const DS_KAT_NAMA = { Behavioral:"Perilaku (Behavioral)", Technical:"Teknis (Technical)", Leadership:"Kepemimpinan (Leadership)" };
-function dsJam(t){ return t.jamDefault ? (tna.internal ? "jam belum ditetapkan (plan memakai "+t.durasiDef+" jam)" : "mengikuti penyelenggara") : t.jam+" jam"; }
+/* ---------- Penulis .xlsx tanpa library (OOXML + zip tanpa kompresi) ---------- */
+const XL = (()=>{
+  const te = new TextEncoder();
+  const T = (()=>{ const t = new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+  const crc32 = b=>{ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c = T[(c^b[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+  const u16 = n=>[n&255,(n>>8)&255], u32 = n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>>24)&255];
+  function zip(files){
+    const out = [], cen = []; let off = 0;
+    files.forEach(f=>{
+      const nm = te.encode(f.name), d = typeof f.data === "string" ? te.encode(f.data) : f.data, crc = crc32(d);
+      const h = [0x50,0x4b,3,4, 20,0, 0,8, 0,0, 0,0, 0x21,0, ...u32(crc), ...u32(d.length), ...u32(d.length), ...u16(nm.length), 0,0];
+      out.push(new Uint8Array(h), nm, d);
+      cen.push(new Uint8Array([0x50,0x4b,1,2, 20,0, 20,0, 0,8, 0,0, 0,0, 0x21,0, ...u32(crc), ...u32(d.length), ...u32(d.length), ...u16(nm.length), 0,0, 0,0, 0,0, 0,0, 0,0,0,0, ...u32(off)]), nm);
+      off += h.length + nm.length + d.length;
+    });
+    const csz = cen.reduce((a,b)=>a+b.length,0);
+    out.push(...cen, new Uint8Array([0x50,0x4b,5,6, 0,0, 0,0, ...u16(files.length), ...u16(files.length), ...u32(csz), ...u32(off), 0,0]));
+    return new Blob(out, { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+  const esc = s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"");
+  const kol = i=>{ let s=""; i++; while(i>0){ const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26); } return s; };
+  /* sheet: { nama, lebar:[..], baris:[[sel,..],..], merge:["A1:H1"], beku:"A4", tinggi:{indeks:pt} }; sel = nilai atau {v, s:{b,sz,c,f,h,v,w,bd}} */
+  function build(sheets){
+    const fonts = [], fills = ['<fill><patternFill patternType="none"/></fill>','<fill><patternFill patternType="gray125"/></fill>'], xfs = [], fi = new Map(), fl = new Map(), xi = new Map();
+    const fontId = s=>{ const k=[s.b?1:0,s.sz||9,s.c||"000000",s.i?1:0].join("|"); if(!fi.has(k)){ fi.set(k,fonts.length); fonts.push('<font>'+(s.b?'<b/>':'')+(s.i?'<i/>':'')+'<sz val="'+(s.sz||9)+'"/><color rgb="FF'+(s.c||"000000")+'"/><name val="Arial"/></font>'); } return fi.get(k); };
+    const fillId = c=>{ if(!c) return 0; if(!fl.has(c)){ fl.set(c,fills.length); fills.push('<fill><patternFill patternType="solid"><fgColor rgb="FF'+c+'"/><bgColor indexed="64"/></patternFill></fill>'); } return fl.get(c); };
+    const xf = s=>{ s = s||{}; const k = JSON.stringify([s.b,s.sz,s.c,s.i,s.f,s.h,s.v,s.w,s.bd]); if(!xi.has(k)){ xi.set(k,xfs.length);
+      xfs.push('<xf numFmtId="0" fontId="'+fontId(s)+'" fillId="'+fillId(s.f)+'" borderId="'+(s.bd?1:0)+'" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="'+(s.h||"left")+'" vertical="'+(s.v||"center")+'"'+(s.w?' wrapText="1"':'')+'/></xf>'); } return xi.get(k); };
+    xf({}); // indeks 0 = bawaan
+    const files = [];
+    const sheetXml = sheets.map((sh)=>{
+      const rows = sh.baris.map((r,ri)=>{
+        const cells = r.map((c,ci)=>{
+          if(c === null || c === undefined) return "";
+          const o = (typeof c === "object" && !Array.isArray(c)) ? c : { v:c }; const ref = kol(ci)+(ri+1), s = xf(o.s);
+          if(o.v === "" || o.v === null || o.v === undefined) return '<c r="'+ref+'" s="'+s+'"/>';
+          if(typeof o.v === "number") return '<c r="'+ref+'" s="'+s+'"><v>'+o.v+'</v></c>';
+          return '<c r="'+ref+'" s="'+s+'" t="inlineStr"><is><t xml:space="preserve">'+esc(o.v)+'</t></is></c>';
+        }).join("");
+        const ht = sh.tinggi && sh.tinggi[ri] ? ' ht="'+sh.tinggi[ri]+'" customHeight="1"' : "";
+        return '<row r="'+(ri+1)+'"'+ht+'>'+cells+'</row>';
+      }).join("");
+      const pane = sh.beku ? (()=>{ const m=/^([A-Z]+)(\d+)$/.exec(sh.beku); let cx=0; for(const ch of m[1]) cx = cx*26+(ch.charCodeAt(0)-64); cx--; const ry=Number(m[2])-1;
+        return '<pane'+(cx?' xSplit="'+cx+'"':'')+(ry?' ySplit="'+ry+'"':'')+' topLeftCell="'+sh.beku+'" activePane="'+(cx&&ry?"bottomRight":(ry?"bottomLeft":"topRight"))+'" state="frozen"/>'; })() : "";
+      return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0"'+(sh.zoom?' zoomScale="'+sh.zoom+'"':'')+'>'+pane+'</sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/>'+
+        '<cols>'+sh.lebar.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("")+'</cols><sheetData>'+rows+'</sheetData>'+
+        (sh.merge&&sh.merge.length ? '<mergeCells count="'+sh.merge.length+'">'+sh.merge.map(m=>'<mergeCell ref="'+m+'"/>').join("")+'</mergeCells>' : '')+
+        '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/></worksheet>';
+    });
+    const styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="'+fonts.length+'">'+fonts.join("")+'</fonts><fills count="'+fills.length+'">'+fills.join("")+'</fills>'+
+      '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom><diagonal/></border></borders>'+
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="'+xfs.length+'">'+xfs.join("")+'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    files.push({ name:"[Content_Types].xml", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+sheets.map((_,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("")+'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' });
+    files.push({ name:"_rels/.rels", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' });
+    files.push({ name:"xl/workbook.xml", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+sheets.map((s,i)=>'<sheet name="'+esc(s.nama.slice(0,31))+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join("")+'</sheets></workbook>' });
+    files.push({ name:"xl/_rels/workbook.xml.rels", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map((_,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join("")+'<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' });
+    files.push({ name:"xl/styles.xml", data:styles });
+    sheetXml.forEach((x,i)=>files.push({ name:"xl/worksheets/sheet"+(i+1)+".xml", data:x }));
+    return zip(files);
+  }
+  return { build, kol };
+})();
+
+/* ---------- Dosier Jabatan: dokumen Excel 6 sheet + layar ringkas ---------- */
+const DS_KAT = ["Technical","Behavioral","Leadership"];
+const DS_KAT_NAMA = { Technical:"Kompetensi Teknis", Behavioral:"Kompetensi Perilaku (Behavioral)", Leadership:"Kompetensi Kepemimpinan (Leadership)" };
+const DS_C = { navy:"1F4E79", mid:"2E75B6", pale:"BDD7EE", paler:"DEEAF1", ksa:"FCE4D6", none:"EEEEEE" };
+const DS_LV = { 1:["FFF2CC","000000"], 2:["FFE699","000000"], 3:["C6EFCE","000000"], 4:["375623","FFFFFF"], 5:["1F4E79","FFFFFF"] };
+const dsJam = (t, dd)=> t.jamDefault ? (tna.internal ? "durasi belum ditetapkan (plan memakai "+dd+" jam)" : "mengikuti penyelenggara") : t.jam+" jam";
 function dsRingkasJalur(k){
-  // gabungkan level awal yang memberi training sama: "Aktual 1-3 -> judul"
-  const out = []; const per = {};
-  (k.jalur||[]).forEach(j=>{ const kode = j.training ? j.training.kode : (j.sudahWajib ? "_wajib" : "_none"); (per[kode] = per[kode] || { j, lv:[] }).lv.push(j.dariLevel); });
-  Object.keys(per).forEach(kode=>{
-    const g = per[kode], lv = g.lv.slice().sort((a,b)=>a-b), rentang = lv.length>1 ? lv[0]+" sampai "+lv[lv.length-1] : String(lv[0]);
-    out.push({ rentang, training: g.j.training, sudahWajib: g.j.sudahWajib && !g.j.training });
-  });
-  return out.sort((a,b)=> String(a.rentang).localeCompare(String(b.rentang)));
+  const per = {}; (k.jalur||[]).forEach(j=>{ const kode = j.training ? j.training.kode : (j.sudahWajib ? "_wajib" : "_none"); (per[kode] = per[kode] || { j, lv:[] }).lv.push(j.dariLevel); });
+  return Object.keys(per).map(kode=>{ const g = per[kode], lv = g.lv.slice().sort((a,b)=>a-b);
+    return { rentang: lv.length>1 ? lv[0]+" sampai "+lv[lv.length-1] : String(lv[0]), training: g.j.training, sudahWajib: g.j.sudahWajib && !g.j.training }; })
+    .sort((a,b)=> String(a.rentang).localeCompare(String(b.rentang)));
 }
+function dsUrut(r){ return r.kompetensi.slice().sort((a,b)=> DS_KAT.indexOf(a.kategori)-DS_KAT.indexOf(b.kategori) || String(a.kelompok).localeCompare(String(b.kelompok)) || String(a.kode).localeCompare(String(b.kode), undefined, { numeric:true })); }
+function dsSumber(r){ return tna.internal ? (r.jabatan.master ? "Sumber: master kompetensi teknis L&D" : "Sumber: draf otomatis dari JD (belum ada master)") : "Standar jabatan BBM"; }
+
+function dsDokumen(r){
+  const j = r.jabatan, dd = r.ringkas.durasiDefault, kompU = dsUrut(r);
+  const s = {
+    judul:{b:1,sz:13,c:"FFFFFF",f:DS_C.navy,h:"center"}, sub:{sz:9,c:"FFFFFF",f:DS_C.mid,h:"center",w:1}, th:{b:1,sz:9,c:"FFFFFF",f:DS_C.navy,h:"center",w:1,bd:1},
+    band:{b:1,sz:9,c:DS_C.navy,f:DS_C.pale,h:"left",bd:1,w:1}, sel:{sz:8,h:"left",v:"top",w:1,bd:1}, selB:{sz:8,b:1,h:"left",v:"top",w:1,bd:1}, tengah:{sz:8,h:"center",v:"center",w:1,bd:1},
+    ksa:{sz:8,h:"left",v:"top",w:1,bd:1,f:DS_C.ksa}, komp:{sz:8,b:1,c:DS_C.navy,f:DS_C.pale,h:"center",v:"center",w:1,bd:1}, lvl:{b:1,sz:11,c:"FFFFFF",f:DS_C.navy,h:"center",bd:1},
+    kk:{b:1,sz:9,c:DS_C.navy,f:DS_C.pale,h:"left",bd:1,w:1}, kd:{sz:8,f:DS_C.paler,h:"left",bd:1,w:1}, catatan:{sz:8,i:1,c:"595959",h:"left",v:"top",w:1}
+  };
+  const tinggi = (row, lebar)=>{ let m = 1; row.forEach((c,i)=>{ const v = c && typeof c === "object" ? c.v : c; if(typeof v !== "string") return; const w = (lebar[i]||10)*1.3; let n = 0; v.split("\n").forEach(p=>{ n += Math.max(1, Math.ceil(p.length / w)); }); m = Math.max(m, n); }); return m>1 ? Math.min(400, m*11.5+6) : 0; };
+  const buat = (nama, lebar, judul, tambahan, header)=>{
+    const n = lebar.length, pad = (a)=> a.concat(Array(Math.max(0,n-a.length)).fill(null));
+    const sh = { nama, lebar, baris:[ pad([{v:judul,s:s.judul}]), pad([{v:j.jobTitle+" · "+j.dept+" · Divisi "+j.divisi+" · "+dsSumber(r)+(tambahan?" · "+tambahan:""),s:s.sub}]) ], merge:["A1:"+XL.kol(n-1)+"1","A2:"+XL.kol(n-1)+"2"], tinggi:{0:26,1:20}, beku:null };
+    if(header){ sh.baris.push(header.map(h=>({v:h,s:s.th}))); sh.tinggi[2] = 30; sh.beku = "A4"; }
+    sh.tambah = (row, opsi)=>{ sh.baris.push(row); const t = (opsi&&opsi.tinggi) || tinggi(row, lebar); if(t) sh.tinggi[sh.baris.length-1] = t; return sh.baris.length; };
+    sh.gabung = (txt, st, tg)=>{ const idx = sh.tambah(pad([{v:txt,s:st}].concat(Array(n-1).fill({v:"",s:st}))), { tinggi:tg||20 }); sh.merge.push("A"+idx+":"+XL.kol(n-1)+idx); };
+    return sh;
+  };
+  const sheets = [];
+  // ===== 1. JD Task Breakdown & KSA =====
+  {
+    const ada = k=> r.tugas.some(t=>t.akt.some(a=>a[k]));
+    const kolom = [["task","Proses Kerja / Aktivitas",46]];
+    if(ada("subProses")) kolom.push(["subProses","Sub-Proses",34]);
+    if(ada("subSubProses")) kolom.push(["subSubProses","Rincian Sub-Sub Proses",42]);
+    if(ada("pengetahuan")) kolom.push(["pengetahuan","Pengetahuan (K)",34]);
+    if(ada("standar")) kolom.push(["standar","Standar Kinerja",38]);
+    if(ada("subStandar")) kolom.push(["subStandar","Bila Tidak Terpenuhi",36]);
+    if(ada("ksa")) kolom.push(["ksa","KSA (Knowledge, Skill, Attitude)",44]);
+    kolom.push(["komp","Kompetensi Teknis",30]);
+    const adaLv = ada("level"); if(adaLv) kolom.push(["level","Level",8]);
+    const sh = buat("1. JD Task Breakdown & KSA", kolom.map(k=>k[2]), "JD TASK BREAKDOWN DAN KSA | "+j.jobTitle.toUpperCase(), "", kolom.map(k=>k[1]));
+    r.tugas.forEach(t=>{
+      sh.gabung("TUGAS UTAMA "+t.no+", "+t.utama, s.band, Math.max(20, Math.ceil(t.utama.length/150)*14+8));
+      t.akt.forEach(a=>{
+        sh.tambah(kolom.map(([k])=>{
+          if(k==="komp") return { v:a.komp.map(c=>c.nama).join("\n"), s:s.komp };
+          if(k==="level") return { v:a.level===""?"":a.level, s: a.level ? { b:1, sz:11, c:DS_LV[a.level][1], f:DS_LV[a.level][0], h:"center", v:"center", bd:1 } : s.tengah };
+          if(k==="ksa") return { v:a.ksa, s:s.ksa };
+          return { v:a[k]||"", s:s.sel };
+        }));
+      });
+    });
+    if(!r.tugas.length) sh.gabung("Uraian tugas jabatan ini belum tersedia di sistem.", s.band);
+    sheets.push(sh);
+  }
+  // ===== 2. Kamus Kompetensi =====
+  {
+    const lebar = [10,30,46,7,14,46,54,12];
+    const sh = buat("2. Kamus Kompetensi", lebar, "KAMUS KOMPETENSI | "+j.jobTitle.toUpperCase(), "", ["Kode","Kompetensi","Definisi","Level","Label","Definisi Level","Indikator Perilaku (Observable)","Syarat Jabatan"]);
+    let kat = "";
+    kompU.forEach(k=>{
+      const kk = (DS_KAT_NAMA[k.kategori]||k.kategori) + (k.kelompok ? " · "+k.kelompok : "");
+      if(kk !== kat){ kat = kk; sh.gabung(kk.toUpperCase(), s.band); }
+      const idx = sh.tambah([{v:k.kode,s:s.kk},{v:k.nama,s:s.kk},{v:k.definisi,s:s.kd},{v:"Level yang dipersyaratkan jabatan ini: "+k.required+" ("+TNA_LV_NAMA[k.required]+")",s:s.kk},null,null,null,null], { tinggi: Math.max(30, Math.ceil(String(k.definisi).length/58)*11.5+8) });
+      sh.merge.push("D"+idx+":H"+idx); for(let c=4;c<8;c++) sh.baris[idx-1][c] = { v:"", s:s.kk };
+      k.levelDetail.forEach(l=>{
+        const syarat = l.level === k.required, w = DS_LV[l.level];
+        sh.tambah([null,null,null,{v:l.level,s:{b:1,sz:11,c:w[1],f:w[0],h:"center",v:"center",bd:1}},{v:l.label,s:{b:1,sz:9,c:w[1],f:w[0],h:"center",v:"center",w:1,bd:1}},
+          {v:l.definisi,s:{sz:8,h:"left",v:"top",w:1,bd:1,b:syarat?1:0}},{v:l.indikator.map(x=>"• "+x).join("\n"),s:{sz:8,h:"left",v:"top",w:1,bd:1,f:syarat?"E2EFDA":undefined}},
+          {v:syarat?"SYARAT":"",s:{b:1,sz:8,c:"375623",f:syarat?"E2EFDA":undefined,h:"center",v:"center",bd:1}}]);
+      });
+    });
+    sheets.push(sh);
+  }
+  // ===== 3. Proficiency Level Scale =====
+  {
+    const sh = buat("3. Proficiency Level Scale", [9,22,60,60], "SKALA LEVEL KEMAHIRAN | DEFINISI UMUM DAN PANDUAN PENILAIAN", "", ["Level","Label","Definisi Umum","Panduan Penilaian (apa yang harus bisa dilakukan)"]);
+    r.skala.forEach(l=>{ const w = DS_LV[l.level]; sh.tambah([{v:l.level,s:{b:1,sz:14,c:w[1],f:w[0],h:"center",v:"center",bd:1}},{v:l.label+"\n"+l.status.toUpperCase(),s:{b:1,sz:11,c:w[1],f:w[0],h:"center",v:"center",w:1,bd:1}},{v:l.definisi,s:{sz:10,h:"left",v:"top",w:1,bd:1}},{v:l.panduan,s:{sz:9,h:"left",v:"top",w:1,bd:1}}], { tinggi:58 }); });
+    sh.tambah([null]); sh.gabung("DAFTAR KOMPETENSI JABATAN INI", s.band);
+    sh.tambah([{v:"Kode",s:s.th},{v:"Kategori",s:s.th},{v:"Nama Kompetensi",s:s.th},{v:"Level syarat",s:s.th}]);
+    kompU.forEach(k=>{ const w = DS_LV[k.required]; sh.tambah([{v:k.kode,s:s.tengah},{v:DS_KAT_NAMA[k.kategori]||k.kategori,s:s.sel},{v:k.nama,s:s.selB},{v:k.required+" · "+TNA_LV_NAMA[k.required],s:{b:1,sz:9,c:w[1],f:w[0],h:"center",v:"center",bd:1}}]); });
+    sheets.push(sh);
+  }
+  // ===== 4. Competency Matrix =====
+  {
+    const m = r.matriks, lebar = [10,26,38].concat(m.kolom.map(()=>13));
+    const sh = buat("4. Competency Matrix", lebar, "MATRIKS KOMPETENSI | "+j.dept, "jabatan ini di kolom pertama", null);
+    sh.baris.push([{v:"",s:s.th},{v:"",s:s.th},{v:"Departemen",s:s.th}].concat(m.kolom.map(c=>({v:c.dept,s:{b:1,sz:7,c:"FFFFFF",f:DS_C.mid,h:"center",w:1,bd:1}})))); sh.tinggi[2] = 18;
+    sh.baris.push([{v:"Kode",s:s.th},{v:"Kategori",s:s.th},{v:"Nama Kompetensi",s:s.th}].concat(m.kolom.map(c=>({v:c.nama,s:{b:1,sz:7,c:"FFFFFF",f:c.ini?"C55A11":DS_C.navy,h:"center",w:1,bd:1}})))); sh.tinggi[3] = 52; sh.beku = "D5";
+    let kat = "";
+    m.baris.forEach(b=>{
+      const kk = (DS_KAT_NAMA[b.kategori]||b.kategori) + (b.kelompok ? " · "+b.kelompok : "");
+      if(kk !== kat){ kat = kk; sh.gabung(kk.toUpperCase(), s.band); }
+      sh.tambah([{v:b.kode,s:s.tengah},{v:DS_KAT_NAMA[b.kategori]||b.kategori,s:s.sel},{v:b.nama,s:{sz:8,b:1,c:DS_C.navy,h:"left",v:"center",w:1,bd:1}}].concat(m.kolom.map(c=>{
+        const lv = (m.level[c.kode]||{})[b.kode]; if(!lv) return { v:"–", s:{ sz:11, c:"7F7F7F", f:DS_C.none, h:"center", v:"center", bd:1 } };
+        const w = DS_LV[lv]; return { v:lv, s:{ b:1, sz:11, c:w[1], f:w[0], h:"center", v:"center", bd:1 } }; })), { tinggi:20 });
+    });
+    sh.tambah([null]); sh.gabung("LEGENDA LEVEL", {b:1,sz:9,c:"FFFFFF",f:DS_C.navy,h:"left"}, 18);
+    sh.tambah([null,null,null].concat([1,2,3,4,5].map(n=>({v:n+" "+TNA_LV_NAMA[n],s:{b:1,sz:8,c:DS_LV[n][1],f:DS_LV[n][0],h:"center",w:1,bd:1}}))).concat([{v:"– tidak dipersyaratkan",s:{sz:8,f:DS_C.none,h:"center",w:1,bd:1}}].slice(0, Math.max(0, lebar.length-8))), { tinggi:28 });
+    sheets.push(sh);
+  }
+  // ===== 5. Rencana 70-20-10 =====
+  {
+    const ada70 = kompU.some(k=>k.p70), ada20 = kompU.some(k=>k.p20);
+    const kolom = [["Kompetensi",30],["Level syarat",10]]; if(ada70) kolom.push(["70 · Penugasan nyata",50]); if(ada20) kolom.push(["20 · Belajar dari",42]); kolom.push(["10 · Training formal (bila ada gap)",44]);
+    const sh = buat("5. Rencana 70-20-10", kolom.map(k=>k[1]), "RENCANA PENGEMBANGAN 70/20/10 | "+j.jobTitle.toUpperCase(), "penugasan dan coaching tidak dihitung jam", kolom.map(k=>k[0]));
+    kompU.forEach(k=>{ const jr = dsRingkasJalur(k).filter(x=>x.training), t = jr.length ? jr[0].training : null, w = DS_LV[k.required];
+      const row = [{v:k.nama,s:s.selB},{v:k.required,s:{b:1,sz:10,c:w[1],f:w[0],h:"center",v:"center",bd:1}}];
+      if(ada70) row.push({v:k.p70||"",s:s.sel}); if(ada20) row.push({v:k.p20||"",s:s.sel});
+      row.push({v:t ? t.kode+" "+t.judul+" ("+dsJam(t,dd)+")" : "",s:s.sel}); sh.tambah(row); });
+    sheets.push(sh);
+  }
+  // ===== 6. TNA Standar Jabatan =====
+  {
+    const sh = buat("6. TNA Standar Jabatan", [34,16,30,64], "TNA STANDAR JABATAN | "+j.jobTitle.toUpperCase(), "disusun tanpa asesmen: tidak ada gap atau jam per orang", null);
+    sh.gabung("A. TRAINING WAJIB BAGI JABATAN INI", s.band);
+    sh.tambah([{v:"Training",s:s.th},{v:"Metode",s:s.th},{v:"Durasi",s:s.th},{v:"Dasar penetapan",s:s.th}]);
+    r.wajib.forEach(w=>sh.tambah([{v:w.kode+" "+w.judul,s:s.selB},{v:w.metode==="ONLINE"?"Online":"Klasikal",s:s.tengah},{v:dsJam(w,dd),s:s.tengah},{v:w.dasar,s:s.sel}]));
+    if(!r.wajib.length) sh.tambah([{v:"Tidak ada training wajib khusus jabatan ini.",s:s.sel}]);
+    sh.tambah([{v:"Total durasi tercatat",s:s.selB},null,{v:r.ringkas.jamWajib+" jam"+(r.ringkas.jamBelumDitetapkan?" + "+r.ringkas.jamBelumDitetapkan+" mengikuti penyelenggara":""),s:s.selB}]);
+    sh.tambah([null]); sh.gabung("B. TRAINING YANG DIJADWALKAN BILA ASESMEN MENUNJUKKAN GAP", s.band);
+    sh.tambah([{v:"Kompetensi (level syarat)",s:s.th},{v:"Bila level aktual",s:s.th},{v:"Durasi",s:s.th},{v:"Training",s:s.th}]);
+    kompU.forEach(k=>dsRingkasJalur(k).forEach(x=>sh.tambah([{v:k.nama+" (level "+k.required+")",s:s.selB},{v:"Level "+x.rentang,s:s.tengah},
+      {v:x.training ? dsJam(x.training,dd) : "",s:s.tengah},{v:x.training ? x.training.kode+" "+x.training.judul : (x.sudahWajib ? "Sudah tertutup training wajib" : "Tidak ada training di katalog; ditutup lewat penugasan dan coaching"),s:s.sel}])));
+    if(r.iht){ sh.tambah([null]); sh.gabung("C. IHT SABTU DI CABANG", s.band); sh.tambah([{v:"Total jam per tahun",s:s.selB},{v:r.iht.jamTotal+" jam",s:s.tengah},{v:"Selling "+r.iht.selling+" · Product knowledge "+r.iht.pk+" · After sales "+r.iht.ass+" · Pengembangan diri "+r.iht.self,s:s.sel}]); }
+    sh.tambah([null]); sh.tambah([{v:"Setelah atasan menilai, sistem memilih dari daftar B sesuai level aktual masing-masing orang.",s:s.catatan}]);
+    sheets.push(sh);
+  }
+  return sheets;
+}
+const TNA_LV_NAMA = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
+function dsUnduh(r){
+  const blob = XL.build(dsDokumen(r)), nama = "Dosier_"+r.jabatan.jobTitle.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_TNA2027_v1.xlsx";
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nama; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+
 async function lihatMatriks(kode){
   $("tna-matriks-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menyusun dosier&hellip;</div>';
+  $("inp-tna-cari-jab").closest(".card").style.display = "none";
   try{
     const r = await tnaApi("tnaDosierJabatan", { kodeJabatan: kode });
-    const j = r.jabatan, rg = r.ringkas;
-    const dd = rg.durasiDefault;
-    const wajib = r.wajib.map(w=>Object.assign({ durasiDef:dd }, w));
-    const grup = {}; DS_KAT.forEach(k=>grup[k]=[]); r.kompetensi.forEach(k=>{ (grup[k.kategori] = grup[k.kategori] || []).push(k); });
-    Object.keys(grup).forEach(g=> grup[g].sort((a,b)=> b.bobot - a.bobot || a.nama.localeCompare(b.nama)));
-    const kats = Object.keys(grup).filter(g=>grup[g].length);
+    const j = r.jabatan, rg = r.ringkas, dd = rg.durasiDefault, kompU = dsUrut(r);
     const chip = (n,l)=>'<div class="tile-s"><div class="v">'+n+'</div><div class="l">'+l+'</div></div>';
     const jd = j.linkJD ? ' · <a href="'+esc(String(j.linkJD).split(" || ")[0])+'" target="_blank" rel="noopener">Buka JD</a>' : '';
-    const kepala = '<div class="ds-actions"><button class="btn btn-ghost" id="btn-jab-kembali">&larr; Daftar jabatan</button><button class="btn btn-ghost" id="btn-ds-cetak">Cetak atau simpan PDF</button></div>'+
+    const kepala = '<div class="ds-actions"><button class="btn btn-ghost" id="btn-jab-kembali">&larr; Daftar jabatan</button></div>'+
       '<div class="card ds-head"><div class="rpt-eyebrow">Dosier jabatan</div><h2 class="ds-judul">'+esc(j.jobTitle)+'</h2>'+
-      '<div class="hint">'+esc(j.dept)+' · Divisi '+esc(j.divisi)+(j.jml ? ' · '+j.jml+' karyawan' : '')+jd+(tna.internal ? ' · Status matriks: '+(j.statusMatriks==="APPROVED"?"Disetujui":"Draf") : '')+'</div>'+
-      '<div class="stat-tiles" style="margin-top:14px">'+chip(rg.tugasUtama,"tugas utama")+chip(rg.kompetensi,"kompetensi")+chip(r.wajib.length+(rg.jamWajib ? ' · '+rg.jamWajib+' jam' : ''),"training wajib")+'</div>'+
-      '<div class="hint" style="margin-top:10px">Dosier ini disusun dari standar jabatan, tanpa menunggu asesmen. Gap dan jadwal training per orang baru ada setelah atasan menilai.</div></div>'+
-      '<nav class="rpt-nav" aria-label="Bagian dosier"><a href="#ds-tugas">Tugas</a><a href="#ds-komp">Kompetensi</a><a href="#ds-level">5 level</a><a href="#ds-702010">70/20/10</a><a href="#ds-training">Training</a></nav>';
-    // 1 tugas
-    const tugas = '<h2 class="sect" id="ds-tugas">1. Tugas utama dan kompetensi yang dituntutnya</h2>'+
-      (r.tugas.length ? r.tugas.map(t=>'<div class="card ds-tugas"><div class="ds-no">'+t.no+'</div><div><b>'+esc(t.utama)+'</b><ul class="ds-task">'+
-        t.akt.map(x=>'<li><span>'+esc(x.task)+'</span>'+(x.komp.length ? '<span class="ds-kc">'+x.komp.map(c=>'<span class="badge badge-grey">'+esc(c.nama)+'</span>').join(" ")+'</span>' : '')+'</li>').join("")+'</ul></div></div>').join("")
-        : '<div class="card"><div class="empty">Uraian tugas jabatan ini belum tersedia.</div></div>')+
+      '<div class="hint">'+esc(j.dept)+' · Divisi '+esc(j.divisi)+(j.jml ? ' · '+j.jml+' karyawan' : '')+jd+(tna.internal ? ' · '+esc(dsSumber(r).replace("Sumber: ","Sumber ")) : '')+'</div>'+
+      '<div class="stat-tiles" style="margin-top:14px">'+chip(rg.tugasUtama,"tugas utama")+chip(rg.kompetensi,"kompetensi")+chip(r.wajib.length,"training wajib")+'</div>'+
+      '<button class="btn btn-primary ds-cta" id="btn-ds-unduh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>Unduh dokumen lengkap (Excel)</button>'+
+      '<div class="hint ds-cta-h">6 sheet: breakdown tugas dan KSA · kamus 5 level · skala level · matriks departemen · rencana 70/20/10 · TNA standar jabatan</div></div>'+
+      '<div class="seg ds-tabs" role="tablist" aria-label="Bagian dosier">'+[["tugas","Tugas"],["komp","Kompetensi"],["level","Level"],["dev","70/20/10"],["tna","Training"]].map((t,i)=>'<button type="button" role="tab" data-ds="'+t[0]+'" aria-pressed="'+(i===0)+'">'+t[1]+'</button>').join("")+'</div><div id="ds-isi"></div>';
+    const tabs = {};
+    tabs.tugas = ()=> (r.tugas.length ? r.tugas.map(t=>{
+      const unik = []; t.akt.forEach(a=>a.komp.forEach(c=>{ if(!unik.some(x=>x.kode===c.kode)) unik.push(c); }));
+      return '<div class="card ds-tugas"><div class="ds-no">'+t.no+'</div><div><b>'+esc(t.utama)+'</b><ul class="ds-task">'+
+        t.akt.map(a=>'<li><span>'+esc(a.task)+'</span>'+(r.punyaKsa ? '<span class="ds-kc">'+(a.komp.length ? a.komp.map(c=>esc(c.nama)).join(", ")+(a.level?' · level '+a.level:'') : '')+'</span>' : '')+'</li>').join("")+'</ul>'+
+        (!r.punyaKsa && unik.length ? '<div class="ds-menuntut">Menuntut kompetensi: '+unik.map(c=>esc(c.nama)).join(", ")+'</div>' : '')+'</div></div>'; }).join("")
+      : '<div class="card"><div class="empty">Uraian tugas jabatan ini belum tersedia.</div></div>')+
       '<div class="hint">Kompetensi perilaku dan kepemimpinan berasal dari Kamus Kompetensi BBM dan berlaku sesuai level jabatan, jadi tidak diturunkan dari tugas satu per satu.</div>';
-    // 2 kompetensi
-    const pips = (req)=>'<div class="ds-pips" role="img" aria-label="Level '+req+' dari 5">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=req?'on':'')+'"></i>').join("")+'</div>';
-    const komp = '<h2 class="sect" id="ds-komp">2. Kompetensi dan level yang dipersyaratkan</h2>'+kats.map(g=>'<h3 class="ds-sub">'+esc(DS_KAT_NAMA[g]||g)+' <span class="hint">'+grup[g].length+' kompetensi</span></h3><div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th><th>Level syarat</th><th>Bobot</th><th>Definisi</th></tr>'+
-      grup[g].map(k=>'<tr><td><b>'+esc(k.nama)+'</b>'+(g==="Technical" && k.tugasTerkait.length ? '<div class="hint" style="margin:2px 0 0">dari tugas: '+k.tugasTerkait.map(esc).join("; ")+'</div>' : '')+
-        (tna.internal && k.flag ? '<div style="margin-top:4px">'+flagList(k.flag).map(f=>'<span class="badge badge-amber">'+esc(flagLabel(f))+'</span>').join(" ")+'</div>' : '')+'</td>'+
-        '<td>'+pips(k.required)+'<div class="hint" style="margin:2px 0 0">Level '+k.required+' · '+MX_LV[k.required]+'</div></td><td>'+esc(MX_BOBOT[k.bobot]||k.bobot)+'</td><td style="font-size:12.5px">'+esc(k.definisi)+'</td></tr>').join("")+'</table></div>').join("");
-    // 3 level + indikator
-    const level = '<h2 class="sect" id="ds-level">3. Proficiency: lima level dan indikator perilakunya</h2><div class="hint" style="margin-bottom:8px">Level yang dipersyaratkan jabatan ini ditandai. Indikator menunjukkan perilaku yang harus terlihat untuk naik ke level tersebut.</div>'+
-      kats.map(g=>'<h3 class="ds-sub">'+esc(DS_KAT_NAMA[g]||g)+'</h3>'+grup[g].map(k=>'<details class="card ds-det"><summary><b>'+esc(k.nama)+'</b><span class="badge badge-grey">syarat Level '+k.required+'</span></summary>'+
-        '<ol class="ds-lv">'+k.levels.map((tx,i)=>{ const n=i+1, ind=(k.checklist[i-1]||"").split(/;\s*/).filter(Boolean);
-          return '<li class="'+(n===k.required?'req':'')+'"><div><b>Level '+n+' · '+MX_LV[n]+'</b>'+(n===k.required?' <span class="badge badge-green">syarat jabatan</span>':'')+'</div><div>'+esc(tx)+'</div>'+
-            (n>=2 && ind.length ? '<ul class="ds-ind">'+ind.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>' : '')+'</li>'; }).join("")+'</ol></details>').join("")).join("");
-    // 4 70/20/10
-    const rencana = '<h2 class="sect" id="ds-702010">4. Cara mengembangkan: 70/20/10</h2><div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th><th>70 · Penugasan nyata</th><th>20 · Coaching dan mentoring</th><th>10 · Training formal</th></tr>'+
-      r.kompetensi.slice().sort((a,b)=> DS_KAT.indexOf(a.kategori)-DS_KAT.indexOf(b.kategori) || b.bobot-a.bobot).map(k=>{ const jr = dsRingkasJalur(k).filter(x=>x.training), t = jr.length ? jr[0].training : null;
-        return '<tr><td><b>'+esc(k.nama)+'</b></td><td style="font-size:12.5px">'+esc(k.p70||"-")+'</td><td style="font-size:12.5px">'+esc(k.p20||"-")+'</td><td style="font-size:12.5px">'+(t ? trn(t.kode, t.judul) : '<span class="hint">-</span>')+'</td></tr>'; }).join("")+'</table></div>'+
-      '<div class="hint">Penugasan dan coaching tidak dihitung jam. Kolom training formal adalah training yang akan dipakai bila asesmen menunjukkan gap.</div>';
-    // 5 training
-    const tbWajib = wajib.length ? '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Training</th><th>Metode</th><th>Durasi</th><th>Dasar penetapan</th></tr>'+
-      wajib.map(w=>'<tr><td>'+trn(w.kode, w.judul)+'</td><td>'+esc(w.metode==="ONLINE"?"Online":"Klasikal")+'</td><td>'+esc(dsJam(w))+'</td><td style="font-size:12.5px">'+esc(w.dasar)+'</td></tr>').join("")+'</table></div>' : '<div class="card"><div class="empty">Tidak ada training wajib khusus jabatan ini.</div></div>';
-    const tbGap = '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi (level syarat)</th><th>Bila level aktual</th><th>Training yang dijadwalkan</th></tr>'+
-      r.kompetensi.slice().sort((a,b)=> DS_KAT.indexOf(a.kategori)-DS_KAT.indexOf(b.kategori) || b.bobot-a.bobot).map(k=>{ const jr = dsRingkasJalur(k);
-        if(!jr.length) return '';
-        return jr.map((x,i)=>'<tr>'+(i===0?'<td rowspan="'+jr.length+'"><b>'+esc(k.nama)+'</b><div class="hint" style="margin:2px 0 0">Level '+k.required+'</div></td>':'')+'<td>Level '+esc(x.rentang)+'</td><td>'+
-          (x.training ? trn(x.training.kode, x.training.judul)+' <span class="hint">'+esc(dsJam(Object.assign({durasiDef:dd},x.training)))+'</span>' : (x.sudahWajib ? '<span class="hint">sudah tertutup training wajib di atas</span>' : '<span class="hint">tidak ada training di katalog; ditutup lewat penugasan dan coaching</span>'))+'</td></tr>').join(""); }).join("")+'</table></div>';
-    const ihtBox = r.iht && r.iht.jamTotal ? '<div class="card"><b>IHT Sabtu di cabang</b><div class="hint">Total '+r.iht.jamTotal+' jam per tahun (selling '+r.iht.selling+', product knowledge '+r.iht.pk+', after sales '+r.iht.ass+', pengembangan diri '+r.iht.self+').</div></div>' : '';
-    const training = '<h2 class="sect" id="ds-training">5. Training: hasil TNA standar jabatan</h2><h3 class="ds-sub">Wajib bagi jabatan ini <span class="hint">'+(rg.jamWajib ? rg.jamWajib+' jam tercatat' : '')+(rg.jamBelumDitetapkan ? (rg.jamWajib?', ':'')+rg.jamBelumDitetapkan+' mengikuti penyelenggara' : '')+'</span></h3>'+tbWajib+
-      '<h3 class="ds-sub">Dijadwalkan bila asesmen menunjukkan gap</h3>'+tbGap+ihtBox+
-      '<div class="hint">Belum ada asesmen, jadi tidak ada gap atau jam per orang. Setelah atasan menilai, sistem memilih dari daftar ini sesuai level aktual masing-masing orang.</div>';
-    $("tna-matriks-body").innerHTML = kepala + tugas + komp + level + rencana + training + '<div class="ds-foot">Dosier jabatan '+esc(j.jobTitle)+'. Disusun '+mxTgl()+' dari standar jabatan BBM.</div>';
+    tabs.komp = ()=>{ let kat = "", h = "";
+      kompU.forEach(k=>{ const kk = (DS_KAT_NAMA[k.kategori]||k.kategori)+(k.kelompok?' · '+k.kelompok:'');
+        if(kk !== kat){ if(kat) h += '</table></div>'; kat = kk; h += '<h3 class="ds-sub">'+esc(kk)+'</h3><div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th><th>Level syarat</th><th>Bobot</th><th>Definisi</th></tr>'; }
+        h += '<tr><td><b>'+esc(k.nama)+'</b>'+(tna.internal && k.flag ? '<div style="margin-top:4px">'+flagList(k.flag).map(f=>'<span class="badge badge-amber">'+esc(flagLabel(f))+'</span>').join(" ")+'</div>' : '')+'</td><td><div class="ds-pips" role="img" aria-label="Level '+k.required+' dari 5">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=k.required?'on':'')+'"></i>').join("")+'</div><div class="hint" style="margin:2px 0 0">Level '+k.required+' · '+TNA_LV_NAMA[k.required]+'</div></td><td>'+esc(MX_BOBOT[k.bobot]||k.bobot)+'</td><td style="font-size:12.5px">'+esc(k.definisi)+'</td></tr>'; });
+      return h+'</table></div>'; };
+    tabs.level = ()=> '<div class="hint" style="margin-bottom:8px">Level yang dipersyaratkan jabatan ini ditandai hijau. Indikator adalah perilaku yang harus terlihat pada level tersebut.</div>'+
+      kompU.map(k=>'<details class="card ds-det"><summary><b>'+esc(k.nama)+'</b><span class="badge badge-grey">syarat Level '+k.required+'</span></summary><ol class="ds-lv">'+
+        k.levelDetail.map(l=>'<li class="'+(l.level===k.required?'req':'')+'"><div><b>Level '+l.level+' · '+l.label+'</b>'+(l.level===k.required?' <span class="badge badge-green">syarat jabatan</span>':'')+'</div>'+(l.definisi?'<div>'+esc(l.definisi)+'</div>':'')+
+          (l.indikator.length ? '<ul class="ds-ind">'+l.indikator.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>' : '')+'</li>').join("")+'</ol></details>').join("");
+    tabs.dev = ()=>{ const ada70 = kompU.some(k=>k.p70), ada20 = kompU.some(k=>k.p20);
+      return '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th>'+(ada70?'<th>70 · Penugasan nyata</th>':'')+(ada20?'<th>20 · Belajar dari</th>':'')+'<th>10 · Training formal</th></tr>'+
+        kompU.map(k=>{ const jr = dsRingkasJalur(k).filter(x=>x.training), t = jr.length ? jr[0].training : null;
+          return '<tr><td><b>'+esc(k.nama)+'</b></td>'+(ada70?'<td style="font-size:12.5px">'+esc(k.p70||"")+'</td>':'')+(ada20?'<td style="font-size:12.5px">'+esc(k.p20||"")+'</td>':'')+'<td style="font-size:12.5px">'+(t ? trn(t.kode, t.judul) : '<span class="hint">-</span>')+'</td></tr>'; }).join("")+'</table></div>'+
+        '<div class="hint">Penugasan dan coaching tidak dihitung jam. Training formal dipakai bila asesmen menunjukkan gap.</div>'; };
+    tabs.tna = ()=>{
+      const wj = r.wajib.length ? '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Training</th><th>Metode</th><th>Durasi</th><th>Dasar penetapan</th></tr>'+r.wajib.map(w=>'<tr><td>'+trn(w.kode, w.judul)+'</td><td>'+esc(w.metode==="ONLINE"?"Online":"Klasikal")+'</td><td>'+esc(dsJam(w,dd))+'</td><td style="font-size:12.5px">'+esc(w.dasar)+'</td></tr>').join("")+'</table></div>' : '<div class="card"><div class="empty">Tidak ada training wajib khusus jabatan ini.</div></div>';
+      const gap = '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi (level syarat)</th><th>Bila level aktual</th><th>Training yang dijadwalkan</th></tr>'+
+        kompU.map(k=>{ const jr = dsRingkasJalur(k); if(!jr.length) return "";
+          return jr.map((x,i)=>'<tr>'+(i===0?'<td rowspan="'+jr.length+'"><b>'+esc(k.nama)+'</b><div class="hint" style="margin:2px 0 0">Level '+k.required+'</div></td>':'')+'<td>Level '+esc(x.rentang)+'</td><td>'+(x.training ? trn(x.training.kode, x.training.judul)+' <span class="hint">'+esc(dsJam(x.training,dd))+'</span>' : (x.sudahWajib ? '<span class="hint">sudah tertutup training wajib</span>' : '<span class="hint">ditutup lewat penugasan dan coaching</span>'))+'</td></tr>').join(""); }).join("")+'</table></div>';
+      const ihtBox = r.iht && r.iht.jamTotal ? '<div class="card"><b>IHT Sabtu di cabang</b><div class="hint">Total '+r.iht.jamTotal+' jam per tahun (selling '+r.iht.selling+', product knowledge '+r.iht.pk+', after sales '+r.iht.ass+', pengembangan diri '+r.iht.self+').</div></div>' : '';
+      return '<h3 class="ds-sub">Wajib bagi jabatan ini <span class="hint">'+(rg.jamWajib ? rg.jamWajib+' jam tercatat' : '')+(rg.jamBelumDitetapkan ? (rg.jamWajib?', ':'')+rg.jamBelumDitetapkan+' mengikuti penyelenggara' : '')+'</span></h3>'+wj+
+        '<h3 class="ds-sub">Dijadwalkan bila asesmen menunjukkan gap</h3>'+gap+ihtBox+'<div class="hint">Belum ada asesmen, jadi tidak ada gap atau jam per orang. Setelah atasan menilai, sistem memilih dari daftar ini sesuai level aktual masing-masing orang.</div>'; };
+    $("tna-matriks-body").innerHTML = kepala;
+    const tampil = (k)=>{ $("ds-isi").innerHTML = tabs[k](); document.querySelectorAll("#tna-matriks-body [data-ds]").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.ds===k))); };
+    document.querySelectorAll("#tna-matriks-body [data-ds]").forEach(b=> b.onclick = ()=> tampil(b.dataset.ds));
+    tampil("tugas");
     $("btn-jab-kembali").onclick = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
-    $("btn-ds-cetak").onclick = ()=>{
-      const det = [...document.querySelectorAll("#tna-matriks-body details")]; const buka = det.map(d=>d.open); det.forEach(d=>d.open = true);
-      const tema0 = document.documentElement.getAttribute("data-theme"); document.documentElement.setAttribute("data-theme","light"); // cetak selalu tema terang
-      document.body.classList.add("cetak-dosier");
-      const st = document.createElement("style"); st.id = "st-cetak-dosier"; st.textContent = "@page{size:A4 portrait;margin:12mm 12mm 14mm}"; document.head.appendChild(st);
-      const selesai = ()=>{ if(tema0 === null) document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", tema0); document.body.classList.remove("cetak-dosier"); const e = $("st-cetak-dosier"); if(e) e.remove(); det.forEach((d,i)=>d.open = buka[i]); window.removeEventListener("afterprint", selesai); };
-      window.addEventListener("afterprint", selesai); window.print();
-    };
-    document.querySelectorAll("#tna-matriks-body .rpt-nav a").forEach(a=> a.onclick = e=>{ e.preventDefault(); const t = document.querySelector(a.getAttribute("href")); if(t) t.scrollIntoView({behavior:"smooth", block:"start"}); });
+    $("btn-ds-unduh").onclick = ()=>{ try{ dsUnduh(r); }catch(e){ alert("Dokumen belum bisa dibuat. Coba lagi, atau hubungi L&D."); } };
   }catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
 
