@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v2.8, 29 Okt 2026. Perubahan: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v2.9, 29 Okt 2026. Perubahan: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -123,7 +123,7 @@ var TNA_PARAM_DEFAULT = [
     "BMDP-04": [1], "BMDP-07": [1], "BMDP-08": [1], "BMDP-06": [7], "BMDP-09": [7], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     "D-IST": [2, 5, 8, 11], "D-LEAS": [2, 5, 8, 11], "D-AST": [3, 6, 9, 12], "D-FLEET": [3, 6, 9, 12], "D-MENTOR": [3, 6, 9, 12],
     "D-SPV": [4, 10], "D-ASX": [5, 11], "D-SACS": [2, 3, 4, 5, 6, 7, 8],
-    "W-HRNH": [2, 3, 4, 5, 6, 7, 8, 9, 10], "W-BEI": [2, 3, 4, 5, 6, 7, 8, 9, 10] }),
+    "W-HRNH": [2, 3, 4, 5, 6, 7, 8, 9, 10], "W-BEI": [2, 3, 4, 5, 6, 7, 8, 9, 10], "P-SETARA": [10] }),
     "Jendela bulan (1-12) per kode training, menggantikan jendela kategori"],
   ["MaksPersenIHT", 20, "Batas porsi jam IHT dari total jam L&D karyawan (%), dihitung dari jam PLANNED; kursi calon BST tidak dihitung"],
   ["JamSesiIHT", 2, "Durasi satu sesi IHT Sabtu (jam)"],
@@ -1625,6 +1625,7 @@ function tnaBangunOutput(ss) {
   var kodeBST = katByKode[String(p.KodeBST || "")] ? String(p.KodeBST) : "";
   var khusus = {};
   try { khusus = JSON.parse(String(p.JendelaKhusus || "{}")); } catch (eJ) { khusus = {}; }
+  if (!khusus["P-SETARA"]) khusus["P-SETARA"] = [10]; // seminar tahunan tim HC, selalu Oktober (berlaku juga bila parameter lama belum memuatnya)
   var val = tnaPetaValidasi(ss, p);
   function statusValidasi(k) {
     var v = val[tnaKunciValidasi(k)];
@@ -1735,7 +1736,9 @@ function tnaBangunOutput(ss) {
     var sisa = [];
     idxs.forEach(function (i) { var m = itp[i].Bulan; if (isi[m] !== undefined && isi[m] < kap) isi[m]++; else sisa.push(i); });
     sisa.forEach(function (i) {
-      var m = bulan.filter(function (x) { return isi[x] < kap; }).sort(function (a, b) { return isi[a] - isi[b]; })[0];
+      // jendela satu bulan (mis. seminar tahunan Oktober) bisa penuh: kelas tambahan di bulan yang sama, bukan Bulan kosong
+      var buka = bulan.filter(function (x) { return isi[x] < kap; }); if (!buka.length) buka = bulan.slice();
+      var m = buka.sort(function (a, b) { return isi[a] - isi[b]; })[0];
       isi[m]++; itp[i].Bulan = m;
     });
   });
