@@ -73,10 +73,11 @@ var TNA_TAB = {
     "TglMasuk", "PenilaiNIK", "Penilai2NIK", "ModeAsesmen", "KelompokID", "DelegasiBoleh", "Aktif", "ValidatorNIK"],
   MasterJabatan: ["KodeJabatan", "JobTitle", "Dept", "Lokasi", "JmlIncumbent", "ModeAsesmen", "FileJD", "LinkJD", "StatusJD",
     "StatusMatriks", "Versi", "DisetujuiOleh", "DisetujuiPada", "Catatan"],
-  Kamus: ["KodeKompetensi", "Nama", "Kategori", "Definisi", "L1", "L2", "L3", "L4", "L5", "Status"],
+  Kamus: ["KodeKompetensi", "Nama", "Kategori", "Definisi", "L1", "L2", "L3", "L4", "L5", "Status", "Kelompok"],
+  Indikator: ["KodeKompetensi", "Level", "Label", "DefinisiLevel", "Indikator"],
   Checklist: ["KodeKompetensi", "C2", "C3", "C4", "C5"],
   Matriks: ["KodeJabatan", "KodeKompetensi", "RequiredLevel", "Bobot", "Sumber", "Flag"],
-  Task: ["KodeJabatan", "NoTugas", "TugasUtama", "Task", "KodeKompetensi"],
+  Task: ["KodeJabatan", "NoTugas", "TugasUtama", "Task", "KodeKompetensi", "SubProses", "SubSubProses", "Pengetahuan", "StandarKinerja", "SubStandar", "KSA", "LevelAktivitas"],
   Intervensi: ["KodeKompetensi", "Tipe", "Deskripsi"],
   Katalog: ["KodeTraining", "Judul", "Kategori", "KodeKompetensi", "LevelTarget", "Metode", "DurasiJam", "SumberFile", "Link", "Status", "SasaranJabatan"],
   Mandatory: ["KodeJabatan", "KodeTraining", "Dasar"],
@@ -202,7 +203,7 @@ function tnaSheet(ss, nama) {
 
 // Membaca tab sebagai array objek berdasarkan header baris 1.
 // Tab statis (berubah hanya saat import/approve) disimpan di CacheService 6 jam supaya layar hasil & validasi cepat.
-var TNA_CACHE_TAB = { Karyawan: 1, Kamus: 1, Checklist: 1, Matriks: 1, Task: 1, Intervensi: 1, Katalog: 1, Mandatory: 1, Riwayat: 1, Silabus: 1 };
+var TNA_CACHE_TAB = { Karyawan: 1, Kamus: 1, Indikator: 1, Checklist: 1, Matriks: 1, Task: 1, Intervensi: 1, Katalog: 1, Mandatory: 1, Riwayat: 1, Silabus: 1 };
 function tnaCacheVer() {
   if (typeof PropertiesService === "undefined") return "0";
   return PropertiesService.getScriptProperties().getProperty("TNA_CACHE_VER") || "0";
@@ -656,18 +657,30 @@ function tnaMatriksJabatan(ss, req) {
 }
 
 /* ============================================================
- * DOSIER JABATAN (v2.7): satu jabatan, seluruh rantai dari tugas sampai rencana training, TANPA menunggu asesmen.
- * Isi: identitas, tugas -> task -> kompetensi, kompetensi + 5 level + indikator per level, intervensi 70/20,
- * training wajib (dengan dasar), dan jalur training bila ada gap (per level awal). Tidak ada angka per orang.
+ * DOSIER JABATAN (v2.7): satu jabatan, seluruh dokumen standar TANPA menunggu asesmen. Bentuknya mengikuti master kompetensi
+ * teknis buatan L&D: (1) breakdown JD dan KSA, (2) kamus kompetensi 5 level + indikator, (3) skala level, (4) matriks kompetensi
+ * (satu departemen), ditambah (5) rencana pengembangan 70/20/10 dan (6) TNA standar jabatan (training wajib dan jalur bila gap).
+ * Tidak ada angka per orang. Jabatan yang belum punya master tetap dihasilkan dari data otomatis dan diberi penanda sumber.
  * ============================================================ */
+var TNA_NAMA_LEVEL = ["", "Awareness", "Basic", "Intermediate", "Advanced", "Expert"];
+var TNA_SKALA = [
+  { level: 1, label: "Awareness", status: "Belum mandiri", definisi: "Mengetahui konsep dan istilah dasar. Membutuhkan bimbingan penuh dalam mengerjakan tugas.", panduan: "Mampu menjelaskan pengertian dan fungsi kompetensi; mengetahui kapan kompetensi ini dipakai; belum bisa mengerjakan tugas tanpa arahan." },
+  { level: 2, label: "Basic", status: "Perlu bimbingan", definisi: "Mampu mengerjakan tugas rutin yang sederhana dengan panduan. Hasil kerja masih perlu direview dan dikoreksi atasan.", panduan: "Mengerjakan tugas rutin sederhana dengan panduan; masih membutuhkan bimbingan pada situasi yang tidak biasa." },
+  { level: 3, label: "Intermediate", status: "Mandiri", definisi: "Menguasai kompetensi dan mampu mengerjakannya secara mandiri pada situasi yang bervariasi. Hasil kerja dapat diandalkan.", panduan: "Mengerjakan seluruh tugas terkait kompetensi secara mandiri; mampu menangani variasi dan masalah umum." },
+  { level: 4, label: "Advanced", status: "Mahir dan rujukan", definisi: "Mahir dan menjadi rujukan rekan kerja. Mampu mengelola situasi kompleks serta membimbing orang lain.", panduan: "Mengerjakan tugas kompleks secara mandiri; menjadi tempat bertanya; membimbing rekan di bawahnya." },
+  { level: 5, label: "Expert", status: "Inovator", definisi: "Menginisiasi pengembangan sistem, kebijakan, atau metodologi baru. Menjadi rujukan di tingkat perusahaan.", panduan: "Menginisiasi pengembangan sistem, kebijakan, atau metode baru; rujukan utama di tingkat perusahaan." }
+];
 function tnaDosierJabatan(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var kj = String(req.kodeJabatan || "");
-  var mj = tnaBaca(ss, "MasterJabatan").filter(function (j) { return j.KodeJabatan === kj; })[0];
+  var jabAll = tnaBaca(ss, "MasterJabatan");
+  var mj = jabAll.filter(function (j) { return j.KodeJabatan === kj; })[0];
   if (!mj) return { ok: false, error: "Kode jabatan tidak ditemukan." };
   var p = tnaParam(ss), durDef = Number(p.DurasiDefaultJam) || 4;
   var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = k; });
-  var flags = {}; tnaBaca(ss, "Matriks").forEach(function (m) { if (m.KodeJabatan === kj) flags[m.KodeKompetensi] = { flag: m.Flag, sumber: m.Sumber }; });
+  var indik = {}; tnaBaca(ss, "Indikator").forEach(function (r) { (indik[r.KodeKompetensi] = indik[r.KodeKompetensi] || {})[Number(r.Level)] = r; });
+  var matAll = tnaBaca(ss, "Matriks");
+  var flags = {}; matAll.forEach(function (m) { if (m.KodeJabatan === kj) flags[m.KodeKompetensi] = { flag: m.Flag, sumber: m.Sumber }; });
   var interv = {}; tnaBaca(ss, "Intervensi").forEach(function (r) { (interv[r.KodeKompetensi] = interv[r.KodeKompetensi] || {})[String(r.Tipe)] = String(r.Deskripsi || ""); });
   var katalog = tnaBaca(ss, "Katalog").filter(function (c) { return String(c.Status).toUpperCase() !== "NONAKTIF"; });
   var katBy = {}; katalog.forEach(function (c) { katBy[c.KodeTraining] = c; });
@@ -677,24 +690,38 @@ function tnaDosierJabatan(ss, req) {
     return { kode: String(c.KodeTraining), judul: c.Judul, kategori: String(c.Kategori), metode: String(c.Metode || ""), jam: j > 0 ? j : durDef, jamDefault: !(j > 0), status: String(c.Status || "") };
   };
   var nama = function (kode) { return (kamus[kode] || {}).Nama || kode; };
-  // tugas -> task -> kompetensi
-  var tugas = [], idx = {}, terkait = {};
+  // 1. breakdown tugas: dikelompokkan per tugas utama, lalu per aktivitas (satu aktivitas bisa menuntut beberapa kompetensi)
+  var tugas = [], idx = {}, terkait = {}, aktSemua = {};
   tnaBaca(ss, "Task").filter(function (t) { return t.KodeJabatan === kj; }).forEach(function (t) {
-    var key = String(t.TugasUtama || "").trim(); // dikelompokkan berdasar teks: NoTugas bisa berbeda antarbaris untuk tugas utama yang sama
-    if (!idx[key]) { idx[key] = { no: tugas.length + 1, utama: key, tasks: [], _t: {} }; tugas.push(idx[key]); }
-    var tg = idx[key], nm = String(t.Task || "");
-    if (!tg._t[nm]) { tg._t[nm] = { task: nm, komp: [] }; tg.tasks.push(tg._t[nm]); }
+    var key = String(t.TugasUtama || "").trim();
+    if (!idx[key]) { idx[key] = { no: tugas.length + 1, utama: key, akt: [], _a: {} }; tugas.push(idx[key]); }
+    var tg = idx[key], nm = String(t.Task || "").trim(), ak = tg._a[nm];
+    if (!ak) {
+      ak = tg._a[nm] = { task: nm, subProses: String(t.SubProses || ""), subSubProses: String(t.SubSubProses || ""), pengetahuan: String(t.Pengetahuan || ""),
+        standar: String(t.StandarKinerja || ""), subStandar: String(t.SubStandar || ""), ksa: String(t.KSA || ""), level: t.LevelAktivitas === "" || t.LevelAktivitas == null ? "" : Number(t.LevelAktivitas), komp: [] };
+      tg.akt.push(ak);
+    }
     if (t.KodeKompetensi) {
-      tg._t[nm].komp.push({ kode: t.KodeKompetensi, nama: nama(t.KodeKompetensi) });
-      (terkait[t.KodeKompetensi] = terkait[t.KodeKompetensi] || {})[tg.utama] = true;
+      if (!ak.komp.some(function (c) { return c.kode === t.KodeKompetensi; })) ak.komp.push({ kode: t.KodeKompetensi, nama: nama(t.KodeKompetensi) });
+      var u = (terkait[t.KodeKompetensi] = terkait[t.KodeKompetensi] || { utama: {}, akt: {} }); u.utama[tg.utama] = true; u.akt[nm] = true;
     }
   });
-  tugas.forEach(function (t) { delete t._t; });
-  // kompetensi + level + indikator + intervensi + jalur training bila gap
+  tugas.forEach(function (t) { delete t._a; });
+  var punyaKsa = tugas.some(function (t) { return t.akt.some(function (a) { return a.ksa || a.standar || a.pengetahuan; }); });
+  // 2. kompetensi: level 1-5 beserta indikator
   var wajibKode = tnaBaca(ss, "Mandatory").filter(function (m) { return m.KodeJabatan === "*" || m.KodeJabatan === kj; });
   var wajib = wajibKode.filter(function (m) { return katBy[m.KodeTraining]; }).map(function (m) { var o = infoTraining(katBy[m.KodeTraining]); o.dasar = String(m.Dasar || ""); return o; });
   var wajibC = wajibKode.map(function (m) { return katBy[m.KodeTraining]; }).filter(Boolean);
+  var jabBy = {}; jabAll.forEach(function (j) { jabBy[j.KodeJabatan] = j; });
   var komp = tnaKompetensiJabatan(ss, kj).map(function (k) {
+    var kd = kamus[k.kode] || {}, ind = indik[k.kode] || {};
+    k.kelompok = String(kd.Kelompok || "");
+    k.levelDetail = [1, 2, 3, 4, 5].map(function (n) {
+      var r = ind[n], cek = (k.checklist[n - 2] || "");
+      var daftar = r && r.Indikator ? String(r.Indikator).split("\n").filter(String) : (n >= 2 ? cek.split(/;\s*/).filter(String) : []);
+      return { level: n, label: TNA_NAMA_LEVEL[n], definisi: r && r.DefinisiLevel ? String(r.DefinisiLevel) : String(k.levels[n - 1] || ""), indikator: daftar };
+    });
+    // jalur training bila gap, per level awal
     var jalur = [];
     for (var lv = Math.max(0, k.required - 1); lv >= 1; lv--) {
       var tutup = wajibC.some(function (c) { return kompList(c).indexOf(k.kode) !== -1 && Number(c.LevelTarget || 5) > lv; });
@@ -705,20 +732,38 @@ function tnaDosierJabatan(ss, req) {
       }).sort(function (a, b) { return Number(a.LevelTarget || 5) - Number(b.LevelTarget || 5); });
       jalur.push({ dariLevel: lv, sudahWajib: tutup, training: opsi.length ? infoTraining(opsi[0]) : null });
     }
+    // 20: belajar dari jabatan lain yang levelnya lebih tinggi pada kompetensi yang sama (departemen sama didahulukan)
+    var mentor = matAll.filter(function (m) { return m.KodeKompetensi === k.kode && m.KodeJabatan !== kj && Number(m.RequiredLevel) > k.required && jabBy[m.KodeJabatan]; })
+      .map(function (m) { var j = jabBy[m.KodeJabatan]; return { jabatan: j.JobTitle, level: Number(m.RequiredLevel), samaDept: j.Dept === mj.Dept }; })
+      .sort(function (a, b) { return (a.samaDept ? 0 : 1) - (b.samaDept ? 0 : 1) || a.level - b.level; }).slice(0, 3);
     var f = flags[k.kode] || {};
     k.flag = f.flag || ""; k.sumber = f.sumber || "";
-    k.intervensi = { p70: (interv[k.kode] || {})["70"] || "", p20: (interv[k.kode] || {})["20"] || "" };
-    k.tugasTerkait = Object.keys(terkait[k.kode] || {});
-    k.jalur = jalur;
+    var akt = Object.keys((terkait[k.kode] || { akt: {} }).akt);
+    k.aktivitasTerkait = akt;
+    k.tugasTerkait = Object.keys((terkait[k.kode] || { utama: {} }).utama);
+    k.p70 = akt.length ? "Pegang langsung aktivitas: " + akt.slice(0, 3).join("; ") + (akt.length > 3 ? " (dan " + (akt.length - 3) + " lainnya)" : "") : ((interv[k.kode] || {})["70"] || "");
+    k.p20 = mentor.length ? "Belajar dari " + mentor.map(function (m) { return m.jabatan + " (level " + m.level + ")"; }).join(", ") : ((interv[k.kode] || {})["20"] || "");
+    k.mentor = mentor; k.jalur = jalur;
     return k;
   });
+  // 4. matriks satu departemen (jabatan yang punya matriks), jabatan ini di kolom pertama
+  var rekanKode = {}; jabAll.forEach(function (j) { if (j.Dept === mj.Dept) rekanKode[j.KodeJabatan] = true; });
+  var lvBy = {}; matAll.forEach(function (m) { if (rekanKode[m.KodeJabatan]) (lvBy[m.KodeJabatan] = lvBy[m.KodeJabatan] || {})[m.KodeKompetensi] = Number(m.RequiredLevel); });
+  var kolom = Object.keys(lvBy).filter(function (c) { return c !== kj; }).sort().map(function (c) { return c; });
+  kolom.unshift(kj);
+  var kompMat = {}; kolom.forEach(function (c) { Object.keys(lvBy[c] || {}).forEach(function (kk) { kompMat[kk] = true; }); });
+  var baris = Object.keys(kompMat).map(function (kk) { var kd = kamus[kk] || {}; return { kode: kk, nama: kd.Nama || kk, kategori: kd.Kategori || "", kelompok: kd.Kelompok || "" }; })
+    .sort(function (a, b) { var o = { Technical: 0, Behavioral: 1, Leadership: 2 }; return (o[a.kategori] === undefined ? 3 : o[a.kategori]) - (o[b.kategori] === undefined ? 3 : o[b.kategori]) || a.kode.localeCompare(b.kode); });
+  var matriks = { kolom: kolom.map(function (c) { var j = jabBy[c]; return { kode: c, nama: j.JobTitle, dept: j.Dept, ini: c === kj }; }), baris: baris,
+    level: lvBy };
   var ih = tnaBaca(ss, "IHT").filter(function (r) { return r.KodeJabatan === kj; })[0];
   var jamWajib = wajib.reduce(function (a, w) { return a + (w.jamDefault ? 0 : w.jam); }, 0), jamTbd = wajib.filter(function (w) { return w.jamDefault; }).length;
   return { ok: true,
-    jabatan: { kode: kj, jobTitle: mj.JobTitle, dept: mj.Dept, divisi: tnaDivisi(mj.Dept), jml: Number(mj.JmlIncumbent) || 0, statusJD: mj.StatusJD, linkJD: mj.LinkJD, statusMatriks: mj.StatusMatriks },
-    tugas: tugas, kompetensi: komp, wajib: wajib,
+    jabatan: { kode: kj, jobTitle: mj.JobTitle, dept: mj.Dept, divisi: tnaDivisi(mj.Dept), jml: Number(mj.JmlIncumbent) || 0, statusJD: mj.StatusJD, linkJD: mj.LinkJD, statusMatriks: mj.StatusMatriks, master: String(mj.Versi) === "MASTER" },
+    tugas: tugas, punyaKsa: punyaKsa, kompetensi: komp, skala: TNA_SKALA, matriks: matriks, wajib: wajib,
     iht: ih ? { jamTotal: Number(ih.JamTotal) || 0, selling: Number(ih.JamSelling) || 0, pk: Number(ih.JamPK) || 0, ass: Number(ih.JamASS) || 0, self: Number(ih.JamSelf) || 0 } : null,
-    ringkas: { tugasUtama: tugas.length, kompetensi: komp.length, tanpaTugas: komp.filter(function (k) { return !k.tugasTerkait.length; }).length, jamWajib: jamWajib, jamBelumDitetapkan: jamTbd, durasiDefault: durDef } };
+    ringkas: { tugasUtama: tugas.length, aktivitas: tugas.reduce(function (a, t) { return a + t.akt.length; }, 0), kompetensi: komp.length,
+      teknis: komp.filter(function (k) { return k.kategori === "Technical"; }).length, jamWajib: jamWajib, jamBelumDitetapkan: jamTbd, durasiDefault: durDef } };
 }
 
 /* ============================================================
@@ -2087,7 +2132,7 @@ function tnaImport(fileIdImport) {
   tnaSetup();
   var src = SpreadsheetApp.openById(fileIdImport);
   var lapor = [];
-  ["Karyawan", "MasterJabatan", "Kamus", "Checklist", "Matriks", "Task", "Intervensi", "Katalog", "Mandatory", "Riwayat",
+  ["Karyawan", "MasterJabatan", "Kamus", "Indikator", "Checklist", "Matriks", "Task", "Intervensi", "Katalog", "Mandatory", "Riwayat",
     "Silabus", "RekamTraining", "IHT"].forEach(function (nama) {
     var s = src.getSheetByName(nama);
     if (!s) { lapor.push(nama + ": dilewati (tidak ada)"); return; }
@@ -2097,7 +2142,8 @@ function tnaImport(fileIdImport) {
       if (v[i].join("") === "") continue;
       var o = {}; h.forEach(function (k, c) { o[k] = v[i][c]; }); rows.push(o);
     }
-    var opsional = { Karyawan: ["ValidatorNIK"], Katalog: ["SasaranJabatan"] }[nama] || [];
+    var opsional = { Karyawan: ["ValidatorNIK"], Katalog: ["SasaranJabatan"], Kamus: ["Kelompok"],
+      Task: ["SubProses", "SubSubProses", "Pengetahuan", "StandarKinerja", "SubStandar", "KSA", "LevelAktivitas"] }[nama] || [];
     var hilang = TNA_TAB[nama].filter(function (k) { return h.indexOf(k) === -1 && opsional.indexOf(k) === -1; });
     if (hilang.length) throw new Error("Tab " + nama + " kekurangan kolom: " + hilang.join(", "));
     tnaTulisUlang(ss, nama, rows);

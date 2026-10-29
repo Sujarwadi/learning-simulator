@@ -3091,7 +3091,7 @@ async function lihatMatriks(kode){
     // 1 tugas
     const tugas = '<h2 class="sect" id="ds-tugas">1. Tugas utama dan kompetensi yang dituntutnya</h2>'+
       (r.tugas.length ? r.tugas.map(t=>'<div class="card ds-tugas"><div class="ds-no">'+t.no+'</div><div><b>'+esc(t.utama)+'</b><ul class="ds-task">'+
-        t.tasks.map(x=>'<li><span>'+esc(x.task)+'</span>'+(x.komp.length ? '<span class="ds-kc">'+x.komp.map(c=>'<span class="badge badge-grey">'+esc(c.nama)+'</span>').join(" ")+'</span>' : '')+'</li>').join("")+'</ul></div></div>').join("")
+        t.akt.map(x=>'<li><span>'+esc(x.task)+'</span>'+(x.komp.length ? '<span class="ds-kc">'+x.komp.map(c=>'<span class="badge badge-grey">'+esc(c.nama)+'</span>').join(" ")+'</span>' : '')+'</li>').join("")+'</ul></div></div>').join("")
         : '<div class="card"><div class="empty">Uraian tugas jabatan ini belum tersedia.</div></div>')+
       '<div class="hint">Kompetensi perilaku dan kepemimpinan berasal dari Kamus Kompetensi BBM dan berlaku sesuai level jabatan, jadi tidak diturunkan dari tugas satu per satu.</div>';
     // 2 kompetensi
@@ -3109,7 +3109,7 @@ async function lihatMatriks(kode){
     // 4 70/20/10
     const rencana = '<h2 class="sect" id="ds-702010">4. Cara mengembangkan: 70/20/10</h2><div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th><th>70 · Penugasan nyata</th><th>20 · Coaching dan mentoring</th><th>10 · Training formal</th></tr>'+
       r.kompetensi.slice().sort((a,b)=> DS_KAT.indexOf(a.kategori)-DS_KAT.indexOf(b.kategori) || b.bobot-a.bobot).map(k=>{ const jr = dsRingkasJalur(k).filter(x=>x.training), t = jr.length ? jr[0].training : null;
-        return '<tr><td><b>'+esc(k.nama)+'</b></td><td style="font-size:12.5px">'+esc(k.intervensi.p70||"-")+'</td><td style="font-size:12.5px">'+esc(k.intervensi.p20||"-")+'</td><td style="font-size:12.5px">'+(t ? trn(t.kode, t.judul) : '<span class="hint">-</span>')+'</td></tr>'; }).join("")+'</table></div>'+
+        return '<tr><td><b>'+esc(k.nama)+'</b></td><td style="font-size:12.5px">'+esc(k.p70||"-")+'</td><td style="font-size:12.5px">'+esc(k.p20||"-")+'</td><td style="font-size:12.5px">'+(t ? trn(t.kode, t.judul) : '<span class="hint">-</span>')+'</td></tr>'; }).join("")+'</table></div>'+
       '<div class="hint">Penugasan dan coaching tidak dihitung jam. Kolom training formal adalah training yang akan dipakai bila asesmen menunjukkan gap.</div>';
     // 5 training
     const tbWajib = wajib.length ? '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Training</th><th>Metode</th><th>Durasi</th><th>Dasar penetapan</th></tr>'+
