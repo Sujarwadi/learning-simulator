@@ -1,5 +1,18 @@
 # Backend Apps Script
 
+## TNA MANDIRI (berlaku sejak 29 Okt 2026, menggantikan pemasangan gabungan di bawah)
+TNA berdiri sendiri: Google Sheet baru "TNA 2027 DB", project Apps Script baru, alamat web app baru. Tidak ada Kode.gs dan tidak menyentuh Learning Simulator.
+1. Sheet baru (sheets.new), **Ekstensi → Apps Script**, ganti isi `appsscript.json` dengan `backend/appsscript.json`.
+2. Buat dua file skrip: `TNA` (isi `TNA.gs`) dan `TNA_Mandiri` (isi `TNA_Mandiri.gs`). Hapus `Code.gs` bawaan.
+3. Di `TNA_Mandiri.gs` fungsi `tnaSetupMandiri` isi `NIK_ADMIN` dan `PIN_ADMIN`, lalu jalankan SEKALI (membuat tab Users dan semua tab TNA_).
+4. Import: ikuti langkah "Import paket data" di bawah (`tnaImportPaket`).
+5. **Terapkan → Deployment baru → Aplikasi web**, jalankan sebagai: Saya, akses: Siapa saja. Salin alamat `/exec` ke `window.BACKEND_URL` di `kompetensi/index.html`.
+6. WhatsApp (opsional): Script Properties `WA_TOKEN` dan `WA_AKTIF=1`.
+Perubahan berikutnya: tempel ulang file, lalu **Deploy → Kelola deployment → ✏️ → Versi baru**.
+
+---
+Bagian di bawah adalah catatan lama (pemasangan gabungan dengan Kode.gs Learning Simulator, tidak dipakai lagi).
+
 - `Kode.gs` (backend v3.5) hidup di Apps Script dan belum disalin ke repo, karena masih memuat satu NIK di fungsi diagnostik.
 - `TNA.gs` adalah modul TNA Engine 2027. Pasang sebagai file **terpisah** di project Apps Script yang sama.
   Semua tab yang dipakai berawalan `TNA_`, jadi tab lama tidak tersentuh.

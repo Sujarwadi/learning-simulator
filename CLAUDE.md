@@ -18,9 +18,9 @@ Deadline keras: pilot Sen 26 Okt 2026, window asesmen 27 Okt sampai 3 Nov 23:59 
 
 ## Arsitektur (jangan diubah tanpa persetujuan)
 - **Frontend:** satu file HTML per aplikasi, vanilla JS, CSS inline, tanpa framework dan tanpa build step. Dilayani GitHub Pages.
-- **Backend:** satu Google Apps Script Web App untuk SEMUA frontend. Frontend memanggil `api(action, payload)` dengan POST JSON ke `BACKEND_URL`, lalu backend me-routing berdasarkan `action`.
-- **Database:** Google Sheets "Learning Simulator DB". Skema tab ada di PRD §6.
-- **Prinsip "Satu Pintu, Banyak Mesin":** jangan bikin aplikasi, login, atau database baru. Perluas yang sudah ada.
+- **Backend:** Learning Simulator (index.html) memakai Web App Apps Script lamanya. **TNA Engine (kompetensi/) berdiri sendiri** (keputusan user 29 Okt 2026: beda user, beda objective): Sheet "TNA 2027 DB", project Apps Script, dan alamat web app sendiri, berisi `backend/TNA.gs` + `backend/TNA_Mandiri.gs` (tanpa Kode.gs). Frontend memanggil `api(action, payload)` dengan POST JSON ke `BACKEND_URL` milik TNA; jangan menyambungkan TNA ke backend atau tab Users Learning Simulator.
+- **Database:** Google Sheets "TNA 2027 DB" (terpisah dari "Learning Simulator DB"). Skema tab ada di PRD §6.
+- **Pemisahan:** TNA punya user dan database sendiri; jangan mencampur data TNA ke Learning Simulator maupun sebaliknya. Di dalam TNA tetap satu login dan satu database.
 
 ## Aturan wajib
 1. **Data karyawan TIDAK BOLEH masuk repo.** Repo ini publik (GitHub Pages). Nama, NIK, nomor HP, KTP, dan rating semuanya hanya boleh ada di Sheets/Drive. File olahan data simpan di scratchpad, jangan di repo.

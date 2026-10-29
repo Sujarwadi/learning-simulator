@@ -311,7 +311,7 @@ function tnaAuth(ss, req) {
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() !== nik) continue;
     if (String(rows[i][1]).trim() !== pin) return { ok: false, error: "PIN salah, silakan login ulang." };
-    if (wajibGantiPinAktif(rows[i][8])) return { ok: false, error: "Ganti PIN dulu di Learning Simulator sebelum mengisi asesmen." };
+    if (wajibGantiPinAktif(rows[i][8])) return { ok: false, error: "Ganti PIN dulu di halaman masuk sebelum mengisi asesmen." };
     return { ok: true, nik: nik, nama: String(rows[i][2]), role: String(rows[i][5] || "user").toLowerCase() };
   }
   return { ok: false, error: "NIK tidak terdaftar." };
