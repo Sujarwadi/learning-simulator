@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v2.7, 29 Okt 2026. Perubahan: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v2.8, 29 Okt 2026. Perubahan: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -118,6 +118,7 @@ var TNA_PARAM_DEFAULT = [
   ["KodeBST", "D-BST", "Kode katalog BST: slot tetap tiap awal bulan (tgl 1-3, Minggu dilewati)"],
   ["ProyeksiPesertaBST", 63, "Proyeksi peserta per batch BST bulanan (calon sales baru + karyawan); referensi BST 1-2 Sep 2026"],
   ["KodeJabatanLD", "J013,J014,J015,J023", "Kode jabatan tim L&D (Instructor, L&D Dept Head, L&D Section Head, Training Supervisor): melihat catatan internal seperti admin"],
+  ["KodeJabatanMatrix", "", "Kode jabatan tambahan yang boleh membuka Pusat Matrix selain admin dan atasan dua tingkat (Dept Head, Div Head, Kacab), pisahkan dengan koma"],
   ["JendelaKhusus", JSON.stringify({ "BMDP-01": [1], "BMDP-02": [1], "BMDP-03": [1], "BMDP-05": [1], "BMDP-10": [1],
     "BMDP-04": [1], "BMDP-07": [1], "BMDP-08": [1], "BMDP-06": [7], "BMDP-09": [7], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     "D-IST": [2, 5, 8, 11], "D-LEAS": [2, 5, 8, 11], "D-AST": [3, 6, 9, 12], "D-FLEET": [3, 6, 9, 12], "D-MENTOR": [3, 6, 9, 12],
@@ -352,10 +353,24 @@ function tnaInternalLD(ss, auth, p) {
 function tnaJabatanBoleh(ss, auth) {
   var p = tnaParam(ss);
   if (tnaInternalLD(ss, auth, p)) return null;
+  return tnaJabatanLingkup(ss, auth);
+}
+// Kode jabatan milik saya dan seluruh bawahan (rantai penilai/validator).
+function tnaJabatanLingkup(ss, auth) {
   var km = tnaPetaKaryawan(ss), ok = {}, saya = km[auth.nik];
   if (saya) ok[String(saya.KodeJabatan)] = true;
   tnaLingkupTampil(auth, km, "", "bawahan").forEach(function (k) { ok[String(k.KodeJabatan)] = true; });
   return ok;
+}
+// Pusat Matrix (Competency dan Training Matrix) untuk level Dept Head ke atas, agar dapat memetakan pengembangan timnya.
+// Aturan: admin; atau pemegang jabatan di parameter KodeJabatanMatrix; atau punya bawahan langsung yang juga memimpin bawahan
+// (dua tingkat ke bawah: Dept Head, Div Head, Kacab). Section Head, Supervisor, dan staf tidak.
+function tnaBolehMatrix(ss, auth, p) {
+  if (auth.role === "admin") return true;
+  var km = tnaPetaKaryawan(ss), saya = km[auth.nik];
+  var kode = String((p || tnaParam(ss)).KodeJabatanMatrix || "").split(/[,;]\s*/).filter(String);
+  if (saya && kode.indexOf(String(saya.KodeJabatan)) !== -1) return true;
+  return tnaLingkupTampil(auth, km, "", "langsung").some(function (k) { return tnaLingkupTampil({ nik: k.NIK, role: "" }, km, "", "langsung").length > 0; });
 }
 function tnaKonteks(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
@@ -409,7 +424,7 @@ function tnaKonteks(ss, req) {
     saya.ModeAsesmen !== "KELOMPOK" ? (sudah["N:" + auth.nik + "|" + auth.nik] || "BELUM") : "TIDAK_PERLU";
   tugas.sort(function (a, b) { return a.nama.localeCompare(b.nama); });
   return {
-    ok: true, nama: auth.nama, role: auth.role, internal: tnaInternalLD(ss, auth, p), window: win.status,
+    ok: true, nama: auth.nama, role: auth.role, internal: tnaInternalLD(ss, auth, p), matrix: tnaBolehMatrix(ss, auth, p), window: win.status,
     windowBuka: win.buka, windowTutup: win.tutup, periode: p.Periode,
     terdaftar: !!saya, jabatan: saya ? saya.Jabatan : "", selfStatus: selfStatus,
     todo: {
@@ -799,8 +814,10 @@ function tnaDivisi(dept) { return TNA_DIVISI[String(dept || "").toUpperCase()] |
 
 function tnaMatrixOutput(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
-  if (auth.role !== "admin") return { ok: false, error: "Pusat Matrix hanya untuk admin L&D." };
-  var jab = tnaBaca(ss, "MasterJabatan").filter(function (j) { return String(j.StatusMatriks) !== "DIKECUALIKAN"; });
+  var admin = auth.role === "admin";
+  if (!tnaBolehMatrix(ss, auth)) return { ok: false, error: "Pusat Matrix untuk level Dept Head ke atas." };
+  var boleh = admin ? null : tnaJabatanLingkup(ss, auth);
+  var jab = tnaBaca(ss, "MasterJabatan").filter(function (j) { return String(j.StatusMatriks) !== "DIKECUALIKAN" && (!boleh || boleh[String(j.KodeJabatan)]); });
   var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = [k.Nama, k.Kategori]; });
   var mat = tnaBaca(ss, "Matriks");
   var katalog = tnaBaca(ss, "Katalog").filter(function (c) { return String(c.Status).toUpperCase() !== "NONAKTIF"; });
@@ -842,14 +859,16 @@ function tnaMatrixOutput(ss, req) {
     var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
     var nikDari = function (arr) { return arr.map(function (k) { return String(k.NIK); }); };
     var tim = nikDari(tnaLingkupTampil(auth, km, "", "bawahan")), timLangsung = nikDari(tnaLingkupTampil(auth, km, "", "langsung"));
+    var kelihatan = {}; if (!admin) { tim.forEach(function (n) { kelihatan[n] = true; }); kelihatan[auth.nik] = true; }
+    var lihat = function (n) { return admin || kelihatan[String(n)]; };
     hasil = {
-      orang: Object.keys(km).map(function (n) { var k = km[n]; return [n, k.Nama, k.KodeJabatan, k.Jabatan, k.Cabang, k.Dept, tnaDivisi(k.Dept)]; }),
+      orang: Object.keys(km).filter(lihat).map(function (n) { var k = km[n]; return [n, k.Nama, k.KodeJabatan, k.Jabatan, k.Cabang, k.Dept, tnaDivisi(k.Dept)]; }),
       timSaya: tim, timLangsung: timLangsung,
-      gap: tnaHitungGap(ss, p, km).map(function (g) { return [String(g.NIK), g.KodeKompetensi, g.Actual === "" ? null : Number(g.Actual), Number(g.Required), g.KategoriGap]; }),
-      itp: tnaBaca(ss, "ITP").map(function (r) { return [String(r.NIK), r.KodeTraining, r.Kategori, r.Bulan, Number(r.Jam || 0), r.Status]; }),
+      gap: tnaHitungGap(ss, p, km).filter(function (g) { return lihat(g.NIK); }).map(function (g) { return [String(g.NIK), g.KodeKompetensi, g.Actual === "" ? null : Number(g.Actual), Number(g.Required), g.KategoriGap]; }),
+      itp: tnaBaca(ss, "ITP").filter(function (r) { return lihat(r.NIK); }).map(function (r) { return [String(r.NIK), r.KodeTraining, r.Kategori, r.Bulan, Number(r.Jam || 0), r.Status]; }),
       outputTerakhir: String(p.OutputTerakhir || "")
     };
-    tnaBaca(ss, "ITP").forEach(function (r) { var c = katBy[r.KodeTraining]; if (c && !train[r.KodeTraining]) train[r.KodeTraining] = [c.Judul, String(c.Kategori), c.DurasiJam === "" ? "" : Number(c.DurasiJam), String(c.Status || ""), kompList(c).map(function (x) { return (kamus[x] || [x])[0]; }).join(", "), c.LevelTarget === "" ? "" : Number(c.LevelTarget)]; });
+    tnaBaca(ss, "ITP").filter(function (r) { return lihat(r.NIK); }).forEach(function (r) { var c = katBy[r.KodeTraining]; if (c && !train[r.KodeTraining]) train[r.KodeTraining] = [c.Judul, String(c.Kategori), c.DurasiJam === "" ? "" : Number(c.DurasiJam), String(c.Status || ""), kompList(c).map(function (x) { return (kamus[x] || [x])[0]; }).join(", "), c.LevelTarget === "" ? "" : Number(c.LevelTarget)]; });
   }
   return {
     ok: true, dibuat: new Date().toISOString(), hasil: hasil,

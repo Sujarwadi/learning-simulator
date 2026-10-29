@@ -1,4 +1,4 @@
-<!-- BBLC Studio v3.24, 29 Okt 2026. Perubahan: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
+<!-- BBLC Studio v3.25, 29 Okt 2026. Perubahan: Pusat Matrix (competency dan training matrix) juga tersedia untuk level Dept Head ke atas (mesin TNA v2.8: atasan dengan bawahan yang juga memimpin bawahan, atau jabatan di parameter KodeJabatanMatrix) dengan data terbatas pada timnya sendiri; di HP panel kontrol dilipat menjadi satu baris ringkasan. Sebelumnya v3.24: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
 <!-- BBLC Studio v3.21, 29 Okt 2026. Perubahan (koreksi user 29 Okt): Dosier Jabatan menghasilkan dokumen Excel 6 sheet bergaya master kompetensi teknis L&D dengan satu klik (breakdown tugas dan KSA, kamus 5 level + indikator, skala level, matriks departemen, rencana 70/20/10, TNA standar jabatan), dibuat langsung di browser tanpa library; tombol cetak PDF dihapus; layar dosier diringkas menjadi lima tab; kompetensi teknis master Finance dan L&D Section Head menggantikan data otomatis; Communication Skill dibuang dari kompetensi teknis (sudah ada di Behavioral); teks coaching seragam dihapus; kolom pembanding matriks hanya jabatan yang berbagi kompetensi teknis. -->
 <!-- BBLC Studio v3.20, 28 Okt 2026. Perubahan: Dosier Jabatan (tile Referensi, sebelumnya Matriks Kompetensi Jabatan): satu jabatan lengkap tanpa menunggu asesmen, yaitu tugas utama dan task beserta kompetensinya, kompetensi dan level syarat, lima level dengan indikator perilaku, rencana 70/20/10, training wajib dan jalur training bila gap, cetak PDF tema terang; tombol 'Buka dosier lengkap' di laci profil jabatan Pusat Matrix; durasi training baru dari katalog (mesin TNA v2.7). -->
 <!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
@@ -433,7 +433,16 @@ body.internal span.khusus-ld{display:inline}
 .mx-side #mx-pilih{width:100%;min-width:0}
 .mx-side .mx-pdf{margin-left:0;width:100%;justify-content:center}
 .mx-side .chips{flex-wrap:wrap}
-@media (max-width:980px){.mx-layout{grid-template-columns:1fr}.mx-ctrl.mx-side{position:static}.mx-side .seg{flex-direction:row;flex-wrap:wrap}.mx-side .seg button{width:auto}}
+.mx-side-toggle{display:none}
+.mx-side-isi{display:flex;flex-direction:column;gap:18px}
+@media (max-width:980px){
+  .mx-side-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--inset);color:var(--ink);font:inherit;font-size:13px;font-weight:600;text-align:left;cursor:pointer}
+  .mx-side-ring{min-width:0;line-height:1.35}
+  .mx-side-ubah{flex:none;color:var(--accent);font-weight:700}
+  .mx-ctrl.mx-side{gap:12px;padding:10px}
+  .mx-side:not(.terbuka) .mx-side-isi{display:none}
+}
+@media (max-width:980px){.mx-layout{grid-template-columns:minmax(0,1fr)}.mx-utama{min-width:0}.mx-ctrl.mx-side{position:static}.mx-side .seg{flex-direction:row;flex-wrap:wrap}.mx-side .seg button{width:auto}}
 .mx-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
 .mx-lbl{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 .seg{display:inline-flex;background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
@@ -1049,11 +1058,13 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <section class="screen" id="scr-tna-pusat">
     <header class="app">
       <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">PUSAT MATRIX L&amp;D</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
+      <div style="min-width:0"><div class="app-title">PUSAT MATRIX</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:1480px"><div class="mx-layout">
       <aside class="card mx-ctrl mx-side" aria-label="Pengaturan tampilan matrix">
+        <button type="button" class="mx-side-toggle" id="mx-side-toggle" aria-expanded="false" aria-controls="mx-side-isi"><span class="mx-side-ring" id="mx-side-ring">Atur tampilan</span><span class="mx-side-ubah">Ubah</span></button>
+        <div class="mx-side-isi" id="mx-side-isi">
         <div class="mx-ctl"><span class="mx-lbl">Tampilan</span><div class="seg" role="group" aria-label="Jenis matrix" id="mx-jenis">
           <button type="button" data-v="komp" aria-pressed="true">Competency Matrix</button><button type="button" data-v="train" aria-pressed="false">Training Matrix</button></div></div>
         <div class="mx-ctl"><span class="mx-lbl">Sumber</span><div class="seg" role="group" aria-label="Sumber data" id="mx-sumber">
@@ -1063,6 +1074,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div class="mx-ctl" id="mx-pilih-wrap"><label class="mx-lbl" for="mx-pilih">Pilih</label><select id="mx-pilih"></select></div>
         <div class="mx-ctl"><span class="mx-lbl">Tampilkan</span><div class="chips" id="mx-filter" role="group" aria-label="Saring isi matrix"></div></div>
         <button class="btn btn-ghost mx-pdf" id="btn-mx-pdf" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>Ekspor PDF</button>
+        </div>
       </aside>
       <div class="mx-utama"><div id="mx-body"><div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div></div></div>
     </div></div>
@@ -1886,7 +1898,8 @@ async function muatBerandaTNA(){
   try{
     const r = await tnaApi("tnaKonteks");
     tna.konteks = r; tna.internal = !!r.internal; document.body.classList.toggle("internal", tna.internal);
-    $("btn-tna-landasan").style.display = tna.internal ? "" : "none";
+    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; tna.matrix = tna.isAdmin || !!r.matrix; $("btn-tna-pusat").style.display = tna.matrix ? "" : "none";
+    { const t = $("btn-tna-pusat"); t.querySelector(".tile-g").textContent = tna.isAdmin ? "Admin" : "Tim saya"; t.querySelector(".tile-t").textContent = "Pusat Matrix"; t.querySelector(".tile-d").textContent = tna.isAdmin ? "Competency & training matrix per jabatan, dept, divisi; ekspor PDF" : "Competency & training matrix tim Anda untuk memetakan pengembangan; ekspor PDF"; }
     const w = r.window;
     const sisaMs = new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
     const cd = (w!=="DITUTUP" && sisaMs>0) ? '<div class="win-cd">'+sisaH+' hari '+sisaJ+' jam<small>'+(w==="DIBUKA"?"sampai ditutup":"sampai dibuka")+'</small></div>' : '';
@@ -2576,6 +2589,10 @@ const mxKatKomp = kk => mxKat((mx.data.kamus[kk] || ["",""])[1]);
 async function bukaPusatMatrix(){
   bukaLayar("scr-tna-pusat");
   mx.data = null; mx.hasil = null; // selalu data terbaru
+  const adm = !!tna.isAdmin; document.querySelector('#mx-lingkup [data-v="all"]').style.display = adm ? "" : "none";
+  if(!adm && mx.lingkup === "all") mx.lingkup = "tim";
+  if(!adm && !mx.dibuka){ mx.lingkup = "tim"; } mx.dibuka = true;
+  document.querySelectorAll("#mx-lingkup button").forEach(b=> b.setAttribute("aria-pressed", String(b.dataset.v === mx.lingkup)));
   $("mx-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat matrix&hellip;</div>';
   try{ mx.data = await tnaApi("tnaMatrixOutput"); }
   catch(e){ $("mx-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; return; }
@@ -2894,6 +2911,15 @@ new MutationObserver(()=>{
     if(!pernah) setTimeout(mxPanduanBuka, 350); }
 }).observe($("mx-body"), { childList:true });
 let mxSudahPaham = false;
+function mxRingkasSide(){
+  const t = id=>{ const b = document.querySelector("#"+id+" [aria-pressed=true]"); return b ? b.textContent.trim() : ""; };
+  const pil = $("mx-pilih-wrap").style.display === "none" ? "" : ($("mx-pilih").selectedOptions[0] ? $("mx-pilih").selectedOptions[0].text.replace(/ \(\d+ jabatan\)$/,"") : "");
+  $("mx-side-ring").textContent = [t("mx-jenis"), t("mx-sumber"), t("mx-lingkup")+(pil?" "+pil:"")].filter(Boolean).join(" · ");
+}
+$("mx-side-toggle").onclick = ()=>{ const k = document.querySelector(".mx-side"), buka = !k.classList.contains("terbuka"); k.classList.toggle("terbuka", buka); $("mx-side-toggle").setAttribute("aria-expanded", String(buka)); $("mx-side-toggle").querySelector(".mx-side-ubah").textContent = buka ? "Tutup" : "Ubah"; };
+let mxTahanPanel = false; $("mx-filter").addEventListener("click", ()=>{ mxTahanPanel = true; setTimeout(()=>{ mxTahanPanel = false; }, 1500); });
+new MutationObserver(()=>{ mxRingkasSide(); const k = document.querySelector(".mx-side"); if(!mxTahanPanel && k.classList.contains("terbuka") && window.matchMedia("(max-width:980px)").matches && document.querySelector("#mx-body .mx-rpt")){ k.classList.remove("terbuka"); $("mx-side-toggle").setAttribute("aria-expanded","false"); $("mx-side-toggle").querySelector(".mx-side-ubah").textContent = "Ubah"; } }).observe($("mx-body"), { childList:true });
+
 function mxTutupLaci(){ $("mx-drawer").hidden = true; }
 $("mx-drawer").addEventListener("click", e=>{ if(e.target === $("mx-drawer")) mxTutupLaci(); });
 document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !$("mx-drawer").hidden) mxTutupLaci(); });
