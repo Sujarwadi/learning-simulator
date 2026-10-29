@@ -1,4 +1,4 @@
-<!-- BBLC Studio v3.25, 29 Okt 2026. Perubahan: Pusat Matrix (competency dan training matrix) juga tersedia untuk level Dept Head ke atas (mesin TNA v2.8: atasan dengan bawahan yang juga memimpin bawahan, atau jabatan di parameter KodeJabatanMatrix) dengan data terbatas pada timnya sendiri; di HP panel kontrol dilipat menjadi satu baris ringkasan. Sebelumnya v3.24: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
+<!-- BBLC Studio v3.26, 29 Okt 2026. Perubahan: tanggal window asesmen tidak lagi tampil di halaman masuk dan panduan; bila belum diisi di Panel Admin, beranda menampilkan "Jadwal diumumkan L&D" dan form hanya dapat dilihat (mesin TNA v3.0). Sebelumnya v3.25: Pusat Matrix (competency dan training matrix) juga tersedia untuk level Dept Head ke atas (mesin TNA v2.8: atasan dengan bawahan yang juga memimpin bawahan, atau jabatan di parameter KodeJabatanMatrix) dengan data terbatas pada timnya sendiri; di HP panel kontrol dilipat menjadi satu baris ringkasan. Sebelumnya v3.24: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
 <!-- BBLC Studio v3.21, 29 Okt 2026. Perubahan (koreksi user 29 Okt): Dosier Jabatan menghasilkan dokumen Excel 6 sheet bergaya master kompetensi teknis L&D dengan satu klik (breakdown tugas dan KSA, kamus 5 level + indikator, skala level, matriks departemen, rencana 70/20/10, TNA standar jabatan), dibuat langsung di browser tanpa library; tombol cetak PDF dihapus; layar dosier diringkas menjadi lima tab; kompetensi teknis master Finance dan L&D Section Head menggantikan data otomatis; Communication Skill dibuang dari kompetensi teknis (sudah ada di Behavioral); teks coaching seragam dihapus; kolom pembanding matriks hanya jabatan yang berbagi kompetensi teknis. -->
 <!-- BBLC Studio v3.20, 28 Okt 2026. Perubahan: Dosier Jabatan (tile Referensi, sebelumnya Matriks Kompetensi Jabatan): satu jabatan lengkap tanpa menunggu asesmen, yaitu tugas utama dan task beserta kompetensinya, kompetensi dan level syarat, lima level dengan indikator perilaku, rencana 70/20/10, training wajib dan jalur training bila gap, cetak PDF tema terang; tombol 'Buka dosier lengkap' di laci profil jabatan Pusat Matrix; durasi training baru dari katalog (mesin TNA v2.7). -->
 <!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
@@ -636,7 +636,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <div class="err" id="err-login" role="alert"></div>
           <div style="margin-top:20px"><button class="btn btn-red" id="btn-login">Masuk <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
           <button type="button" class="lp-guide" id="btn-lp-panduan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg><span>Belum pernah mengisi? <u>Baca Panduan Pengisian</u> (3 menit)</span></button>
-          <div class="lp-when"><div><b>27 Okt – 3 Nov 2026</b>Window asesmen</div><div><b>4 Nov 2026</b>Hasil, ITP &amp; kalender terbit</div></div>
+          <div class="lp-when"><div><b>Jadwal diumumkan L&amp;D</b>Window asesmen</div><div><b>Setelah window ditutup</b>Hasil, ITP &amp; kalender terbit</div></div>
         </div>
       </main>
       <footer class="lp-foot">Created by Sujarwadi · Bosowa Berlian Learning Center</footer>
@@ -1034,9 +1034,9 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <h2 class="sect" id="pd-6">Jadwal</h2>
       <div class="card">
         <div class="pd-time">
-          <div><b>27 Okt – 3 Nov 2026</b><span>Window penilaian, ditutup 3 Nov pukul 23.59 WITA</span></div>
+          <div><b>Window penilaian</b><span>Tanggal buka dan tutup diumumkan L&amp;D</span></div>
           <div><b>Selama window</b><span>Head unit memvalidasi hasil yang sudah masuk</span></div>
-          <div><b>4 Nov 2026</b><span>Hasil, ITP, dan kalender training 2027 terbit</span></div>
+          <div><b>Setelah window ditutup</b><span>Hasil, ITP, dan kalender training 2027 terbit</span></div>
         </div>
       </div>
 
@@ -1901,19 +1901,20 @@ async function muatBerandaTNA(){
     $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; tna.matrix = tna.isAdmin || !!r.matrix; $("btn-tna-pusat").style.display = tna.matrix ? "" : "none";
     { const t = $("btn-tna-pusat"); t.querySelector(".tile-g").textContent = tna.isAdmin ? "Admin" : "Tim saya"; t.querySelector(".tile-t").textContent = "Pusat Matrix"; t.querySelector(".tile-d").textContent = tna.isAdmin ? "Competency & training matrix per jabatan, dept, divisi; ekspor PDF" : "Competency & training matrix tim Anda untuk memetakan pengembangan; ekspor PDF"; }
     const w = r.window;
-    const sisaMs = new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
+    const sisaMs = (w==="BELUM_DIJADWALKAN") ? 0 : new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
     const cd = (w!=="DITUTUP" && sisaMs>0) ? '<div class="win-cd">'+sisaH+' hari '+sisaJ+' jam<small>'+(w==="DIBUKA"?"sampai ditutup":"sampai dibuka")+'</small></div>' : '';
-    const wk = w==="DIBUKA" ? ["green","var(--green-soft)","var(--green-line)",'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>'] : (w==="BELUM_DIBUKA" ? ["amber","var(--amber-soft)","var(--accent-line)",'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'] : ["red","var(--red-soft)","var(--red-line)",'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>']);
+    const wk = w==="DIBUKA" ? ["green","var(--green-soft)","var(--green-line)",'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>'] : ((w==="BELUM_DIBUKA"||w==="BELUM_DIJADWALKAN") ? ["amber","var(--amber-soft)","var(--accent-line)",'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'] : ["red","var(--red-soft)","var(--red-line)",'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>']);
     $("tna-window-card").style.setProperty("--tint", wk[1]); $("tna-window-card").style.setProperty("--tint-line", wk[2]);
     $("tna-window-card").innerHTML = '<div class="win"><span class="win-ic ic-'+(wk[0]==="red"?"amber":wk[0])+'" style="'+(wk[0]==="red"?'background:var(--red-soft);color:var(--red);border-color:var(--red-line)':'')+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+wk[3]+'</svg></span><div class="win-txt">'+(w==="DIBUKA"
       ? '<span class="badge badge-green">Window dibuka</span><div style="margin-top:6px">Berlaku sampai <b>'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban bisa direvisi selama window masih dibuka.</div>'
-      : (w==="BELUM_DIBUKA" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Window asesmen dibuka <b>'+esc(fmtTgl(r.windowBuka))+'</b>.</div>'
+      : (w==="BELUM_DIJADWALKAN" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Jadwal window asesmen akan diumumkan L&amp;D. Sementara ini form hanya dapat dilihat.</div>'
+      : w==="BELUM_DIBUKA" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Window asesmen dibuka <b>'+esc(fmtTgl(r.windowBuka))+'</b>.</div>'
         : '<span class="badge badge-red">Window ditutup</span><div style="margin-top:6px">Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.</div>'))+'</div>'+cd+'</div>';
     // Studio lama hanya untuk admin selama TNA berjalan; atasan bisa memakainya lagi setelah window ditutup.
     $("btn-tna-studio").style.display = "none";
     // Kartu To-do
     const td = r.todo || {}, nVal = (r.validasi||[]).filter(v=>v.status==="MENUNGGU_VALIDASI").length;
-    const sisaHari = Math.ceil((new Date(r.windowTutup) - new Date()) / 86400000);
+    const sisaHari = r.windowTutup ? Math.ceil((new Date(r.windowTutup) - new Date()) / 86400000) : NaN;
     const total = (td.nilai||0) + nVal + (td.approval||0) + (td.delegasi||0) + (r.selfStatus==="BELUM"?1:0);
     const chip = (n, label, warna)=> n ? '<div class="chip-k"><div class="n" style="color:'+warna+'">'+n+'</div><div class="l">'+label+'</div></div>' : '';
     $("tna-todo-card").innerHTML = (w==="DIBUKA" || nVal) ? '<div class="card" style="padding:14px 18px">'+
@@ -2309,7 +2310,7 @@ const KAT_CLS = { Wajib:"badge-red", WajibGap:"badge-red", Dianjurkan:"badge-amb
 const KAT_LABEL = { WajibGap:"Wajib · tutup gap", Dianjurkan:"Modul penutup gap", Pengayaan:"Pengayaan (opsional)" };
 function labelKat(k){ if(!tna.internal && k==="Dianjurkan") return "Pengembangan kompetensi"; return KAT_LABEL[k] || k || ""; }
 function renderDashTraining(r){
-  if(!r.terbit){ $("dt-body").innerHTML = '<div class="card"><div class="empty">Rencana &amp; kalender training tim terbit setelah window asesmen ditutup dan output TNA digenerate (rencana 4 Nov 2026).</div></div>'; return; }
+  if(!r.terbit){ $("dt-body").innerHTML = '<div class="card"><div class="empty">Rencana &amp; kalender training tim terbit setelah window asesmen ditutup dan output TNA digenerate.</div></div>'; return; }
   const BLN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
   const perBulan = {}; r.grup.forEach(g=>{ (perBulan[g.bulan] = perBulan[g.bulan] || []).push(g); });
   $("dt-sub").textContent = (judulLingkup(r.lingkup) || (r.orang + " orang")) + " · " + r.totalJam + " jam training terencana";
@@ -3371,9 +3372,11 @@ $("btn-tna-simpan-param").onclick = async ()=>{
   clearErr("err-tna-param");
   const p = {}; PARAM_ADM.forEach(k=> p[k] = $("adm-"+k).value.trim());
   p.WindowBuka = dariLokalWITA(p.WindowBuka); p.WindowTutup = dariLokalWITA(p.WindowTutup);
-  if(new Date(p.WindowTutup) <= new Date(p.WindowBuka)){ showErr("err-tna-param","Waktu tutup harus setelah waktu buka."); return; }
+  const jadwalKosong = !p.WindowBuka && !p.WindowTutup;
+  if(!jadwalKosong && (!p.WindowBuka || !p.WindowTutup)){ showErr("err-tna-param","Isi waktu buka dan waktu tutup sekaligus, atau kosongkan keduanya bila jadwal belum diumumkan."); return; }
+  if(!jadwalKosong && new Date(p.WindowTutup) <= new Date(p.WindowBuka)){ showErr("err-tna-param","Waktu tutup harus setelah waktu buka."); return; }
   if(Math.abs(Number(p.BobotAtasan)+Number(p.BobotSelf)-1) > 0.001){ showErr("err-tna-param","Bobot atasan + self harus = 1."); return; }
-  if(isNaN(new Date(p.WindowBuka)) || isNaN(new Date(p.WindowTutup))){ showErr("err-tna-param","Format tanggal window tidak valid."); return; }
+  if(!jadwalKosong && (isNaN(new Date(p.WindowBuka)) || isNaN(new Date(p.WindowTutup)))){ showErr("err-tna-param","Format tanggal window tidak valid."); return; }
   try{ await tnaApi("tnaSetParameter", { parameter: p }); alert("Parameter tersimpan."); }catch(e){ showErr("err-tna-param", e.message); }
 };
 $("btn-tna-approve-sel").onclick = async ()=>{

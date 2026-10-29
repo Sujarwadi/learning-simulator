@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v2.9, 29 Okt 2026. Perubahan: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.0, 29 Okt 2026. Perubahan: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -103,8 +103,8 @@ var TNA_TAB = {
 
 var TNA_PARAM_DEFAULT = [
   ["Periode", "TNA2027", "Kode periode asesmen"],
-  ["WindowBuka", "2026-10-27T00:00:00+08:00", "Mulai window asesmen (WITA)"],
-  ["WindowTutup", "2026-11-03T23:59:59+08:00", "Akhir window asesmen (WITA)"],
+  ["WindowBuka", "", "Mulai window asesmen (WITA); kosong = belum dijadwalkan. Isi dari Panel Admin bila jadwal sudah diumumkan"],
+  ["WindowTutup", "", "Akhir window asesmen (WITA); kosong = belum dijadwalkan"],
   ["BobotAtasan", 0.7, "Bobot skor atasan pada skor Actual"],
   ["BobotSelf", 0.3, "Bobot self-rating pada skor Actual"],
   ["TahunITP", 2027, "Tahun rencana ITP"],
@@ -290,6 +290,8 @@ function tnaLog(ss, nik, aksi, detail) {
 function tnaWindow(p) {
   var now = new Date();
   var buka = new Date(p.WindowBuka), tutup = new Date(p.WindowTutup);
+  // Tanggal belum diisi (jadwal diumumkan di luar aplikasi): form hanya bisa dilihat, tidak ada hitung mundur
+  if (!p.WindowBuka || !p.WindowTutup || isNaN(buka) || isNaN(tutup)) return { status: "BELUM_DIJADWALKAN", buka: null, tutup: null };
   if (now < buka) return { status: "BELUM_DIBUKA", buka: buka, tutup: tutup };
   if (now > tutup) return { status: "DITUTUP", buka: buka, tutup: tutup };
   return { status: "DIBUKA", buka: buka, tutup: tutup };
@@ -1561,7 +1563,9 @@ function tnaSusunPengingat(ss, p, jenis) {
 function tnaPengingat(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
-  var p = tnaParam(ss), daftar = tnaSusunPengingat(ss, p, req.jenis || "semua");
+  var p = tnaParam(ss);
+  if (tnaWindow(p).status === "BELUM_DIJADWALKAN") return { ok: false, error: "Jadwal window asesmen belum diisi. Isi waktu buka dan tutup di Parameter dulu." };
+  var daftar = tnaSusunPengingat(ss, p, req.jenis || "semua");
   var tanpaHP = daftar.filter(function (d) { return !d.hp; }).map(function (d) { return d.nama; });
   if (req.kirim !== true) return { ok: true, pratinjau: true, jumlah: daftar.length, tanpaHP: tanpaHP, contoh: daftar.length ? daftar[0].teks : "" };
   if (typeof kirimWA !== "function") return { ok: false, error: "Fungsi kirimWA (Kode.gs) tidak ditemukan." };
@@ -1602,6 +1606,7 @@ function tnaJadwalkanPengingat() {
 function tnaJadwalkanEndpoint(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
+  if (tnaWindow(tnaParam(ss)).status === "BELUM_DIJADWALKAN") return { ok: false, error: "Isi waktu buka dan tutup window asesmen di Parameter dulu, lalu aktifkan jadwal otomatis." };
   try {
     if (req.output !== false) tnaJadwalkanOutput();
     if (req.pengingat !== false) tnaJadwalkanPengingat();
@@ -2222,6 +2227,7 @@ function tnaSinkronUsers(ss) {
 function tnaJadwalkanOutput() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var p = tnaParam(ss);
+  if (tnaWindow(p).status === "BELUM_DIJADWALKAN") throw new Error("Isi WindowBuka dan WindowTutup di Panel Admin dulu, baru jadwalkan output.");
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === "tnaOutputTerjadwal") ScriptApp.deleteTrigger(t); });
   var waktu = new Date(new Date(p.WindowTutup).getTime() + 5 * 60 * 1000);
   ScriptApp.newTrigger("tnaOutputTerjadwal").timeBased().at(waktu).create();
