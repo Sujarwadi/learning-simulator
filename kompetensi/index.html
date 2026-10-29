@@ -1,4 +1,4 @@
-<!-- BBLC Studio v3.23, 29 Okt 2026. Perubahan: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
+<!-- BBLC Studio v3.24, 29 Okt 2026. Perubahan: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
 <!-- BBLC Studio v3.21, 29 Okt 2026. Perubahan (koreksi user 29 Okt): Dosier Jabatan menghasilkan dokumen Excel 6 sheet bergaya master kompetensi teknis L&D dengan satu klik (breakdown tugas dan KSA, kamus 5 level + indikator, skala level, matriks departemen, rencana 70/20/10, TNA standar jabatan), dibuat langsung di browser tanpa library; tombol cetak PDF dihapus; layar dosier diringkas menjadi lima tab; kompetensi teknis master Finance dan L&D Section Head menggantikan data otomatis; Communication Skill dibuang dari kompetensi teknis (sudah ada di Behavioral); teks coaching seragam dihapus; kolom pembanding matriks hanya jabatan yang berbagi kompetensi teknis. -->
 <!-- BBLC Studio v3.20, 28 Okt 2026. Perubahan: Dosier Jabatan (tile Referensi, sebelumnya Matriks Kompetensi Jabatan): satu jabatan lengkap tanpa menunggu asesmen, yaitu tugas utama dan task beserta kompetensinya, kompetensi dan level syarat, lima level dengan indikator perilaku, rencana 70/20/10, training wajib dan jalur training bila gap, cetak PDF tema terang; tombol 'Buka dosier lengkap' di laci profil jabatan Pusat Matrix; durasi training baru dari katalog (mesin TNA v2.7). -->
 <!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
@@ -258,35 +258,9 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 /* ---------- Laporan visual (v3.15): profil kompetensi bergaya laporan asesor ---------- */
 .prog-val{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
 .prog-val-i{display:inline-flex;align-items:center;gap:8px}
-.ds-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
-.ds-judul{margin:4px 0 6px;font-size:22px;color:var(--ink)}
-.ds-sub{margin:18px 0 8px;font-size:14px;color:var(--ink);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
-.ds-tugas{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start}
-.ds-no{width:30px;height:30px;border-radius:50%;background:var(--inset);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--ink)}
-.ds-task{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
-.ds-task li{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:6px 14px;font-size:13px;color:var(--text);padding:6px 0;border-top:1px solid var(--line)}
-.ds-kc{font-size:12px;color:var(--muted)}
-.ds-t td,.ds-t th{vertical-align:top}
-.ds-det{padding:0}
-.ds-det summary{cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;list-style:none;min-height:44px}
-.ds-det summary::-webkit-details-marker{display:none}
-.ds-lv{margin:0;padding:4px 16px 14px;list-style:none;display:grid;gap:8px}
-.ds-lv li{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.5}
-.ds-lv li.req{border-color:var(--green-line);background:var(--green-soft)}
-.ds-ind{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:12.5px}
-.ds-pips{display:inline-flex;gap:3px}
-.ds-pips i{display:block;width:16px;height:8px;border-radius:3px;background:var(--line)}
-.ds-pips i.on{background:var(--sky)}
-.ds-cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:16px;min-height:52px;font-size:15px}
-.ds-cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.ds-cta-h{text-align:center;margin-top:8px}
-.ds-tabs{margin:16px 0 12px;position:sticky;top:64px;z-index:5}
-.ds-menuntut{margin-top:8px;font-size:12.5px;color:var(--muted)}
 .ld-panel{margin-top:18px;border-top:1px dashed var(--line);padding-top:10px;font-size:12.5px;color:var(--muted)}
 .ld-panel summary{cursor:pointer;font-weight:700;letter-spacing:.4px;min-height:32px;display:flex;align-items:center}
 .ld-isi{display:grid;gap:8px;padding:8px 0 4px;color:var(--text)}
-.ds-foot{margin:24px 0 8px;font-size:12px;color:var(--muted)}
-@media (max-width:720px){.ds-task li{grid-template-columns:1fr}}
 }
 .rpt-nav{position:sticky;top:64px;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0 10px;margin:0 0 var(--s3);background:linear-gradient(var(--bg) 70%,transparent);scrollbar-width:none}
 .rpt-nav::-webkit-scrollbar{display:none}
@@ -848,7 +822,6 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Competency &amp; training matrix per jabatan, dept, divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan Pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-matriks"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Dosier Jabatan</span><span class="tile-d">Tugas, kompetensi, level, dan rencana training per jabatan</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-katalog"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Katalog Training &amp; Silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-landasan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Landasan Metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-studio" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Studio Kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
@@ -936,18 +909,6 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
     <div class="body-wrap" style="max-width:960px"><div id="tna-hasil-body"></div></div>
   </section>
 
-  <!-- ============ TNA 2027: MATRIKS JABATAN ============ -->
-  <section class="screen" id="scr-tna-matriks">
-    <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">DOSIER JABATAN</div><div class="app-sub">Satu jabatan, dari tugas sampai rencana training</div></div>
-      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
-    </header>
-    <div class="body-wrap" style="max-width:960px">
-      <div class="card"><label>Cari jabatan</label><input type="text" id="inp-tna-cari-jab" placeholder="Ketik nama jabatan"></div>
-      <div id="tna-matriks-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div>
-    </div>
-  </section>
 
   <!-- ============ TNA 2027: KATALOG TRAINING ============ -->
   <section class="screen" id="scr-tna-katalog">
@@ -1925,7 +1886,7 @@ async function muatBerandaTNA(){
   try{
     const r = await tnaApi("tnaKonteks");
     tna.konteks = r; tna.internal = !!r.internal; document.body.classList.toggle("internal", tna.internal);
-    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-matriks").querySelector(".tile-d").textContent = tna.internal ? "Tugas, kompetensi, level, dan rencana training per jabatan" : "Standar tugas dan kompetensi jabatan Anda";
+    $("btn-tna-landasan").style.display = tna.internal ? "" : "none";
     const w = r.window;
     const sisaMs = new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
     const cd = (w!=="DITUTUP" && sisaMs>0) ? '<div class="win-cd">'+sisaH+' hari '+sisaJ+' jam<small>'+(w==="DIBUKA"?"sampai ditutup":"sampai dibuka")+'</small></div>' : '';
@@ -2908,14 +2869,14 @@ async function mxBukaJabatan(kode){
     const ks = r.kompetensi.slice().sort((a,b)=> MX_KAT.indexOf(mxKat(a.kategori)) - MX_KAT.indexOf(mxKat(b.kategori)) || b.bobot - a.bobot);
     const tugas = [...new Set(r.task.map(t=>t.TugasUtama).filter(Boolean))].slice(0,8);
     let h = '<button type="button" class="btn btn-ghost btn-kecil x" id="mx-tutup">Tutup</button><div class="rpt-eyebrow">Profil jabatan</div><h3>'+esc(j.JobTitle)+'</h3><div class="mx-meta">'+esc(j.Dept+" · Divisi "+(jm.div||"")+" · "+j.JmlIncumbent+" karyawan · JD: "+j.StatusJD)+'</div>';
-    h += '<div style="margin:10px 0 0"><button type="button" class="btn btn-ghost btn-kecil" id="mx-dosier">Buka dosier lengkap jabatan ini</button></div>';
+    h += '<div style="margin:12px 0 0"><button type="button" class="btn btn-primary btn-kecil" id="mx-unduh">Unduh dokumen lengkap (Excel)</button><div class="hint" id="mx-unduh-st" role="status" style="margin-top:6px">Tugas dan KSA, kompetensi, level, 70-20-10, dan jalur training dalam satu file.</div></div>';
     if(tugas.length) h += '<div class="mx-gh">Tugas utama <em>'+tugas.length+'</em></div><ul style="margin:8px 0 0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--text)">'+tugas.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
     MX_KAT.forEach(k=>{ const l = ks.filter(x=>mxKat(x.kategori)===k); if(!l.length) return;
       h += '<div class="mx-gh">'+k+' <em>'+l.length+' kompetensi</em></div>'+l.map(x=>'<div class="dr-k"><div class="h"><b>'+esc(x.nama)+'</b><span class="bobot'+(x.bobot>=3?' b3':'')+'">'+(MX_BOBOT[x.bobot]||x.bobot)+' · L'+x.required+'</span></div>'+
         '<div class="pips" style="margin-top:6px">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=x.required?'on lv'+x.required:'')+'"></i>').join("")+'</div>'+
         '<p><b style="font-size:12px;color:var(--muted)">Level '+x.required+' · '+MX_LV[x.required]+':</b> '+esc(x.levels[x.required-1]||"")+'</p>'+(x.flag?'<div class="m">'+esc(flagList(x.flag).map(flagLabel).join(" · "))+'</div>':'')+'</div>').join(""); });
     $("mx-sheet-isi").innerHTML = h; $("mx-tutup").onclick = mxTutupLaci; $("mx-tutup").focus();
-    $("mx-dosier").onclick = async ()=>{ mxTutupLaci(); bukaLayar("scr-tna-matriks"); if(!tnaDaftarJab.length){ try{ tnaDaftarJab = (await tnaApi("tnaMatriksJabatan")).jabatan; }catch(e){} } lihatMatriks(kode); };
+    $("mx-unduh").onclick = ()=> dsUnduhJabatan(kode, $("mx-unduh"), $("mx-unduh-st"));
   }catch(e){ $("mx-sheet-isi").innerHTML = '<div class="err show">'+esc(e.message)+'</div><button type="button" class="btn btn-ghost" id="mx-tutup">Tutup</button>'; $("mx-tutup").onclick = mxTutupLaci; }
 }
 // Panduan membaca matrix: pop-up, muncul otomatis sekali lalu hanya lewat tombol "Cara membaca dan sorotan"
@@ -3101,22 +3062,6 @@ function renderITP(bulan){
   });
 }
 
-/* ---------- Matriks jabatan (baca saja, untuk dibagikan ke Dept Head) ---------- */
-let tnaDaftarJab = [];
-$("btn-tna-matriks").onclick = async ()=>{
-  show("scr-tna-matriks");
-  try{ const r = await tnaApi("tnaMatriksJabatan"); tnaDaftarJab = r.jabatan; if(tnaDaftarJab.length === 1) lihatMatriks(tnaDaftarJab[0].kode); else renderDaftarJab(""); }
-  catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
-};
-$("inp-tna-cari-jab").oninput = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
-function renderDaftarJab(q){
-  q = String(q||"").toLowerCase();
-  $("inp-tna-cari-jab").closest(".card").style.display = "";
-  const list = tnaDaftarJab.filter(j=> !q || (j.jobTitle+" "+j.dept).toLowerCase().includes(q));
-  $("tna-matriks-body").innerHTML = list.map(j=>'<div class="team-item" data-jab="'+esc(j.kode)+'"><div class="team-avatar" style="font-size:11px">'+esc(j.kode)+'</div><div class="team-info"><div class="team-name">'+esc(j.jobTitle)+'</div><div class="team-jabatan">'+esc(j.dept)+' · '+esc(j.jml)+' orang</div></div>'+
-    (tna.internal ? '<span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+(j.status==="APPROVED"?"Disetujui":"Draf")+'</span>' : '')+'</div>').join("") || '<div class="empty">Tidak ada jabatan.</div>';
-  document.querySelectorAll("[data-jab]").forEach(el=> el.onclick = ()=> lihatMatriks(el.dataset.jab));
-}
 /* ---------- Penulis .xlsx tanpa library (OOXML + zip tanpa kompresi) ---------- */
 const XL = (()=>{
   const te = new TextEncoder();
@@ -3319,7 +3264,7 @@ const TNA_LV_NAMA = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
 // Di dalam pratinjau claude.ai, unduhan langsung diblokir sandbox: file ditawarkan lewat kapabilitas "downloads" (viewer yang menyimpan).
 // Di aplikasi biasa (GitHub Pages) dipakai tautan unduh bawaan browser.
 async function dsUnduh(r){
-  const blob = XL.build(dsDokumen(r)), nama = "Dosier_"+r.jabatan.jobTitle.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_TNA2027_v1.xlsx";
+  const blob = XL.build(dsDokumen(r)), nama = "Dokumen_Jabatan_"+r.jabatan.jobTitle.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_TNA2027_v1.xlsx";
   let dl = null; try{ dl = (window.claude && typeof window.claude.use === "function") ? await window.claude.use("downloads") : null; }catch(e){ dl = null; }
   if(dl){ try{ await dl.save({ filename:nama, data:blob }); return { nama, cara:"viewer" }; }catch(e){ if(e && e.code === "declined") return { nama, cara:"batal" }; throw e; } }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nama; document.body.appendChild(a); a.click();
@@ -3327,67 +3272,16 @@ async function dsUnduh(r){
   return { nama, cara:"browser" };
 }
 
-async function lihatMatriks(kode){
-  $("tna-matriks-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menyusun dosier&hellip;</div>';
-  $("inp-tna-cari-jab").closest(".card").style.display = "none";
+async function dsUnduhJabatan(kode, tombol, status){
+  const asal = tombol.innerHTML; tombol.disabled = true; status.textContent = "Menyiapkan dokumen…";
   try{
     const r = await tnaApi("tnaDosierJabatan", { kodeJabatan: kode });
-    const j = r.jabatan, rg = r.ringkas, dd = rg.durasiDefault, kompU = dsUrut(r);
-    const chip = (n,l)=>'<div class="tile-s"><div class="v">'+n+'</div><div class="l">'+l+'</div></div>';
-    const jd = j.linkJD ? ' · <a href="'+esc(String(j.linkJD).split(" || ")[0])+'" target="_blank" rel="noopener">Buka JD</a>' : '';
-    const kepala = '<div class="ds-actions"><button class="btn btn-ghost" id="btn-jab-kembali">&larr; Daftar jabatan</button></div>'+
-      '<div class="card ds-head"><div class="rpt-eyebrow">Dosier jabatan</div><h2 class="ds-judul">'+esc(j.jobTitle)+'</h2>'+
-      '<div class="hint">'+esc(j.dept)+' · Divisi '+esc(j.divisi)+(j.jml ? ' · '+j.jml+' karyawan' : '')+jd+(tna.internal ? ' · '+esc(dsSumber(r).replace("Sumber: ","Sumber ")) : '')+'</div>'+
-      '<div class="stat-tiles" style="margin-top:14px">'+chip(rg.tugasUtama,"tugas utama")+chip(rg.kompetensi,"kompetensi")+chip(r.wajib.length,"training wajib")+'</div>'+
-      '<button class="btn btn-primary ds-cta" id="btn-ds-unduh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>Unduh dokumen lengkap (Excel)</button>'+
-      '<div class="hint ds-cta-h">6 sheet: breakdown tugas dan KSA · kamus 5 level · skala level · matriks departemen · rencana 70/20/10 · TNA standar jabatan</div><div class="ds-cta-h" id="ds-status" role="status" aria-live="polite" style="font-size:12.5px;color:var(--green);min-height:18px"></div></div>'+
-      '<div class="seg ds-tabs" role="tablist" aria-label="Bagian dosier">'+[["tugas","Tugas"],["komp","Kompetensi"],["level","Level"],["dev","70/20/10"],["tna","Training"]].map((t,i)=>'<button type="button" role="tab" data-ds="'+t[0]+'" aria-pressed="'+(i===0)+'">'+t[1]+'</button>').join("")+'</div><div id="ds-isi"></div>';
-    const tabs = {};
-    tabs.tugas = ()=> (r.tugas.length ? r.tugas.map(t=>{
-      const unik = []; t.akt.forEach(a=>a.komp.forEach(c=>{ if(!unik.some(x=>x.kode===c.kode)) unik.push(c); }));
-      return '<div class="card ds-tugas"><div class="ds-no">'+t.no+'</div><div><b>'+esc(t.utama)+'</b><ul class="ds-task">'+
-        t.akt.map(a=>'<li><span>'+esc(a.task)+'</span>'+(r.punyaKsa ? '<span class="ds-kc">'+(a.komp.length ? a.komp.map(c=>esc(c.nama)).join(", ")+(a.level?' · level '+a.level:'') : '')+'</span>' : '')+'</li>').join("")+'</ul>'+
-        (!r.punyaKsa && unik.length ? '<div class="ds-menuntut">Menuntut kompetensi: '+unik.map(c=>esc(c.nama)).join(", ")+'</div>' : '')+'</div></div>'; }).join("")
-      : '<div class="card"><div class="empty">Uraian tugas jabatan ini belum tersedia.</div></div>')+
-      '<div class="hint">Kompetensi perilaku dan kepemimpinan berasal dari Kamus Kompetensi BBM dan berlaku sesuai level jabatan, jadi tidak diturunkan dari tugas satu per satu.</div>';
-    tabs.komp = ()=>{ let kat = "", h = "";
-      kompU.forEach(k=>{ const kk = (DS_KAT_NAMA[k.kategori]||k.kategori)+(k.kelompok?' · '+k.kelompok:'');
-        if(kk !== kat){ if(kat) h += '</table></div>'; kat = kk; h += '<h3 class="ds-sub">'+esc(kk)+'</h3><div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th><th>Level syarat</th><th>Bobot</th><th>Definisi</th></tr>'; }
-        h += '<tr><td><b>'+esc(k.nama)+'</b>'+(tna.internal && k.flag ? '<div style="margin-top:4px">'+flagList(k.flag).map(f=>'<span class="badge badge-amber">'+esc(flagLabel(f))+'</span>').join(" ")+'</div>' : '')+'</td><td><div class="ds-pips" role="img" aria-label="Level '+k.required+' dari 5">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=k.required?'on':'')+'"></i>').join("")+'</div><div class="hint" style="margin:2px 0 0">Level '+k.required+' · '+TNA_LV_NAMA[k.required]+'</div></td><td>'+esc(MX_BOBOT[k.bobot]||k.bobot)+'</td><td style="font-size:12.5px">'+esc(k.definisi)+'</td></tr>'; });
-      return h+'</table></div>'; };
-    tabs.level = ()=> '<div class="hint" style="margin-bottom:8px">Level yang dipersyaratkan jabatan ini ditandai hijau. Indikator adalah perilaku yang harus terlihat pada level tersebut.</div>'+
-      kompU.map(k=>'<details class="card ds-det"><summary><b>'+esc(k.nama)+'</b><span class="badge badge-grey">syarat Level '+k.required+'</span></summary><ol class="ds-lv">'+
-        k.levelDetail.map(l=>'<li class="'+(l.level===k.required?'req':'')+'"><div><b>Level '+l.level+' · '+l.label+'</b>'+(l.level===k.required?' <span class="badge badge-green">syarat jabatan</span>':'')+'</div>'+(l.definisi?'<div>'+esc(l.definisi)+'</div>':'')+
-          (l.indikator.length ? '<ul class="ds-ind">'+l.indikator.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>' : '')+'</li>').join("")+'</ol></details>').join("");
-    tabs.dev = ()=>{ const ada70 = kompU.some(k=>k.p70), ada20 = kompU.some(k=>k.p20);
-      return '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi</th>'+(ada70?'<th>70 · Penugasan nyata</th>':'')+(ada20?'<th>20 · Belajar dari</th>':'')+'<th>10 · Training formal</th></tr>'+
-        kompU.map(k=>{ const jr = dsRingkasJalur(k).filter(x=>x.training), t = jr.length ? jr[0].training : null;
-          return '<tr><td><b>'+esc(k.nama)+'</b></td>'+(ada70?'<td style="font-size:12.5px">'+esc(k.p70||"")+'</td>':'')+(ada20?'<td style="font-size:12.5px">'+esc(k.p20||"")+'</td>':'')+'<td style="font-size:12.5px">'+(t ? trn(t.kode, t.judul) : '<span class="hint">-</span>')+'</td></tr>'; }).join("")+'</table></div>'+
-        '<div class="hint">Penugasan dan coaching tidak dihitung jam. Training formal dipakai bila asesmen menunjukkan gap.</div>'; };
-    tabs.tna = ()=>{
-      const wj = r.wajib.length ? '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Training</th><th>Metode</th><th>Durasi</th><th>Dasar penetapan</th></tr>'+r.wajib.map(w=>'<tr><td>'+trn(w.kode, w.judul)+'</td><td>'+esc(w.metode==="ONLINE"?"Online":"Klasikal")+'</td><td>'+esc(dsJam(w,dd))+'</td><td style="font-size:12.5px">'+esc(w.dasar)+'</td></tr>').join("")+'</table></div>' : '<div class="card"><div class="empty">Tidak ada training wajib khusus jabatan ini.</div></div>';
-      const gap = '<div class="card" style="overflow-x:auto"><table class="ds-t"><tr><th>Kompetensi (level syarat)</th><th>Bila level aktual</th><th>Training yang dijadwalkan</th></tr>'+
-        kompU.map(k=>{ const jr = dsRingkasJalur(k); if(!jr.length) return "";
-          return jr.map((x,i)=>'<tr>'+(i===0?'<td rowspan="'+jr.length+'"><b>'+esc(k.nama)+'</b><div class="hint" style="margin:2px 0 0">Level '+k.required+'</div></td>':'')+'<td>Level '+esc(x.rentang)+'</td><td>'+(x.training ? trn(x.training.kode, x.training.judul)+' <span class="hint">'+esc(dsJam(x.training,dd))+'</span>' : (x.sudahWajib ? '<span class="hint">sudah tertutup training wajib</span>' : '<span class="hint">ditutup lewat penugasan dan coaching</span>'))+'</td></tr>').join(""); }).join("")+'</table></div>';
-      const ihtBox = r.iht && r.iht.jamTotal ? '<div class="card"><b>IHT Sabtu di cabang</b><div class="hint">Total '+r.iht.jamTotal+' jam per tahun (selling '+r.iht.selling+', product knowledge '+r.iht.pk+', after sales '+r.iht.ass+', pengembangan diri '+r.iht.self+').</div></div>' : '';
-      return '<h3 class="ds-sub">Wajib bagi jabatan ini <span class="hint">'+(rg.jamWajib ? rg.jamWajib+' jam tercatat' : '')+(rg.jamBelumDitetapkan ? (rg.jamWajib?', ':'')+rg.jamBelumDitetapkan+' mengikuti penyelenggara' : '')+'</span></h3>'+wj+
-        '<h3 class="ds-sub">Dijadwalkan bila asesmen menunjukkan gap</h3>'+gap+ihtBox+'<div class="hint">Belum ada asesmen, jadi tidak ada gap atau jam per orang. Setelah atasan menilai, sistem memilih dari daftar ini sesuai level aktual masing-masing orang.</div>'; };
-    $("tna-matriks-body").innerHTML = kepala;
-    const tampil = (k)=>{ $("ds-isi").innerHTML = tabs[k](); document.querySelectorAll("#tna-matriks-body [data-ds]").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.ds===k))); };
-    document.querySelectorAll("#tna-matriks-body [data-ds]").forEach(b=> b.onclick = ()=> tampil(b.dataset.ds));
-    tampil("tugas");
-    if(tnaDaftarJab.length <= 1) $("btn-jab-kembali").style.display = "none";
-    $("btn-jab-kembali").onclick = ()=> renderDaftarJab($("inp-tna-cari-jab").value);
-    $("btn-ds-unduh").onclick = async ()=>{
-      const b = $("btn-ds-unduh"), st = $("ds-status"), asal = b.innerHTML; b.disabled = true; st.textContent = "Menyiapkan dokumen…";
-      try{
-        const h = await dsUnduh(r);
-        st.textContent = h.cara==="batal" ? "" : (h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama+". Jika unduhan tidak muncul, izinkan unduhan pada browser Anda.");
-      }catch(e){ st.textContent = "Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."; }
-      b.disabled = false; b.innerHTML = asal;
-    };
-  }catch(e){ $("tna-matriks-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+    const h = await dsUnduh(r);
+    status.textContent = h.cara==="batal" ? "" : (h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama+". Jika unduhan tidak muncul, izinkan unduhan pada browser Anda.");
+  }catch(e){ status.textContent = "Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."; }
+  tombol.disabled = false; tombol.innerHTML = asal;
 }
+
 
 /* ---------- Admin ---------- */
 const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","DurasiDefaultJam","MaksPersenIHT","JamSesiIHT","ProyeksiPesertaBST"];
