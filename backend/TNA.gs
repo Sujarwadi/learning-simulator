@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v3.4, 30 Okt 2026. Perubahan: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.5, 31 Okt 2026. Perubahan: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -487,6 +487,15 @@ function tnaKompetensiJabatan(ss, kodeJabatan) {
   });
 }
 
+// Penilaian ditahan sampai matriks jabatan disetujui. Admin dan tim L&D diberi langkah yang bisa langsung dikerjakan; yang lain pesan ramah.
+function tnaMatriksBelum(ss, auth, mj) {
+  var nama = mj ? String(mj.JobTitle || "") : "";
+  var dalam = tnaInternalLD(ss, auth, tnaParam(ss));
+  return { ok: false, kode: "MATRIKS_BELUM", jabatan: nama, bisaSetuju: auth.role === "admin",
+    error: dalam ? "Matriks jabatan " + (nama || "ini") + " belum disetujui, jadi penilaian belum bisa dibuka. Setujui dulu di Panel Admin TNA (centang jabatan, lalu Setujui Jabatan Terpilih)."
+      : "Penilaian untuk jabatan ini belum dibuka. Silakan hubungi Learning & Development." };
+}
+
 function tnaForm(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var p = tnaParam(ss), km = tnaPetaKaryawan(ss);
@@ -508,7 +517,7 @@ function tnaForm(ss, req) {
     target = { nik: t.NIK, nama: t.Nama, jabatan: t.Jabatan, cabang: t.Cabang };
   }
   var mj = tnaBaca(ss, "MasterJabatan").filter(function (j) { return j.KodeJabatan === kodeJabatan; })[0];
-  if (!mj || mj.StatusMatriks !== "APPROVED") return { ok: false, error: "Matriks kompetensi jabatan ini belum disetujui. Hubungi L&D." };
+  if (!mj || mj.StatusMatriks !== "APPROVED") return tnaMatriksBelum(ss, auth, mj);
   var komp = tnaKompetensiJabatan(ss, kodeJabatan);
 
   // Jawaban sebelumnya (supaya bisa dilanjutkan / direvisi selama window dibuka)
@@ -770,6 +779,8 @@ function tnaDosierJabatan(ss, req) {
     k.levelDetail = [1, 2, 3, 4, 5].map(function (n) {
       var r = ind[n], cek = (k.checklist[n - 2] || "");
       var daftar = r && r.Indikator ? String(r.Indikator).split("\n").filter(String) : (n >= 2 ? cek.split(/;\s*/).filter(String) : []);
+      // Level 1 (Awareness) tidak punya checklist; indikatornya seragam: memahami konsep dasar kompetensi (selaras skala level)
+      if (n === 1 && !daftar.length) daftar = ["Mampu menjelaskan pengertian dan fungsi " + (kd.Nama || k.nama) + " dalam pekerjaan", "Mengenali istilah dan ruang lingkup dasar " + (kd.Nama || k.nama) + " serta mengerjakannya dengan bimbingan"];
       return { level: n, label: TNA_NAMA_LEVEL[n], definisi: r ? String(r.DefinisiLevel || "") : String(k.levels[n - 1] || ""), indikator: daftar }; // master: definisi level boleh kosong (indikator sudah memuatnya)
     });
     // jalur training bila gap, per level awal
@@ -1350,7 +1361,7 @@ function tnaFormTim(ss, req) {
   var kode = req.kodeJabatan || (daftar[0] || {}).kode;
   if (!kode || !grup[kode]) return { ok: true, daftar: daftar, kodeJabatan: "", kompetensi: [], orang: [], window: tnaWindow(p).status };
   var mj = tnaBaca(ss, "MasterJabatan").filter(function (j) { return j.KodeJabatan === kode; })[0];
-  if (!mj || mj.StatusMatriks !== "APPROVED") return { ok: false, error: "Matriks kompetensi jabatan ini belum disetujui. Hubungi L&D." };
+  if (!mj || mj.StatusMatriks !== "APPROVED") return tnaMatriksBelum(ss, auth, mj);
   var prev = {}, sudah = {}, val = tnaPetaValidasi(ss, p), drafts = tnaDraftMilik(ss, p, auth.nik);
   tnaBaca(ss, "Asesmen").forEach(function (a) {
     if (a.Periode !== p.Periode || String(a.RaterNIK) !== auth.nik || a.KelompokID) return;
