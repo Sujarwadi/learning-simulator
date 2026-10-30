@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v3.0, 29 Okt 2026. Perubahan: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.1, 30 Okt 2026. Perubahan: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -304,13 +304,19 @@ function tnaR2(x) { return Math.round(Number(x) * 100) / 100; }
  * Login tetap memakai NIK + PIN di tab Users (handleLogin Kode.gs). Setiap aksi TNA mengirim nik + pin
  * dan divalidasi ulang di sini, karena otorisasi wajib di backend.
  * ============================================================ */
+// Google Sheets mengubah teks "0805" menjadi angka 805. PIN dibandingkan setelah dinormalkan ke 4 digit supaya PIN berawalan nol tetap cocok.
+function tnaPinNorm(v) {
+  var s = String(v == null ? "" : v).trim();
+  return /^[0-9]{1,3}$/.test(s) ? ("000" + s).slice(-4) : s;
+}
+
 function tnaAuth(ss, req) {
   var nik = String(req.nik || "").trim(), pin = String(req.pin || "").trim();
   if (!nik || !pin) return { ok: false, error: "Sesi berakhir, silakan login ulang." };
   var rows = ss.getSheetByName("Users").getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() !== nik) continue;
-    if (String(rows[i][1]).trim() !== pin) return { ok: false, error: "PIN salah, silakan login ulang." };
+    if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(pin)) return { ok: false, error: "PIN salah, silakan login ulang." };
     if (wajibGantiPinAktif(rows[i][8])) return { ok: false, error: "Ganti PIN dulu di halaman masuk sebelum mengisi asesmen." };
     return { ok: true, nik: nik, nama: String(rows[i][2]), role: String(rows[i][5] || "user").toLowerCase() };
   }

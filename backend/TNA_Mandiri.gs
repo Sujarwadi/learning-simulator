@@ -1,4 +1,4 @@
-/* BBLC TNA Engine, paket MANDIRI v1.0, 29 Okt 2026.
+/* BBLC TNA Engine, paket MANDIRI v1.1, 30 Okt 2026 (PIN berawalan nol). Sebelumnya v1.0, 29 Okt 2026.
  * Dipakai bila TNA berdiri sendiri: Google Sheet, project Apps Script, alamat web app, dan daftar user terpisah dari
  * Learning Simulator (keputusan user 29 Okt: beda user, beda objective). File ini menggantikan peran Kode.gs bagi TNA.
  * Pasang BERSAMA TNA.gs di project Apps Script baru (tanpa Kode.gs). Isi:
@@ -59,7 +59,7 @@ function tnaMandiriLogin(req) {
   var rows = sh.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() !== nik) continue;
-    if (String(rows[i][1]).trim() !== pin) return { ok: false, error: "NIK atau PIN salah." };
+    if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(pin)) return { ok: false, error: "NIK atau PIN salah." };
     var p = tnaMandiriProfil(rows, i);
     p.wajibGantiPin = wajibGantiPinAktif(rows[i][8]);
     return p;
@@ -70,7 +70,7 @@ function tnaMandiriLogin(req) {
 function tnaMandiriGantiPin(req) {
   var nik = String(req.nik || "").trim(), lama = String(req.pinLama || "").trim(), baru = String(req.pinBaru || "").trim();
   if (!/^[0-9]{4}$/.test(baru)) return { ok: false, error: "PIN baru harus tepat 4 angka." };
-  if (baru === lama) return { ok: false, error: "PIN baru harus berbeda dari PIN lama." };
+  if (tnaPinNorm(baru) === tnaPinNorm(lama)) return { ok: false, error: "PIN baru harus berbeda dari PIN lama." };
   var lock = LockService.getScriptLock();
   waitLockDenganRetry(lock, 15000, 3);
   try {
@@ -78,8 +78,8 @@ function tnaMandiriGantiPin(req) {
     var rows = sh.getDataRange().getValues();
     for (var i = 1; i < rows.length; i++) {
       if (String(rows[i][0]).trim() !== nik) continue;
-      if (String(rows[i][1]).trim() !== lama) return { ok: false, error: "PIN lama salah." };
-      sh.getRange(i + 1, 2).setValue(baru);
+      if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(lama)) return { ok: false, error: "PIN lama salah." };
+      var sel = sh.getRange(i + 1, 2); sel.setNumberFormat("@"); sel.setValue(baru); // teks, supaya 0805 tidak menjadi 805
       sh.getRange(i + 1, 9).setValue(false);
       rows[i][1] = baru;
       return tnaMandiriProfil(rows, i);
@@ -99,7 +99,9 @@ function tnaSetupMandiri() {
   if (sh.getLastRow() < 1) sh.getRange(1, 1, 1, TNA_USERS_HEADER.length).setValues([TNA_USERS_HEADER]).setFontWeight("bold");
   var v = sh.getDataRange().getValues(), ada = false;
   for (var i = 1; i < v.length; i++) if (String(v[i][0]).trim() === NIK_ADMIN) ada = true;
-  if (!ada) sh.appendRow([NIK_ADMIN, PIN_ADMIN, "Admin L&D", "HO", "Learning & Development", "Admin", "", "", false]);
+  sh.getRange("B:B").setNumberFormat("@"); // kolom PIN berformat teks (PIN berawalan nol aman)
+  if (ada) { for (var k = 1; k < v.length; k++) if (String(v[k][0]).trim() === NIK_ADMIN) sh.getRange(k + 1, 2).setValue(PIN_ADMIN); }
+  else sh.appendRow([NIK_ADMIN, PIN_ADMIN, "Admin L&D", "HO", "Learning & Development", "Admin", "", "", false]);
   tnaSetup();
   Logger.log("Setup mandiri selesai. Admin awal: " + NIK_ADMIN + ". Lanjut jalankan tnaImportPaket.");
 }
