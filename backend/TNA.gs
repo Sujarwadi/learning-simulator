@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v3.2, 30 Okt 2026. Perubahan: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.3, 30 Okt 2026. Perubahan (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -118,7 +118,7 @@ var TNA_PARAM_DEFAULT = [
   ["KodeBST", "D-BST", "Kode katalog BST: slot tetap tiap awal bulan (tgl 1-3, Minggu dilewati)"],
   ["ProyeksiPesertaBST", 63, "Proyeksi peserta per batch BST bulanan (calon sales baru + karyawan); referensi BST 1-2 Sep 2026"],
   ["KodeJabatanLD", "J013,J014,J015,J023", "Kode jabatan tim L&D (Instructor, L&D Dept Head, L&D Section Head, Training Supervisor): melihat catatan internal seperti admin"],
-  ["KodeJabatanMatrix", "", "Kode jabatan tambahan yang boleh membuka Pusat Matrix selain admin dan atasan dua tingkat (Dept Head, Div Head, Kacab), pisahkan dengan koma"],
+  ["KodeJabatanMatrix", "", "Kode jabatan yang boleh membuka Pusat Matrix selain admin, dipisah koma. Kosong = bawaan: Dept Head, Div Head, Branch Head, dan Direksi"],
   ["JendelaKhusus", JSON.stringify({ "BMDP-01": [1], "BMDP-02": [1], "BMDP-03": [1], "BMDP-05": [1], "BMDP-10": [1],
     "BMDP-04": [1], "BMDP-07": [1], "BMDP-08": [1], "BMDP-06": [7], "BMDP-09": [7], "W-PK27": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     "D-IST": [2, 5, 8, 11], "D-LEAS": [2, 5, 8, 11], "D-AST": [3, 6, 9, 12], "D-FLEET": [3, 6, 9, 12], "D-MENTOR": [3, 6, 9, 12],
@@ -179,6 +179,7 @@ function handleTNA(req) {
     case "tnaTrainingTim": return tnaTrainingTim(ss, req);
     case "tnaPantau": return tnaPantau(ss, req);
     case "tnaRealisasi": return tnaRealisasi(ss, req);
+    case "tnaResetPin": return tnaResetPin(ss, req);
     case "tnaPengingat": return tnaPengingat(ss, req);
     case "tnaJadwalkan": return tnaJadwalkanEndpoint(ss, req);
     case "tnaKatalog": return tnaKatalog(ss, req);
@@ -311,13 +312,21 @@ function tnaPinNorm(v) {
   return /^[0-9]{1,3}$/.test(s) ? ("000" + s).slice(-4) : s;
 }
 
+// Pembatasan tebakan PIN: 5 salah berturut-turut mengunci NIK itu 15 menit (hitungan di cache script, diperpanjang tiap salah).
+var TNA_MAKS_SALAH = 5, TNA_PESAN_KUNCI = "Terlalu banyak percobaan PIN. Coba lagi 15 menit lagi, atau hubungi Learning & Development.";
+function tnaKunciGagal(nik) { try { return Number(CacheService.getScriptCache().get("pinx|" + nik) || 0) >= TNA_MAKS_SALAH; } catch (e) { return false; } }
+function tnaCatatGagal(nik) { try { var c = CacheService.getScriptCache(), n = Number(c.get("pinx|" + nik) || 0) + 1; c.put("pinx|" + nik, String(n), 900); } catch (e) { } }
+function tnaBersihGagal(nik) { try { var c = CacheService.getScriptCache(); if (c.get("pinx|" + nik)) c.remove("pinx|" + nik); } catch (e) { } }
+
 function tnaAuth(ss, req) {
   var nik = String(req.nik || "").trim(), pin = String(req.pin || "").trim();
   if (!nik || !pin) return { ok: false, error: "Sesi berakhir, silakan login ulang." };
+  if (tnaKunciGagal(nik)) return { ok: false, error: TNA_PESAN_KUNCI };
   var rows = ss.getSheetByName("Users").getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() !== nik) continue;
-    if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(pin)) return { ok: false, error: "PIN salah, silakan login ulang." };
+    if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(pin)) { tnaCatatGagal(nik); return { ok: false, error: "PIN salah, silakan login ulang." }; }
+    tnaBersihGagal(nik);
     if (wajibGantiPinAktif(rows[i][8])) return { ok: false, error: "Ganti PIN dulu di halaman masuk sebelum mengisi asesmen." };
     return { ok: true, nik: nik, nama: String(rows[i][2]), role: String(rows[i][5] || "user").toLowerCase() };
   }
@@ -372,14 +381,16 @@ function tnaJabatanLingkup(ss, auth) {
   return ok;
 }
 // Pusat Matrix (Competency dan Training Matrix) untuk level Dept Head ke atas, agar dapat memetakan pengembangan timnya.
-// Aturan: admin; atau pemegang jabatan di parameter KodeJabatanMatrix; atau punya bawahan langsung yang juga memimpin bawahan
-// (dua tingkat ke bawah: Dept Head, Div Head, Kacab). Section Head, Supervisor, dan staf tidak.
+// Aturan (berdasarkan jabatan, sama dengan jenjang di data: Dept Head, Div Head, Branch Head, Direksi): admin; atau pemegang jabatan
+// di parameter KodeJabatanMatrix; bila parameter kosong dipakai daftar bawaan di bawah. (Aturan "punya bawahan dua tingkat" dibuang:
+// pada data nyata 8 dari 13 Dept Head tidak lolos, sedangkan Service Head cabang justru lolos.)
+var TNA_JAB_MATRIX_BAWAAN = "J007,J010,J011,J014,J024,J026,J027,J030,J031,J033,J036,J038,J039,J045,J049,J056,J057,J058,J060,J063,J093,J101";
 function tnaBolehMatrix(ss, auth, p) {
   if (auth.role === "admin") return true;
-  var km = tnaPetaKaryawan(ss), saya = km[auth.nik];
-  var kode = String((p || tnaParam(ss)).KodeJabatanMatrix || "").split(/[,;]\s*/).filter(String);
-  if (saya && kode.indexOf(String(saya.KodeJabatan)) !== -1) return true;
-  return tnaLingkupTampil(auth, km, "", "langsung").some(function (k) { return tnaLingkupTampil({ nik: k.NIK, role: "" }, km, "", "langsung").length > 0; });
+  var km = tnaPetaKaryawan(ss, true), saya = km[auth.nik];
+  var param = String((p || tnaParam(ss)).KodeJabatanMatrix || "").trim();
+  var kode = (param || TNA_JAB_MATRIX_BAWAAN).split(/[,;]\s*/).filter(String);
+  return !!saya && kode.indexOf(String(saya.KodeJabatan)) !== -1;
 }
 function tnaKonteks(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
@@ -1580,6 +1591,27 @@ function tnaRealisasi(ss, req) {
     kolom: ["NIK", "Nama", "Cabang", "Dept", "Divisi", "Jabatan", "Penilai", "PenilaiNIK", "StatusSelf", "TglSelf", "StatusAtasan", "TglAtasan", "Validasi", "Status", "TglSelesai"] };
 }
 
+// Reset PIN oleh admin atau tim L&D (jawaban atas "Lupa PIN"): PIN acak baru, wajib diganti saat login pertama, kunci percobaan dibuka.
+function tnaResetPin(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (!tnaInternalLD(ss, auth, tnaParam(ss))) return { ok: false, error: "Reset PIN hanya untuk admin dan tim L&D." };
+  var target = String(req.target || "").trim();
+  var lock = LockService.getScriptLock();
+  waitLockDenganRetry(lock, 15000, 3);
+  try {
+    var sh = ss.getSheetByName("Users"), v = sh.getDataRange().getValues();
+    for (var i = 1; i < v.length; i++) {
+      if (String(v[i][0]).trim() !== target) continue;
+      var pinBaru = String(1000 + Math.floor(Math.random() * 9000)), sel = sh.getRange(i + 1, 2);
+      sel.setNumberFormat("@"); sel.setValue(pinBaru); sh.getRange(i + 1, 9).setValue(true);
+      tnaBersihGagal(target);
+      tnaLog(ss, auth.nik, "resetPin", target);
+      return { ok: true, nik: target, nama: String(v[i][2] || ""), pin: pinBaru };
+    }
+    return { ok: false, error: "NIK tidak ditemukan di daftar pengguna." };
+  } finally { lock.releaseLock(); }
+}
+
 function tnaPantau(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
@@ -2050,13 +2082,17 @@ function tnaITPSaya(ss, req) {
 function tnaKatalog(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   var nama = {}; tnaBaca(ss, "Kamus").forEach(function (k) { nama[k.KodeKompetensi] = k.Nama; });
+  var internal = tnaInternalLD(ss, auth);
+  // Catatan internal (status pengadaan, sumber file, tautan Drive) hanya dikirim ke admin dan tim L&D; bukan sekadar disembunyikan di layar.
   var katalog = tnaBaca(ss, "Katalog").filter(function (c) { return String(c.Status).toUpperCase() !== "NONAKTIF"; }).map(function (c) {
     return { kode: String(c.KodeTraining), judul: c.Judul, kategori: c.Kategori, metode: c.Metode, jam: c.DurasiJam, level: c.LevelTarget,
-      status: c.Status, sumber: c.SumberFile, link: c.Link,
+      status: internal ? c.Status : (String(c.Status) === "USULAN_PENGADAAN" ? "USULAN_PENGADAAN" : "AKTIF"), sumber: internal ? c.SumberFile : "", link: internal ? c.Link : "",
       kompetensi: String(c.KodeKompetensi || "").split(/[,;]\s*/).filter(String).map(function (k) { return nama[k] || k; }).join(", ") };
   });
   var silabus = tnaBaca(ss, "Silabus").map(function (s) {
-    var o = {}; TNA_TAB.Silabus.forEach(function (h) { o[h] = s[h] === undefined || s[h] === null ? "" : String(s[h]); }); return o;
+    var o = {}; TNA_TAB.Silabus.forEach(function (h) { o[h] = s[h] === undefined || s[h] === null ? "" : String(s[h]); });
+    if (!internal) { o.Status = o.Status === "BELUM_ADA_SILABUS" ? o.Status : "ADA"; o.DiperbaruiOleh = ""; o.Timestamp = ""; if (!/^RUJUKAN:/i.test(o.Sumber)) o.Sumber = ""; }
+    return o;
   });
   return { ok: true, katalog: katalog, silabus: silabus, admin: auth.role === "admin" };
 }

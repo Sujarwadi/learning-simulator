@@ -1,4 +1,4 @@
-/* BBLC TNA Engine, paket MANDIRI v1.2, 30 Okt 2026 (nama dan jabatan dari data karyawan). v1.1 (PIN berawalan nol). Sebelumnya v1.0, 29 Okt 2026.
+/* BBLC TNA Engine, paket MANDIRI v1.3, 30 Okt 2026 (batas percobaan PIN). v1.2, 30 Okt 2026 (nama dan jabatan dari data karyawan). v1.1 (PIN berawalan nol). Sebelumnya v1.0, 29 Okt 2026.
  * Dipakai bila TNA berdiri sendiri: Google Sheet, project Apps Script, alamat web app, dan daftar user terpisah dari
  * Learning Simulator (keputusan user 29 Okt: beda user, beda objective). File ini menggantikan peran Kode.gs bagi TNA.
  * Pasang BERSAMA TNA.gs di project Apps Script baru (tanpa Kode.gs). Isi:
@@ -62,10 +62,12 @@ function tnaMandiriLogin(req) {
   if (!nik || !pin) return { ok: false, error: "NIK dan PIN wajib diisi." };
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Users");
   if (!sh) return { ok: false, error: "Data pengguna belum disiapkan. Hubungi Learning & Development." };
+  if (tnaKunciGagal(nik)) return { ok: false, error: TNA_PESAN_KUNCI };
   var rows = sh.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() !== nik) continue;
-    if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(pin)) return { ok: false, error: "NIK atau PIN salah." };
+    if (tnaPinNorm(rows[i][1]) !== tnaPinNorm(pin)) { tnaCatatGagal(nik); return { ok: false, error: "NIK atau PIN salah." }; }
+    tnaBersihGagal(nik);
     var p = tnaMandiriProfil(rows, i);
     p.wajibGantiPin = wajibGantiPinAktif(rows[i][8]);
     return p;
