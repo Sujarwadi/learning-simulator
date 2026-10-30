@@ -1,4 +1,4 @@
-/* BBLC TNA Engine, paket MANDIRI v1.1, 30 Okt 2026 (PIN berawalan nol). Sebelumnya v1.0, 29 Okt 2026.
+/* BBLC TNA Engine, paket MANDIRI v1.2, 30 Okt 2026 (nama dan jabatan dari data karyawan). v1.1 (PIN berawalan nol). Sebelumnya v1.0, 29 Okt 2026.
  * Dipakai bila TNA berdiri sendiri: Google Sheet, project Apps Script, alamat web app, dan daftar user terpisah dari
  * Learning Simulator (keputusan user 29 Okt: beda user, beda objective). File ini menggantikan peran Kode.gs bagi TNA.
  * Pasang BERSAMA TNA.gs di project Apps Script baru (tanpa Kode.gs). Isi:
@@ -48,7 +48,13 @@ function tnaMandiriRute(req) {
 function tnaMandiriProfil(rows, i) {
   var nik = String(rows[i][0]).trim(), adaBawahan = false;
   for (var j = 1; j < rows.length; j++) if (String(rows[j][6] || "").trim() === nik) { adaBawahan = true; break; }
-  return { ok: true, nik: nik, nama: String(rows[i][2] || ""), jabatan: String(rows[i][4] || ""), role: String(rows[i][5] || "user").toLowerCase(), isAtasan: adaBawahan };
+  var nama = String(rows[i][2] || ""), jabatan = String(rows[i][4] || "");
+  // Nama dan jabatan resmi diambil dari data karyawan (hasil import); isi tab Users hanya cadangan (mis. baris admin awal)
+  try {
+    var k = tnaPetaKaryawan(SpreadsheetApp.getActiveSpreadsheet(), true)[nik];
+    if (k) { nama = String(k.Nama || nama); jabatan = String(k.Jabatan || jabatan); }
+  } catch (e) { Logger.log("profil: " + e.message); }
+  return { ok: true, nik: nik, nama: nama, jabatan: jabatan, role: String(rows[i][5] || "user").toLowerCase(), isAtasan: adaBawahan };
 }
 
 function tnaMandiriLogin(req) {
