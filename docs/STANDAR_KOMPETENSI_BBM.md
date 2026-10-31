@@ -95,12 +95,13 @@ Dijalankan setiap paket data import dibangun. Target semua butir adalah 0, kecua
 | Q9 | Istilah sistem yang sudah tidak berlaku (contoh: e-Faktur sebagai saluran SPT Masa PPN sejak Coretax DJP, PMK 81/2024) |
 | Q10 | Ejaan tidak baku pada isi buatan Studio |
 
-## 8. Hasil penerapan pertama (31 Okt 2026)
+## 8. Hasil penerapan (31 Okt 2026)
 
-- 157 kompetensi yang dipakai di 101 jabatan (setelah 7 Tools L&D digabung) memenuhi Q5 (5 level, definisi level, minimal 2 key behavior).
+- Semua kompetensi yang dipakai di 101 jabatan memenuhi Q5 (5 level, definisi level, minimal 2 key behavior).
 - Tools Finance dan L&D digabung menjadi satu set TC-TL-01..07.
-- Semua 1.796 baris tugas punya Bukti Penilaian dan Sumber.
-- Butir yang belum 0 dan menunggu keputusan manusia: Q3 (1, master Finance), Q4 (154: 17 di jabatan master, 137 di jabatan draf), Q6 (28 di master/FINAL), Q7b (1, FINAL), Q8 (4 jabatan tanpa JD), Q9 (2 jabatan pajak). Rinciannya ada di laporan QA yang dibagikan terpisah (tidak disimpan di repo).
+- Semua baris tugas punya Bukti Penilaian dan Sumber; 5 jabatan yang belum punya JD resmi mendapat JD susunan L&D.
+- QA Q1 dan Q3-Q10 = 0. Q2 = 17 baris tugas Direksi (jabatan DIKECUALIKAN, memang tanpa kompetensi teknis).
+- Rincian perubahan per jabatan ada di catatan admin yang dibagikan terpisah (tidak disimpan di repo).
 
 ## 9. Rujukan (dicek 31 Okt 2026)
 
