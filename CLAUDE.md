@@ -44,6 +44,9 @@ Deadline keras: pilot Sen 26 Okt 2026, window asesmen 27 Okt sampai 3 Nov 23:59 
 - **Backend:** `clasp push`, lalu di editor Apps Script buka **Deploy > Manage deployments > ✏️ > Version: New version > Deploy**. Lupa langkah ini = Web App tetap memakai kode lama (sumber kebingungan #1 di proyek ini).
 - Re-otorisasi OAuth (setelah ubah `oauthScopes`) dilakukan di jendela Incognito dengan satu akun. Scope Drive pakai `drive.file`, jangan `drive` penuh. Pengecualian: membaca folder JD/modul milik user bisa butuh `drive.readonly`, jadi konfirmasi ke user dulu.
 
+## Standar kompetensi
+Setiap perubahan kamus, uraian tugas, atau matriks kompetensi WAJIB mengikuti `docs/STANDAR_KOMPETENSI_BBM.md` (5 level, definisi level + minimal 2 key behavior observable, keterlacakan matriks ke tugas, QA Q1-Q10). Isi master milik fungsi dan kamus FINAL tidak diubah sepihak; temuan dicatat sebagai usulan koreksi.
+
 ## Dokumen & presentasi
 Setiap PPT, proposal, atau dokumen untuk user WAJIB mengikuti `docs/STANDAR_DOKUMEN.md` (judul slide headline 2-6 kata, bukan kalimat; alur ringkasan-situasi-masalah-solusi-keputusan; satu halaman per komponen; tanpa nama perusahaan pembanding; render & periksa sebelum kirim; file diberi akhiran versi).
 

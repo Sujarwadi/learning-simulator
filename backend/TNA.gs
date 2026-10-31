@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v3.5, 31 Okt 2026. Perubahan: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.6, 31 Okt 2026. Perubahan: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -74,10 +74,10 @@ var TNA_TAB = {
   MasterJabatan: ["KodeJabatan", "JobTitle", "Dept", "Lokasi", "JmlIncumbent", "ModeAsesmen", "FileJD", "LinkJD", "StatusJD",
     "StatusMatriks", "Versi", "DisetujuiOleh", "DisetujuiPada", "Catatan"],
   Kamus: ["KodeKompetensi", "Nama", "Kategori", "Definisi", "L1", "L2", "L3", "L4", "L5", "Status", "Kelompok"],
-  Indikator: ["KodeKompetensi", "Level", "Label", "DefinisiLevel", "Indikator"],
+  Indikator: ["KodeKompetensi", "Level", "Label", "DefinisiLevel", "Indikator", "Sumber"],
   Checklist: ["KodeKompetensi", "C2", "C3", "C4", "C5"],
   Matriks: ["KodeJabatan", "KodeKompetensi", "RequiredLevel", "Bobot", "Sumber", "Flag"],
-  Task: ["KodeJabatan", "NoTugas", "TugasUtama", "Task", "KodeKompetensi", "SubProses", "SubSubProses", "Pengetahuan", "StandarKinerja", "SubStandar", "KSA", "LevelAktivitas"],
+  Task: ["KodeJabatan", "NoTugas", "TugasUtama", "Task", "KodeKompetensi", "SubProses", "SubSubProses", "Pengetahuan", "StandarKinerja", "SubStandar", "KSA", "LevelAktivitas", "Sumber", "BuktiPenilaian"],
   Intervensi: ["KodeKompetensi", "Tipe", "Deskripsi"],
   Katalog: ["KodeTraining", "Judul", "Kategori", "KodeKompetensi", "LevelTarget", "Metode", "DurasiJam", "SumberFile", "Link", "Status", "SasaranJabatan"],
   Mandatory: ["KodeJabatan", "KodeTraining", "Dasar"],
@@ -758,7 +758,8 @@ function tnaDosierJabatan(ss, req) {
     var tg = idx[key], nm = String(t.Task || "").trim(), ak = tg._a[nm];
     if (!ak) {
       ak = tg._a[nm] = { task: nm, subProses: String(t.SubProses || ""), subSubProses: String(t.SubSubProses || ""), pengetahuan: String(t.Pengetahuan || ""),
-        standar: String(t.StandarKinerja || ""), subStandar: String(t.SubStandar || ""), ksa: String(t.KSA || ""), level: t.LevelAktivitas === "" || t.LevelAktivitas == null ? "" : Number(t.LevelAktivitas), komp: [] };
+        standar: String(t.StandarKinerja || ""), subStandar: String(t.SubStandar || ""), ksa: String(t.KSA || ""), level: t.LevelAktivitas === "" || t.LevelAktivitas == null ? "" : Number(t.LevelAktivitas),
+        bukti: String(t.BuktiPenilaian || ""), komp: [] };
       tg.akt.push(ak);
     }
     if (t.KodeKompetensi) {
@@ -2316,8 +2317,8 @@ function tnaImport(fileIdImport) {
       if (v[i].join("") === "") continue;
       var o = {}; h.forEach(function (k, c) { o[k] = v[i][c]; }); rows.push(o);
     }
-    var opsional = { Karyawan: ["ValidatorNIK"], Katalog: ["SasaranJabatan"], Kamus: ["Kelompok"],
-      Task: ["SubProses", "SubSubProses", "Pengetahuan", "StandarKinerja", "SubStandar", "KSA", "LevelAktivitas"] }[nama] || [];
+    var opsional = { Karyawan: ["ValidatorNIK"], Katalog: ["SasaranJabatan"], Kamus: ["Kelompok"], Indikator: ["Sumber"],
+      Task: ["SubProses", "SubSubProses", "Pengetahuan", "StandarKinerja", "SubStandar", "KSA", "LevelAktivitas", "Sumber", "BuktiPenilaian"] }[nama] || [];
     var hilang = TNA_TAB[nama].filter(function (k) { return h.indexOf(k) === -1 && opsional.indexOf(k) === -1; });
     if (hilang.length) throw new Error("Tab " + nama + " kekurangan kolom: " + hilang.join(", "));
     tnaTulisUlang(ss, nama, rows);
