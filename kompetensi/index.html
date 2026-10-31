@@ -1,4 +1,5 @@
-<!-- BBLC Studio v3.27, 30 Okt 2026. Perubahan: backend TNA berdiri sendiri (alamat web app, Sheet "TNA 2027 DB", dan daftar user terpisah dari Learning Simulator); BACKEND_URL diganti. Sebelumnya v3.26: tanggal window asesmen tidak lagi tampil di halaman masuk dan panduan; bila belum diisi di Panel Admin, beranda menampilkan "Jadwal diumumkan L&D" dan form hanya dapat dilihat (mesin TNA v3.0). Sebelumnya v3.25: Pusat Matrix (competency dan training matrix) juga tersedia untuk level Dept Head ke atas (mesin TNA v2.8: atasan dengan bawahan yang juga memimpin bawahan, atau jabatan di parameter KodeJabatanMatrix) dengan data terbatas pada timnya sendiri; di HP panel kontrol dilipat menjadi satu baris ringkasan. Sebelumnya v3.24: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
+<!-- BBLC Studio v3.34, 31 Okt 2026. Perubahan: Standar Kompetensi BBM v1.0 (docs/STANDAR_KOMPETENSI_BBM.md): dokumen Excel jabatan menambah kolom Bukti Penilaian (apa yang dicek atasan saat menilai). Asal setiap isi (JD verbatim, master, atau draf) dicatat di kolom Sumber pada Sheet, tidak dicetak di dokumen. -->
+<!-- BBLC Studio v3.33, 31 Okt 2026. Perubahan: dokumen Excel jabatan seragam setara master L&D untuk semua jabatan (Pengetahuan, Standar Kinerja, Bila Tidak Terpenuhi, KSA, Level, Kompetensi) dan selalu tanpa catatan internal; layar penilaian bagi admin menjelaskan langkah menyetujui matriks jabatan (bukan "Hubungi L&D"). Sebelumnya v3.32: gerbang rilis ITP (kartu "Rilis ITP ke Karyawan" di Panel Admin; sebelum dirilis karyawan dan atasan melihat pesan "belum dirilis"), target jam ditampilkan sesuai parameter (bawaan 5 jam per bulan), tombol Unduh PIN awal per dept (admin), jabatan dikecualikan tidak ikut persetujuan massal. Sebelumnya v3.31 (hasil audit): pesan error teknis tidak lagi tampil ke pengguna (koneksi putus, server bermasalah), label kolom isian terhubung untuk pembaca layar, zoom layar tidak lagi dikunci, tombol Reset PIN di Monitor Realisasi, judul halaman. Sebelumnya v3.30: Monitor Realisasi (khusus admin dan tim L&D): status pengisian per orang (nilai diri, penilaian atasan, validasi), KPI, tren selesai per hari, rekap per divisi, dept, cabang, dan penilai yang dapat diklik untuk menyaring, daftar orang yang dapat diurutkan, perbarui otomatis tiap 60 detik, dan unduh Excel (mesin TNA v3.2). Sebelumnya v3.29: header menampilkan nama dan jabatan resmi dari data karyawan plus penanda "Akses admin" bagi admin, supaya peran jabatan dan peran sistem tidak rancu (paket mandiri v1.2). Sebelumnya v3.28: teks halaman masuk tidak lagi menyebut Learning Simulator; PIN berawalan nol dikenali (mesin TNA v3.1). Sebelumnya v3.27: backend TNA berdiri sendiri (alamat web app, Sheet "TNA 2027 DB", dan daftar user terpisah dari Learning Simulator); BACKEND_URL diganti. Sebelumnya v3.26: tanggal window asesmen tidak lagi tampil di halaman masuk dan panduan; bila belum diisi di Panel Admin, beranda menampilkan "Jadwal diumumkan L&D" dan form hanya dapat dilihat (mesin TNA v3.0). Sebelumnya v3.25: Pusat Matrix (competency dan training matrix) juga tersedia untuk level Dept Head ke atas (mesin TNA v2.8: atasan dengan bawahan yang juga memimpin bawahan, atau jabatan di parameter KodeJabatanMatrix) dengan data terbatas pada timnya sendiri; di HP panel kontrol dilipat menjadi satu baris ringkasan. Sebelumnya v3.24: layar dan menu "Dosier Jabatan" dihapus; dokumen Excel lengkap per jabatan diunduh langsung dari profil jabatan di Pusat Matrix (satu klik, nama berkas Dokumen_Jabatan_...); materi Pengayaan "Produktivitas Digital" kini Microsoft 365 dan Copilot (bukan Google Workspace). Sebelumnya v3.23: Pusat Matrix selebar layar; "Cara membaca dan sorotan" tidak lagi di kolom kanan, tampil sebagai pop-up sekali saat pertama dibuka (hilang setelah dibaca, dapat dibuka lagi lewat tombol, legenda warna tetap ringkas di atas tabel, tetap tercetak di PDF). Sebelumnya v3.22 (koreksi user 29 Okt): unduhan dosier memakai kapabilitas downloads di pratinjau claude.ai (sandbox memblokir unduhan langsung) dan tautan unduh di aplikasi biasa, dengan status yang terlihat; kontrol Pusat Matrix dipindah ke panel kiri bergaya dashboard; dosier jabatan hanya untuk jabatan sendiri dan tim bagi non-L&D (dicek di backend) dan langsung terbuka bila hanya satu; menu Landasan Metodologi hanya untuk tim L&D dan menu Studio Kompetensi lama dihapus dari beranda; halaman silabus identik untuk semua pengguna, catatan proses (draf, materi belum siap, sumber, tombol tandai final) pindah ke panel tertutup Khusus tim L&D di bagian bawah. -->
 <!-- BBLC Studio v3.21, 29 Okt 2026. Perubahan (koreksi user 29 Okt): Dosier Jabatan menghasilkan dokumen Excel 6 sheet bergaya master kompetensi teknis L&D dengan satu klik (breakdown tugas dan KSA, kamus 5 level + indikator, skala level, matriks departemen, rencana 70/20/10, TNA standar jabatan), dibuat langsung di browser tanpa library; tombol cetak PDF dihapus; layar dosier diringkas menjadi lima tab; kompetensi teknis master Finance dan L&D Section Head menggantikan data otomatis; Communication Skill dibuang dari kompetensi teknis (sudah ada di Behavioral); teks coaching seragam dihapus; kolom pembanding matriks hanya jabatan yang berbagi kompetensi teknis. -->
 <!-- BBLC Studio v3.20, 28 Okt 2026. Perubahan: Dosier Jabatan (tile Referensi, sebelumnya Matriks Kompetensi Jabatan): satu jabatan lengkap tanpa menunggu asesmen, yaitu tugas utama dan task beserta kompetensinya, kompetensi dan level syarat, lima level dengan indikator perilaku, rencana 70/20/10, training wajib dan jalur training bila gap, cetak PDF tema terang; tombol 'Buka dosier lengkap' di laci profil jabatan Pusat Matrix; durasi training baru dari katalog (mesin TNA v2.7). -->
 <!-- BBLC Studio v3.19, 28 Okt 2026. Perubahan (koreksi user 28 Okt): catatan internal L&D (status draf, materi belum siap, flag kualitas penilai, status matriks) hanya tampil untuk admin dan tim L&D, pengguna lain melihat tampilan rapi tanpa itu; flag kualitas penilai dijelaskan dalam satu kotak per hasil (bukan label di tiap kompetensi); Progres, Dashboard Tim, Training Tim, dan Pusat Matrix memakai lingkup eksplisit dengan switch Tim langsung / Seluruh bawahan / Seluruh BBM (admin) dan jumlah orang; teks gerbang panduan dan legenda matrix tidak lagi terpisah jauh (anonymous flex item); perbaikan bentrok class .tiles yang membuat beranda meluber di layar sempit; placeholder silabus lama dibersihkan dari tampilan. -->
@@ -29,14 +30,14 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>BBLC Competency Development Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TNA 2027 · Bosowa Berlian Learning Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 /* ================== KONFIGURASI BACKEND ==================
-   Tempel URL Web App yang SAMA PERSIS dengan yang dipakai
-   Learning Simulator (satu backend, satu database). */
+   Alamat Web App backend TNA (project Apps Script dan Sheet "TNA 2027 DB"
+   milik TNA sendiri, terpisah dari Learning Simulator sejak v3.27). */
 window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbzSz2-aP5GzUefhRieVFhMwnGqn1l-eGiIjSswB3Qk1RX7pnN14NbX6CWJB0H3ngsKB/exec";
 </script>
 <style>
@@ -433,6 +434,42 @@ body.internal span.khusus-ld{display:inline}
 .mx-side #mx-pilih{width:100%;min-width:0}
 .mx-side .mx-pdf{margin-left:0;width:100%;justify-content:center}
 .mx-side .chips{flex-wrap:wrap}
+/* ---------- Monitor Realisasi ---------- */
+.rz-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.rz-act{display:flex;gap:8px;flex-wrap:wrap}.rz-act .btn{width:auto;flex:none}
+.rz-kpi{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.rz-kpi .chip-k.g .n{color:var(--green)}.rz-kpi .chip-k.a .n{color:var(--amber)}.rz-kpi .chip-k.r .n{color:var(--red)}
+.rz-kpi .chip-k .l small{display:block;color:var(--muted);font-size:11px}
+.rz-stack{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--inset);border:1px solid var(--line)}
+.rz-stack i{display:block;height:100%}.rz-stack .g{background:var(--green)}.rz-stack .a{background:var(--amber)}.rz-stack .r{background:var(--red)}
+.rz-leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.rz-leg b{color:var(--ink)}
+.rz-hari{display:flex;align-items:flex-end;gap:4px;height:130px;padding-top:18px}
+.rz-col{flex:1;min-width:14px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10.5px;color:var(--muted);position:relative}
+.rz-col .b{width:100%;max-width:26px;background:var(--green);border-radius:4px 4px 0 0;min-height:2px}
+.rz-col .n{font-size:10.5px;color:var(--ink);font-weight:700;margin-bottom:2px}
+.rz-col.ini .b{background:var(--accent)}.rz-col.kosong .b{background:var(--line-strong)}
+.rz-col .t{margin-top:4px;white-space:nowrap}
+.rz-filter{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end}
+.rz-ctl{display:flex;flex-direction:column;gap:4px;min-width:150px}
+.rz-ctl label{font-size:12px;color:var(--muted);font-weight:600}
+.rz-ctl select,.rz-ctl input{min-height:40px}
+.rz-q{flex:1;min-width:220px}
+.rz-chip:empty{display:none}
+.rz-pin{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:0 0 10px;color:var(--ink);font-size:13.5px}.rz-pin b.pin{font-size:20px;letter-spacing:.2em;color:var(--accent-hi);font-variant-numeric:tabular-nums}
+.rz-chip button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.rz-gh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.rz-scroll{overflow-x:auto}
+.rz-t{width:100%;border-collapse:collapse;font-size:13px}
+.rz-t th{text-align:left;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+.rz-t th[aria-sort="ascending"]::after{content:" \25B2";font-size:9px}.rz-t th[aria-sort="descending"]::after{content:" \25BC";font-size:9px}
+.rz-t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.rz-t tr.klik{cursor:pointer}.rz-t tr.klik:hover td{background:var(--inset)}
+.rz-t .num{text-align:right;font-variant-numeric:tabular-nums}
+.rz-t .nm{font-weight:700;color:var(--ink)}.rz-t .sm{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+.rz-mini{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--inset);min-width:90px}
+.rz-mini i{display:block}.rz-mini .g{background:var(--green)}.rz-mini .a{background:var(--amber)}
+@media (max-width:720px){.rz-ctl{min-width:120px;flex:1}.rz-hari{gap:2px}}
 .mx-side-toggle{display:none}
 .mx-side-isi{display:flex;flex-direction:column;gap:18px}
 @media (max-width:980px){
@@ -627,7 +664,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div class="lp-card">
           <span class="badge badge-green">Portal Karyawan</span>
           <h2>Masuk ke TNA 2027</h2>
-          <p class="lp-sub">Gunakan NIK dan PIN yang sama dengan Learning Simulator.</p>
+          <p class="lp-sub">Gunakan NIK dan PIN yang diberikan Learning &amp; Development.</p>
           <label for="inp-nik">NIK</label>
           <input type="text" id="inp-nik" inputmode="numeric" autocomplete="username" placeholder="Nomor Induk Karyawan">
           <label for="inp-pin">PIN</label>
@@ -830,6 +867,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <button class="tile" id="btn-tna-tim" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Dashboard Tim &amp; Training Tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Competency &amp; training matrix per jabatan, dept, divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-realisasi" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Monitor Realisasi</span><span class="tile-d">Siapa yang sudah dan belum mengisi, per divisi, dept, dan orang; diperbarui otomatis</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan Pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-katalog"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Katalog Training &amp; Silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-landasan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Landasan Metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
@@ -873,6 +911,39 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px"><div id="tna-progres-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div></div>
+  </section>
+
+  <!-- ============ TNA 2027: MONITOR REALISASI (admin dan tim L&D) ============ -->
+  <section class="screen" id="scr-tna-realisasi">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div style="min-width:0"><div class="app-title">MONITOR REALISASI</div><div class="app-sub" id="rz-sub">Status pengisian asesmen</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:1280px">
+      <div class="err" id="err-rz"></div>
+      <div class="rz-top"><div class="hint" id="rz-info" role="status">Memuat&hellip;</div>
+        <div class="rz-act"><button type="button" class="btn btn-ghost btn-kecil" id="btn-rz-muat">Muat ulang</button><button type="button" class="btn btn-ghost btn-kecil" id="btn-rz-xls">Unduh Excel</button><button type="button" class="btn btn-ghost btn-kecil" id="btn-rz-pin" style="display:none">Unduh PIN awal per dept</button></div></div>
+      <div class="rz-kpi" id="rz-kpi"></div>
+      <div class="card" id="rz-bar"></div>
+      <div class="card"><div class="sub-h">Penyelesaian per hari</div><div id="rz-hari"></div></div>
+      <div class="card rz-filter">
+        <div class="rz-ctl"><label for="rz-f-div">Divisi</label><select id="rz-f-div"></select></div>
+        <div class="rz-ctl"><label for="rz-f-dept">Dept</label><select id="rz-f-dept"></select></div>
+        <div class="rz-ctl"><label for="rz-f-cab">Cabang</label><select id="rz-f-cab"></select></div>
+        <div class="rz-ctl rz-q"><label for="rz-f-q">Cari</label><input type="text" id="rz-f-q" placeholder="Nama, NIK, jabatan, atau penilai" autocomplete="off"></div>
+        <div class="rz-ctl"><span class="mx-lbl">Status</span><div class="seg" id="rz-f-st" role="group" aria-label="Status pengisian">
+          <button type="button" data-v="" aria-pressed="true">Semua</button><button type="button" data-v="BELUM" aria-pressed="false">Belum</button><button type="button" data-v="SEBAGIAN" aria-pressed="false">Sebagian</button><button type="button" data-v="SELESAI" aria-pressed="false">Selesai</button></div></div>
+        <div class="rz-ctl"><span class="mx-lbl">Perlu dikejar</span><div class="seg" id="rz-f-kur" role="group" aria-label="Yang perlu dikejar">
+          <button type="button" data-v="" aria-pressed="true">Semua</button><button type="button" data-v="SELF" aria-pressed="false">Belum nilai diri</button><button type="button" data-v="ATAS" aria-pressed="false">Belum dinilai atasan</button><button type="button" data-v="VAL" aria-pressed="false">Menunggu validasi</button></div></div>
+        <div class="rz-ctl rz-chip" id="rz-chip-pen"></div>
+      </div>
+      <div class="card"><div class="rz-gh"><div class="sub-h" style="margin:0">Rekap per</div><div class="seg" id="rz-grp" role="group" aria-label="Kelompokkan rekap">
+          <button type="button" data-v="div" aria-pressed="true">Divisi</button><button type="button" data-v="dept" aria-pressed="false">Dept</button><button type="button" data-v="cab" aria-pressed="false">Cabang</button><button type="button" data-v="pen" aria-pressed="false">Penilai</button></div></div>
+        <div class="hint" style="margin:6px 0 8px">Klik satu baris untuk menyaring daftar orang di bawahnya.</div>
+        <div class="rz-scroll"><table class="rz-t" id="rz-rekap"></table></div></div>
+      <div class="card"><div class="sub-h" id="rz-jml">Daftar orang</div><div id="rz-pin" class="rz-pin" role="status" hidden></div><div class="rz-scroll"><table class="rz-t" id="rz-daftar"></table></div><div id="rz-more" style="margin-top:10px"></div></div>
+    </div>
   </section>
 
   <!-- ============ TNA 2027: ITP / HASIL ============ -->
@@ -1216,6 +1287,13 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div class="err" id="err-tna-approve"></div>
         <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-approve-sel">Setujui Jabatan Terpilih</button></div>
       </div>
+      <h2 class="sect">Rilis ITP ke Karyawan</h2>
+      <div class="card">
+        <div id="tna-adm-rilis" class="hint" style="color:var(--text)"></div>
+        <div class="hint">ITP dan rencana 70/20/10 hanya tampil ke karyawan dan atasan setelah dirilis. Admin dan tim L&amp;D selalu bisa melihat (untuk pratinjau). Rilis setelah hasil divalidasi dan disetujui manajemen.</div>
+        <div class="err" id="err-tna-rilis"></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-rilis">Rilis ITP</button></div>
+      </div>
       <h2 class="sect">Output 5 Dokumen</h2>
       <div class="card">
         <div id="tna-adm-output"></div>
@@ -1236,17 +1314,23 @@ let state = { nik:"", nama:"", role:"", jabatan:"" };
 let selectedMember = null;
 let currentTeam = [];
 
+const PESAN_JARINGAN = "Koneksi terputus. Periksa internet Anda lalu coba lagi.";
+const PESAN_SERVER = "Server sedang bermasalah. Coba lagi sebentar lagi, atau hubungi Learning & Development jika berulang.";
+// Pesan teknis mentah (kode, jejak, JSON) tidak boleh sampai ke pengguna.
+function ramahkanPesan(m){ m = String(m||""); return /Exception|TypeError|ReferenceError|RangeError|SyntaxError|\bat [A-Za-z_]+\(|is not defined|undefined|Cannot read|JSON|Unexpected token|Failed to fetch|NetworkError|Script function/i.test(m) ? PESAN_SERVER : m; }
 async function api(action, payload){
-  if(!BACKEND_URL) throw new Error("BACKEND_URL belum diisi di kepala file.");
-  const res = await fetch(BACKEND_URL, {
+  if(!BACKEND_URL) throw new Error("Aplikasi belum tersambung ke server. Hubungi Learning & Development.");
+  let res;
+  try{ res = await fetch(BACKEND_URL, {
     method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
     body: JSON.stringify(Object.assign({action:action}, payload||{}))
-  });
-  if(!res.ok) throw new Error("Server tidak merespons (kode "+res.status+").");
-  const j = await res.json();
+  }); }catch(e){ throw new Error(PESAN_JARINGAN); }
+  if(!res.ok) throw new Error(PESAN_SERVER);
+  let j; try{ j = await res.json(); }catch(e){ throw new Error(PESAN_SERVER); }
   if(!j.ok){
-    const err = new Error(j.error||"Permintaan ditolak server.");
+    const err = new Error(ramahkanPesan(j.error) || "Permintaan ditolak server.");
     if(j.needsConfirm) err.needsConfirm = true;
+    if(j.kode) err.kode = j.kode; if(j.bisaSetuju) err.bisaSetuju = true;
     throw err;
   }
   return j;
@@ -1882,11 +1966,11 @@ async function bukaRekam(nik, nama){
 async function masukTNA(loginResp){
   tna.isAdmin = state.role === "admin";
   tna.punyaLama = tna.isAdmin || state.role === "atasan" || !!loginResp.isAtasan;
-  $("tna-nama").textContent = state.nama + (state.jabatan ? " · " + state.jabatan : "");
+  $("tna-nama").textContent = state.nama + (state.jabatan ? " · " + state.jabatan : "") + (tna.isAdmin ? " · Akses admin" : "");
   $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
   $("btn-tna-studio").style.display = "none"; // fitur lama dipensiunkan dari menu
   $("btn-tna-pusat").style.display = tna.isAdmin ? "" : "none";
-  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; // dipastikan ulang dari konteks (tim L&D juga internal)
+  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-realisasi").style.display = tna.internal ? "" : "none"; // dipastikan ulang dari konteks (tim L&D juga internal)
   pdPindahkanTanda();
   show("scr-tna-home");
   await muatBerandaTNA();
@@ -1898,7 +1982,7 @@ async function muatBerandaTNA(){
   try{
     const r = await tnaApi("tnaKonteks");
     tna.konteks = r; tna.internal = !!r.internal; document.body.classList.toggle("internal", tna.internal);
-    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; tna.matrix = tna.isAdmin || !!r.matrix; $("btn-tna-pusat").style.display = tna.matrix ? "" : "none";
+    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-realisasi").style.display = tna.internal ? "" : "none"; tna.matrix = tna.isAdmin || !!r.matrix; $("btn-tna-pusat").style.display = tna.matrix ? "" : "none";
     { const t = $("btn-tna-pusat"); t.querySelector(".tile-g").textContent = tna.isAdmin ? "Admin" : "Tim saya"; t.querySelector(".tile-t").textContent = "Pusat Matrix"; t.querySelector(".tile-d").textContent = tna.isAdmin ? "Competency & training matrix per jabatan, dept, divisi; ekspor PDF" : "Competency & training matrix tim Anda untuk memetakan pengembangan; ekspor PDF"; }
     const w = r.window;
     const sisaMs = (w==="BELUM_DIJADWALKAN") ? 0 : new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
@@ -1948,7 +2032,7 @@ async function muatBerandaTNA(){
     const tim = r.tugas;
     const sel = tim.filter(t=>t.status==="FINAL").length;
     $("tna-tim-wrap").innerHTML = tim.length ? '<h2 class="sect">Tim yang Anda Nilai ('+sel+'/'+tim.length+' selesai)</h2>'+
-      '<input type="text" id="inp-cari-tim" placeholder="Cari nama di tim" style="margin-bottom:10px">'+
+      '<input type="text" id="inp-cari-tim" placeholder="Cari nama di tim" aria-label="Cari nama di tim" style="margin-bottom:10px">'+
       '<div id="tna-tim-list">'+tim.map(t=>itemOrang(t)).join("")+'</div>' : "";
     const kel = r.kelompok;
     $("tna-kelompok-wrap").innerHTML = kel.length ? '<h2 class="sect">Penilaian per Kelompok Level</h2>'+
@@ -2030,7 +2114,13 @@ async function bukaFormTNA(sasaran, mode){
     $("tna-tinjau-aksi").style.display = tnaFormMode==="tinjau" ? "grid" : "none";
     $("btn-tna-submit").style.display = (r.window==="DIBUKA" && tnaFormMode==="isi") ? "" : "none";
     if(r.window!=="DIBUKA") showErr("err-tna-form","Window asesmen sedang tidak dibuka, form hanya bisa dilihat.");
-  }catch(e){ $("tna-form-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; $("btn-tna-submit").style.display="none"; }
+  }catch(e){
+    $("btn-tna-submit").style.display="none";
+    if(e.kode === "MATRIKS_BELUM"){
+      $("tna-form-list").innerHTML = '<div class="card"><div class="empty"><b>Penilaian belum dibuka untuk jabatan ini.</b><br>'+esc(e.message)+'</div>'+(e.bisaSetuju?'<div class="btn-row" style="margin-top:12px;text-align:center"><button type="button" class="btn btn-ghost" id="btn-ke-admin-setuju">Buka Panel Admin TNA</button></div>':'')+'</div>';
+      if(e.bisaSetuju && $("btn-ke-admin-setuju")) $("btn-ke-admin-setuju").onclick = ()=>{ show("scr-tna-admin"); muatAdminTNA(); };
+    } else $("tna-form-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>';
+  }
 }
 function skorGuttman(checks){
   let lv = 1, putus = false, inkon = false;
@@ -2297,7 +2387,7 @@ function renderDashKompetensi(r){
     '<div class="hint">Kompetensi yang gap-nya dialami banyak orang cocok ditangani sebagai program tim (IHT cabang, coaching kelompok).</div></div>' : '';
   const prio = r.prioritas.length ? '<h2 class="sect">Prioritas Pengembangan</h2><div class="card">'+r.prioritas.map(o=>'<div class="team-item" data-dt="'+esc(o.nik)+'"><div class="team-avatar">'+esc(o.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(o.nama)+'</div><div class="team-jabatan">'+esc(o.jobTitle)+' · '+esc(o.cabang)+(o.major?' · <b style="color:var(--red)">'+o.major+' gap Major</b>':'')+'</div></div><span class="badge badge-amber">skor '+o.prioritas+'</span></div>').join("")+
     '<div class="hint">Skor = jumlah (gap × bobot kompetensi). Ketuk nama untuk melihat detail &amp; rekomendasi.</div></div>' : '';
-  const pilihJab = '<div class="card" style="padding:12px 16px"><label>Heatmap jabatan</label><select id="dt-jab">'+r.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===r.kodeJabatan?' selected':'')+'>'+esc(d.jobTitle)+' ('+d.jumlah+')</option>').join("")+'</select></div>';
+  const pilihJab = '<div class="card" style="padding:12px 16px"><label for="dt-jab">Heatmap jabatan</label><select id="dt-jab">'+r.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===r.kodeJabatan?' selected':'')+'>'+esc(d.jobTitle)+' ('+d.jumlah+')</option>').join("")+'</select></div>';
   const hm = '<div class="card" style="overflow-x:auto;padding:12px"><table class="hm"><tr><th style="text-align:left">Nama</th>'+r.kompetensi.map(c=>'<th title="'+esc(c.nama)+'">'+esc(c.nama.length>22?c.nama.slice(0,20)+"…":c.nama)+'<div style="font-weight:400">syarat '+c.required+'</div></th>').join("")+'</tr>'+
     r.baris.map(b=>'<tr><td class="nm" data-dt="'+esc(b.nik)+'" title="'+esc(b.nama+" · "+b.cabang)+'">'+esc(b.nama)+'</td>'+b.sel.map(c=>{ const k = c.k==="BELUM DINILAI" ? "BELUM" : c.k; return '<td><span class="c c-'+k+'" title="'+esc(c.k+(c.f&&tna.internal?" · "+flagLabel(c.f):""))+'">'+(c.a===""?"·":c.a)+'</span></td>'; }).join("")+'</tr>').join("")+'</table>'+
     '<div class="hint" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><span><span class="badge badge-green">Kompeten</span></span><span><span class="badge badge-grey">Minor · kurang 1 level</span></span><span><span class="badge badge-amber">Moderate · kurang 2</span></span><span><span class="badge badge-red">Major · kurang 3+</span></span><span>angka = nilai aktual</span></div></div>';
@@ -2310,7 +2400,7 @@ const KAT_CLS = { Wajib:"badge-red", WajibGap:"badge-red", Dianjurkan:"badge-amb
 const KAT_LABEL = { WajibGap:"Wajib · tutup gap", Dianjurkan:"Modul penutup gap", Pengayaan:"Pengayaan (opsional)" };
 function labelKat(k){ if(!tna.internal && k==="Dianjurkan") return "Pengembangan kompetensi"; return KAT_LABEL[k] || k || ""; }
 function renderDashTraining(r){
-  if(!r.terbit){ $("dt-body").innerHTML = '<div class="card"><div class="empty">Rencana &amp; kalender training tim terbit setelah window asesmen ditutup dan output TNA digenerate.</div></div>'; return; }
+  if(!r.terbit){ $("dt-body").innerHTML = '<div class="card"><div class="empty">Rencana &amp; kalender training tim tersedia setelah hasil divalidasi, disetujui manajemen, dan dirilis oleh L&amp;D.</div></div>'; return; }
   const BLN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
   const perBulan = {}; r.grup.forEach(g=>{ (perBulan[g.bulan] = perBulan[g.bulan] || []).push(g); });
   $("dt-sub").textContent = (judulLingkup(r.lingkup) || (r.orang + " orang")) + " · " + r.totalJam + " jam training terencana";
@@ -2518,7 +2608,7 @@ function vizPetaBelajar(r, bulanAktif){
   const tile = (l,v,d)=>'<div class="tile-s"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="d">'+d+'</div></div>';
   const hero = '<div class="card"><div class="rpt-hero"><div><div class="rpt-eyebrow">Jam belajar terencana 2027</div>'+
     '<div class="rpt-big">'+jamW+'<small>jam</small></div><div class="meter" role="img" aria-label="'+pct+'% dari target '+target+' jam"><i style="width:'+pct+'%;background:var(--sky)"></i></div>'+
-    '<div class="meter-key"><span>Target minimal <b>'+target+' jam</b> setahun (3 jam/bulan)</span>'+(jamW>=target?'<span style="color:var(--green)"><b style="color:var(--green)">Terpenuhi</b></span>':'')+'</div>'+
+    '<div class="meter-key"><span>Target <b>'+target+' jam</b> setahun ('+(Math.round(target/12*10)/10)+' jam/bulan)</span>'+(jamW>=target?'<span style="color:var(--green)"><b style="color:var(--green)">Terpenuhi</b></span>':'')+'</div>'+
     '<p class="rpt-lead">'+(komp.length ? 'Tahun ini Anda mengembangkan <b>'+komp.length+' kompetensi</b>, antara lain '+komp.slice(0,3).map(esc).join(", ")+(komp.length>3?', dan lainnya':'')+'.' : 'Rencana belajar Anda berisi program wajib jabatan dan korporat.')+'</p></div>'+
     '<div class="stat-tiles">'+tile("Training", wajib.filter(t=>t.Kategori!=="IHT").length, nGap+" menutup kompetensi")+tile("IHT Sabtu", jamIHT+" jam", "di cabang")+tile("Pengayaan", ops.length, "opsional")+'</div></div></div>';
   const strip = '<div class="card"><div class="rpt-eyebrow">Sebaran per bulan · ketuk bulan untuk melihat agendanya</div><div class="yr" role="group" aria-label="Jam belajar per bulan">'+
@@ -2579,7 +2669,7 @@ const MX_TANDA = {
   W:["Wajib","Wajib diikuti seluruh pemegang jabatan (program korporat, program jabatan, sertifikasi)"],
   G:["Wajib bila gap","Wajib bila hasil asesmen menunjukkan gap pada kompetensi terkait"],
   I:["IHT Sabtu","In-house training Sabtu di cabang (pola jam 2026)"],
-  P:["Dianjurkan","Pengayaan opsional; baik diikuti untuk mengisi target 3 jam per bulan"]
+  P:["Dianjurkan","Pengayaan opsional; baik diikuti untuk memenuhi target jam belajar bulanan"]
 };
 const MX_ST = { Kompeten:"K", Minor:"Mi", Moderate:"Mo", Major:"Ma" };
 const MX_MAKS = 120;
@@ -3073,7 +3163,8 @@ async function bukaITP(nik){
   try{
     const r = await tnaApi("tnaITPSaya", { target: nik });
     $("tna-itp-sub").textContent = r.nama + " · " + r.jabatan;
-    if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP &amp; kalender training belum diterbitkan. Output TNA 2027 terbit setelah window asesmen ditutup dan hasil divalidasi.</div></div>'; return; }
+    if(r.belumRilis && !r.itp.length && !r.rekomendasi.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty"><b>ITP dan kalender training Anda belum dirilis.</b><br>Rencana ini tersedia setelah hasil asesmen divalidasi dan disetujui manajemen. Anda akan diberi tahu begitu sudah bisa dilihat.</div></div>'; return; }
+    if(!r.itp.length && !r.gap.length){ $("tna-itp-body").innerHTML = '<div class="card"><div class="empty">ITP &amp; kalender training belum diterbitkan. Hasil asesmen divalidasi lebih dulu, lalu rencana dirilis setelah disetujui manajemen.</div></div>'; return; }
     itpData = r; renderITP("");
   }catch(e){ $("tna-itp-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
@@ -3157,7 +3248,8 @@ const DS_KAT = ["Technical","Behavioral","Leadership"];
 const DS_KAT_NAMA = { Technical:"Kompetensi Teknis", Behavioral:"Kompetensi Perilaku (Behavioral)", Leadership:"Kompetensi Kepemimpinan (Leadership)" };
 const DS_C = { navy:"1F4E79", mid:"2E75B6", pale:"BDD7EE", paler:"DEEAF1", ksa:"FCE4D6", none:"EEEEEE" };
 const DS_LV = { 1:["FFF2CC","000000"], 2:["FFE699","000000"], 3:["C6EFCE","000000"], 4:["375623","FFFFFF"], 5:["1F4E79","FFFFFF"] };
-const dsJam = (t, dd)=> t.jamDefault ? (tna.internal ? "durasi belum ditetapkan (plan memakai "+dd+" jam)" : "mengikuti penyelenggara") : t.jam+" jam";
+// Dokumen Excel dibagikan ke atasan dan manajemen: selalu tanpa catatan proses internal, siapa pun yang mengunduh.
+const dsJam = (t, dd)=> t.jamDefault ? "mengikuti penyelenggara" : t.jam+" jam";
 function dsRingkasJalur(k){
   const per = {}; (k.jalur||[]).forEach(j=>{ const kode = j.training ? j.training.kode : (j.sudahWajib ? "_wajib" : "_none"); (per[kode] = per[kode] || { j, lv:[] }).lv.push(j.dariLevel); });
   return Object.keys(per).map(kode=>{ const g = per[kode], lv = g.lv.slice().sort((a,b)=>a-b);
@@ -3165,7 +3257,7 @@ function dsRingkasJalur(k){
     .sort((a,b)=> String(a.rentang).localeCompare(String(b.rentang)));
 }
 function dsUrut(r){ return r.kompetensi.slice().sort((a,b)=> DS_KAT.indexOf(a.kategori)-DS_KAT.indexOf(b.kategori) || String(a.kelompok).localeCompare(String(b.kelompok)) || String(a.kode).localeCompare(String(b.kode), undefined, { numeric:true })); }
-function dsSumber(r){ return tna.internal ? (r.jabatan.master ? "Sumber: master kompetensi teknis L&D" : "Sumber: draf otomatis dari JD (belum ada master)") : "Standar jabatan BBM"; }
+function dsSumber(r){ return "Standar jabatan BBM"; }
 
 function dsDokumen(r){
   const j = r.jabatan, dd = r.ringkas.durasiDefault, kompU = dsUrut(r);
@@ -3194,6 +3286,7 @@ function dsDokumen(r){
     if(ada("pengetahuan")) kolom.push(["pengetahuan","Pengetahuan (K)",34]);
     if(ada("standar")) kolom.push(["standar","Standar Kinerja",38]);
     if(ada("subStandar")) kolom.push(["subStandar","Bila Tidak Terpenuhi",36]);
+    if(ada("bukti")) kolom.push(["bukti","Bukti Penilaian (dicek atasan)",36]);
     if(ada("ksa")) kolom.push(["ksa","KSA (Knowledge, Skill, Attitude)",44]);
     kolom.push(["komp","Kompetensi Teknis",30]);
     const adaLv = ada("level"); if(adaLv) kolom.push(["level","Level",8]);
@@ -3290,13 +3383,15 @@ function dsDokumen(r){
 const TNA_LV_NAMA = ["","Awareness","Basic","Intermediate","Advanced","Expert"];
 // Di dalam pratinjau claude.ai, unduhan langsung diblokir sandbox: file ditawarkan lewat kapabilitas "downloads" (viewer yang menyimpan).
 // Di aplikasi biasa (GitHub Pages) dipakai tautan unduh bawaan browser.
-async function dsUnduh(r){
-  const blob = XL.build(dsDokumen(r)), nama = "Dokumen_Jabatan_"+r.jabatan.jobTitle.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_TNA2027_v1.xlsx";
+async function unduhBlob(blob, nama){
   let dl = null; try{ dl = (window.claude && typeof window.claude.use === "function") ? await window.claude.use("downloads") : null; }catch(e){ dl = null; }
   if(dl){ try{ await dl.save({ filename:nama, data:blob }); return { nama, cara:"viewer" }; }catch(e){ if(e && e.code === "declined") return { nama, cara:"batal" }; throw e; } }
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nama; document.body.appendChild(a); a.click();
   setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
   return { nama, cara:"browser" };
+}
+async function dsUnduh(r){
+  return unduhBlob(XL.build(dsDokumen(r)), "Dokumen_Jabatan_"+r.jabatan.jobTitle.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_TNA2027_v1.xlsx");
 }
 
 async function dsUnduhJabatan(kode, tombol, status){
@@ -3310,6 +3405,198 @@ async function dsUnduhJabatan(kode, tombol, status){
 }
 
 
+/* ---------- Monitor Realisasi (admin dan tim L&D): status pengisian per orang, rekap, tren harian ---------- */
+const RZ = { nik:0, nama:1, cab:2, dept:3, div:4, jab:5, pen:6, penNik:7, sSelf:8, tSelf:9, sAts:10, tAts:11, val:12, st:13, tSel:14 };
+const RZ_BLN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const RZ_ST = { SELESAI:["green","Selesai"], SEBAGIAN:["amber","Sebagian"], BELUM:["red","Belum"] };
+const RZ_SUB = { SELESAI:["green","Selesai"], DRAFT:["amber","Sedang diisi"], BELUM:["red","Belum"], TIDAK_PERLU:["grey","Tidak perlu"], MENUNGGU_APPROVAL:["amber","Menunggu approval"] };
+const RZ_VAL = { DISETUJUI:["green","Divalidasi"], MENUNGGU_VALIDASI:["amber","Menunggu validasi"], DIKEMBALIKAN:["red","Dikembalikan"] };
+const RZ_URUT = { BELUM:0, SEBAGIAN:1, SELESAI:2 };
+const rz = { data:null, f:{ div:"", dept:"", cab:"", q:"", st:"", kur:"", pen:"" }, grp:"div", sg:{ k:"persen", d:1 }, sp:{ k:"st", d:1 }, maks:100, gen:0, tmr:null };
+function rzTgl(t){ const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(t||""); return m ? (+m[3])+" "+RZ_BLN[+m[2]-1]+" "+m[4]+"."+m[5] : "–"; }
+function rzBadge(map, k){ const x = map[k]; return x ? '<span class="badge badge-'+x[0]+'">'+x[1]+'</span>' : '<span class="badge badge-grey">–</span>'; }
+function rzTeks(map, k){ return map[k] ? map[k][1] : "–"; }
+function rzSaring(){
+  const f = rz.f, q = f.q.trim().toLowerCase();
+  return rz.data.baris.filter(r=>
+    (!f.div || r[RZ.div]===f.div) && (!f.dept || r[RZ.dept]===f.dept) && (!f.cab || r[RZ.cab]===f.cab) && (!f.st || r[RZ.st]===f.st) && (!f.pen || r[RZ.penNik]===f.pen) &&
+    (!f.kur || (f.kur==="SELF" ? (r[RZ.sSelf]==="BELUM" || r[RZ.sSelf]==="DRAFT") : f.kur==="ATAS" ? r[RZ.sAts]!=="SELESAI" : r[RZ.val]==="MENUNGGU_VALIDASI")) &&
+    (!q || (r[RZ.nik]+" "+r[RZ.nama]+" "+r[RZ.jab]+" "+r[RZ.pen]).toLowerCase().includes(q)));
+}
+function rzHitung(rows){
+  const a = { total:rows.length, selesai:0, sebagian:0, belum:0, self:0, perluSelf:0, ats:0 };
+  rows.forEach(r=>{ a[r[RZ.st]==="SELESAI"?"selesai":r[RZ.st]==="SEBAGIAN"?"sebagian":"belum"]++; if(r[RZ.sSelf]!=="TIDAK_PERLU"){ a.perluSelf++; if(r[RZ.sSelf]==="SELESAI") a.self++; } if(r[RZ.sAts]==="SELESAI") a.ats++; });
+  a.persen = a.total ? Math.round(a.selesai/a.total*100) : 0; return a;
+}
+function rzKpi(){
+  const R = rz.data.ringkas, pct = (n,t)=> t ? Math.round(n/t*100) : 0;
+  const c = (kls,n,l,sm)=>'<div class="chip-k '+kls+'"><div class="n">'+n+'</div><div class="l">'+l+(sm?'<small>'+sm+'</small>':'')+'</div></div>';
+  $("rz-kpi").innerHTML = c("",R.total,"Orang wajib mengisi")+c("g",R.selesai,"Selesai",pct(R.selesai,R.total)+"%")+c("a",R.sebagian,"Sebagian",pct(R.sebagian,R.total)+"%")+c("r",R.belum,"Belum mulai",pct(R.belum,R.total)+"%")+
+    c("",R.selfSelesai+" / "+R.perluSelf,"Nilai diri",pct(R.selfSelesai,R.perluSelf)+"%")+c("",R.atasanSelesai+" / "+R.total,"Dinilai atasan",pct(R.atasanSelesai,R.total)+"%")+
+    c("",R.validasi.DISETUJUI+" / "+(R.validasi.DISETUJUI+R.validasi.MENUNGGU_VALIDASI+R.validasi.DIKEMBALIKAN),"Sudah divalidasi",R.validasi.MENUNGGU_VALIDASI+" menunggu · "+R.validasi.DIKEMBALIKAN+" dikembalikan");
+  const w = (n)=> R.total ? (n/R.total*100).toFixed(2) : 0;
+  $("rz-bar").innerHTML = '<div class="rz-stack" role="img" aria-label="Komposisi status pengisian"><i class="g" style="width:'+w(R.selesai)+'%"></i><i class="a" style="width:'+w(R.sebagian)+'%"></i><i class="r" style="width:'+w(R.belum)+'%"></i></div>'+
+    '<div class="rz-leg"><span><b>'+R.selesai+'</b> selesai (nilai diri dan atasan)</span><span><b>'+R.sebagian+'</b> sebagian</span><span><b>'+R.belum+'</b> belum mulai</span></div>';
+}
+function rzHari(){
+  const H = {}; rz.data.harian.forEach(h=>{ H[h.tgl] = h; });
+  const hariIni = new Date().toLocaleDateString("sv-SE", { timeZone:"Asia/Makassar" });
+  const kunci = Object.keys(H).sort(); let awal = kunci.length ? kunci[0] : hariIni;
+  const dAwal = new Date(awal+"T00:00:00Z"), dAkhir = new Date(hariIni+"T00:00:00Z"), hari = [];
+  for(let d = new Date(Math.max(dAwal, dAkhir - 29*86400000)); d <= dAkhir; d = new Date(d.getTime()+86400000)) hari.push(d.toISOString().slice(0,10));
+  const maks = Math.max(1, ...hari.map(k=> (H[k]||{}).selesai||0));
+  const total = hari.reduce((t,k)=> t + ((H[k]||{}).selesai||0), 0);
+  const h0 = H[hariIni] || { self:0, atasan:0, selesai:0 };
+  $("rz-hari").innerHTML = '<div class="hint" style="margin-bottom:4px">Hari ini: <b>+'+h0.selesai+'</b> orang selesai · +'+h0.self+' nilai diri · +'+h0.atasan+' dinilai atasan. Batang menunjukkan orang yang selesai per hari (30 hari terakhir).</div>'+
+    (total || Object.keys(H).length ? '' : '<div class="empty">Belum ada pengisian yang masuk.</div>')+
+    '<div class="rz-hari" role="img" aria-label="Orang selesai per hari">'+hari.map(k=>{ const h = H[k] || { self:0, atasan:0, selesai:0 };
+      return '<div class="rz-col'+(k===hariIni?' ini':'')+(h.selesai?'':' kosong')+'" title="'+(+k.slice(8))+' '+RZ_BLN[+k.slice(5,7)-1]+': '+h.selesai+' selesai, '+h.self+' nilai diri, '+h.atasan+' dinilai atasan">'+
+        '<span class="n">'+(h.selesai||"")+'</span><div class="b" style="height:'+Math.max(2, Math.round(h.selesai/maks*100))+'%"></div><span class="t">'+(hari.length>16 ? (+k.slice(8)%2===0||k===hariIni ? +k.slice(8) : "") : (+k.slice(8))+" "+RZ_BLN[+k.slice(5,7)-1])+'</span></div>'; }).join("")+'</div>';
+}
+function rzIsiPilihan(){
+  const B = rz.data.baris, uniq = (i, filter)=> [...new Set(B.filter(filter||(()=>true)).map(r=>r[i]).filter(Boolean))].sort((a,b)=> String(a).localeCompare(String(b)));
+  const isi = (id, semua, arr, kini)=>{ const el = $(id); el.innerHTML = '<option value="">'+semua+'</option>'+arr.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join(""); el.value = arr.includes(kini) ? kini : ""; return el.value; };
+  rz.f.div = isi("rz-f-div","Semua divisi", uniq(RZ.div), rz.f.div);
+  rz.f.dept = isi("rz-f-dept","Semua dept", uniq(RZ.dept, r=> !rz.f.div || r[RZ.div]===rz.f.div), rz.f.dept);
+  rz.f.cab = isi("rz-f-cab","Semua cabang", uniq(RZ.cab), rz.f.cab);
+  const pen = rz.f.pen ? (rz.data.baris.find(r=>r[RZ.penNik]===rz.f.pen)||[])[RZ.pen] : "";
+  $("rz-chip-pen").innerHTML = rz.f.pen ? '<button type="button" id="btn-rz-lepas-pen" aria-label="Lepas saringan penilai">Penilai: '+esc(pen||rz.f.pen)+' &times;</button>' : "";
+  if(rz.f.pen) $("btn-rz-lepas-pen").onclick = ()=>{ rz.f.pen = ""; rzIsiPilihan(); rzTabel(); };
+}
+function rzUrut(arr, sp, nilai){
+  const k = sp.k; return arr.slice().sort((a,b)=>{ const x = nilai(a,k), y = nilai(b,k); const c = (typeof x==="number" && typeof y==="number") ? x-y : String(x).localeCompare(String(y)); return (c || String(nilai(a,"nama")).localeCompare(String(nilai(b,"nama")))) * sp.d; });
+}
+function rzHead(kolom, sp){
+  return '<thead><tr>'+kolom.map(c=>'<th data-k="'+c[0]+'" '+(c[2]?'class="num" ':'')+'aria-sort="'+(sp.k===c[0]?(sp.d>0?"ascending":"descending"):"none")+'" tabindex="0">'+c[1]+'</th>').join("")+'</tr></thead>';
+}
+function rzPasangUrut(tabelId, sp, ulang){
+  document.querySelectorAll("#"+tabelId+" th[data-k]").forEach(th=>{ const go = ()=>{ const k = th.dataset.k; sp.d = sp.k===k ? -sp.d : 1; sp.k = k; ulang(); }; th.onclick = go; th.onkeydown = e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
+}
+function rzRekap(rows){
+  const g = rz.grp, kunciDari = r=> g==="div" ? r[RZ.div] : g==="dept" ? r[RZ.dept] : g==="cab" ? r[RZ.cab] : (r[RZ.penNik] || "(tanpa penilai)");
+  const namaDari = r=> g==="pen" ? (r[RZ.pen] || "(tanpa penilai)") : kunciDari(r);
+  const grup = {}; rows.forEach(r=>{ const k = kunciDari(r) || "-"; (grup[k] = grup[k] || { k:k, nama:namaDari(r), rows:[] }).rows.push(r); });
+  const list = Object.values(grup).map(x=> Object.assign({ k:x.k, nama:x.nama }, rzHitung(x.rows)));
+  const arr = rzUrut(list, rz.sg, (x,k)=> x[k]);
+  const kol = [["nama", g==="div"?"Divisi":g==="dept"?"Dept":g==="cab"?"Cabang":"Penilai"],["total","Orang",1],["selesai","Selesai",1],["sebagian","Sebagian",1],["belum","Belum",1],["persen","% selesai",1]];
+  $("rz-rekap").innerHTML = rzHead(kol, rz.sg)+'<tbody>'+(arr.length ? arr.map(x=>
+    '<tr class="klik" data-k="'+esc(x.k)+'" tabindex="0"><td class="nm">'+esc(x.nama)+'</td><td class="num">'+x.total+'</td><td class="num">'+x.selesai+'</td><td class="num">'+x.sebagian+'</td><td class="num">'+x.belum+'</td>'+
+    '<td class="num" style="min-width:150px"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div class="rz-mini" style="flex:1"><i class="g" style="width:'+(x.total?x.selesai/x.total*100:0)+'%"></i><i class="a" style="width:'+(x.total?x.sebagian/x.total*100:0)+'%"></i></div><b>'+x.persen+'%</b></div></td></tr>').join("")
+    : '<tr><td colspan="6"><div class="empty">Tidak ada data pada saringan ini.</div></td></tr>')+'</tbody>';
+  rzPasangUrut("rz-rekap", rz.sg, ()=> rzRekap(rzSaring()));
+  document.querySelectorAll("#rz-rekap tr.klik").forEach(tr=>{ const go = ()=>{ const k = tr.dataset.k; if(g==="div"){ rz.f.div = k; rz.f.dept = ""; } else if(g==="dept") rz.f.dept = k; else if(g==="cab") rz.f.cab = k; else rz.f.pen = k; rz.maks = 100; rzIsiPilihan(); rzTabel(); }; tr.onclick = go; tr.onkeydown = e=>{ if(e.key==="Enter"){ e.preventDefault(); go(); } }; });
+}
+function rzDaftarUrut(rows){
+  const nilai = (r,k)=> k==="nama" ? r[RZ.nama] : k==="div" ? r[RZ.div] : k==="dept" ? r[RZ.dept] : k==="jab" ? r[RZ.jab] : k==="pen" ? r[RZ.pen] : k==="sSelf" ? r[RZ.sSelf] : k==="sAts" ? r[RZ.sAts] : k==="val" ? r[RZ.val] : k==="tSel" ? (r[RZ.tSel]||"~") : (RZ_URUT[r[RZ.st]]);
+  return rzUrut(rows, rz.sp, nilai);
+}
+function rzDaftar(rows){
+  const arr = rzDaftarUrut(rows), tampil = arr.slice(0, rz.maks);
+  const kol = [["nama","Nama"],["div","Divisi"],["dept","Dept"],["jab","Jabatan"],["pen","Penilai"],["sSelf","Nilai diri"],["sAts","Penilaian atasan"],["val","Validasi"],["st","Status"],["tSel","Selesai pada"],["aksi","Aksi"]];
+  $("rz-jml").textContent = "Daftar orang · "+rows.length+" dari "+rz.data.baris.length;
+  $("rz-daftar").innerHTML = rzHead(kol, rz.sp)+'<tbody>'+(tampil.length ? tampil.map(r=>
+    '<tr><td class="nm">'+esc(r[RZ.nama])+'<span class="sm">'+esc(r[RZ.nik])+' · '+esc(r[RZ.cab])+'</span></td><td>'+esc(r[RZ.div])+'</td><td>'+esc(r[RZ.dept])+'</td><td>'+esc(r[RZ.jab])+'</td><td>'+esc(r[RZ.pen]||"–")+'</td>'+
+    '<td>'+rzBadge(RZ_SUB, r[RZ.sSelf])+(r[RZ.tSelf]?'<span class="sm">'+rzTgl(r[RZ.tSelf])+'</span>':'')+'</td><td>'+rzBadge(RZ_SUB, r[RZ.sAts])+(r[RZ.tAts]?'<span class="sm">'+rzTgl(r[RZ.tAts])+'</span>':'')+'</td>'+
+    '<td>'+rzBadge(RZ_VAL, r[RZ.val])+'</td><td>'+rzBadge(RZ_ST, r[RZ.st])+'</td><td>'+rzTgl(r[RZ.tSel])+'</td><td><button type="button" class="btn btn-ghost btn-kecil" data-reset="'+esc(r[RZ.nik])+'" data-nama="'+esc(r[RZ.nama])+'" aria-label="Reset PIN '+esc(r[RZ.nama])+'">Reset PIN</button></td></tr>').join("")
+    : '<tr><td colspan="11"><div class="empty">Tidak ada orang pada saringan ini.</div></td></tr>')+'</tbody>';
+  $("rz-more").innerHTML = arr.length > tampil.length ? '<button type="button" class="btn btn-ghost btn-kecil" id="btn-rz-more">Tampilkan '+Math.min(100, arr.length-tampil.length)+' lagi ('+(arr.length-tampil.length)+' tersisa)</button>' : "";
+  if(arr.length > tampil.length) $("btn-rz-more").onclick = ()=>{ rz.maks += 100; rzDaftar(rzSaring()); };
+  rzPasangUrut("rz-daftar", rz.sp, ()=> rzDaftar(rzSaring()));
+  document.querySelectorAll("#rz-daftar [data-reset]").forEach(b=> b.onclick = ()=> rzResetPin(b));
+}
+async function rzResetPin(b){
+  const nik = b.dataset.reset, nama = b.dataset.nama;
+  if(!confirm("Reset PIN untuk "+nama+" ("+nik+")?\nPIN lama tidak berlaku lagi. PIN baru ditampilkan sekali di layar ini dan harus diganti saat login pertama.")) return;
+  b.disabled = true; const box = $("rz-pin");
+  try{
+    const r = await tnaApi("tnaResetPin", { target:nik });
+    box.hidden = false; box.innerHTML = 'PIN baru untuk <b>'+esc(r.nama)+'</b> ('+esc(r.nik)+'): <b class="pin">'+esc(r.pin)+'</b><div class="hint" style="margin-top:4px">Sampaikan langsung kepada yang bersangkutan (jangan lewat grup). Wajib diganti saat login pertama.</div>';
+    box.scrollIntoView({ block:"nearest", behavior:"smooth" });
+  }catch(e){ showErr("err-rz", e.message); }
+  b.disabled = false;
+}
+function rzTabel(){ const rows = rzSaring(); rzRekap(rows); rzDaftar(rows); }
+function rzRender(){
+  const d = rz.data, W = { DIBUKA:"Window dibuka", DITUTUP:"Window ditutup", BELUM_DIBUKA:"Window belum dibuka", BELUM_DIJADWALKAN:"Jadwal window belum diisi" }[d.window] || "";
+  $("rz-info").textContent = "Diperbarui "+new Date().toLocaleTimeString("id-ID",{ timeZone:"Asia/Makassar", hour:"2-digit", minute:"2-digit" })+" WITA · "+W+" · otomatis tiap 60 detik";
+  $("rz-sub").textContent = d.ringkas.total+" orang · "+d.ringkas.selesai+" selesai ("+(d.ringkas.total ? Math.round(d.ringkas.selesai/d.ringkas.total*100) : 0)+"%)";
+  rzKpi(); rzHari(); rzIsiPilihan(); rzTabel();
+}
+async function rzMuat(){
+  try{ const r = await tnaApi("tnaRealisasi"); rz.data = r; clearErr("err-rz"); rzRender(); return true; }
+  catch(e){ if(!rz.data) $("rz-info").textContent = ""; showErr("err-rz", e.message); return false; }
+}
+function rzJadwal(g){
+  clearTimeout(rz.tmr);
+  rz.tmr = setTimeout(async ()=>{
+    if(g !== rz.gen || !$("scr-tna-realisasi").classList.contains("active")) return;
+    if(!document.hidden) await rzMuat();
+    rzJadwal(g);
+  }, 60000);
+}
+function rzBuka(){
+  $("btn-rz-pin").style.display = tna.isAdmin ? "" : "none";
+  rz.gen++; $("rz-info").textContent = "Memuat…"; rz.data = null;
+  rzMuat().then(()=> rzJadwal(rz.gen));
+}
+async function rzUnduhPin(){
+  const b = $("btn-rz-pin"), st = $("rz-info"), asal = st.textContent;
+  if(!confirm("Unduh daftar PIN awal per departemen?\nBerkas ini RAHASIA: hanya akun yang belum pernah mengganti PIN. Bagikan per departemen langsung ke atasannya dan jangan simpan di tempat terbuka.")) return;
+  b.disabled = true; st.textContent = "Menyiapkan daftar PIN…";
+  try{
+    const r = await tnaApi("tnaDaftarPin"), K = r.kolom, ix = n=> K.indexOf(n);
+    const H = t=>({ v:t, s:{ b:1, sz:10, c:"FFFFFF", f:"1F4E79", h:"center", v:"center", w:1, bd:1 } }), C = (v,h,b)=>({ v:v, s:{ sz:10, bd:1, v:"center", h:h||"left", b:b?1:0 } });
+    const urut = r.baris.slice().sort((a,c)=> String(a[ix("Divisi")]).localeCompare(c[ix("Divisi")]) || String(a[ix("Dept")]).localeCompare(c[ix("Dept")]) || String(a[ix("Cabang")]).localeCompare(c[ix("Cabang")]) || String(a[ix("Nama")]).localeCompare(c[ix("Nama")]));
+    const kepala = [[{ v:"RAHASIA: PIN awal TNA 2027. Sampaikan langsung ke yang bersangkutan atau atasannya. Wajib diganti saat login pertama.", s:{ b:1, c:"B91C1C", sz:10 } }],[H("NIK"),H("Nama"),H("Divisi"),H("Dept"),H("Cabang"),H("Jabatan"),H("Atasan"),H("PIN awal")]];
+    const baris = x=> C(x);
+    const rowOf = a=> [C(a[ix("NIK")]),C(a[ix("Nama")]),C(a[ix("Divisi")]),C(a[ix("Dept")]),C(a[ix("Cabang")]),C(a[ix("Jabatan")]),C(a[ix("Atasan")]),C(a[ix("PIN")],"center",1)];
+    const lebar = [14,30,22,24,20,30,24,12];
+    const per = {}; urut.forEach(a=>{ (per[a[ix("Dept")]||"Tanpa dept"] = per[a[ix("Dept")]||"Tanpa dept"] || []).push(a); });
+    const dipakai = new Set(), nm = d=>{ let n = String(d).replace(/[\[\]:*?\/\\]/g,"-").slice(0,28), k = n, i = 2; while(dipakai.has(k.toLowerCase())) k = n.slice(0,26)+" "+(i++); dipakai.add(k.toLowerCase()); return k; };
+    const sheets = [{ nama:nm("Semua"), lebar, baris:kepala.concat(urut.map(rowOf)), beku:"A3" }].concat(Object.keys(per).sort().map(d=>({ nama:nm(d), lebar, baris:kepala.concat(per[d].map(rowOf)), beku:"A3" })));
+    const h = await unduhBlob(XL.build(sheets), "PIN_Awal_TNA2027_RAHASIA.xlsx");
+    st.textContent = h.cara==="batal" ? asal : (h.cara==="viewer" ? "Dokumen disimpan: "+h.nama+" ("+r.jumlah+" akun)" : "Dokumen dibuat: "+h.nama+" ("+r.jumlah+" akun). Jika unduhan tidak muncul, izinkan unduhan pada browser Anda.");
+  }catch(e){ showErr("err-rz", e.message); st.textContent = asal; }
+  b.disabled = false;
+}
+async function rzUnduh(){
+  const b = $("btn-rz-xls"), st = $("rz-info"), asal = st.textContent; b.disabled = true;
+  try{
+    const D = rz.data, rows = rzDaftarUrut(rzSaring()), R = D.ringkas, pct = (n,t)=> t ? Math.round(n/t*100)/100 : 0;
+    const H = t=>({ v:t, s:{ b:1, sz:10, c:"FFFFFF", f:"1F4E79", h:"center", v:"center", w:1, bd:1 } }), C = (v,h)=>({ v:v, s:{ sz:10, bd:1, v:"center", h:h||"left", w:1 } });
+    const ringkas = [[{ v:"Realisasi Pengisian Asesmen TNA 2027", s:{ b:1, sz:14, c:"1F4E79" } }],[ "Diperbarui", D.dibuat.replace("T"," ")+" WITA" ],[],
+      [H("Ukuran"),H("Jumlah"),H("Persen")],[C("Orang wajib mengisi"),C(R.total,"right"),C("")],[C("Selesai (nilai diri dan atasan)"),C(R.selesai,"right"),C(pct(R.selesai,R.total))],[C("Sebagian"),C(R.sebagian,"right"),C(pct(R.sebagian,R.total))],[C("Belum mulai"),C(R.belum,"right"),C(pct(R.belum,R.total))],
+      [C("Nilai diri selesai"),C(R.selfSelesai+" dari "+R.perluSelf,"right"),C(pct(R.selfSelesai,R.perluSelf))],[C("Dinilai atasan"),C(R.atasanSelesai,"right"),C(pct(R.atasanSelesai,R.total))],[],
+      [H("Divisi"),H("Orang"),H("Selesai"),H("Sebagian"),H("Belum"),H("% selesai")]];
+    const g = {}; D.baris.forEach(r=>{ (g[r[RZ.div]] = g[r[RZ.div]] || []).push(r); });
+    Object.keys(g).sort().forEach(k=>{ const a = rzHitung(g[k]); ringkas.push([C(k),C(a.total,"right"),C(a.selesai,"right"),C(a.sebagian,"right"),C(a.belum,"right"),C(a.persen/100)]); });
+    const hari = [[H("Tanggal"),H("Selesai"),H("Nilai diri"),H("Dinilai atasan")]].concat(D.harian.map(h=>[C(h.tgl),C(h.selesai,"right"),C(h.self,"right"),C(h.atasan,"right")]));
+    const daftar = [["NIK","Nama","Divisi","Dept","Cabang","Jabatan","Penilai","Nilai diri","Selesai nilai diri","Penilaian atasan","Selesai penilaian atasan","Validasi","Status","Selesai pada"].map(H)].concat(rows.map(r=>[C(r[RZ.nik]),C(r[RZ.nama]),C(r[RZ.div]),C(r[RZ.dept]),C(r[RZ.cab]),C(r[RZ.jab]),C(r[RZ.pen]),C(rzTeks(RZ_SUB,r[RZ.sSelf])),C(rzTgl(r[RZ.tSelf])),C(rzTeks(RZ_SUB,r[RZ.sAts])),C(rzTgl(r[RZ.tAts])),C(rzTeks(RZ_VAL,r[RZ.val])),C(rzTeks(RZ_ST,r[RZ.st])),C(rzTgl(r[RZ.tSel]))]));
+    const blob = XL.build([{ nama:"Ringkasan", lebar:[34,16,14,14,12,12], baris:ringkas },{ nama:"Per Hari", lebar:[14,12,12,16], baris:hari, beku:"A2" },{ nama:"Daftar Orang", lebar:[14,30,26,26,22,30,26,14,16,16,20,16,12,16], baris:daftar, beku:"A2" }]);
+    const h = await unduhBlob(blob, "Realisasi_TNA2027_"+D.dibuat.slice(0,10)+".xlsx");
+    st.textContent = h.cara==="batal" ? asal : (h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama+". Jika unduhan tidak muncul, izinkan unduhan pada browser Anda.");
+  }catch(e){ showErr("err-rz","Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."); }
+  b.disabled = false;
+}
+(function(){
+  const seg = (id, key, cb)=> document.querySelectorAll("#"+id+" button").forEach(b=> b.onclick = ()=>{ cb(b.dataset.v); document.querySelectorAll("#"+id+" button").forEach(x=> x.setAttribute("aria-pressed", String(x===b))); });
+  const baru = ()=>{ rz.maks = 100; rzTabel(); };
+  seg("rz-f-st","st", v=>{ rz.f.st = v; baru(); }); seg("rz-f-kur","kur", v=>{ rz.f.kur = v; baru(); });
+  seg("rz-grp","grp", v=>{ rz.grp = v; rz.sg = { k:"persen", d:1 }; rzRekap(rzSaring()); });
+  $("rz-f-div").onchange = e=>{ rz.f.div = e.target.value; rz.f.dept = ""; rzIsiPilihan(); baru(); };
+  $("rz-f-dept").onchange = e=>{ rz.f.dept = e.target.value; baru(); };
+  $("rz-f-cab").onchange = e=>{ rz.f.cab = e.target.value; baru(); };
+  $("rz-f-q").oninput = e=>{ rz.f.q = e.target.value; baru(); };
+  $("btn-rz-muat").onclick = async ()=>{ const b = $("btn-rz-muat"); b.disabled = true; await rzMuat(); b.disabled = false; };
+  $("btn-rz-xls").onclick = rzUnduh; $("btn-rz-pin").onclick = rzUnduhPin;
+  $("btn-tna-realisasi").onclick = ()=>{ bukaLayar("scr-tna-realisasi"); rzBuka(); };
+})();
+
+/* ---------- Aksesibilitas: hubungkan label dan kolom isian statis yang belum terhubung ---------- */
+(function(){
+  document.querySelectorAll("label:not([for])").forEach(l=>{ const n = l.nextElementSibling || (l.parentElement && l.parentElement.querySelector("input,select,textarea")); if(n && /^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName) && n.id) l.setAttribute("for", n.id); });
+  document.querySelectorAll("input:not([type=hidden]):not([aria-label]),select:not([aria-label]),textarea:not([aria-label])").forEach(e=>{ if(!(e.id && document.querySelector('label[for="'+e.id+'"]')) && !e.closest("label")){ const t = e.getAttribute("placeholder") || e.getAttribute("title") || (e.previousElementSibling && e.previousElementSibling.textContent) || ""; if(t.trim()) e.setAttribute("aria-label", t.trim()); } });
+})();
 /* ---------- Admin ---------- */
 const PARAM_ADM = ["WindowBuka","WindowTutup","BobotAtasan","BobotSelf","TargetJamBulan","KapasitasKelas","DurasiDefaultJam","MaksPersenIHT","JamSesiIHT","ProyeksiPesertaBST"];
 $("btn-tna-admin").onclick = async ()=>{ show("scr-tna-admin"); muatAdminTNA(); };
@@ -3355,10 +3642,10 @@ async function muatAdminTNA(){
   try{
     const [o, m] = await Promise.all([tnaApi("tnaGetOutput"), tnaApi("tnaMatriksJabatan")]);
     PARAM_ADM.forEach(k=>{ const v = o.parameter[k]; $("adm-"+k).value = (k==="WindowBuka"||k==="WindowTutup") ? keLokalWITA(v) : ((v instanceof Object) ? "" : String(v==null?"":v)); });
-    muatPantauTNA();
+    muatPantauTNA(); rilisTampil(o);
     $("tna-adm-matriks").innerHTML = '<label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="chk-jab-semua"> Pilih semua yang belum APPROVED</label>'+
       '<div style="max-height:360px;overflow:auto"><table><tr><th></th><th>Kode</th><th>Jabatan</th><th>Orang</th><th>JD</th><th>Status</th></tr>'+
-      m.jabatan.map(j=>'<tr><td><input type="checkbox" class="chk-jab" value="'+esc(j.kode)+'" '+(j.status==="APPROVED"?"disabled":"")+'></td><td>'+esc(j.kode)+'</td><td>'+esc(j.jobTitle)+'</td><td>'+esc(j.jml)+'</td><td>'+esc(j.statusJD)+'</td><td><span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(j.status)+'</span></td></tr>').join("")+'</table></div>'+
+      m.jabatan.map(j=>'<tr><td><input type="checkbox" class="chk-jab" aria-label="Pilih '+esc(j.jobTitle)+'" value="'+esc(j.kode)+'" '+(j.status==="APPROVED"||j.status==="DIKECUALIKAN"?"disabled":"")+'></td><td>'+esc(j.kode)+'</td><td>'+esc(j.jobTitle)+'</td><td>'+esc(j.jml)+'</td><td>'+esc(j.statusJD)+'</td><td><span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(j.status)+'</span></td></tr>').join("")+'</table></div>'+
       '<div class="hint">'+m.jabatan.filter(j=>j.status==="APPROVED").length+' dari '+m.jabatan.length+' jabatan sudah APPROVED.</div>';
     $("chk-jab-semua").onchange = ()=> document.querySelectorAll(".chk-jab:not(:disabled)").forEach(c=> c.checked = $("chk-jab-semua").checked);
     const L = o.links||{}, nama = { gap:"Gap Competency", matrix:"Training Matrix", plan:"Training Plan", calendar:"Training Calendar", itp:"Individual Training Plan" };
@@ -3385,6 +3672,12 @@ $("btn-tna-approve-sel").onclick = async ()=>{
   if(!kode.length){ showErr("err-tna-approve","Pilih minimal satu jabatan."); return; }
   if(!confirm("Setujui "+kode.length+" matriks jabatan? Setelah disetujui, form asesmen jabatan tersebut terbuka.")) return;
   try{ await tnaApi("tnaApproveMatriks", { kodeList: kode }); muatAdminTNA(); }catch(e){ showErr("err-tna-approve", e.message); }
+};
+function rilisTampil(o){ const on = String((o.parameter||{}).ITPRilis||"")==="1"; $("tna-adm-rilis").innerHTML = on ? '<span class="badge badge-green">Sudah dirilis</span> ITP terlihat oleh karyawan dan atasan.' : '<span class="badge badge-amber">Belum dirilis</span> Karyawan dan atasan melihat "belum dirilis".'; $("btn-tna-rilis").textContent = on ? "Tarik kembali (sembunyikan ITP)" : "Rilis ITP ke karyawan"; $("btn-tna-rilis").dataset.on = on ? "1" : ""; }
+$("btn-tna-rilis").onclick = async ()=>{
+  clearErr("err-tna-rilis"); const on = $("btn-tna-rilis").dataset.on === "1";
+  if(!confirm(on ? "Sembunyikan ITP dari karyawan dan atasan?" : "Rilis ITP sekarang? Seluruh karyawan dan atasan langsung dapat melihat ITP dan kalender training masing-masing.\nPastikan hasil sudah divalidasi dan disetujui manajemen.")) return;
+  try{ const r = await tnaApi("tnaSetParameter", { parameter:{ ITPRilis: on ? "" : "1" } }); rilisTampil({ parameter:r.parameter }); }catch(e){ showErr("err-tna-rilis", e.message); }
 };
 $("btn-tna-generate").onclick = async ()=>{
   clearErr("err-tna-output");
