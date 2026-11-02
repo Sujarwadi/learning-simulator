@@ -1,0 +1,25 @@
+
+# Mesin data TNA: tidak boleh ada data karyawan atau isi perusahaan di repo (repo publik)
+tools/data-engine/konfigurasi_lokal.json
+tools/data-engine/*.pkl
+tools/data-engine/*.xlsx
+tools/data-engine/*.docx
+tools/data-engine/*.zip
+tools/data-engine/import_real.json
+tools/data-engine/qa_standar.json
+tools/data-engine/build_import.log
+tools/data-engine/dosier_semua.json
+tools/data-engine/dokumen_jabatan/
+tools/data-engine/demo/
+tools/data-engine/dl/
+tools/data-engine/beh/
+tools/data-engine/master/
+tools/data-engine/silabus/
+tools/data-engine/std/
+tools/data-engine/jd_extract.py
+tools/data-engine/jd_map.py
+tools/data-engine/jd_disusun_ld.py
+tools/data-engine/lib_kompetensi.py
+tools/data-engine/program2027.py
+tools/data-engine/sil_*.py
+tools/data-engine/clean_karyawan.py
