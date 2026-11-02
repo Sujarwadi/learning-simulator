@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v3.7, 31 Okt 2026. Perubahan: tnaMatriksJabatan dan tnaMatrixOutput tidak mengirim status JD, sumber, flag, dan catatan proses ke pengguna non-L&D (tampilan bersih; admin dan tim L&D tetap menerima). Sebelumnya v3.6, 31 Okt 2026: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.8, 2 Nov 2026. Perubahan: kolom Asesmen.Bukti dan aturan bukti singkat wajib untuk Level 4 dan 5 (tnaSubmit menolak dengan kode BUKTI_KURANG; bukti tampil bagi validator lewat tnaBuktiPenilai); tnaSheet melengkapi header tab lama yang skemanya bertambah kolom di ujung. Sebelumnya v3.7, 31 Okt 2026: tnaMatriksJabatan dan tnaMatrixOutput tidak mengirim status JD, sumber, flag, dan catatan proses ke pengguna non-L&D (tampilan bersih; admin dan tim L&D tetap menerima). Sebelumnya v3.6, 31 Okt 2026: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -87,7 +87,7 @@ var TNA_TAB = {
   RekamTraining: ["NIK", "Tahun", "Tanggal", "KodeProgram", "Judul", "Kategori", "Metode", "Penyelenggara", "Status", "Jam",
     "PreTest", "PostTest", "KodeTNA"],
   IHT: ["KodeJabatan", "JobTitle", "Orang2026", "Peserta2026", "JamSelling", "JamPK", "JamASS", "JamSelf", "JamTotal", "Sumber"],
-  Asesmen: ["Periode", "NIK", "KelompokID", "KodeKompetensi", "Rater", "RaterNIK", "Checks", "Level", "NA", "Alasan", "Status", "Timestamp"],
+  Asesmen: ["Periode", "NIK", "KelompokID", "KodeKompetensi", "Rater", "RaterNIK", "Checks", "Level", "NA", "Alasan", "Status", "Timestamp", "Bukti"],
   Gap: ["Periode", "NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "JobTitle", "KodeKompetensi", "Kompetensi", "Kategori",
     "Required", "Bobot", "SkorAtasan", "SkorSelf", "Actual", "Gap", "Prioritas", "KategoriGap", "Flag", "StatusValidasi"],
   Rekomendasi: ["NIK", "Nama", "KodeKompetensi", "Kompetensi", "Gap", "Prioritas", "R70_Penugasan", "R20_Sosial", "R10_Training", "DiubahValidator", "StatusValidasi"],
@@ -194,6 +194,7 @@ function handleTNA(req) {
 /* ============================================================
  * UTILITAS SHEET
  * ============================================================ */
+var TNA_SKEMA_OK = {};
 function tnaSheet(ss, nama) {
   var full = "TNA_" + nama;
   var sh = ss.getSheetByName(full);
@@ -202,9 +203,20 @@ function tnaSheet(ss, nama) {
     var h = TNA_TAB[nama];
     sh.getRange(1, 1, 1, h.length).setValues([h]).setFontWeight("bold");
     sh.setFrozenRows(1);
+  } else if (!TNA_SKEMA_OK[nama]) {
+    // Tab lama yang skemanya bertambah kolom di ujung (mis. Asesmen.Bukti): header dilengkapi, data lama tidak disentuh.
+    var hh = TNA_TAB[nama], lc = sh.getLastColumn();
+    if (lc > 0 && lc < hh.length) {
+      var ada = sh.getRange(1, 1, 1, lc).getValues()[0].map(String);
+      if (ada.join("|") === hh.slice(0, lc).join("|")) sh.getRange(1, lc + 1, 1, hh.length - lc).setValues([hh.slice(lc)]).setFontWeight("bold");
+    }
+    TNA_SKEMA_OK[nama] = true;
   }
   return sh;
 }
+// Bukti singkat wajib untuk level 4 dan 5 (keputusan L&D 2 Nov 2026): minimal 12 karakter dan 3 kata, supaya bukan isian asal.
+var TNA_BUKTI_MIN_LEVEL = 4;
+function tnaBuktiCukup(t) { t = String(t || "").trim(); return t.length >= 12 && t.split(/\s+/).length >= 3; }
 
 // Membaca tab sebagai array objek berdasarkan header baris 1.
 // Tab statis (berubah hanya saat import/approve) disimpan di CacheService 6 jam supaya layar hasil & validasi cepat.
@@ -529,7 +541,7 @@ function tnaForm(ss, req) {
     if (lihatDelegasi) { if (a.Rater !== "DELEGASI" || a.Status !== "MENUNGGU_APPROVAL") return; }
     else if (String(a.RaterNIK) !== auth.nik) return;
     if (req.kelompokId ? a.KelompokID !== req.kelompokId : String(a.NIK) !== target.nik) return;
-    prev[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan };
+    prev[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan, bukti: String(a.Bukti || "") };
   });
   var draft = lihatDelegasi ? null : (tnaDraftMilik(ss, p, auth.nik)[req.kelompokId ? "K:" + req.kelompokId : target.nik] || null);
   return { ok: true, peran: peran, judul: judul, target: target, kompetensi: komp, jawaban: prev, draft: draft, window: tnaWindow(p).status };
@@ -575,20 +587,24 @@ function tnaSubmit(ss, req) {
   var komp = tnaKompetensiJabatan(ss, kodeJabatan);
   var wajib = {}; komp.forEach(function (k) { wajib[k.kode] = true; });
   var jawaban = req.jawaban || {};
-  var baris = [], kurang = [];
+  var baris = [], kurang = [], tanpaBukti = [];
+  var namaKomp = {}; komp.forEach(function (k) { namaKomp[k.kode] = k.nama; });
   Object.keys(wajib).forEach(function (kode) {
     var j = jawaban[kode];
     if (!j) { kurang.push(kode); return; }
     var na = j.na === true;
     if (na && !String(j.alasan || "").trim()) { kurang.push(kode); return; }
     var sk = tnaSkorDariChecks(j.checks);
+    var bukti = String(j.bukti || "").trim().slice(0, 300);
+    if (!na && sk.level >= TNA_BUKTI_MIN_LEVEL && !tnaBuktiCukup(bukti)) { tanpaBukti.push(namaKomp[kode] || kode); return; }
     baris.push({
       Periode: p.Periode, NIK: nikTarget, KelompokID: kelompokId, KodeKompetensi: kode, Rater: peran, RaterNIK: auth.nik,
       Checks: tnaNormalChecks(j.checks), Level: na ? "" : sk.level, NA: na, Alasan: String(j.alasan || ""),
-      Status: peran === "DELEGASI" ? "MENUNGGU_APPROVAL" : "FINAL", Timestamp: new Date()
+      Status: peran === "DELEGASI" ? "MENUNGGU_APPROVAL" : "FINAL", Timestamp: new Date(), Bukti: na ? "" : bukti
     });
   });
   if (kurang.length) return { ok: false, error: "Masih ada " + kurang.length + " kompetensi yang belum diisi (atau N/A tanpa alasan)." };
+  if (tanpaBukti.length) return { ok: false, kode: "BUKTI_KURANG", error: "Level 4 dan 5 perlu bukti singkat (satu kalimat, contoh: hasil kerja atau kejadian nyata) pada: " + tanpaBukti.slice(0, 4).join(", ") + (tanpaBukti.length > 4 ? ", dan " + (tanpaBukti.length - 4) + " lainnya" : "") + "." };
 
   var lock = LockService.getScriptLock();
   waitLockDenganRetry(lock, 15000, 3);
@@ -1217,7 +1233,7 @@ function tnaBuktiPenilai(ss, p, km, w, kelompok) {
     if (kelompok ? a.KelompokID !== w.KelompokID : (String(a.NIK) !== w.NIK || a.KelompokID)) return;
     (out[a.KodeKompetensi] = out[a.KodeKompetensi] || []).push({
       rater: (semua[String(a.RaterNIK)] || {}).Nama || String(a.RaterNIK), peran: a.Rater, checks: tnaNormalChecks(a.Checks),
-      level: a.Level, na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: String(a.Alasan || "") });
+      level: a.Level, na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: String(a.Alasan || ""), bukti: String(a.Bukti || "") });
   });
   var cek = {}; tnaBaca(ss, "Checklist").forEach(function (c) { cek[c.KodeKompetensi] = [c.C2, c.C3, c.C4, c.C5].map(String); });
   Object.keys(out).forEach(function (k) { out[k] = { penilai: out[k], checklist: cek[k] || [] }; });
@@ -1375,7 +1391,7 @@ function tnaFormTim(ss, req) {
   tnaBaca(ss, "Asesmen").forEach(function (a) {
     if (a.Periode !== p.Periode || String(a.RaterNIK) !== auth.nik || a.KelompokID) return;
     var n = String(a.NIK);
-    (prev[n] = prev[n] || {})[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan };
+    (prev[n] = prev[n] || {})[a.KodeKompetensi] = { checks: tnaNormalChecks(a.Checks), na: a.NA === true || String(a.NA).toUpperCase() === "TRUE", alasan: a.Alasan, bukti: String(a.Bukti || "") };
     if (!sudah[n] || a.Status === "FINAL") sudah[n] = a.Status;
   });
   var orang = grup[kode].sort(function (a, b) { return String(a.Nama).localeCompare(String(b.Nama)); }).map(function (k) {
