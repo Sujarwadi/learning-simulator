@@ -87,7 +87,7 @@ assert.strictEqual(r.ok, false, 'rekan tidak boleh menilai');
 r = T({ action: 'tnaKonteks', nik: 'M1', pin: '0000' }); assert.strictEqual(r.ok, false);
 
 // ---- 3. Submit
-const J = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { checks: v }]));
+const J = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { checks: v, bukti: 'bukti uji sintetis lengkap' }]));
 // M1 oleh ASS Head: T-ENG L2 (YNNN), T-ELC L3 (YYNN), B-CUS L4 (YYYN)
 r = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'M1', jawaban: J({ 'T-ENG': '0000', 'T-ELC': '1100', 'B-CUS': '1110' }) });
 assert.ok(r.ok, JSON.stringify(r));
@@ -114,6 +114,31 @@ r = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'LM1', jawaban: { 'T-ENG':
 assert.strictEqual(r.ok, false);
 r = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'LM1', jawaban: { 'T-ENG': { checks: '0000', na: true, alasan: 'baru mutasi' } } });
 assert.ok(r.ok);
+
+// ---- 3b. Bukti wajib untuk Level 4 dan 5 (TNA v3.8). Penolakan tidak menulis apa pun, jadi aman terhadap alur uji berikutnya.
+{
+  const B = (checks, bukti) => ({ 'T-ENG': { checks: '1000' }, 'T-ELC': { checks: '1000' }, 'B-CUS': Object.assign({ checks }, bukti === undefined ? {} : { bukti }) });
+  const tanpa = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'M2', jawaban: B('1110') });                  // Level 4 tanpa bukti
+  assert.strictEqual(tanpa.ok, false); assert.strictEqual(tanpa.kode, 'BUKTI_KURANG'); assert.ok(/Level 4 dan 5/.test(tanpa.error) && /Customer|B-CUS/i.test(tanpa.error), tanpa.error);
+  const pendek = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'M2', jawaban: B('1111', 'bagus ya') });       // Level 5, bukti terlalu singkat
+  assert.strictEqual(pendek.kode, 'BUKTI_KURANG', 'bukti 8 karakter ditolak');
+  const dua = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'M2', jawaban: B('1111', 'terlalu_panjang_tanpa_spasi_sama_sekali') });
+  assert.strictEqual(dua.kode, 'BUKTI_KURANG', 'bukti satu kata ditolak');
+  const spasi = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'M2', jawaban: B('1111', '              ') });
+  assert.strictEqual(spasi.kode, 'BUKTI_KURANG', 'bukti spasi kosong ditolak');
+  const na = T({ action: 'tnaSubmit', ...auth('ASH1'), target: 'M2', jawaban: { 'T-ENG': { checks: '1000' }, 'T-ELC': { checks: '1000' }, 'B-CUS': { checks: '1111', na: true } } });
+  assert.notStrictEqual(na.kode, 'BUKTI_KURANG', 'N/A tidak butuh bukti (ditolak karena alasan N/A, bukan bukti)');
+  // Level 3 ke bawah tidak butuh bukti: cukup dibuktikan lewat J lama yang dipakai test lain; di sini lewat jalur validasi tanpa menulis (M2 sudah punya penilaian)
+  assert.strictEqual(ACTIVE.getSheetByName('TNA_Asesmen').data[0].indexOf('Bukti'), 12, 'kolom Bukti ada di ujung skema');
+  // Migrasi: tab Asesmen versi lama (12 kolom) dilengkapi headernya tanpa menyentuh data lama
+  const ss2 = makeSS('migrasi'); const lama = ss2.insertSheet('TNA_Asesmen');
+  lama.data = [ctx.TNA_TAB.Asesmen.slice(0, 12), ['TNA2027', 'X1', '', 'K1', 'ATASAN', 'N1', 'YYNN', 3, false, '', 'FINAL', 'ts']];
+  ctx.TNA_SKEMA_OK = {}; ctx.tnaSheet(ss2, 'Asesmen');
+  assert.strictEqual(lama.data[0].length, 13); assert.strictEqual(lama.data[0][12], 'Bukti'); assert.strictEqual(lama.data[1][1], 'X1', 'data lama utuh');
+  // Tab dengan header asing tidak disentuh
+  const asing = ss2.insertSheet('TNA_Gap'); asing.data = [['Kolom', 'Lain'], ['a', 'b']]; ctx.TNA_SKEMA_OK = {}; ctx.tnaSheet(ss2, 'Gap');
+  assert.strictEqual(asing.data[0].length, 2, 'header yang bukan awalan skema tidak diubah');
+}
 
 const ases = ACTIVE.getSheetByName('TNA_Asesmen').data.filter(x => x[0] === 'TNA2027');
 assert.strictEqual(ases.filter(x => x[5] === 'NOH1').length, 1, 'revisi menimpa, bukan dobel');
@@ -180,6 +205,7 @@ assert.ok(T({ action: 'tnaKonteks', ...auth('NOH2') }).validasi.some(v => v.kelo
 // bukti centangan penilai untuk validator
 h = T({ action: 'tnaHasil', ...auth('BH1'), target: 'M2' });
 assert.ok(h.bukti['T-ENG'] && h.bukti['T-ENG'].penilai.some(x => x.peran === 'ATASAN' && x.checks === 'YYNN') && h.bukti['T-ENG'].checklist.length === 4, 'bukti centangan');
+assert.ok(h.bukti['T-ENG'].penilai.some(x => x.peran === 'ATASAN' && /bukti uji/.test(x.bukti)), 'bukti tampil bagi validator');
 assert.ok(T({ action: 'tnaKonteks', ...auth('ASH1') }).todo, 'todo ada di konteks');
 // validasi massal kelompok sales oleh NOH1
 kt = T({ action: 'tnaKonteks', ...auth('NOH1') });
