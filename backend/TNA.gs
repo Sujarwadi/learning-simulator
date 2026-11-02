@@ -1,4 +1,4 @@
-/* BBLC TNA Engine v3.8, 2 Nov 2026. Perubahan: kolom Asesmen.Bukti dan aturan bukti singkat wajib untuk Level 4 dan 5 (tnaSubmit menolak dengan kode BUKTI_KURANG; bukti tampil bagi validator lewat tnaBuktiPenilai); tnaSheet melengkapi header tab lama yang skemanya bertambah kolom di ujung. Sebelumnya v3.7, 31 Okt 2026: tnaMatriksJabatan dan tnaMatrixOutput tidak mengirim status JD, sumber, flag, dan catatan proses ke pengguna non-L&D (tampilan bersih; admin dan tim L&D tetap menerima). Sebelumnya v3.6, 31 Okt 2026: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
+/* BBLC TNA Engine v3.9, 2 Nov 2026. Perubahan: tindak lanjut pasca training (tab Pasca; tnaPascaDaftar, tnaPascaSimpan, tnaPascaRekap; parameter PascaMulai, PascaHari, PascaToleransiHari): atasan menilai ulang kompetensi yang dilatih 90 hari setelah training dan L&D melihat rekap perubahan perilaku. Sebelumnya v3.8, 2 Nov 2026: kolom Asesmen.Bukti dan aturan bukti singkat wajib untuk Level 4 dan 5 (tnaSubmit menolak dengan kode BUKTI_KURANG; bukti tampil bagi validator lewat tnaBuktiPenilai); tnaSheet melengkapi header tab lama yang skemanya bertambah kolom di ujung. Sebelumnya v3.7, 31 Okt 2026: tnaMatriksJabatan dan tnaMatrixOutput tidak mengirim status JD, sumber, flag, dan catatan proses ke pengguna non-L&D (tampilan bersih; admin dan tim L&D tetap menerima). Sebelumnya v3.6, 31 Okt 2026: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
  * hanya tampil untuk L&D; tnaProgres, tnaTim, tnaTrainingTim menerima `lingkup` (langsung | bawahan | semua; semua hanya admin; bawaan langsung) dan tnaMatrixOutput mengirim timLangsung serta timSaya (seluruh bawahan)
@@ -62,7 +62,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "2.7";
+var TNA_VERSION = "3.9";
 
 /* ============================================================
  * SKEMA TAB
@@ -98,6 +98,7 @@ var TNA_TAB = {
   Proyeksi: ["NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
     "TotalJam", "TargetJam", "PersenTarget", "StatusJam", "ReadinessSaatIni", "ReadinessProyeksi"],
   Draft: ["Periode", "RaterNIK", "Target", "Jawaban", "Timestamp"],
+  Pasca: ["IDPasca", "NIK", "KodeTraining", "Judul", "TanggalTraining", "JatuhTempo", "KodeKompetensi", "PenilaiNIK", "Checks", "LevelSesudah", "LevelSebelum", "NA", "Alasan", "Bukti", "Dampak", "Status", "Timestamp"],
   Log: ["Timestamp", "NIK", "Aksi", "Detail"]
 };
 
@@ -133,7 +134,10 @@ var TNA_PARAM_DEFAULT = [
   ["Rekonsiliasi", "", "Diisi sistem: total jam Plan/ITP/Calendar"],
   ["UrlStudio", "https://sujarwadi.github.io/learning-simulator/kompetensi/", "Link Studio di pesan pengingat WA"],
   ["PengingatHari", "5,3,1,0", "Pengingat WA dikirim H-n sebelum window tutup (0 = hari terakhir)"],
-  ["PengingatJam", 8, "Jam kirim pengingat WA terjadwal (WITA)"]
+  ["PengingatJam", 8, "Jam kirim pengingat WA terjadwal (WITA)"],
+  ["PascaMulai", "2027-01-01", "Tindak lanjut pasca training hanya untuk training yang diikuti pada atau setelah tanggal ini (yyyy-MM-dd). Isi lebih awal bila riwayat training lama ikut ditindaklanjuti"],
+  ["PascaHari", 90, "Hari setelah training sampai atasan diminta menilai ulang perilaku karyawan"],
+  ["PascaToleransiHari", 30, "Hari setelah jatuh tempo sebelum tindak lanjut dihitung terlambat"]
 ];
 
 var TNA_BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -187,6 +191,9 @@ function handleTNA(req) {
     case "tnaKatalog": return tnaKatalog(ss, req);
     case "tnaSilabusStatus": return tnaSilabusStatus(ss, req);
     case "tnaRekam": return tnaRekam(ss, req);
+    case "tnaPascaDaftar": return tnaPascaDaftar(ss, req);
+    case "tnaPascaSimpan": return tnaPascaSimpan(ss, req);
+    case "tnaPascaRekap": return tnaPascaRekap(ss, req);
     default: return { ok: false, error: "Aksi TNA tidak dikenal." };
   }
 }
@@ -961,7 +968,7 @@ function tnaSetParameter(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin." };
   var boleh = ["KodeJabatanLD", "WindowBuka", "WindowTutup", "BobotAtasan", "BobotSelf", "TargetJamBulan", "ITPRilis", "KapasitasKelas", "DurasiDefaultJam",
-    "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT", "ProyeksiPesertaBST"];
+    "KoefTraining", "KoefCoaching", "KoefPenugasan", "JamCoachingPerGap", "MaksPersenIHT", "JamSesiIHT", "ProyeksiPesertaBST", "PascaMulai", "PascaHari", "PascaToleransiHari"];
   var sh = tnaSheet(ss, "Parameter");
   var v = sh.getDataRange().getValues();
   var ubah = req.parameter || {};
@@ -2206,6 +2213,156 @@ function tnaRekam(ss, req) {
   });
   return { ok: true, nama: t.Nama, jabatan: t.Jabatan, cabang: t.Cabang, rekam: rows,
     ringkasan: Object.keys(tahun).sort().reverse().map(function (y) { tahun[y].jam = tnaR2(tahun[y].jam); return tahun[y]; }) };
+}
+
+/* ============================================================
+ * TINDAK LANJUT PASCA TRAINING (v3.9): tiga bulan setelah karyawan mengikuti training, atasan langsung menilai ulang HANYA kompetensi
+ * yang dilatih (checklist sama dengan asesmen, skor Guttman, bukti wajib untuk Level 4 dan 5). Hasilnya dibandingkan dengan skor atasan
+ * pada asesmen TNA (penilai yang sama, jadi tidak membandingkan penilai berbeda). Ini ukuran perubahan perilaku (Kirkpatrick Level 3),
+ * bukan penilaian kinerja. Kolom Dampak (opsional) mencatat hasil kerja nyata sebagai jembatan ke KPI dan ROI.
+ * Training yang dihitung: kategori Wajib dan Dianjurkan, status HADIR atau SELESAI, tanggal >= PascaMulai, sudah lewat PascaHari.
+ * ============================================================ */
+function tnaHariIni() { return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10); }
+function tnaTglISO(x) {
+  if (x instanceof Date) return isNaN(x.getTime()) ? "" : new Date(x.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+  var m = String(x || "").trim().match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[0] : "";
+}
+function tnaTambahHari(iso, n) { var a = iso.split("-"); return new Date(Date.UTC(+a[0], +a[1] - 1, +a[2] + n)).toISOString().slice(0, 10); }
+function tnaPascaIdTutup(id) { return String(id || "").split("|"); }
+
+// Item tindak lanjut yang sudah jatuh tempo. penilaiNik diisi: hanya bawahan langsung orang itu. Kosong: seluruh karyawan (rekap L&D).
+function tnaPascaKandidat(ss, p, km, penilaiNik) {
+  var mulai = tnaTglISO(p.PascaMulai) || "2027-01-01", hari = Number(p.PascaHari) || 90, tol = Number(p.PascaToleransiHari) || 30, hariIni = tnaHariIni();
+  var orang = {};
+  Object.keys(km).forEach(function (n) { if (!penilaiNik || km[n].PenilaiNIK === penilaiNik) orang[n] = km[n]; });
+  if (!Object.keys(orang).length) return [];
+  var kat = {}; tnaBaca(ss, "Katalog").forEach(function (c) { var k = String(c.Kategori); if (k === "Wajib" || k === "Dianjurkan") kat[c.KodeTraining] = c; });
+  var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = k; });
+  var cek = {}; tnaBaca(ss, "Checklist").forEach(function (c) { cek[c.KodeKompetensi] = [c.C2, c.C3, c.C4, c.C5].map(String); });
+  var mat = {}; tnaBaca(ss, "Matriks").forEach(function (m) { (mat[m.KodeJabatan] = mat[m.KodeJabatan] || {})[m.KodeKompetensi] = m; });
+  var gap = {}; tnaBaca(ss, "Gap").forEach(function (g) {
+    if (g.Periode !== p.Periode) return;
+    var sa = g.SkorAtasan === "" || g.SkorAtasan === null ? NaN : Number(g.SkorAtasan), ac = g.Actual === "" || g.Actual === null ? NaN : Number(g.Actual);
+    gap[String(g.NIK) + "|" + g.KodeKompetensi] = !isNaN(sa) ? sa : (!isNaN(ac) ? ac : null);
+  });
+  var selesai = {}; tnaBaca(ss, "Pasca").forEach(function (r) { (selesai[r.IDPasca] = selesai[r.IDPasca] || {})[r.KodeKompetensi] = r; });
+  // Pembanding cadangan bila output (tab Gap) belum digenerate: rata-rata penilaian atasan individu (FINAL) pada asesmen yang sama. Dibaca sekali, hanya bila dibutuhkan.
+  var cadangan = null;
+  var dasar = function (nik, k) {
+    var v = gap[nik + "|" + k]; if (v !== undefined && v !== null) return v;
+    if (cadangan === null) {
+      cadangan = {};
+      tnaBaca(ss, "Asesmen").forEach(function (a) {
+        if (a.Periode !== p.Periode || a.Status !== "FINAL" || a.KelompokID || (a.Rater !== "ATASAN" && a.Rater !== "ATASAN2") || a.NA === true || String(a.NA).toUpperCase() === "TRUE") return;
+        var lv = Number(a.Level); if (!lv) return;
+        (cadangan[String(a.NIK) + "|" + a.KodeKompetensi] = cadangan[String(a.NIK) + "|" + a.KodeKompetensi] || []).push(lv);
+      });
+    }
+    var l = cadangan[nik + "|" + k]; return l && l.length ? l.reduce(function (x, y) { return x + y; }, 0) / l.length : null;
+  };
+  var hasil = {}, adaTugas = Object.keys(orang);
+  tnaBaca(ss, "RekamTraining").forEach(function (r) {
+    var nik = String(r.NIK), st = String(r.Status).toUpperCase();
+    if (!orang[nik] || (st !== "HADIR" && st !== "SELESAI")) return;
+    var c = kat[String(r.KodeTNA || "")]; if (!c) return;
+    var tgl = tnaTglISO(r.Tanggal); if (!tgl || tgl < mulai) return;
+    var tempo = tnaTambahHari(tgl, hari); if (tempo > hariIni) return;
+    var id = nik + "|" + c.KodeTraining + "|" + tgl; if (hasil[id]) return;
+    var mk = mat[orang[nik].KodeJabatan] || {}, kd = String(c.KodeKompetensi || "").split(/[,;]\s*/).filter(function (x) { return x && mk[x]; });
+    kd.sort(function (a, b) { return (Number(mk[b].Bobot || 2) - Number(mk[a].Bobot || 2)) || (Number(mk[b].RequiredLevel) - Number(mk[a].RequiredLevel)); });
+    kd = kd.slice(0, 2); if (!kd.length) return;
+    var sdh = selesai[id] || null;
+    hasil[id] = {
+      id: id, nik: nik, nama: orang[nik].Nama, cabang: orang[nik].Cabang, jabatan: orang[nik].Jabatan, penilai: orang[nik].PenilaiNIK,
+      kodeTraining: c.KodeTraining, judul: c.Judul, kategori: String(c.Kategori), tanggal: tgl, jatuhTempo: tempo,
+      terlambat: !sdh && hariIni > tnaTambahHari(tempo, tol), selesai: !!sdh,
+      kompetensi: kd.map(function (k) {
+        var kk = kamus[k] || {}, prev = sdh && sdh[k] ? sdh[k] : null, sb = dasar(nik, k);
+        return { kode: k, nama: kk.Nama || k, kategori: kk.Kategori || "", checklist: cek[k] || ["", "", "", ""], required: Number(mk[k].RequiredLevel),
+          levelSebelum: sb === undefined || sb === null ? null : tnaR2(sb),
+          jawaban: prev ? { checks: tnaNormalChecks(prev.Checks), na: prev.NA === true || String(prev.NA).toUpperCase() === "TRUE", alasan: String(prev.Alasan || ""), bukti: String(prev.Bukti || ""), dampak: String(prev.Dampak || "") } : null };
+      })
+    };
+  });
+  return Object.keys(hasil).map(function (k) { return hasil[k]; }).sort(function (a, b) { return a.jatuhTempo.localeCompare(b.jatuhTempo) || a.nama.localeCompare(b.nama); });
+}
+
+function tnaPascaDaftar(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss), saya = Object.keys(km).some(function (n) { return km[n].PenilaiNIK === auth.nik; });
+  if (!saya) return { ok: true, adaTim: false, menunggu: [], selesai: [], terlambat: 0 };
+  var semua = tnaPascaKandidat(ss, p, km, auth.nik);
+  var menunggu = semua.filter(function (x) { return !x.selesai; }), selesai = semua.filter(function (x) { return x.selesai; }).reverse().slice(0, 30);
+  return { ok: true, adaTim: true, menunggu: menunggu, selesai: selesai, terlambat: menunggu.filter(function (x) { return x.terlambat; }).length,
+    mulai: tnaTglISO(p.PascaMulai) || "2027-01-01", hari: Number(p.PascaHari) || 90 };
+}
+
+function tnaPascaSimpan(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss), id = String(req.id || ""), bag = tnaPascaIdTutup(id), nik = bag[0];
+  var t = km[nik]; if (!t) return { ok: false, error: "Karyawan tidak terdaftar di TNA 2027." };
+  if (t.PenilaiNIK !== auth.nik && auth.role !== "admin") return { ok: false, error: "Hanya atasan langsung yang dapat mengisi tindak lanjut ini." };
+  var item = tnaPascaKandidat(ss, p, km, t.PenilaiNIK).filter(function (x) { return x.id === id; })[0];
+  if (!item) return { ok: false, error: "Tindak lanjut ini belum jatuh tempo atau sudah tidak berlaku." };
+  var jawaban = req.jawaban || {}, baris = [], kurang = [], tanpaBukti = [], ringkas = [], dampak = String(req.dampak || "").trim().slice(0, 300);
+  item.kompetensi.forEach(function (k) {
+    var j = jawaban[k.kode]; if (!j) { kurang.push(k.nama); return; }
+    var na = j.na === true;
+    if (na && !String(j.alasan || "").trim()) { kurang.push(k.nama); return; }
+    var sk = tnaSkorDariChecks(j.checks), bukti = String(j.bukti || "").trim().slice(0, 300);
+    if (!na && sk.level >= TNA_BUKTI_MIN_LEVEL && !tnaBuktiCukup(bukti)) { tanpaBukti.push(k.nama); return; }
+    baris.push({ IDPasca: id, NIK: nik, KodeTraining: item.kodeTraining, Judul: item.judul, TanggalTraining: item.tanggal, JatuhTempo: item.jatuhTempo,
+      KodeKompetensi: k.kode, PenilaiNIK: auth.nik, Checks: tnaNormalChecks(j.checks), LevelSesudah: na ? "" : sk.level, LevelSebelum: k.levelSebelum === null ? "" : k.levelSebelum,
+      NA: na, Alasan: String(j.alasan || ""), Bukti: na ? "" : bukti, Dampak: dampak, Status: "SELESAI", Timestamp: new Date() });
+    ringkas.push({ nama: k.nama, sebelum: k.levelSebelum, sesudah: na ? null : sk.level });
+  });
+  if (kurang.length) return { ok: false, error: "Masih ada kompetensi yang belum diisi (atau N/A tanpa alasan): " + kurang.join(", ") + "." };
+  if (tanpaBukti.length) return { ok: false, kode: "BUKTI_KURANG", error: "Level 4 dan 5 perlu bukti singkat (satu kalimat) pada: " + tanpaBukti.join(", ") + "." };
+  var lock = LockService.getScriptLock();
+  waitLockDenganRetry(lock, 15000, 3);
+  try {
+    var sh = tnaSheet(ss, "Pasca"), v = sh.getDataRange().getValues(), simpan = [v[0]];
+    for (var i = 1; i < v.length; i++) if (String(v[i][0]) !== id) simpan.push(v[i]);
+    if (simpan.length !== v.length) { sh.getRange(1, 1, v.length, v[0].length).clearContent(); sh.getRange(1, 1, simpan.length, v[0].length).setValues(simpan); }
+    tnaTambah(ss, "Pasca", baris);
+  } finally { lock.releaseLock(); }
+  tnaLog(ss, auth.nik, "pasca", id + " " + baris.length + " kompetensi");
+  return { ok: true, nama: item.nama, ringkas: ringkas };
+}
+
+function tnaPascaRekap(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (!tnaInternalLD(ss, auth)) return { ok: false, error: "Rekap efektivitas hanya untuk admin dan tim L&D." };
+  var p = tnaParam(ss), km = tnaPetaKaryawan(ss), semua = tnaPascaKandidat(ss, p, km, ""), hariIni = tnaHariIni();
+  var jawab = tnaBaca(ss, "Pasca").filter(function (r) { return String(r.Status) === "SELESAI"; });
+  var item = {}; semua.forEach(function (x) { item[x.id] = x; });
+  var kls = function (d) { return d >= 0.5 ? "naik" : (d <= -0.5 ? "turun" : "tetap"); };
+  var perTr = {}, perKomp = {}, kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = k.Nama; });
+  var detail = [], nBase = 0, nNaik = 0, nTetap = 0, nTurun = 0, nDampak = {}, sumDelta = 0;
+  jawab.forEach(function (r) {
+    var na = r.NA === true || String(r.NA).toUpperCase() === "TRUE";
+    var sb = r.LevelSebelum === "" || r.LevelSebelum === null ? null : Number(r.LevelSebelum), ss2 = r.LevelSesudah === "" ? null : Number(r.LevelSesudah);
+    var d = (!na && sb !== null && ss2 !== null) ? tnaR2(ss2 - sb) : null;
+    var t = perTr[r.KodeTraining] = perTr[r.KodeTraining] || { kode: r.KodeTraining, judul: r.Judul, n: 0, nBase: 0, naik: 0, tetap: 0, turun: 0, sumDelta: 0, na: 0 };
+    var kk = perKomp[r.KodeKompetensi] = perKomp[r.KodeKompetensi] || { kode: r.KodeKompetensi, nama: kamus[r.KodeKompetensi] || r.KodeKompetensi, n: 0, nBase: 0, sumDelta: 0 };
+    t.n++; kk.n++; if (na) t.na++;
+    if (d !== null) { t.nBase++; kk.nBase++; t.sumDelta += d; kk.sumDelta += d; t[kls(d)]++; nBase++; sumDelta += d; if (kls(d) === "naik") nNaik++; else if (kls(d) === "turun") nTurun++; else nTetap++; }
+    if (String(r.Dampak || "").trim()) nDampak[r.IDPasca] = true;
+    var o = km[String(r.NIK)] || {};
+    detail.push({ nama: o.Nama || String(r.NIK), cabang: o.Cabang || "", dept: o.Dept || "", training: r.Judul, tanggal: tnaTglISO(r.TanggalTraining), kompetensi: kamus[r.KodeKompetensi] || r.KodeKompetensi,
+      sebelum: sb, sesudah: na ? "N/A" : ss2, selisih: d, bukti: String(r.Bukti || ""), dampak: String(r.Dampak || "") });
+  });
+  var tutup = function (o) { o.rata = o.nBase ? tnaR2(o.sumDelta / o.nBase) : null; delete o.sumDelta; return o; };
+  var terlambatPer = {};
+  semua.filter(function (x) { return !x.selesai && x.terlambat; }).forEach(function (x) { var n = (km[x.penilai] || {}).Nama || "(belum ada penilai)"; terlambatPer[n] = (terlambatPer[n] || 0) + 1; });
+  var jatuh = semua.length, sdh = semua.filter(function (x) { return x.selesai; }).length;
+  return { ok: true, hariIni: hariIni, mulai: tnaTglISO(p.PascaMulai) || "2027-01-01", hari: Number(p.PascaHari) || 90,
+    ringkas: { jatuhTempo: jatuh, selesai: sdh, menunggu: jatuh - sdh, terlambat: semua.filter(function (x) { return !x.selesai && x.terlambat; }).length, persen: jatuh ? Math.round(sdh / jatuh * 100) : 0,
+      penilaian: jawab.length, denganBaseline: nBase, naik: nNaik, tetap: nTetap, turun: nTurun, rataSelisih: nBase ? tnaR2(sumDelta / nBase) : null, denganDampak: Object.keys(nDampak).length },
+    perTraining: Object.keys(perTr).map(function (k) { return tutup(perTr[k]); }).sort(function (a, b) { return b.n - a.n; }),
+    perKompetensi: Object.keys(perKomp).map(function (k) { return tutup(perKomp[k]); }).sort(function (a, b) { return b.n - a.n; }),
+    terlambatPerPenilai: Object.keys(terlambatPer).map(function (n) { return [n, terlambatPer[n]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 20),
+    detail: detail.slice(0, 5000) };
 }
 
 /* ============================================================

@@ -23,3 +23,5 @@ tools/data-engine/lib_kompetensi.py
 tools/data-engine/program2027.py
 tools/data-engine/sil_*.py
 tools/data-engine/clean_karyawan.py
+
+tools/data-engine/*.png

@@ -77,7 +77,7 @@ function backend(req) {
     await page.fill('#inp-nik', nik); await page.fill('#inp-pin', pin); await page.click('#btn-login');
     await fn(page); await page.close();
   };
-  const shot = (p, n) => p.screenshot({ path: path.join(__dirname, 'ui_' + n + '.png'), fullPage: true });
+  const shot = (p, n) => p.screenshot({ path: path.join(require('os').tmpdir(), 'ui_' + n + '.png'), fullPage: true });
 
   // Uji bukti Level 4/5 (v3.8): pilih Level 4 tanpa bukti -> ditolak dengan pesan ramah; isi bukti -> terkirim; bukti tersimpan di Sheet
   await run('M1', '5555', async (p) => {
