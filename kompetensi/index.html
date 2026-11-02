@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.37, 2 Nov 2026. Perubahan: Tindak Lanjut Training (tile baru untuk atasan): 3 bulan setelah karyawan mengikuti training, atasan menilai ulang hanya kompetensi yang dilatih; tab Rekap efektivitas untuk admin dan tim L&D (perubahan perilaku, terlambat, unduh Excel) (mesin TNA v3.9). -->
 <!-- BBLC Studio v3.36, 2 Nov 2026. Perubahan: bukti singkat wajib untuk penilaian Level 4 dan 5 (form penilaian, mode nilai per kompetensi; tampil bagi validator) supaya level tinggi tidak dicentang tanpa dasar (mesin TNA v3.8). -->
 <!-- BBLC Studio v3.35, 31 Okt 2026. Perubahan: tampilan pengguna umum bersih dari catatan proses: profil jabatan di Pusat Matrix tidak lagi menampilkan status JD dan label kompetensi (mis. JD acuan terdekat), info training tidak menampilkan "materi disiapkan L&D"; semua catatan itu tetap terlihat untuk admin dan tim L&D. -->
 <!-- BBLC Studio v3.34, 31 Okt 2026. Perubahan: Standar Kompetensi BBM v1.0 (docs/STANDAR_KOMPETENSI_BBM.md): dokumen Excel jabatan menambah kolom Bukti Penilaian (apa yang dicek atasan saat menilai). Asal setiap isi (JD verbatim, master, atau draf) dicatat di kolom Sumber pada Sheet, tidak dicetak di dokumen. -->
@@ -868,6 +869,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <button class="tile" id="btn-tna-itp"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg></span><span class="bd"><span class="tile-g">Saya</span><span class="tile-t">ITP &amp; Kalender Training Saya</span><span class="tile-d">Training, coaching, dan penugasan Anda selama 2027</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-tim" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Dashboard Tim &amp; Training Tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-pasca" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-8M22 19H2"/><path d="m4 6 6-3 6 4 5-3"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Tindak Lanjut Training</span><span class="tile-d" id="pasca-tile-d">Menilai ulang perilaku 3 bulan setelah training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Competency &amp; training matrix per jabatan, dept, divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-realisasi" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Monitor Realisasi</span><span class="tile-d">Siapa yang sudah dan belum mengisi, per divisi, dept, dan orang; diperbarui otomatis</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan Pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
@@ -906,6 +908,19 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   </section>
 
   <!-- ============ TNA 2027: PROGRES ============ -->
+  <section class="screen" id="scr-tna-pasca">
+    <header class="app">
+      <div class="logo-mark">CD</div>
+      <div style="min-width:0"><div class="app-title">TINDAK LANJUT TRAINING</div><div class="app-sub" id="pasca-sub">Perilaku 3 bulan setelah training</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:960px">
+      <div class="seg" id="pasca-tab" role="group" aria-label="Tampilan" style="display:none;margin:0 0 12px">
+        <button type="button" data-v="tugas" aria-pressed="true">Tugas saya</button><button type="button" data-v="rekap" aria-pressed="false">Rekap efektivitas (L&amp;D)</button></div>
+      <div id="pasca-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-tna-progres">
     <header class="app">
       <div class="logo-mark">CD</div>
@@ -2046,6 +2061,7 @@ async function muatBerandaTNA(){
       $("tna-tim-wrap").innerHTML = '<div class="card"><div class="empty">Tidak ada penilaian yang perlu Anda isi.</div></div>';
     }
     $("btn-tna-progres").style.display = (tim.length || kel.length || tna.isAdmin) ? "" : "none";
+    muatPascaTile();
     $("btn-tna-tim").style.display = (tim.length || kel.length || (r.validasi||[]).length || tna.isAdmin) ? "" : "none";
     // Nilai per kompetensi: muncul bila ada >= 2 orang dengan jabatan sama yang Anda nilai langsung
     const perJab = {}; tim.forEach(t=>{ perJab[t.jobTitle] = (perJab[t.jobTitle]||0) + 1; });
@@ -2390,6 +2406,130 @@ async function kirimFormTim(){
   }catch(e){ showErr("err-ft", e.message); $("ft-kirim").disabled = false; }
 }
 $("btn-ft-back").onclick = ()=>{ ftFlush(); show("scr-tna-home"); muatBerandaTNA(); };
+
+/* ---------- Tindak lanjut training (3 bulan setelah training) ---------- */
+const pasca = { tab:"tugas", d:null, list:[], jaw:{}, rekap:null };
+const pcTgl = iso => { try{ return new Date(iso+"T00:00:00+08:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}); }catch(e){ return iso; } };
+async function muatPascaTile(){
+  try{
+    const r = await tnaApi("tnaPascaDaftar"); pasca.d = r;
+    $("btn-tna-pasca").style.display = (r.adaTim || tna.internal) ? "" : "none";
+    const n = (r.menunggu||[]).length;
+    $("pasca-tile-d").textContent = n ? n+" penilaian menunggu"+(r.terlambat ? " ("+r.terlambat+" terlambat)" : "") : (r.adaTim ? "Belum ada yang jatuh tempo" : "Rekap efektivitas training");
+  }catch(e){ $("btn-tna-pasca").style.display = tna.internal ? "" : "none"; }
+}
+$("btn-tna-pasca").onclick = ()=>{ pasca.tab = "tugas"; show("scr-tna-pasca"); window.scrollTo(0,0); pascaMuat(); };
+document.querySelectorAll("#pasca-tab button").forEach(b=> b.onclick = ()=>{ pasca.tab = b.dataset.v; pascaMuat(); });
+async function pascaMuat(){
+  $("pasca-tab").style.display = tna.internal ? "" : "none";
+  document.querySelectorAll("#pasca-tab button").forEach(b=> b.setAttribute("aria-pressed", String(b.dataset.v===pasca.tab)));
+  $("pasca-body").innerHTML = '<div class="loading"><div class="spinner"></div>Memuat&hellip;</div>';
+  try{
+    if(pasca.tab==="tugas"){ pasca.d = await tnaApi("tnaPascaDaftar"); pascaRenderTugas(); }
+    else { pasca.rekap = await tnaApi("tnaPascaRekap"); pascaRenderRekap(); }
+  }catch(e){ $("pasca-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+}
+function pascaItemHtml(it, i){
+  const st = it.selesai ? '<span class="badge badge-green">Sudah diisi</span>' : (it.terlambat ? '<span class="badge badge-red">Terlambat</span>' : '<span class="badge badge-amber">Jatuh tempo</span>');
+  const komp = it.kompetensi.map((k,j)=>{
+    const a = pasca.jaw[i].komp[k.kode];
+    const items = k.checklist.map((c,ci)=>'<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:13.5px;margin:8px 0;color:var(--text)"><input type="checkbox" class="pc-chk" data-i="'+i+'" data-j="'+j+'" data-c="'+ci+'" '+(a.checks.charAt(ci)==="Y"?"checked":"")+(a.na?" disabled":"")+' style="margin-top:3px;width:20px;height:20px;flex-shrink:0"><span><b>Level '+(ci+2)+'</b> · '+esc(c)+'</span></label>').join("");
+    return '<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">'+
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="kompetensi-name" style="flex:1">'+esc(k.nama)+'</span><span class="badge '+(PASCA_KAT[k.kategori]||"badge-grey")+'">'+esc(k.kategori)+'</span></div>'+
+      '<div class="hint" style="margin:2px 0 0">'+(k.levelSebelum!==null ? 'Penilaian atasan pada asesmen TNA: <b>Level '+esc(k.levelSebelum)+'</b>' : 'Belum ada penilaian atasan sebagai pembanding')+' · Level dipersyaratkan: <b>'+k.required+'</b></div>'+
+      '<div class="hint" style="margin:6px 0 0">Centang perilaku yang <b>teramati konsisten sekarang</b>, setelah training.</div>'+items+
+      '<div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap"><span class="badge pc-lv" id="pc-lv-'+i+'-'+j+'"></span>'+
+      '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:12.5px"><input type="checkbox" class="pc-na" data-i="'+i+'" data-j="'+j+'" '+(a.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
+      '<input type="text" class="pc-alasan" data-i="'+i+'" data-j="'+j+'" placeholder="Alasan N/A" value="'+esc(a.alasan)+'" style="margin-top:8px;display:'+(a.na?"block":"none")+'">'+
+      '<div class="pc-bukti-wrap" id="pc-bw-'+i+'-'+j+'" style="margin-top:8px;display:none"><label style="font-size:12.5px;margin:0 0 4px;font-weight:600">Bukti untuk level ini <span class="hint" style="font-weight:400">(wajib untuk Level 4 dan 5)</span></label>'+
+      '<input type="text" class="pc-bukti" data-i="'+i+'" data-j="'+j+'" maxlength="300" placeholder="'+esc(BUKTI_PETUNJUK)+'" value="'+esc(a.bukti)+'"><div class="hint" style="margin:4px 0 0">'+esc(BUKTI_CONTOH)+'</div></div></div>';
+  }).join("");
+  return '<div class="card" data-pi="'+i+'" style="padding:16px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap"><div><b>'+esc(it.nama)+'</b><div class="hint" style="margin:0">'+esc(it.cabang)+' · '+esc(it.jabatan)+'</div></div>'+st+'</div>'+
+    '<div style="margin-top:8px;font-size:13.5px">Training: <b>'+esc(it.judul)+'</b><div class="hint" style="margin:0">Diikuti '+esc(pcTgl(it.tanggal))+' · jatuh tempo '+esc(pcTgl(it.jatuhTempo))+'</div></div>'+komp+
+    '<div style="margin-top:12px"><label style="font-size:12.5px;margin:0 0 4px;font-weight:600">Dampak ke pekerjaan <span class="hint" style="font-weight:400">(opsional)</span></label>'+
+    '<input type="text" class="pc-dampak" data-i="'+i+'" maxlength="300" placeholder="Hasil kerja atau KPI yang berubah setelah training" value="'+esc(pasca.jaw[i].dampak)+'"></div>'+
+    '<div class="err" id="err-pc-'+i+'"></div><button type="button" class="btn btn-primary pc-kirim" data-i="'+i+'" style="margin-top:10px">'+(it.selesai?"Simpan perubahan":"Kirim tindak lanjut")+'</button></div>';
+}
+const PASCA_KAT = { Behavioral:"badge-grey", Technical:"badge-green", Leadership:"badge-amber" };
+function pascaRenderTugas(){
+  const d = pasca.d, mnt = d.menunggu||[], sdh = d.selesai||[];
+  pasca.list = mnt.concat(sdh); pasca.jaw = {};
+  pasca.list.forEach((it,i)=>{ const o = { komp:{}, dampak:"" }; it.kompetensi.forEach(k=>{ const j = k.jawaban; o.komp[k.kode] = { checks: j ? j.checks : "NNNN", na: j ? j.na : false, alasan: j ? j.alasan : "", bukti: j ? j.bukti : "" }; if(j && j.dampak) o.dampak = j.dampak; }); pasca.jaw[i] = o; });
+  $("pasca-sub").textContent = mnt.length ? mnt.length+" penilaian menunggu" : "Perilaku 3 bulan setelah training";
+  if(!d.adaTim){ $("pasca-body").innerHTML = '<div class="card"><div class="empty"><b>Anda tidak menilai karyawan secara langsung.</b><br>Tindak lanjut training diisi oleh atasan langsung peserta.'+(tna.internal?' Lihat tab Rekap efektivitas.':'')+'</div></div>'; return; }
+  const intro = '<div class="card" style="padding:14px 18px"><b>Apakah training berdampak pada pekerjaan?</b><div class="hint" style="margin:4px 0 0">'+(d.hari||90)+' hari setelah karyawan mengikuti training, nilai ulang <b>hanya kompetensi yang dilatih</b> dengan checklist yang sama seperti asesmen. Hasilnya dibandingkan dengan penilaian Anda sebelumnya, untuk melihat perubahan perilaku. Ini bukan penilaian kinerja.</div></div>';
+  const kosong = !mnt.length ? '<div class="card"><div class="empty">Tidak ada tindak lanjut yang menunggu.'+(d.mulai?'<br><span class="hint">Training yang diikuti sejak '+esc(pcTgl(d.mulai))+' akan muncul '+(d.hari||90)+' hari setelah pelaksanaan.</span>':'')+'</div></div>' : '';
+  $("pasca-body").innerHTML = intro + mnt.map((it,i)=>pascaItemHtml(it,i)).join("") + kosong +
+    (sdh.length ? '<details class="card" style="padding:14px 18px"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Sudah diisi ('+sdh.length+')</summary><div style="margin-top:10px">'+sdh.map((it,k)=>pascaItemHtml(it, mnt.length+k)).join("")+'</div></details>' : '');
+  pasca.list.forEach((it,i)=> it.kompetensi.forEach((k,j)=> pascaLevel(i,j)));
+}
+function pascaLevel(i,j){
+  const k = pasca.list[i].kompetensi[j], a = pasca.jaw[i].komp[k.kode], el = $("pc-lv-"+i+"-"+j); if(!el) return;
+  if(a.na){ el.className = "badge pc-lv badge-grey"; el.textContent = "N/A"; }
+  else { const s = skorGuttman(a.checks); el.className = "badge pc-lv "+(s.lv >= k.required ? "badge-green" : (k.required - s.lv >= 2 ? "badge-red" : "badge-amber")); el.textContent = "Level "+s.lv+" · "+LV_NAMA[s.lv]+(k.levelSebelum!==null ? " (sebelumnya "+k.levelSebelum+")" : "")+(s.inkon ? " · centang melompat, cek lagi" : ""); }
+  const bw = $("pc-bw-"+i+"-"+j); if(bw) bw.style.display = (!a.na && skorGuttman(a.checks).lv >= BUKTI_MIN_LEVEL) ? "block" : "none";
+}
+(function(){
+  const b = $("pasca-body"), ik = e => { const i = +e.target.dataset.i, j = +e.target.dataset.j; const it = pasca.list[i]; return { i, j, it, k: it && it.kompetensi[j] }; };
+  b.addEventListener("change", e=>{
+    if(e.target.classList.contains("pc-chk")){ const x = ik(e), a = pasca.jaw[x.i].komp[x.k.kode], arr = a.checks.split(""); arr[+e.target.dataset.c] = e.target.checked ? "Y" : "N"; a.checks = arr.join(""); pascaLevel(x.i,x.j); }
+    else if(e.target.classList.contains("pc-na")){ const x = ik(e), a = pasca.jaw[x.i].komp[x.k.kode]; a.na = e.target.checked;
+      b.querySelectorAll('.pc-chk[data-i="'+x.i+'"][data-j="'+x.j+'"]').forEach(c=> c.disabled = a.na);
+      b.querySelector('.pc-alasan[data-i="'+x.i+'"][data-j="'+x.j+'"]').style.display = a.na ? "block" : "none"; pascaLevel(x.i,x.j); }
+  });
+  b.addEventListener("input", e=>{
+    if(e.target.classList.contains("pc-alasan")){ const x = ik(e); pasca.jaw[x.i].komp[x.k.kode].alasan = e.target.value; }
+    else if(e.target.classList.contains("pc-bukti")){ const x = ik(e); pasca.jaw[x.i].komp[x.k.kode].bukti = e.target.value; }
+    else if(e.target.classList.contains("pc-dampak")){ pasca.jaw[+e.target.dataset.i].dampak = e.target.value; }
+  });
+  b.addEventListener("click", async e=>{
+    const t = e.target.closest(".pc-kirim"); if(!t) return;
+    const i = +t.dataset.i, it = pasca.list[i], jw = pasca.jaw[i], err = "err-pc-"+i; clearErr(err);
+    const naKosong = it.kompetensi.filter(k=>{ const a = jw.komp[k.kode]; return a.na && !a.alasan.trim(); });
+    if(naKosong.length){ showErr(err,"Isi alasan N/A untuk: "+naKosong.map(k=>k.nama).join(", ")); return; }
+    const tanpa = it.kompetensi.filter(k=>{ const a = jw.komp[k.kode]; return !a.na && skorGuttman(a.checks).lv >= BUKTI_MIN_LEVEL && !buktiCukup(a.bukti); });
+    if(tanpa.length){ showErr(err,"Level 4 dan 5 perlu bukti singkat (satu kalimat) pada: "+tanpa.map(k=>k.nama).join(", ")+"."); const j = it.kompetensi.indexOf(tanpa[0]), el = b.querySelector('.pc-bukti[data-i="'+i+'"][data-j="'+j+'"]'); if(el){ el.scrollIntoView({block:"center"}); el.focus(); } return; }
+    const kosong = it.kompetensi.every(k=>{ const a = jw.komp[k.kode]; return !a.na && a.checks==="NNNN"; });
+    if(kosong && !confirm("Tidak ada perilaku yang dicentang, tercatat Level 1 untuk semua kompetensi. Lanjut kirim?")) return;
+    const jawaban = {}; it.kompetensi.forEach(k=>{ const a = jw.komp[k.kode]; jawaban[k.kode] = { checks:a.checks, na:a.na, alasan:a.alasan, bukti:a.bukti }; });
+    t.disabled = true;
+    try{
+      const r = await tnaApi("tnaPascaSimpan", { id: it.id, jawaban, dampak: jw.dampak });
+      const ring = (r.ringkas||[]).map(x=> x.nama+": "+(x.sebelum!==null ? "Level "+x.sebelum+" → " : "")+(x.sesudah===null ? "N/A" : "Level "+x.sesudah)).join("\n");
+      alert("Tindak lanjut tersimpan.\n\n"+ring); await pascaMuat(); muatPascaTile();
+    }catch(ex){ showErr(err, ex.message); t.disabled = false; }
+  });
+})();
+function pascaDelta(x){ return x===null||x===undefined ? "-" : (x>0?"+":"")+x; }
+function pascaRenderRekap(){
+  const r = pasca.rekap, R = r.ringkas, kpi = (n,l,w)=>'<div class="chip-k"><div class="n" style="color:'+(w||"var(--ink)")+'">'+n+'</div><div class="l">'+l+'</div></div>';
+  const tabel = (judul, kolom, rows)=> rows.length ? '<h2 class="sect">'+judul+'</h2><div class="card" style="overflow-x:auto"><table><tr>'+kolom.map(c=>'<th>'+c+'</th>').join("")+'</tr>'+rows.map(x=>'<tr>'+x.map(c=>'<td>'+c+'</td>').join("")+'</tr>').join("")+'</table></div>' : '';
+  $("pasca-sub").textContent = R.jatuhTempo+" jatuh tempo · "+R.persen+"% terisi";
+  $("pasca-body").innerHTML =
+    '<div class="card" style="padding:14px 18px"><b>Efektivitas training: perubahan perilaku</b><div class="hint" style="margin:4px 0 0">Selisih = penilaian atasan setelah training dikurangi penilaian atasan yang sama pada asesmen TNA. Ini indikator perubahan perilaku (Kirkpatrick Level 3), <b>bukan bukti sebab-akibat</b>: belum ada kelompok pembanding. Perubahan kurang dari 0,5 level dihitung tidak berubah. Dihitung untuk training sejak '+esc(pcTgl(r.mulai))+'.</div></div>'+
+    '<div class="card" style="padding:14px 18px"><div style="display:flex;gap:8px;flex-wrap:wrap">'+kpi(R.jatuhTempo,"jatuh tempo")+kpi(R.selesai,"sudah diisi","var(--green)")+kpi(R.menunggu,"menunggu","var(--amber)")+kpi(R.terlambat,"terlambat","var(--red)")+kpi(R.persen+"%","terisi")+'</div></div>'+
+    (R.denganBaseline ? '<div class="card" style="padding:14px 18px"><div style="display:flex;gap:8px;flex-wrap:wrap">'+kpi(R.denganBaseline,"penilaian dengan pembanding")+kpi(R.naik,"perilaku naik","var(--green)")+kpi(R.tetap,"tidak berubah")+kpi(R.turun,"turun","var(--red)")+kpi(pascaDelta(R.rataSelisih),"rata-rata selisih level")+kpi(R.denganDampak,"dengan catatan dampak")+'</div></div>' : '<div class="card"><div class="empty">'+(R.penilaian ? 'Belum ada penilaian yang punya pembanding asesmen.' : 'Belum ada tindak lanjut yang terisi.')+'</div></div>')+
+    tabel("Per Training", ["Training","Diisi","Rata-rata selisih","Naik","Tetap","Turun"], r.perTraining.map(t=>[esc(t.judul),t.n,pascaDelta(t.rata),t.naik,t.tetap,t.turun]))+
+    tabel("Per Kompetensi", ["Kompetensi","Diisi","Rata-rata selisih"], r.perKompetensi.map(t=>[esc(t.nama),t.n,pascaDelta(t.rata)]))+
+    tabel("Atasan dengan Tindak Lanjut Terlambat", ["Atasan","Terlambat"], r.terlambatPerPenilai.map(x=>[esc(x[0]),x[1]]))+
+    '<div class="err" id="err-pasca-xls"></div><button type="button" class="btn btn-ghost" id="btn-pasca-xls" style="margin:12px 0 30px">Unduh rekap (Excel)</button>';
+  $("btn-pasca-xls").onclick = pascaUnduh;
+}
+async function pascaUnduh(){
+  const r = pasca.rekap, b = $("btn-pasca-xls"); b.disabled = true; clearErr("err-pasca-xls");
+  try{
+    const H = t=>({ v:t, s:{ b:1, sz:10, c:"FFFFFF", f:"1F4E79", h:"center", v:"center", w:1, bd:1 } }), C = (v,h)=>({ v:v, s:{ sz:10, bd:1, v:"center", h:h||"left", w:1 } }), R = r.ringkas;
+    const ringkas = [[{ v:"Tindak Lanjut Training: Efektivitas Perilaku", s:{ b:1, sz:14, c:"1F4E79" } }],["Per tanggal", r.hariIni],["Training sejak", r.mulai],[],[H("Ukuran"),H("Nilai")],
+      [C("Jatuh tempo"),C(R.jatuhTempo,"right")],[C("Sudah diisi"),C(R.selesai,"right")],[C("Terlambat"),C(R.terlambat,"right")],[C("Persen terisi"),C(R.persen/100,"right")],
+      [C("Penilaian dengan pembanding"),C(R.denganBaseline,"right")],[C("Perilaku naik"),C(R.naik,"right")],[C("Tidak berubah"),C(R.tetap,"right")],[C("Turun"),C(R.turun,"right")],[C("Rata-rata selisih level"),C(R.rataSelisih===null?"-":R.rataSelisih,"right")]];
+    const tr = [[H("Training"),H("Diisi"),H("Rata-rata selisih"),H("Naik"),H("Tetap"),H("Turun")]].concat(r.perTraining.map(t=>[C(t.judul),C(t.n,"right"),C(t.rata===null?"-":t.rata,"right"),C(t.naik,"right"),C(t.tetap,"right"),C(t.turun,"right")]));
+    const dt = [["Nama","Cabang","Dept","Training","Tanggal training","Kompetensi","Sebelum","Sesudah","Selisih","Bukti","Dampak"].map(H)].concat(r.detail.map(d=>[C(d.nama),C(d.cabang),C(d.dept),C(d.training),C(d.tanggal),C(d.kompetensi),C(d.sebelum===null?"-":d.sebelum,"right"),C(d.sesudah===null?"-":d.sesudah,"right"),C(d.selisih===null?"-":d.selisih,"right"),C(d.bukti),C(d.dampak)]));
+    const h = await unduhBlob(XL.build([{ nama:"Ringkasan", lebar:[34,16], baris:ringkas },{ nama:"Per Training", lebar:[44,10,16,10,10,10], baris:tr, beku:"A2" },{ nama:"Detail", lebar:[26,18,20,40,16,30,10,10,10,44,40], baris:dt, beku:"A2" }]), "Tindak_Lanjut_Training_"+r.hariIni+".xlsx");
+    $("err-pasca-xls").classList.remove("show");
+    if(h.cara!=="batal") alert(h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama);
+  }catch(e){ showErr("err-pasca-xls","Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."); }
+  b.disabled = false;
+}
 
 /* ---------- Dashboard tim ---------- */
 const GAP_CLS = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
