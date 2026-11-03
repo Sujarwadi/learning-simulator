@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.38, 3 Nov 2026. Perubahan: perbaikan UI/UX menyeluruh hasil audit: kartu tim dan tombol level tidak patah di HP, kontras tombol dan kotak isian lolos WCAG AA, satu warna aksi utama, skala font (minimal 12 px), pemenggalan baris tanpa kata yatim, huruf kapital dikurangi, istilah Indonesia (periode penilaian), satu nama aplikasi, menu beranda dikelompokkan, bilah aksi validasi menempel di bawah, panel admin rapi, dekorasi dibuang. -->
 <!-- BBLC Studio v3.37, 2 Nov 2026. Perubahan: Tindak Lanjut Training (tile baru untuk atasan): 3 bulan setelah karyawan mengikuti training, atasan menilai ulang hanya kompetensi yang dilatih; tab Rekap efektivitas untuk admin dan tim L&D (perubahan perilaku, terlambat, unduh Excel) (mesin TNA v3.9). -->
 <!-- BBLC Studio v3.36, 2 Nov 2026. Perubahan: bukti singkat wajib untuk penilaian Level 4 dan 5 (form penilaian, mode nilai per kompetensi; tampil bagi validator) supaya level tinggi tidak dicentang tanpa dasar (mesin TNA v3.8). -->
 <!-- BBLC Studio v3.35, 31 Okt 2026. Perubahan: tampilan pengguna umum bersih dari catatan proses: profil jabatan di Pusat Matrix tidak lagi menampilkan status JD dan label kompetensi (mis. JD acuan terdekat), info training tidak menampilkan "materi disiapkan L&D"; semua catatan itu tetap terlihat untuk admin dan tim L&D. -->
@@ -47,7 +48,7 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbzSz2-aP5GzUefhRie
 /* ===== BBLC Studio v3.13: bahasa desain keluarga Vokasta (gelap bawaan, terang opsional) ===== */
 :root{
   --bg:#080D1A; --surface:#0F172A; --surface-a:rgba(15,23,42,.82); --inset:rgba(2,6,23,.72); --subtle:#1E293B;
-  --line:#1E293B; --line-strong:#475569; --ink:#F8FAFC; --text:#E2E8F0; --muted:#94A3B8;
+  --line:#1E293B; --line-strong:#64748B; --ink:#F8FAFC; --text:#E2E8F0; --muted:#94A3B8;
   --fill:#1E293B; --fill-ink:#F8FAFC;
   --accent:#F59E0B; --accent-hi:#FBBF24; --accent-ink:#0B1120; --accent-soft:rgba(245,158,11,.12); --accent-line:rgba(245,158,11,.35);
   --link:#FBBF24;
@@ -77,7 +78,9 @@ window.BACKEND_URL = "https://script.google.com/macros/s/AKfycbzSz2-aP5GzUefhRie
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.55;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-wrap:pretty}
+h1,h2,h3,h4,.app-title,.tile-t,.lp-sub,.badge,.btn,.lp-when b{text-wrap:balance}
+.nw{white-space:nowrap}
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(100,116,139,.55);border-radius:999px}
 *{scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.55) transparent}
@@ -89,11 +92,11 @@ b,strong{color:var(--ink)}
 /* Header sticky dengan blur */
 header.app{position:sticky;top:0;z-index:20;background:var(--head);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:1px solid var(--line);color:var(--ink);padding:10px max(16px,calc((100vw - 880px)/2 + 20px));display:flex;align-items:center;gap:12px;min-height:60px}
-.logo-mark{width:36px;height:36px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;
-  justify-content:center;flex-shrink:0;font-weight:800;font-size:14px;box-shadow:0 4px 14px rgba(245,158,11,.25)}
+.logo-mark{height:36px;padding:0 9px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;font-weight:800;font-size:12px;letter-spacing:.3px}
 .app-title{font-weight:800;font-size:16px;letter-spacing:-.2px;color:var(--ink)}
 .app-sub{font-size:12px;color:var(--muted);margin-top:1px}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .btn-logout{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);border-radius:12px;padding:7px 14px;
   font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;min-height:38px;transition:background .15s}
 .btn-logout:hover{background:var(--subtle)}
@@ -103,7 +106,7 @@ header.app{position:sticky;top:0;z-index:20;background:var(--head);backdrop-filt
 :root[data-theme="light"] .btn-tema{color:#475569}
 
 .body-wrap{flex:1;padding:var(--s5) 20px 72px;max-width:880px;width:100%;margin:0 auto}
-h2.sect{font-weight:700;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);
+h2.sect{font-weight:700;font-size:15px;letter-spacing:0;color:var(--ink);
   margin:var(--s6) 0 var(--s3);display:flex;align-items:center;gap:8px}
 h2.sect:first-child{margin-top:0}
 .card{background:var(--surface-a);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:var(--s4)}
@@ -121,23 +124,23 @@ input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;hei
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:1px solid transparent;min-height:46px;
   border-radius:var(--radius-sm);font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;width:100%;transition:background .15s,border-color .15s,transform .1s}
 .btn:active{transform:scale(.985)}
-.btn-primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 18px rgba(245,158,11,.22)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
 .btn-primary:hover{background:var(--accent-hi)}
-.btn-red{background:var(--green-cta);color:#fff;box-shadow:0 8px 22px rgba(5,150,105,.30)}
-.btn-red:hover{background:var(--green-cta-hi)}
+.btn-red{background:var(--accent);color:var(--accent-ink)}
+.btn-red:hover{background:var(--accent-hi)}
 .btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
 .btn-ghost:hover{background:var(--subtle)}
-.btn[disabled]{opacity:.45;pointer-events:none}
+.btn[disabled]{background:var(--subtle);color:var(--muted);border-color:var(--line);box-shadow:none;pointer-events:none}
 .hint{font-size:13px;color:var(--muted);margin-top:6px}
-.err{background:var(--red-soft);border:1px solid var(--red-line);color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:13.5px;margin-top:10px;display:none}
+.err{background:var(--red-soft);border:1px solid var(--red-line);color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;margin-top:10px;display:none}
 .err.show{display:block}
-.badge{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
 .badge-green{background:var(--green-soft);color:var(--green);border-color:var(--green-line)}
 .badge-amber{background:var(--amber-soft);color:var(--amber);border-color:var(--accent-line)}
 .badge-red{background:var(--red-soft);color:var(--red);border-color:var(--red-line)}
 .badge-grey{background:var(--subtle);color:var(--muted);border-color:var(--line)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--inset);color:var(--muted);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+th{background:var(--inset);color:var(--muted);font-weight:600;font-size:12px;text-align:left;padding:10px;border-bottom:1px solid var(--line)}
 td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
 a{color:var(--link);font-weight:600;text-underline-offset:3px}
 pre{background:var(--inset)!important;color:var(--text)}
@@ -150,78 +153,93 @@ details summary{color:var(--ink)}
   align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
 :root[data-theme="light"] .team-avatar{color:#B45309}
 .team-info{flex:1;min-width:0}
-.team-name{font-weight:700;font-size:14.5px;color:var(--ink)}
-.team-jabatan{font-size:12.5px;color:var(--muted)}
+.team-item>.badge{flex-shrink:0}
+@media (max-width:560px){
+  .team-item{display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:12px;row-gap:6px}
+  .team-item>.team-avatar{grid-row:1/span 2;align-self:center}
+  .team-item>.team-info{grid-column:2;grid-row:1}
+  .team-item>.badge{grid-column:2;grid-row:2;justify-self:start}
+  .team-item>.btn{grid-column:3;grid-row:1/span 2;align-self:center}
+  .team-item:not(:has(>.badge)):not(:has(>.btn)){display:flex}
+}
+.team-name{font-weight:700;font-size:15px;color:var(--ink)}
+.team-jabatan{font-size:13px;color:var(--muted)}
 .kompetensi-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
 .kompetensi-row:last-child{border-bottom:none}
-.kompetensi-name{flex:1;font-size:13.5px;font-weight:600}
-.kompetensi-target{font-size:11px;color:var(--muted)}
+.kompetensi-name{flex:1;font-size:14px;font-weight:600}
+.kompetensi-target{font-size:12px;color:var(--muted)}
 .kompetensi-row select{width:90px}
 .idp-card{border-left:3px solid var(--accent);background:var(--inset);border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:10px}
-.idp-comp{font-weight:800;font-size:13.5px;color:var(--ink)}
-.idp-line{font-size:12.5px;color:var(--text);margin-top:5px}
+.idp-comp{font-weight:800;font-size:14px;color:var(--ink)}
+.idp-line{font-size:13px;color:var(--text);margin-top:5px}
 .idp-line b{color:var(--ink)}
 .loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 0;color:var(--muted)}
 .spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty{color:var(--muted);font-size:13.5px;text-align:center;padding:20px 0}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:20px 0}
 .tab-row,.tabs{display:flex;gap:4px;margin:6px 0 16px;background:var(--inset);padding:4px;border-radius:var(--radius-sm);border:1px solid var(--line)}
-.tab-btn,.tabs button{flex:1;padding:9px;min-height:40px;border-radius:9px;border:0;background:transparent;font-size:13px;font-weight:700;font-family:inherit;color:var(--muted);cursor:pointer}
-.tab-btn.active,.tabs button.on{background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow-sm)}
+.tab-btn,.tabs button{flex:1;padding:9px;min-height:40px;border-radius:10px;border:0;background:transparent;font-size:13px;font-weight:700;font-family:inherit;color:var(--muted);cursor:pointer}
+.tab-btn.active,.tabs button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm);outline:1px solid var(--line-strong)}
 .credit{text-align:center;font-size:12px;color:var(--muted);padding:16px 0;border-top:1px solid var(--line)}
 .hm{border-collapse:separate;border-spacing:3px;font-size:12px}
-.hm th{background:none;font-size:10.5px;font-weight:700;color:var(--muted);padding:4px;vertical-align:bottom;white-space:normal;min-width:44px;max-width:80px;text-transform:none;letter-spacing:0}
+.hm th{background:none;font-size:11px;font-weight:700;color:var(--muted);padding:4px;vertical-align:bottom;white-space:normal;min-width:44px;max-width:80px;text-transform:none;letter-spacing:0}
 .hm td{padding:0;text-align:center;border:0}
 .hm td.nm{text-align:left;padding:6px 8px;position:sticky;left:0;background:var(--surface);font-weight:600;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;z-index:1}
-.hm .c{display:block;min-width:40px;padding:7px 2px;border-radius:7px;font-weight:800}
+.hm .c{display:block;min-width:40px;padding:7px 2px;border-radius:6px;font-weight:800}
 .hm .c-Kompeten{background:var(--green-soft);color:var(--green)} .hm .c-Minor{background:var(--subtle);color:var(--muted)}
 .hm .c-Moderate{background:var(--amber-soft);color:var(--amber)} .hm .c-Major{background:var(--red-soft);color:var(--red)}
 .hm .c-BELUM{background:transparent;color:var(--muted);border:1px dashed var(--line-strong)}
-.ft-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
-.ft-row:first-child{border-top:0}.ft-nama{flex:1;min-width:120px;font-weight:600;font-size:13.5px}
-.ft-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line-strong);background:var(--inset);font-family:inherit;font-weight:800;color:var(--muted);cursor:pointer}
+.ft-row{padding:14px 0;border-top:1px solid var(--line)}
+.ft-row:first-child{border-top:0}
+.ft-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ft-nama{flex:1;min-width:0;font-weight:700;font-size:14px;color:var(--ink)}
+.ft-meta{font-weight:400;font-size:13px;color:var(--muted);margin-top:2px}
+.ft-hasil{flex-shrink:0;margin-top:2px}
+.ft-lv{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:10px;max-width:400px}
+.ft-btn{width:100%;height:44px;font-size:14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--inset);font-family:inherit;font-weight:800;color:var(--muted);cursor:pointer}
 .ft-btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.ft-btn.na.on{background:var(--subtle);border-color:var(--line-strong);color:var(--ink)}
 .ft-btn:disabled{opacity:.35;cursor:not-allowed}
 .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.btn-row:empty{display:none}
-.kaki-ref{font-size:12.5px;color:var(--muted);margin:14px 0 30px;text-align:center}.link-ref{background:none;border:0;color:var(--link);text-decoration:underline;cursor:pointer;font:inherit;padding:6px 4px;min-height:32px}
-.sub-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px}.sub-h:not(:first-child){margin-top:14px}.btn-kecil{padding:8px 14px;font-size:13px;border-radius:10px;min-height:38px}
-.lnk{color:var(--link);font-weight:700;font-size:12.5px;text-decoration:underline;cursor:pointer}
+.kaki-ref{font-size:13px;color:var(--muted);margin:14px 0 30px;text-align:center}.link-ref{background:none;border:0;color:var(--link);text-decoration:underline;cursor:pointer;font:inherit;padding:6px 4px;min-height:32px}
+.sub-h{font-size:12px;font-weight:700;color:var(--muted);margin:4px 0 6px}.sub-h:not(:first-child){margin-top:14px}.btn-kecil{padding:8px 14px;font-size:13px;border-radius:10px;min-height:38px}
+.lnk{color:var(--link);font-weight:700;font-size:13px;text-decoration:underline;cursor:pointer}
 a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .kat-item{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--inset);border-radius:var(--radius-sm);padding:12px 14px;margin:0 0 8px;cursor:pointer;font:inherit;color:var(--text)}
 .kat-item:hover{border-color:var(--accent-line)}.kat-item b{color:var(--ink)}
-.sil-blok{margin:12px 0 0}.sil-blok h3{font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
-.sil-blok ol{margin:4px 0 0;padding-left:20px}.sil-blok li{margin:4px 0;font-size:13.5px}
-.ldn h3{font-size:15px;color:var(--ink);margin:18px 0 6px}.ldn p,.ldn li{font-size:13.5px;line-height:1.6}.ldn ol,.ldn ul{padding-left:20px}
-.ldn .ref{font-size:12.5px;line-height:1.5;margin:6px 0}
-.track{height:8px;background:var(--subtle);border-radius:99px;overflow:hidden}
+.sil-blok{margin:12px 0 0}.sil-blok h3{font-size:13px;color:var(--muted);margin:0 0 4px}
+.sil-blok ol{margin:4px 0 0;padding-left:20px}.sil-blok li{margin:4px 0;font-size:14px}
+.ldn h3{font-size:15px;color:var(--ink);margin:18px 0 6px}.ldn p,.ldn li{font-size:14px;line-height:1.6}.ldn ol,.ldn ul{padding-left:20px}
+.ldn .ref{font-size:13px;line-height:1.5;margin:6px 0}
+.track{height:8px;background:var(--subtle);border-radius:999px;overflow:hidden}
 
 /* ===== Halaman pembuka ===== */
 .lp{flex:1;display:flex;flex-direction:column;min-height:100vh}
 .lp-top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px max(16px,calc((100vw - 1120px)/2 + 24px));
   background:var(--head);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.lp-name{font-weight:800;font-size:17px;letter-spacing:-.3px;color:var(--ink)}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--subtle);color:var(--muted);border:1px solid var(--line)}
+.lp-name{font-weight:800;font-size:18px;letter-spacing:-.3px;color:var(--ink)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--subtle);color:var(--muted);border:1px solid var(--line)}
 .pill-accent{background:var(--accent-soft);color:var(--accent-hi);border-color:var(--accent-line)}
 :root[data-theme="light"] .pill-accent{color:#B45309}
 .pill svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .lp-main{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:var(--s7) 24px;display:grid;grid-template-columns:1.1fr .9fr;gap:var(--s7);align-items:center}
 .lp-hero h1{font-size:clamp(30px,4vw,48px);line-height:1.08;margin:var(--s4) 0 var(--s4);font-weight:800;letter-spacing:-1px;color:var(--ink)}
-.lp-hero h1 em{font-style:normal;background:linear-gradient(90deg,#FBBF24,#F59E0B);-webkit-background-clip:text;background-clip:text;color:transparent}
-:root[data-theme="light"] .lp-hero h1 em{background:linear-gradient(90deg,#D97706,#B45309);-webkit-background-clip:text;background-clip:text}
-.lp-lead{font-size:16.5px;color:var(--muted);max-width:540px;margin:0 0 var(--s5)}
-.lp-checks{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:13.5px;color:var(--text);margin-bottom:var(--s6)}
+.lp-hero h1 .koma{margin-left:-.14em}
+.lp-hero h1 em{font-style:normal;color:var(--accent-hi)}
+:root[data-theme="light"] .lp-hero h1 em{color:#B45309}
+.lp-lead{font-size:16px;color:var(--muted);max-width:540px;margin:0 0 var(--s5)}
+.lp-checks{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:14px;color:var(--text);margin-bottom:var(--s6)}
 .lp-checks span{display:inline-flex;align-items:center;gap:7px}
 .lp-checks svg{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .lp-feat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .lp-f{background:var(--surface-a);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px}
 .lp-f .ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;border:1px solid}
 .lp-f .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.lp-f b{display:block;font-size:13.5px;margin-bottom:2px}.lp-f span{font-size:12.5px;color:var(--muted);line-height:1.45;display:block}
+.lp-f b{display:block;font-size:14px;margin-bottom:2px}.lp-f span{font-size:13px;color:var(--muted);line-height:1.45;display:block}
 .ic-amber{background:var(--accent-soft);border-color:var(--accent-line)!important;color:var(--accent-hi)}
 .ic-green{background:var(--green-soft);border-color:var(--green-line)!important;color:var(--green)}
 .ic-sky{background:var(--sky-soft);border-color:var(--sky-line)!important;color:var(--sky)}
 :root[data-theme="light"] .ic-amber{color:#B45309}
-.lp-card{position:relative;border-radius:20px;padding:28px;border:2px solid var(--green-line);
+.lp-card{position:relative;border-radius:16px;padding:28px;border:2px solid var(--green-line);
   background:linear-gradient(140deg,var(--surface) 0%,var(--surface) 55%,rgba(16,185,129,.10) 100%);box-shadow:0 24px 60px rgba(0,0,0,.35)}
 :root[data-theme="light"] .lp-card{box-shadow:0 20px 50px rgba(15,23,42,.10)}
 .lp-card h2{font-size:24px;margin:10px 0 4px;color:var(--ink);font-weight:800;letter-spacing:-.4px}
@@ -230,7 +248,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .lp-when div{background:var(--inset);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--muted)}
 .lp-when b{display:block;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
 .lp-foot{text-align:center;font-size:12px;color:var(--muted);padding:16px;border-top:1px solid var(--line)}
-@media (max-width:560px){.lp-top .pill{display:none}.win-cd{text-align:left}}
+@media (max-width:560px){.lp-top .pill{display:none}}
 .lp-name{white-space:nowrap}
 @media (max-width:900px){.lp-main{grid-template-columns:1fr;gap:var(--s5);padding:var(--s5) 16px}.lp-feat{grid-template-columns:1fr}
   .lp-hero h1{font-size:30px;margin:12px 0}.lp-lead{font-size:15px;margin-bottom:var(--s4)}.lp-checks{margin-bottom:0}.lp-feat{display:none}.lp-card{padding:22px}}
@@ -242,36 +260,63 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .win-ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .win-txt{flex:1;min-width:200px;font-size:14px}
 .win-cd{font-variant-numeric:tabular-nums;font-weight:800;font-size:22px;color:var(--ink);line-height:1;text-align:right}
-.win-cd small{display:block;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:5px}
+.win-cd small{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:5px}
+@media (max-width:560px){.win-cd{text-align:left}}
 .chip-k{flex:1;min-width:96px;background:var(--inset);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px}
-.chip-k .n{font-size:26px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.chip-k .n{font-size:28px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
 .chip-k .l{font-size:12px;color:var(--muted)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:var(--s3)}
 .tile{display:flex;gap:var(--s3);align-items:center;text-align:left;background:var(--surface-a);border:1px solid var(--line);border-radius:var(--radius-sm);
   padding:14px 16px;cursor:pointer;font:inherit;color:var(--text);min-height:84px;transition:border-color .15s,background .15s}
 .tile:hover{border-color:var(--accent-line);background:var(--surface)}
-.tile .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 40px;border:1px solid}
+.tile .ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 40px;border:1px solid}
 .tile .ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .tile .bd{flex:1;min-width:0}
-.tile-g{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-.tile-t{display:block;font-weight:700;font-size:14.5px;color:var(--ink)}
-.tile-d{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.tile-g{display:none;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px}
+.tile-t{display:block;font-weight:700;font-size:15px;color:var(--ink)}
+.tile-d{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45}
 .tile .ar{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;flex:0 0 16px}
 .tile.tile-admin{border:2px solid var(--accent-line);background:linear-gradient(140deg,var(--surface),var(--surface) 55%,rgba(245,158,11,.10))}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.01ms!important}}
+/* ===== v3.38: kerapian (satu warna aksi, tanpa dekorasi, kartu rata) ===== */
+.menu-grp:not(:has(.tile:not([style*="none"]))){display:none}
+.menu-grp h2.sect{margin-top:var(--s6)}
+.badge::first-letter{text-transform:uppercase}
+.chip-k{flex:1 1 140px;max-width:240px}
+.tile.tile-admin{border:1px solid var(--line);background:var(--surface-a)}
+.tile .ic,.lp-f .ic,.win-ic{background:var(--inset)!important;border-color:var(--line)!important;color:var(--text)!important}
+.team-avatar{background:var(--inset);border-color:var(--line);color:var(--text)}
+:root[data-theme="light"] .team-avatar{color:var(--text)}
+.card .team-item{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 0;margin:0}
+.card .team-item:last-child{border-bottom:0;padding-bottom:0}
+.card .team-item:first-child{padding-top:0}
+.card .team-item:hover{border-color:var(--line)}
+.lp-card{border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+#tna-window-card{background:var(--surface-a)}
+.aksi-bar{position:sticky;bottom:0;z-index:6;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px -20px 0;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--head);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.rpt-nav{flex-wrap:nowrap}
+.idp-card textarea{min-height:76px}
+.body-wrap:has(.aksi-bar){padding-bottom:0}
+#inp-val-catatan{min-height:88px}
+.btn-warn{background:transparent;color:var(--red);border-color:var(--red-line)}
+.btn-warn:hover{background:var(--red-soft)}
+.scrollbox{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)}
+.scrollbox th{position:sticky;top:0;z-index:1}
+#scr-tna-pasca label:has(.pc-chk),#scr-tna-pasca label:has(.pc-na){min-height:44px;padding:4px 0;cursor:pointer}
+.scrollbox table td:first-child,.scrollbox table th:first-child{padding-left:12px}
+
 /* ---------- Laporan visual (v3.15): profil kompetensi bergaya laporan asesor ---------- */
 .prog-val{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
 .prog-val-i{display:inline-flex;align-items:center;gap:8px}
-.ld-panel{margin-top:18px;border-top:1px dashed var(--line);padding-top:10px;font-size:12.5px;color:var(--muted)}
+.ld-panel{margin-top:18px;border-top:1px dashed var(--line);padding-top:10px;font-size:13px;color:var(--muted)}
 .ld-panel summary{cursor:pointer;font-weight:700;letter-spacing:.4px;min-height:32px;display:flex;align-items:center}
 .ld-isi{display:grid;gap:8px;padding:8px 0 4px;color:var(--text)}
-}
 .rpt-nav{position:sticky;top:64px;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0 10px;margin:0 0 var(--s3);background:linear-gradient(var(--bg) 70%,transparent);scrollbar-width:none}
 .rpt-nav::-webkit-scrollbar{display:none}
-.rpt-nav a{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-a);min-height:32px;display:inline-flex;align-items:center}
+.rpt-nav a{flex:0 0 auto;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-a);min-height:32px;display:inline-flex;align-items:center}
 .rpt-nav a:hover,.rpt-nav a:focus-visible{color:var(--ink);border-color:var(--line-strong)}
 .rpt-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:var(--s5);align-items:center}
-.rpt-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.rpt-eyebrow{font-size:13px;font-weight:700;color:var(--muted)}
 .rpt-big{font-size:56px;line-height:1;font-weight:800;color:var(--ink);letter-spacing:-1.5px;margin:6px 0 4px}
 .rpt-big small{font-size:20px;font-weight:700;color:var(--muted);letter-spacing:0;margin-left:4px}
 .rpt-lead{font-size:14px;color:var(--text);line-height:1.55;margin:6px 0 0}
@@ -279,12 +324,12 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .meter i{display:block;height:100%}
 .meter-key{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
 .meter-key b{color:var(--ink);font-weight:700}
-.key-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:0}
+.key-dot{display:inline-block;width:9px;height:9px;border-radius:4px;margin-right:6px;vertical-align:0}
 .stat-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile-s{background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .tile-s .l{font-size:12px;color:var(--muted)}
-.tile-s .v{font-size:26px;font-weight:800;color:var(--ink);margin-top:2px}
-.tile-s .d{font-size:11.5px;color:var(--muted);margin-top:2px}
+.tile-s .v{font-size:28px;font-weight:800;color:var(--ink);margin-top:2px}
+.tile-s .d{font-size:12px;color:var(--muted);margin-top:2px}
 .sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-top:var(--s4)}
 .sw h4{margin:0 0 8px;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:8px}
 .sw ol{margin:0;padding-left:18px;font-size:13px;color:var(--text);line-height:1.7}
@@ -297,17 +342,17 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .lg-sup{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
 .lg-self{width:10px;height:10px;border-radius:50%;border:2px solid var(--muted);display:inline-block;box-sizing:border-box}
 .prof-grp{margin-top:14px}
-.prof-grp-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--line)}
+.prof-grp-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--line)}
 .prof-grp-h em{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
 .prof-row{display:grid;grid-template-columns:minmax(0,34%) minmax(0,1fr) 92px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 .prof-row:last-child{border-bottom:0}
 .prof-name{font-size:13px;color:var(--ink);line-height:1.3}
-.prof-name .f{display:block;font-size:11px;color:var(--red);font-weight:600}
+.prof-name .f{display:block;font-size:12px;color:var(--red);font-weight:600}
 .prof-track{position:relative;height:36px}
 .prof-track .ax{position:absolute;left:0;right:0;top:13px;height:1px;background:var(--line)}
 .prof-track .tk{position:absolute;top:9px;width:1px;height:9px;background:var(--line-strong);opacity:.5}
-.prof-track .tkl{position:absolute;top:24px;font-size:9.5px;line-height:1;color:var(--muted);transform:translateX(-50%)}
-.prof-track .gapseg{position:absolute;top:10px;height:6px;border-radius:3px}
+.prof-track .tkl{position:absolute;top:24px;font-size:11px;line-height:1;color:var(--muted);transform:translateX(-50%)}
+.prof-track .gapseg{position:absolute;top:10px;height:6px;border-radius:4px}
 .prof-track .req{position:absolute;top:2px;width:4px;height:22px;margin-left:-2px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
 .prof-track .sup{position:absolute;top:9px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 2px var(--surface)}
 .prof-track .slf{position:absolute;top:8px;width:10px;height:10px;margin-left:-5px;border-radius:50%;border:2px solid var(--muted);box-sizing:border-box;background:var(--surface)}
@@ -318,10 +363,10 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .viz-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s4)}
 .viz-svg{width:100%;height:auto;display:block}
 .viz-svg text{font-family:inherit}
-.viz-note{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:8px}
-.q-list{margin:10px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12.5px;color:var(--text)}
+.viz-note{font-size:13px;color:var(--muted);line-height:1.5;margin-top:8px}
+.q-list{margin:10px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:13px;color:var(--text)}
 .q-list li{display:flex;gap:8px;align-items:baseline}
-.q-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff}
+.q-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:12px;font-weight:700;color:#fff}
 /* Persepsi diri vs atasan */
 .dumb-row{display:grid;grid-template-columns:minmax(0,34%) minmax(0,1fr) 120px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .dumb-row:last-child{border-bottom:0}
@@ -331,7 +376,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .dumb-track .p{position:absolute;top:calc(50% - 6px);width:12px;height:12px;margin-left:-6px;border-radius:50%;box-shadow:0 0 0 2px var(--surface)}
 .dumb-track .p.s{background:var(--surface);border:2px solid var(--muted);box-sizing:border-box}
 .dumb-track .p.a{background:var(--sky)}
-.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .tag.blind{color:var(--red);border-color:var(--red-line);background:var(--red-soft)}
 .tag.hidden{color:var(--green);border-color:var(--green-line);background:var(--green-soft)}
 /* Rencana: kartu bernomor */
@@ -340,7 +385,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .plan-n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:var(--inset);border:1px solid var(--line);color:var(--ink)}
 .plan-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-weight:700;color:var(--ink);font-size:14px}
 .plan-r{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;margin-top:8px;font-size:13px;color:var(--text);line-height:1.5}
-.plan-r dt{font-weight:700;color:var(--muted);font-size:11.5px;letter-spacing:.4px;padding-top:2px}
+.plan-r dt{font-weight:700;color:var(--muted);font-size:12px;letter-spacing:.4px;padding-top:2px}
 .plan-r dd{margin:0}
 /* Peta belajar 2027 (karyawan) */
 .yr{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;margin-top:8px}
@@ -349,28 +394,28 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .yr .col{width:70%;max-width:26px;border-radius:4px 4px 0 0;background:var(--sky);opacity:.85;min-height:3px}
 .yr .col.nol{background:var(--line);opacity:1}
 .yr .bl{font-size:11px;color:var(--muted);font-weight:600}
-.yr .jm{font-size:10.5px;color:var(--text);min-height:14px}
+.yr .jm{font-size:11px;color:var(--text);min-height:14px}
 .yr button[aria-pressed="true"]{background:var(--inset)}
 .yr button[aria-pressed="true"] .bl{color:var(--ink)}
 .mon{margin-top:var(--s4)}
 .mon-h{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;color:var(--ink);font-size:14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-.mon-h span{font-weight:500;font-size:12.5px;color:var(--muted)}
+.mon-h span{font-weight:500;font-size:13px;color:var(--muted)}
 .ev{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
 .ev:last-child{border-bottom:0}
 .ev-d{text-align:center;background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:6px 0;line-height:1.1}
-.ev-d b{display:block;font-size:17px;color:var(--ink)}
-.ev-d span{font-size:10.5px;color:var(--muted);text-transform:uppercase}
-.ev-t{font-size:13.5px;color:var(--ink);font-weight:600}
+.ev-d b{display:block;font-size:18px;color:var(--ink)}
+.ev-d span{font-size:12px;color:var(--muted)}
+.ev-t{font-size:14px;color:var(--ink);font-weight:600}
 .ev-m{font-size:12px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
 .ev-j{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap}
 @media (max-width:720px){
   .rpt-hero,.viz-2,.sw-grid{grid-template-columns:1fr}
-  .rpt-big{font-size:46px}
+  .rpt-big{font-size:48px}
   .prof-row,.dumb-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}
   .prof-row .prof-track,.dumb-row .dumb-track{grid-column:1 / -1;grid-row:2}
   .q-list{grid-template-columns:1fr}
   .stat-tiles{grid-template-columns:1fr 1fr}
-  .yr{gap:2px}.yr .jm{font-size:9.5px}
+  .yr{gap:2px}.yr .jm{font-size:11px}
 }
 @media print{.rpt-nav{display:none}}
 /* ---------- Panduan pengisian (v3.16) ---------- */
@@ -381,7 +426,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .pd-flow b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-size:13px}
 .pd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px}
 .pd-grid h4{margin:0 0 4px;font-size:14px;color:var(--ink)}
-.pd-grid p{margin:0;font-size:13.5px}
+.pd-grid p{margin:0;font-size:14px}
 .pd-steps{margin:0;padding-left:20px;display:grid;gap:10px;font-size:14px;color:var(--text);line-height:1.55}
 .pd-steps b{color:var(--ink)}
 .pd-ex{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
@@ -391,15 +436,15 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .pd-chk::before{content:"";width:16px;height:16px;border-radius:4px;border:2px solid var(--line-strong);box-sizing:border-box;flex:0 0 auto}
 .pd-chk.on{color:var(--ink)}
 .pd-chk.on::before{background:var(--green-cta);border-color:var(--green-cta);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");background-size:12px;background-position:center;background-repeat:no-repeat}
-.pd-ex-r{margin-top:8px;font-size:12.5px;color:var(--text);line-height:1.45;border-top:1px solid var(--line);padding-top:8px}
+.pd-ex-r{margin-top:8px;font-size:13px;color:var(--text);line-height:1.45;border-top:1px solid var(--line);padding-top:8px}
 .pd-time{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .pd-time div{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
 .pd-time b{display:block;color:var(--ink);font-size:14px}
-.pd-time span{font-size:12.5px;color:var(--muted)}
+.pd-time span{font-size:13px;color:var(--muted)}
 .pd-faq details{border-bottom:1px solid var(--line);padding:10px 0}
 .pd-faq details:last-child{border-bottom:0}
 .pd-faq summary{cursor:pointer;font-weight:600;color:var(--ink);font-size:14px}
-.pd-faq p{margin:8px 0 0;font-size:13.5px}
+.pd-faq p{margin:8px 0 0;font-size:14px}
 .pd-done{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:30px}
 .pd-nudge{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--radius);padding:14px 18px;margin-bottom:var(--s4)}
 .pd-nudge b{color:var(--ink)}
@@ -408,13 +453,13 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .kual ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
 .kual .m{color:var(--muted);font-size:12px}
 .pd-nudge .hint{margin:2px 0 0}
-.lp-guide{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:12px 14px;border-radius:12px;border:1px dashed var(--accent-line);background:var(--accent-soft);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-align:left;min-height:44px}
+.lp-guide{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:12px 14px;border-radius:12px;border:1px dashed var(--accent-line);background:var(--accent-soft);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-align:left;min-height:44px}
 .lp-guide:hover,.lp-guide:focus-visible{border-style:solid}
 .lp-guide svg{width:20px;height:20px;stroke:var(--link);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .khusus-ld{display:none}
 body.internal .khusus-ld{display:block}
 body.internal span.khusus-ld{display:inline}
-@media (max-width:720px){.pd-flow,.pd-grid,.pd-ex,.pd-time{grid-template-columns:1fr}.pd-h{font-size:19px}}
+@media (max-width:720px){.pd-flow,.pd-grid,.pd-ex,.pd-time{grid-template-columns:1fr}.pd-h{font-size:20px}}
 /* ---------- Pusat Matrix L&D (v3.18): bahasa visual laporan konsultan ---------- */
 #scr-tna-pusat{
   --r1:#1D3556;--r2:#25497A;--r3:#2F6CAB;--r4:#58A6E0;--r5:#A9DBFF;
@@ -442,15 +487,15 @@ body.internal span.khusus-ld{display:inline}
 .rz-act{display:flex;gap:8px;flex-wrap:wrap}.rz-act .btn{width:auto;flex:none}
 .rz-kpi{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
 .rz-kpi .chip-k.g .n{color:var(--green)}.rz-kpi .chip-k.a .n{color:var(--amber)}.rz-kpi .chip-k.r .n{color:var(--red)}
-.rz-kpi .chip-k .l small{display:block;color:var(--muted);font-size:11px}
+.rz-kpi .chip-k .l small{display:block;color:var(--muted);font-size:12px}
 .rz-stack{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--inset);border:1px solid var(--line)}
 .rz-stack i{display:block;height:100%}.rz-stack .g{background:var(--green)}.rz-stack .a{background:var(--amber)}.rz-stack .r{background:var(--red)}
-.rz-leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.rz-leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--muted)}
 .rz-leg b{color:var(--ink)}
 .rz-hari{display:flex;align-items:flex-end;gap:4px;height:130px;padding-top:18px}
-.rz-col{flex:1;min-width:14px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10.5px;color:var(--muted);position:relative}
+.rz-col{flex:1;min-width:14px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--muted);position:relative}
 .rz-col .b{width:100%;max-width:26px;background:var(--green);border-radius:4px 4px 0 0;min-height:2px}
-.rz-col .n{font-size:10.5px;color:var(--ink);font-weight:700;margin-bottom:2px}
+.rz-col .n{font-size:11px;color:var(--ink);font-weight:700;margin-bottom:2px}
 .rz-col.ini .b{background:var(--accent)}.rz-col.kosong .b{background:var(--line-strong)}
 .rz-col .t{margin-top:4px;white-space:nowrap}
 .rz-filter{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end}
@@ -459,17 +504,17 @@ body.internal span.khusus-ld{display:inline}
 .rz-ctl select,.rz-ctl input{min-height:40px}
 .rz-q{flex:1;min-width:220px}
 .rz-chip:empty{display:none}
-.rz-pin{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:0 0 10px;color:var(--ink);font-size:13.5px}.rz-pin b.pin{font-size:20px;letter-spacing:.2em;color:var(--accent-hi);font-variant-numeric:tabular-nums}
-.rz-chip button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.rz-pin{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:0 0 10px;color:var(--ink);font-size:14px}.rz-pin b.pin{font-size:20px;letter-spacing:.2em;color:var(--accent-hi);font-variant-numeric:tabular-nums}
+.rz-chip button{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
 .rz-gh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .rz-scroll{overflow-x:auto}
 .rz-t{width:100%;border-collapse:collapse;font-size:13px}
-.rz-t th{text-align:left;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
-.rz-t th[aria-sort="ascending"]::after{content:" \25B2";font-size:9px}.rz-t th[aria-sort="descending"]::after{content:" \25BC";font-size:9px}
+.rz-t th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+.rz-t th[aria-sort="ascending"]::after{content:" \25B2";font-size:10px}.rz-t th[aria-sort="descending"]::after{content:" \25BC";font-size:10px}
 .rz-t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
 .rz-t tr.klik{cursor:pointer}.rz-t tr.klik:hover td{background:var(--inset)}
 .rz-t .num{text-align:right;font-variant-numeric:tabular-nums}
-.rz-t .nm{font-weight:700;color:var(--ink)}.rz-t .sm{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+.rz-t .nm{font-weight:700;color:var(--ink)}.rz-t .sm{display:block;font-size:12px;color:var(--muted);font-weight:400}
 .rz-mini{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--inset);min-width:90px}
 .rz-mini i{display:block}.rz-mini .g{background:var(--green)}.rz-mini .a{background:var(--amber)}
 @media (max-width:720px){.rz-ctl{min-width:120px;flex:1}.rz-hari{gap:2px}}
@@ -484,25 +529,25 @@ body.internal span.khusus-ld{display:inline}
 }
 @media (max-width:980px){.mx-layout{grid-template-columns:minmax(0,1fr)}.mx-utama{min-width:0}.mx-ctrl.mx-side{position:static}.mx-side .seg{flex-direction:row;flex-wrap:wrap}.mx-side .seg button{width:auto}}
 .mx-ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
-.mx-lbl{font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.mx-lbl{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 .seg{display:inline-flex;background:var(--inset);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
-.seg button{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;min-height:36px}
+.seg button{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;min-height:36px}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
 .seg button:focus-visible,.chips button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 #mx-pilih{min-width:260px;max-width:420px;margin:0}
 .mx-pdf{width:auto;margin-left:auto;display:inline-flex;gap:8px;align-items:center}
 .mx-pdf svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chips button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:var(--inset);color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:32px}
+.chips button{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--inset);color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:32px}
 .chips button[aria-pressed="true"]{color:var(--ink);border-color:var(--line-strong);background:var(--surface)}
 .mx-rpt{padding:0;overflow:hidden}
 .mx-cover{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px 24px;align-items:flex-end;padding:22px 24px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--inset),transparent)}
-.mx-title{font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin:2px 0;line-height:1.15}
-.mx-meta{font-size:12.5px;color:var(--muted)}
+.mx-title{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin:2px 0;line-height:1.15}
+.mx-meta{font-size:13px;color:var(--muted)}
 .mx-stats{display:flex;gap:10px;flex-wrap:wrap}
 .mx-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;min-width:96px}
 .mx-stat b{display:block;font-size:22px;color:var(--ink);line-height:1.15}
-.mx-stat span{font-size:11.5px;color:var(--muted)}
+.mx-stat span{font-size:12px;color:var(--muted)}
 .mx-grid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:0}
 .mx-grid{grid-template-columns:minmax(0,1fr)}
 .mx-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:10px 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -515,7 +560,7 @@ body.internal span.khusus-ld{display:inline}
 .mx-modal[hidden]{display:none}
 .mx-pop{background:var(--surface);border:1px solid var(--line-strong);border-radius:16px;max-width:820px;width:100%;max-height:88vh;overflow:auto;padding:22px 24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
 .mx-pop>*{flex-shrink:0}
-.mx-pop-h{font-size:17px;font-weight:800;color:var(--ink)}
+.mx-pop-h{font-size:18px;font-weight:800;color:var(--ink)}
 .mx-pop .mx-aside{display:grid;grid-template-columns:1fr 1fr;gap:24px;border:0;padding:0}
 .mx-pop-f{display:flex;justify-content:flex-end}
 @media (max-width:720px){.mx-pop .mx-aside{grid-template-columns:1fr}.mx-pop{max-height:92vh;padding:18px}}
@@ -524,13 +569,13 @@ body.internal span.khusus-ld{display:inline}
 .mx-aside h4{margin:0 0 8px;font-size:13px;color:var(--ink);letter-spacing:.2px}
 .mx-aside ul{margin:0;padding-left:16px;display:grid;gap:6px}
 .ramp{display:grid;gap:5px;margin-top:12px}
-.ramp div{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text)}
+.ramp div{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text)}
 .ramp i{font-style:normal;width:46px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:0 0 auto}
 .ramp-cap{display:none}
 .lv1{background:var(--r1);color:var(--rt1)}.lv2{background:var(--r2);color:var(--rt2)}.lv3{background:var(--r3);color:var(--rt3)}.lv4{background:var(--r4);color:var(--rt4)}.lv5{background:var(--r5);color:var(--rt5)}
 .ins{display:grid;gap:10px}
 .ins div{border-left:3px solid var(--accent);padding:2px 0 2px 10px}
-.ins b{display:block;color:var(--ink);font-size:12.5px}
+.ins b{display:block;color:var(--ink);font-size:13px}
 .ins span{color:var(--muted);font-size:12px}
 .mx-wrap{overflow:auto;max-height:74vh;position:relative}
 table.mx{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content;--cw:46px}
@@ -540,30 +585,30 @@ table.mx th,table.mx td{padding:0;text-align:center;text-transform:none;letter-s
 table.mx thead{position:sticky;top:0;z-index:6;background:var(--surface)}
 table.mx thead th{vertical-align:bottom;border-bottom:1px solid var(--line-strong);font-weight:400;text-transform:none;letter-spacing:normal;background:transparent}
 table.mx thead tr.mx-bandrow th{border-bottom:0;padding:6px 2px 4px}
-.mx-band{font-size:10px !important;font-weight:700 !important;letter-spacing:.5px !important;text-transform:uppercase !important;color:var(--muted);text-align:center;white-space:normal;line-height:1.15;overflow:hidden;max-width:0;height:28px}
+.mx-band{font-size:11px !important;font-weight:700 !important;letter-spacing:.5px !important;text-transform:uppercase !important;color:var(--muted);text-align:center;white-space:normal;line-height:1.15;overflow:hidden;max-width:0;height:28px}
 .mx-band.b0{background:var(--band1) !important}.mx-band.b1{background:var(--band2) !important}
 th.mx-h{min-width:var(--cw);width:var(--cw);padding:8px 3px 8px !important}
 th.mx-h button{all:unset;cursor:pointer;display:block;width:100%}
-th.mx-h .t{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25;display:block}
-th.mx-h .s{font-size:10.5px;color:var(--muted);display:block;margin-top:3px}
+th.mx-h .t{font-size:13px;font-weight:700;color:var(--ink);line-height:1.25;display:block}
+th.mx-h .s{font-size:11px;color:var(--muted);display:block;margin-top:3px}
 th.mx-h button:hover .t,th.mx-h button:focus-visible .t{text-decoration:underline}
 th.mx-sl{height:162px;white-space:nowrap;min-width:var(--cw);width:var(--cw);position:relative;overflow:visible}
 th.mx-sl button{all:unset;cursor:pointer;display:block;width:var(--cw);height:162px;position:relative}
-th.mx-sl .t{position:absolute;left:calc(50% - 4px);bottom:26px;transform-origin:0 100%;transform:rotate(-58deg);width:150px;overflow:hidden;text-overflow:ellipsis;text-align:left;font-size:11.5px;font-weight:600;color:var(--ink);line-height:1.2}
-th.mx-sl .s{position:absolute;left:0;right:0;bottom:6px;font-size:10px;color:var(--muted)}
+th.mx-sl .t{position:absolute;left:calc(50% - 4px);bottom:26px;transform-origin:0 100%;transform:rotate(-58deg);width:150px;overflow:hidden;text-overflow:ellipsis;text-align:left;font-size:12px;font-weight:600;color:var(--ink);line-height:1.2}
+th.mx-sl .s{position:absolute;left:0;right:0;bottom:6px;font-size:11px;color:var(--muted)}
 th.mx-sl button:hover .t{text-decoration:underline}
 th.mx-sp{min-width:90px;width:90px}
-th.mx-sum{min-width:128px;width:128px;vertical-align:bottom;padding:8px 8px !important;font-size:10.5px !important;color:var(--muted);text-align:left}
+th.mx-sum{min-width:128px;width:128px;vertical-align:bottom;padding:8px 8px !important;font-size:11px !important;color:var(--muted);text-align:left}
 table.mx .mx-rh{position:sticky;left:0;z-index:3;background:var(--surface);text-align:left;padding:5px 14px 5px 12px;min-width:290px;max-width:330px;border-right:1px solid var(--line-strong)}
-table.mx thead .mx-rh{z-index:8;background:var(--surface);vertical-align:bottom;font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.8px !important;text-transform:uppercase !important}
+table.mx thead .mx-rh{z-index:8;background:var(--surface);vertical-align:bottom;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.8px !important;text-transform:uppercase !important}
 .mx-rh .n{color:var(--ink);font-weight:600;font-size:13px;line-height:1.3;text-transform:none;letter-spacing:normal}
 .mx-rh .s{color:var(--muted);font-size:11px;margin-top:1px;line-height:1.3;text-transform:none;letter-spacing:normal;font-weight:400}
 tr.mx-grp td{background:var(--inset);text-align:left;padding:9px 12px;font-size:11px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink);position:sticky;left:0;border-top:1px solid var(--line)}
-tr.mx-sub td{text-align:left;padding:7px 12px 4px;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);position:sticky;left:0}
+tr.mx-sub td{text-align:left;padding:7px 12px 4px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);position:sticky;left:0}
 td.mx-c{padding:2px !important;min-width:var(--cw);width:var(--cw)}
 .cl{display:flex;align-items:center;justify-content:center;height:34px;border-radius:6px;font-weight:800;font-size:14px;position:relative;font-variant-numeric:tabular-nums}
 .cl.inti{box-shadow:inset 0 0 0 2px var(--inti)}
-.cl small{font-size:9px;font-weight:600;opacity:.8;margin-left:2px}
+.cl small{font-size:10px;font-weight:600;opacity:.8;margin-left:2px}
 .cl.st-K{background:var(--green-soft);color:var(--green);box-shadow:inset 0 0 0 1px var(--green-line)}
 .cl.st-Mi{background:var(--subtle);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-strong)}
 .cl.st-Mo{background:var(--amber-soft);color:var(--amber);box-shadow:inset 0 0 0 1px var(--accent-line)}
@@ -576,32 +621,32 @@ td.hlc{background-color:var(--hl)}
 td.mx-sm{min-width:128px;width:128px;padding:2px 8px !important;text-align:left;vertical-align:middle}
 .sm-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:var(--subtle)}
 .sm-bar i{display:block;height:100%}
-.sm-t{font-size:10.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+.sm-t{font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
 .sm-t b{color:var(--ink)}
 tr.mx-tot td,tr.mx-tot th{border-top:1px solid var(--line-strong);background:var(--inset)}
-tr.mx-tot td{padding:6px 2px !important;font-size:11.5px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+tr.mx-tot td{padding:6px 2px !important;font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
 tr.mx-tot th.mx-rh{background:var(--inset)}
-.tg{display:flex;align-items:center;justify-content:center;height:34px;border-radius:6px;font-weight:800;font-size:12.5px;flex-direction:column;line-height:1.05;box-sizing:border-box}
-.tg small{font-size:8.5px;font-weight:600;opacity:.85}
+.tg{display:flex;align-items:center;justify-content:center;height:34px;border-radius:6px;font-weight:800;font-size:13px;flex-direction:column;line-height:1.05;box-sizing:border-box}
+.tg small{font-size:10px;font-weight:600;opacity:.85}
 .tg.W{background:var(--tw);color:var(--tw-ink)}
 .tg.G{border:2px solid var(--r4);color:var(--r4)}
 :root[data-theme="light"] .tg.G{color:var(--r4)}
 .tg.I{border:2px dashed var(--green);color:var(--green)}
 .tg.P{color:var(--muted);font-size:18px;font-weight:400}
-.tgk{display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;border-radius:5px;font-weight:800;font-size:11.5px;box-sizing:border-box;flex:0 0 auto}
+.tgk{display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;border-radius:4px;font-weight:800;font-size:12px;box-sizing:border-box;flex:0 0 auto}
 .tgk.W{background:var(--tw);color:var(--tw-ink)}.tgk.G{border:2px solid var(--r4);color:var(--r4)}.tgk.I{border:2px dashed var(--green);color:var(--green)}.tgk.P{color:var(--muted);font-size:16px}
 .klg{display:grid;gap:9px;margin-top:4px}
-.klg div{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.4}
+.klg div{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.4}
 .klg b{color:var(--ink)}
 .mx-one{display:grid;grid-template-columns:minmax(0,1.3fr) 150px 96px minmax(0,1.5fr);gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
 .mx-one .n{color:var(--ink);font-weight:600}.mx-one .d{color:var(--muted);font-size:12px;line-height:1.4}
-.pips{display:flex;gap:3px}.pips i{width:24px;height:10px;border-radius:3px;background:var(--subtle)}
+.pips{display:flex;gap:3px}.pips i{width:24px;height:10px;border-radius:4px;background:var(--subtle)}
 .pips i.on.lv1{background:var(--r1)}.pips i.on.lv2{background:var(--r2)}.pips i.on.lv3{background:var(--r3)}.pips i.on.lv4{background:var(--r4)}.pips i.on.lv5{background:var(--r5)}
-.bobot{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);text-align:center}
+.bobot{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);text-align:center}
 .bobot.b3{color:var(--ink);border-color:var(--ink)}
 .mx-tr{display:grid;grid-template-columns:34px minmax(0,1fr) 80px;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
 .mx-tr .n{color:var(--ink);font-weight:600}.mx-tr .d{color:var(--muted);font-size:12px}.mx-tr .j{text-align:right;font-weight:700;color:var(--text)}
-.mx-gh{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:16px 4px 6px;border-bottom:1px solid var(--line-strong);display:flex;justify-content:space-between}
+.mx-gh{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:16px 4px 6px;border-bottom:1px solid var(--line-strong);display:flex;justify-content:space-between}
 .mx-gh em{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
 .mx-drawer{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;background:rgba(2,6,23,.55)}
 .mx-drawer[hidden]{display:none}
@@ -610,10 +655,10 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
 .mx-sheet .x{float:right}
 .dr-k{padding:10px 0;border-bottom:1px solid var(--line)}
 .dr-k .h{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.dr-k b{color:var(--ink);font-size:13.5px}.dr-k p{margin:4px 0 0;font-size:12.5px;color:var(--text);line-height:1.5}.dr-k .m{color:var(--muted);font-size:11.5px}
+.dr-k b{color:var(--ink);font-size:14px}.dr-k p{margin:4px 0 0;font-size:13px;color:var(--text);line-height:1.5}.dr-k .m{color:var(--muted);font-size:12px}
 .mx-cetak{display:none}
 @media (max-width:980px){.mx-grid{grid-template-columns:1fr}.mx-aside{border-left:0;border-top:1px solid var(--line)}}
-@media (max-width:720px){#mx-pilih{min-width:0;width:100%}.mx-ctl{width:100%}.mx-pdf{margin-left:0}.mx-ctrl{position:static}.mx-one{grid-template-columns:minmax(0,1fr) auto}.mx-one .d,.mx-one .pips{grid-column:1 / -1}.mx-title{font-size:21px}table.mx .mx-rh{min-width:170px;max-width:200px}}
+@media (max-width:720px){#mx-pilih{min-width:0;width:100%}.mx-ctl{width:100%}.mx-pdf{margin-left:0}.mx-ctrl{position:static}.mx-one{grid-template-columns:minmax(0,1fr) auto}.mx-one .d,.mx-one .pips{grid-column:1 / -1}.mx-title{font-size:22px}table.mx .mx-rh{min-width:170px;max-width:200px}}
 @media print{
   body.cetak-matrix *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.cetak-matrix .screen:not(#scr-tna-pusat),body.cetak-matrix header.app,body.cetak-matrix .mx-ctrl,body.cetak-matrix .demo-bar,body.cetak-matrix #demo-fab,body.cetak-matrix #demo-panel,body.cetak-matrix #demo-toasts,body.cetak-matrix .mx-drawer,body.cetak-matrix .credit{display:none !important}
@@ -647,17 +692,16 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <section class="screen active" id="scr-login">
     <div class="lp">
       <header class="lp-top">
-        <div class="logo-mark">CD</div>
+        <div class="logo-mark">BBLC</div>
         <span class="lp-name">BBLC Studio</span>
-        <span class="pill">Competency Development</span>
         <div class="header-right"></div>
       </header>
       <main class="lp-main">
         <div class="lp-hero">
-          <span class="pill pill-accent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>Training Need Analysis 2027</span>
-          <h1>Kenali gap kompetensi, <em>rancang belajar 2027.</em></h1>
+          <span class="pill pill-accent">Training Need Analysis 2027</span>
+          <h1>Kenali gap kompetensi<span class="koma">,</span> <em>rancang belajar 2027.</em></h1>
           <p class="lp-lead">Satu tempat untuk seluruh karyawan Bosowa Berlian Motor: menilai kompetensi berdasarkan perilaku nyata, lalu menerima rencana training pribadi yang terjadwal.</p>
-          <div class="lp-checks"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Checklist perilaku Level 1–5</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Rekomendasi 70-20-10 otomatis</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ITP &amp; kalender 2027</span></div>
+          <div class="lp-checks"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Penilaian berbasis perilaku, Level 1 sampai 5</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Rekomendasi 70-20-10 otomatis</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>ITP &amp; kalender 2027</span></div>
           <div class="lp-feat">
             <div class="lp-f"><div class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><b>Nilai diri &amp; tim</b><span>Centang perilaku yang benar-benar terlihat di pekerjaan.</span></div>
             <div class="lp-f"><div class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></div><b>Atasan memvalidasi</b><span>Gap dan rekomendasi dihitung otomatis oleh sistem.</span></div>
@@ -665,33 +709,32 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           </div>
         </div>
         <div class="lp-card">
-          <span class="badge badge-green">Portal Karyawan</span>
           <h2>Masuk ke TNA 2027</h2>
-          <p class="lp-sub">Gunakan NIK dan PIN yang diberikan Learning &amp; Development.</p>
+          <p class="lp-sub">Gunakan NIK dan PIN dari tim L&amp;D.</p>
           <label for="inp-nik">NIK</label>
           <input type="text" id="inp-nik" inputmode="numeric" autocomplete="username" placeholder="Nomor Induk Karyawan">
           <label for="inp-pin">PIN</label>
           <input type="password" id="inp-pin" autocomplete="current-password" placeholder="PIN Anda">
-          <div class="hint">Login pertama kali akan diminta membuat PIN baru.</div>
+          <div class="hint">Saat pertama masuk, Anda akan diminta membuat PIN baru.</div>
           <div class="err" id="err-login" role="alert"></div>
           <div style="margin-top:20px"><button class="btn btn-red" id="btn-login">Masuk <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-          <button type="button" class="lp-guide" id="btn-lp-panduan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg><span>Belum pernah mengisi? <u>Baca Panduan Pengisian</u> (3 menit)</span></button>
-          <div class="lp-when"><div><b>Jadwal diumumkan L&amp;D</b>Window asesmen</div><div><b>Setelah window ditutup</b>Hasil, ITP &amp; kalender terbit</div></div>
+          <button type="button" class="lp-guide" id="btn-lp-panduan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg><span>Belum pernah mengisi? <u>Baca panduan pengisian</u> <span class="nw">(3 menit)</span></span></button>
+          <div class="lp-when"><div>Periode penilaian<b>Diumumkan tim L&amp;D</b></div><div>Hasil, ITP, dan kalender<b>Terbit setelah periode ditutup</b></div></div>
         </div>
       </main>
-      <footer class="lp-foot">Created by Sujarwadi · Bosowa Berlian Learning Center</footer>
+      <footer class="lp-foot"><span class="nw">BBLC Studio · Bosowa Berlian Learning Center</span> · <span class="nw">Dibuat oleh Sujarwadi</span></footer>
     </div>
   </section>
 
   <!-- ============ DITOLAK (role user) ============ -->
   <section class="screen" id="scr-denied">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">BBLC COMPETENCY DEVELOPMENT STUDIO</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">BBLC Studio</div></div>
     </header>
     <div class="body-wrap" style="text-align:center;padding-top:60px">
       <div class="card">
-        <h2 class="sect" style="justify-content:center">Akses Terbatas</h2>
+        <h2 class="sect" style="justify-content:center">Akses terbatas</h2>
         <p>Aplikasi ini khusus untuk L&amp;D Admin dan Atasan. Akun Anda tidak memiliki akses ke fitur ini.</p>
         <button class="btn btn-ghost" id="btn-denied-back">Kembali ke Layar Masuk</button>
       </div>
@@ -701,8 +744,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ ADMIN HOME ============ -->
   <section class="screen" id="scr-admin">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">COMPETENCY DEVELOPMENT STUDIO</div><div class="app-sub" id="admin-nama">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">BBLC Studio</div><div class="app-sub" id="admin-nama">-</div></div>
       <div class="header-right">
         <button class="btn-logout" id="btn-lihat-atasan" style="margin-right:8px">Lihat sebagai Atasan (Testing)</button>
         <button class="btn-logout" id="btn-admin-logout">Keluar</button>
@@ -760,14 +803,14 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div id="lookup-idp-result" style="margin-top:14px"></div>
       </div>
     </div>
-    <div class="credit">BBLC Competency Development Studio &middot; Created by Sujarwadi</div>
+    <div class="credit">BBLC Studio &middot; Bosowa Berlian Learning Center</div>
   </section>
 
   <!-- ============ ATASAN HOME ============ -->
   <section class="screen" id="scr-atasan">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">COMPETENCY DEVELOPMENT STUDIO</div><div class="app-sub" id="atasan-nama">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">BBLC Studio</div><div class="app-sub" id="atasan-nama">-</div></div>
       <div class="header-right">
         <button class="btn-logout" id="btn-atasan-ke-admin" style="display:none;margin-right:8px">Kembali ke Panel Admin</button>
         <button class="btn-logout" id="btn-atasan-logout">Keluar</button>
@@ -784,24 +827,24 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div id="tim-list"></div>
       </div>
       <div id="panel-idp-tim" style="display:none">
-        <h2 class="sect">IDP Seluruh Tim</h2>
+        <h2 class="sect">IDP seluruh tim</h2>
         <div id="idp-tim-loading" style="display:none"><div class="loading"><div class="spinner"></div>Memuat IDP&hellip;</div></div>
         <div id="idp-tim-list"></div>
       </div>
     </div>
-    <div class="credit">BBLC Competency Development Studio &middot; Created by Sujarwadi</div>
+    <div class="credit">BBLC Studio &middot; Bosowa Berlian Learning Center</div>
   </section>
 
   <!-- ============ FORM ASESMEN ============ -->
   <section class="screen" id="scr-assess-form">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">ASESMEN KOMPETENSI</div><div class="app-sub" id="assess-nama-jabatan">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">Asesmen kompetensi</div><div class="app-sub" id="assess-nama-jabatan">-</div></div>
       <div class="header-right"><button class="btn-logout" id="btn-assess-back">Batal</button></div>
     </header>
     <div class="body-wrap">
       <div class="card">
-        <h2 class="sect">Beri Skor Level Aktual (1 sampai 5)</h2>
+        <h2 class="sect">Beri skor level aktual (1 sampai 5)</h2>
         <div id="assess-kompetensi-list"></div>
         <div class="err" id="err-assess"></div>
         <div style="margin-top:16px"><button class="btn btn-red" id="btn-submit-assess">Kirim Asesmen</button></div>
@@ -812,8 +855,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ HASIL IDP SETELAH SUBMIT ============ -->
   <section class="screen" id="scr-idp-result">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">IDP TERSUSUN OTOMATIS</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">IDP tersusun otomatis</div></div>
       <div class="header-right"><button class="btn-logout" id="btn-idpresult-back">Kembali</button></div>
     </header>
     <div class="body-wrap">
@@ -827,13 +870,13 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: GANTI PIN ============ -->
   <section class="screen" id="scr-ganti-pin">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">GANTI PIN</div><div class="app-sub">Wajib sekali sebelum mulai</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">Ganti PIN</div><div class="app-sub">Wajib sekali sebelum mulai</div></div>
     </header>
     <div class="body-wrap" style="max-width:420px;padding-top:40px">
       <div class="card">
-        <h2 class="sect">Buat PIN Baru</h2>
-        <p style="font-size:13.5px;margin-top:0">PIN Anda masih PIN awal. Demi keamanan data penilaian, buat PIN baru 4 angka.</p>
+        <h2 class="sect">Buat PIN baru</h2>
+        <p style="font-size:14px;margin-top:0">PIN Anda masih PIN awal. Demi keamanan data penilaian, buat PIN baru 4 angka.</p>
         <label>PIN Baru (4 angka)</label>
         <input type="password" id="inp-pin-baru" inputmode="numeric" maxlength="4" placeholder="Contoh: 4821">
         <label>Ulangi PIN Baru</label>
@@ -847,7 +890,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: BERANDA ============ -->
   <section class="screen" id="scr-tna-home">
     <header class="app">
-      <div class="logo-mark">CD</div>
+      <div class="logo-mark">BBLC</div>
       <div><div class="app-title">TNA 2027</div><div class="app-sub" id="tna-nama">-</div></div>
       <div class="header-right"><button class="btn-logout" id="btn-tna-logout">Keluar</button></div>
     </header>
@@ -863,30 +906,39 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div id="tna-tim-wrap"></div>
         <div id="tna-kelompok-wrap"></div>
         <div id="tna-delegasi-wrap"></div>
-        <h2 class="sect">Menu</h2>
+        <div class="menu-grp"><h2 class="sect">Untuk Anda</h2>
         <div class="tiles">
-          <button class="tile tile-admin" id="btn-tna-admin" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Panel Admin TNA</span><span class="tile-d">Pantau progres, matriks, dan generate output</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-itp"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg></span><span class="bd"><span class="tile-g">Saya</span><span class="tile-t">ITP &amp; Kalender Training Saya</span><span class="tile-d">Training, coaching, dan penugasan Anda selama 2027</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div></div>
+        <div class="menu-grp"><h2 class="sect">Tim</h2>
+        <div class="tiles">
           <button class="tile" id="btn-tna-tim" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Dashboard Tim &amp; Training Tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-pasca" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-8M22 19H2"/><path d="m4 6 6-3 6 4 5-3"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Tindak Lanjut Training</span><span class="tile-d" id="pasca-tile-d">Menilai ulang perilaku 3 bulan setelah training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Competency &amp; training matrix per jabatan, dept, divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div></div>
+        <div class="menu-grp"><h2 class="sect">Admin dan L&amp;D</h2>
+        <div class="tiles">
+          <button class="tile tile-admin" id="btn-tna-admin" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Panel Admin TNA</span><span class="tile-d">Pantau progres, matriks, dan buat output</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Matriks kompetensi dan training per jabatan, dept, dan divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-realisasi" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Monitor Realisasi</span><span class="tile-d">Siapa yang sudah dan belum mengisi, per divisi, dept, dan orang; diperbarui otomatis</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-studio" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Studio Kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div></div>
+        <div class="menu-grp"><h2 class="sect">Referensi</h2>
+        <div class="tiles">
           <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan Pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-katalog"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Katalog Training &amp; Silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-landasan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Landasan Metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-studio" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Studio Kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-        </div>
+        </div></div>
       </div>
     </div>
-    <div class="credit">BBLC Competency Development Studio &middot; TNA 2027</div>
+    <div class="credit">BBLC Studio &middot; Bosowa Berlian Learning Center</div>
   </section>
 
   <!-- ============ TNA 2027: FORM ============ -->
   <section class="screen" id="scr-tna-form">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title" id="tna-form-judul">ASESMEN</div><div class="app-sub" id="tna-form-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title" id="tna-form-judul">Asesmen</div><div class="app-sub" id="tna-form-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" id="btn-tna-form-back">Kembali</button></div>
     </header>
     <div class="body-wrap">
@@ -910,8 +962,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: PROGRES ============ -->
   <section class="screen" id="scr-tna-pasca">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">TINDAK LANJUT TRAINING</div><div class="app-sub" id="pasca-sub">Perilaku 3 bulan setelah training</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Tindak lanjut training</div><div class="app-sub" id="pasca-sub">Perilaku 3 bulan setelah training</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px">
@@ -923,8 +975,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
 
   <section class="screen" id="scr-tna-progres">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">PROGRES ASESMEN</div><div class="app-sub" id="tna-progres-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">Progres asesmen</div><div class="app-sub" id="tna-progres-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px"><div id="tna-progres-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div></div>
@@ -933,8 +985,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: MONITOR REALISASI (admin dan tim L&D) ============ -->
   <section class="screen" id="scr-tna-realisasi">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">MONITOR REALISASI</div><div class="app-sub" id="rz-sub">Status pengisian asesmen</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Monitor realisasi</div><div class="app-sub" id="rz-sub">Status pengisian asesmen</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:1280px">
@@ -966,7 +1018,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: ITP / HASIL ============ -->
   <section class="screen" id="scr-tna-itp">
     <header class="app">
-      <div class="logo-mark">CD</div>
+      <div class="logo-mark">BBLC</div>
       <div><div class="app-title">ITP 2027</div><div class="app-sub" id="tna-itp-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
@@ -976,8 +1028,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: NILAI PER KOMPETENSI ============ -->
   <section class="screen" id="scr-tna-formtim">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">NILAI PER KOMPETENSI</div><div class="app-sub" id="ft-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Nilai per kompetensi</div><div class="app-sub" id="ft-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" id="btn-ft-back">Kembali</button></div>
     </header>
     <div class="body-wrap"><div id="ft-body"></div></div>
@@ -986,8 +1038,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: DASHBOARD TIM ============ -->
   <section class="screen" id="scr-tna-tim">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">DASHBOARD TIM</div><div class="app-sub" id="dt-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Dashboard tim</div><div class="app-sub" id="dt-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:1100px">
@@ -999,8 +1051,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: HASIL & VALIDASI ============ -->
   <section class="screen" id="scr-tna-hasil">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title" id="tna-hasil-judul">HASIL &amp; REKOMENDASI</div><div class="app-sub" id="tna-hasil-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title" id="tna-hasil-judul">Hasil dan rekomendasi</div><div class="app-sub" id="tna-hasil-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px"><div id="tna-hasil-body"></div></div>
@@ -1010,8 +1062,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: KATALOG TRAINING ============ -->
   <section class="screen" id="scr-tna-katalog">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">KATALOG TRAINING</div><div class="app-sub" id="kat-sub">Program &amp; silabus BBLC</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Katalog training</div><div class="app-sub" id="kat-sub">Program &amp; silabus BBLC</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px">
@@ -1029,8 +1081,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: DETAIL SILABUS ============ -->
   <section class="screen" id="scr-tna-silabus">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">SILABUS TRAINING</div><div class="app-sub" id="sil-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Silabus training</div><div class="app-sub" id="sil-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:860px"><div id="sil-body"></div></div>
@@ -1039,8 +1091,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: RIWAYAT TRAINING KARYAWAN ============ -->
   <section class="screen" id="scr-tna-rekam">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">RIWAYAT TRAINING</div><div class="app-sub" id="rek-sub">-</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Riwayat training</div><div class="app-sub" id="rek-sub">-</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px"><div id="rek-body"></div></div>
@@ -1050,8 +1102,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ PANDUAN PENGISIAN (dibaca sebelum mengisi) ============ -->
   <section class="screen" id="scr-tna-panduan">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">PANDUAN PENGISIAN</div><div class="app-sub">Baca 3 menit sebelum mulai menilai</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Panduan pengisian</div><div class="app-sub">Baca 3 menit sebelum mulai menilai</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap pd" style="max-width:860px">
@@ -1122,7 +1174,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <h2 class="sect" id="pd-6">Jadwal</h2>
       <div class="card">
         <div class="pd-time">
-          <div><b>Window penilaian</b><span>Tanggal buka dan tutup diumumkan L&amp;D</span></div>
+          <div><b>Periode penilaian</b><span>Tanggal buka dan tutup diumumkan L&amp;D</span></div>
           <div><b>Selama window</b><span>Head unit memvalidasi hasil yang sudah masuk</span></div>
           <div><b>Setelah window ditutup</b><span>Hasil, ITP, dan kalender training 2027 terbit</span></div>
         </div>
@@ -1145,8 +1197,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ PUSAT MATRIX L&D (admin) ============ -->
   <section class="screen" id="scr-tna-pusat">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">PUSAT MATRIX</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Pusat Matrix</div><div class="app-sub">Competency matrix &amp; training matrix 2027</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:1480px"><div class="mx-layout">
@@ -1172,8 +1224,8 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
 
   <section class="screen" id="scr-tna-landasan">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div style="min-width:0"><div class="app-title">LANDASAN METODOLOGI</div><div class="app-sub">Dasar ilmiah TNA 2027</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Landasan metodologi</div><div class="app-sub">Dasar ilmiah TNA 2027</div></div>
       <div class="header-right"><button class="btn-logout" data-pulang="1">Kembali</button></div>
     </header>
     <div class="body-wrap ldn" style="max-width:860px">
@@ -1265,18 +1317,18 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
   <!-- ============ TNA 2027: ADMIN ============ -->
   <section class="screen" id="scr-tna-admin">
     <header class="app">
-      <div class="logo-mark">CD</div>
-      <div><div class="app-title">PANEL ADMIN TNA</div><div class="app-sub">L&amp;D</div></div>
+      <div class="logo-mark">BBLC</div>
+      <div><div class="app-title">Panel admin TNA</div><div class="app-sub">L&amp;D</div></div>
       <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
     </header>
     <div class="body-wrap" style="max-width:960px">
-      <h2 class="sect">Parameter &amp; Window</h2>
+      <h2 class="sect">Parameter dan periode penilaian</h2>
       <div class="card">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 14px">
-          <div><label>Window dibuka (WITA)</label><input type="datetime-local" id="adm-WindowBuka"></div>
-          <div><label>Window ditutup (WITA)</label><input type="datetime-local" id="adm-WindowTutup"></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 14px;align-items:end">
+          <div><label>Periode dibuka (WITA)</label><input type="datetime-local" id="adm-WindowBuka"></div>
+          <div><label>Periode ditutup (WITA)</label><input type="datetime-local" id="adm-WindowTutup"></div>
           <div><label>Bobot atasan</label><input type="number" step="0.05" id="adm-BobotAtasan"></div>
-          <div><label>Bobot self</label><input type="number" step="0.05" id="adm-BobotSelf"></div>
+          <div><label>Bobot nilai diri</label><input type="number" step="0.05" id="adm-BobotSelf"></div>
           <div><label>Target jam/orang/bulan</label><input type="number" step="0.5" id="adm-TargetJamBulan"></div>
           <div><label>Kapasitas kelas</label><input type="number" id="adm-KapasitasKelas"></div>
           <div><label>Durasi default (jam)</label><input type="number" id="adm-DurasiDefaultJam"></div>
@@ -1284,39 +1336,39 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <div><label>Durasi satu sesi IHT Sabtu (jam)</label><input type="number" step="0.5" min="0.5" id="adm-JamSesiIHT"></div>
           <div><label>Proyeksi peserta BST per batch</label><input type="number" min="0" id="adm-ProyeksiPesertaBST"></div>
         </div>
-        <div class="hint">Waktu dalam WITA. Bobot atasan + self harus = 1. Slot BST (tanggal 1-3 tiap bulan) dan IHT Sabtu dijadwalkan otomatis saat generate output.</div>
+        <div class="hint">Waktu dalam WITA. Bobot atasan + bobot nilai diri harus = 1. Slot BST (tanggal 1-3 tiap bulan) dan IHT Sabtu dijadwalkan otomatis saat output dibuat.</div>
         <div class="err" id="err-tna-param"></div>
-        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-simpan-param">Simpan Parameter</button></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-simpan-param">Simpan parameter</button></div>
       </div>
-      <h2 class="sect">Pemantauan &amp; Pengingat</h2>
+      <h2 class="sect">Pemantauan dan pengingat</h2>
       <div class="card">
         <div id="tna-adm-pantau"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div>
         <div class="err" id="err-tna-pantau"></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px">
-          <button class="btn btn-ghost" id="btn-tna-pengingat">Pratinjau Pengingat WhatsApp</button>
-          <button class="btn btn-ghost" id="btn-tna-jadwal">Aktifkan Jadwal Otomatis</button>
+          <button class="btn btn-ghost" id="btn-tna-pengingat">Pratinjau pengingat WhatsApp</button>
+          <button class="btn btn-ghost" id="btn-tna-jadwal">Aktifkan jadwal otomatis</button>
         </div>
         <div id="tna-adm-pengingat"></div>
       </div>
-      <h2 class="sect">Status Matriks Jabatan</h2>
+      <h2 class="sect">Status matriks jabatan</h2>
       <div class="card">
         <div id="tna-adm-matriks"></div>
         <div class="err" id="err-tna-approve"></div>
-        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-approve-sel">Setujui Jabatan Terpilih</button></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-approve-sel">Setujui jabatan terpilih</button></div>
       </div>
-      <h2 class="sect">Rilis ITP ke Karyawan</h2>
+      <h2 class="sect">Rilis ITP ke karyawan</h2>
       <div class="card">
         <div id="tna-adm-rilis" class="hint" style="color:var(--text)"></div>
         <div class="hint">ITP dan rencana 70/20/10 hanya tampil ke karyawan dan atasan setelah dirilis. Admin dan tim L&amp;D selalu bisa melihat (untuk pratinjau). Rilis setelah hasil divalidasi dan disetujui manajemen.</div>
         <div class="err" id="err-tna-rilis"></div>
         <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-rilis">Rilis ITP</button></div>
       </div>
-      <h2 class="sect">Output 5 Dokumen</h2>
+      <h2 class="sect">Output 5 dokumen</h2>
       <div class="card">
         <div id="tna-adm-output"></div>
-        <div class="hint">Generate otomatis berjalan 5 menit setelah window ditutup bila trigger sudah dijadwalkan. Tombol ini untuk generate manual (uji coba atau ulang).</div>
+        <div class="hint">Output dibuat otomatis 5 menit setelah periode ditutup bila jadwal otomatis sudah aktif. Tombol ini untuk membuat output secara manual (uji coba atau ulang).</div>
         <div class="err" id="err-tna-output"></div>
-        <div style="margin-top:12px"><button class="btn btn-red" id="btn-tna-generate">Generate Output Sekarang</button></div>
+        <div style="margin-top:12px"><button class="btn btn-primary" id="btn-tna-generate">Buat output sekarang</button></div>
       </div>
     </div>
   </section>
@@ -1356,6 +1408,19 @@ function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.r
 function showErr(id, msg){ const e=$(id); e.textContent=msg; e.classList.add("show"); }
 function clearErr(id){ const e=$(id); e.textContent=""; e.classList.remove("show"); }
 
+const STATUS_JAB = { APPROVED:"Disetujui", DRAFT:"Draf", DIKECUALIKAN:"Dikecualikan", REVIEW:"Ditinjau" };
+// Jabatan dari master tertulis huruf kapital semua; untuk tampilan dirapikan (singkatan tetap kapital). Data di Sheet tidak diubah.
+const JAB_AKR = new Set(["HC","GA","IT","HR","L&D","ASS","HO","PDI","CRM","SPV","PIC","BBM","BBLC","ADH","CS","QC","QA","SA","TL","BST","IHT","NOH","CFO","CEO","COO","GM","AR","AP","ERP","SAP","PR","GS","MD","DH","SH","KTB","MMKSI","PT","CV","OB","HSE","K3","VIP","MSTEP","TNA","ITP"]);
+function jab(x){
+  const t = String(x==null?"":x);
+  if(!/[A-Z]{2}/.test(t) || t!==t.toUpperCase()) return t;
+  return t.split(/(\s+|\/|\(|\)|-)/).map(w=>{
+    if(!/[A-Z]/.test(w)) return w;
+    if(JAB_AKR.has(w.replace(/[^A-Z0-9&]/g,""))) return w;
+    if(/^(DAN|AND|OF|THE|UNTUK|DI)$/.test(w)) return w.toLowerCase();
+    return w.charAt(0)+w.slice(1).toLowerCase();
+  }).join("");
+}
 /* ---------- Login ---------- */
 $("btn-login").onclick = async ()=>{
   clearErr("err-login");
@@ -1434,7 +1499,7 @@ function renderDropdownKaryawan(saring){
   if(!daftarKaryawan.length){ sel.innerHTML = '<option value="">Belum ada karyawan terdaftar</option>'; return; }
   if(!cocok.length){ sel.innerHTML = '<option value="">Tidak ada yang cocok dengan saringan</option>'; return; }
   sel.innerHTML = '<option value="">Pilih karyawan&hellip;</option>' +
-    cocok.map(k=>'<option value="'+esc(k.nik)+'">'+esc(k.nama)+' &middot; '+esc(k.cabang)+(k.jabatan?' &middot; '+esc(k.jabatan):'')+'</option>').join("");
+    cocok.map(k=>'<option value="'+esc(k.nik)+'">'+esc(k.nama)+' &middot; '+esc(k.cabang)+(k.jabatan?' &middot; '+esc(jab(k.jabatan)):'')+'</option>').join("");
   if(cocok.length===1) sel.value = cocok[0].nik;
 }
 
@@ -1447,7 +1512,7 @@ function renderDropdownAsesmen(saring){
   if(!daftarKaryawan.length){ sel.innerHTML = '<option value="">Belum ada karyawan terdaftar</option>'; return; }
   if(!cocok.length){ sel.innerHTML = '<option value="">Tidak ada yang cocok dengan saringan</option>'; return; }
   sel.innerHTML = '<option value="">Pilih karyawan&hellip;</option>' +
-    cocok.map(k=>'<option value="'+esc(k.nik)+'">'+esc(k.nama)+' &middot; '+esc(k.cabang)+(k.jabatan?' &middot; '+esc(k.jabatan):'')+'</option>').join("");
+    cocok.map(k=>'<option value="'+esc(k.nik)+'">'+esc(k.nama)+' &middot; '+esc(k.cabang)+(k.jabatan?' &middot; '+esc(jab(k.jabatan)):'')+'</option>').join("");
   if(cocok.length===1) sel.value = cocok[0].nik;
 }
 $("inp-filter-asesmen").oninput = ()=> renderDropdownAsesmen($("inp-filter-asesmen").value);
@@ -1509,11 +1574,11 @@ $("btn-generate-matrix").onclick = async ()=>{
 
 function renderMatrixPreview(r){
   let html = '<div class="card"><h2 class="sect">Terdeteksi Otomatis oleh AI</h2>'+
-    '<p style="margin:0 0 4px"><b>Jabatan:</b> '+esc(r.jabatan)+' &nbsp;&middot;&nbsp; <b>Tier:</b> '+esc(r.jabatanTier)+'</p>'+
+    '<p style="margin:0 0 4px"><b>Jabatan:</b> '+esc(jab(r.jabatan))+' &nbsp;&middot;&nbsp; <b>Tier:</b> '+esc(jab(r.jabatanTier))+'</p>'+
     '<div class="hint">Jika nama jabatan atau tier ini kurang tepat, batalkan dan perbaiki teks JD, lalu generate ulang. Ini bukan kolom yang bisa diedit langsung, karena harus konsisten dengan isi dokumen sumber.</div></div>';
   html += '<div class="card"><h2 class="sect">Pratinjau: '+r.jumlahKompetensi+' Kompetensi (Belum Tersimpan)</h2>';
   if(r.sudahAda){
-    html += '<div class="err show" style="margin-bottom:12px">Jabatan "'+esc(r.jabatan)+'" sudah punya Matriks Kompetensi sebelumnya. Menyimpan akan menimpa data lama (perlu konfirmasi).</div>';
+    html += '<div class="err show" style="margin-bottom:12px">Jabatan "'+esc(jab(r.jabatan))+'" sudah punya Matriks Kompetensi sebelumnya. Menyimpan akan menimpa data lama (perlu konfirmasi).</div>';
   }
   const adaWwn = r.kompetensi.some(k => k.sumber && k.sumber !== "JD");
   html += '<table><tr><th>Kompetensi</th><th>Kategori</th><th>Level Target</th><th>Checklist</th><th>Sumber</th></tr>';
@@ -1645,7 +1710,7 @@ async function loadTim(){
         const inisial = (t.nama||"?").charAt(0).toUpperCase();
         const badge = t.sudahDinilaiPeriodeIni ? '<span class="badge badge-green">Sudah Dinilai</span>' : '<span class="badge badge-amber">Belum Dinilai</span>';
         html += '<div class="team-item" data-i="'+i+'"><div class="team-avatar">'+inisial+'</div>'+
-          '<div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(t.jabatan)+'</div></div>'+badge+'</div>';
+          '<div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(jab(t.jabatan))+'</div></div>'+badge+'</div>';
       });
       $("tim-list").innerHTML = html;
       document.querySelectorAll(".team-item").forEach(el=>{
@@ -1828,7 +1893,7 @@ function cariSilabus(kat, kode){ return kat.silabus[kode] || (/^W-CB\d\d-L\d$/.t
 const FLAG_TEKS = {
   "STRAIGHT-LINING":["Pola isian seragam","Penilai memilih level yang sama pada hampir semua kompetensi (90% atau lebih dari seluruh isiannya). Perlu dipastikan penilaian benar-benar membedakan kemampuan tiap kompetensi."],
   "LENIENCY":["Cenderung memberi nilai tinggi","Rata-rata level dari penilai ini jauh di atas rata-rata penilai lain."],
-  "KALIBRASI":["Selisih self dan atasan besar","Penilaian diri dan penilaian atasan berbeda 2 level atau lebih."],
+  "KALIBRASI":["Selisih nilai diri dan atasan besar","Penilaian diri dan penilaian atasan berbeda 2 level atau lebih."],
   "RATER TUNGGAL":["Hanya satu penilai","Seharusnya dinilai dua penilai, tetapi baru satu yang mengisi."],
   "JD_ACUAN_TERDEKAT":["Memakai JD acuan terdekat","Jabatan ini belum punya JD sendiri."],
   "DRAFT_AI_TANPA_JD":["Draf tanpa JD","Daftar kompetensi disusun tanpa JD."],
@@ -1913,7 +1978,7 @@ function rujukanSilabus(s, c){
   const sm = String((s&&s.Sumber) || "");
   if(/^RUJUKAN:/i.test(sm)){
     const l = sm.replace(/^RUJUKAN:\s*/i,"").split(/\s*\|\s*/).filter(Boolean);
-    return '<div class="sil-blok"><h3>Rujukan</h3><ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--text)">'+l.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+    return '<div class="sil-blok"><h3>Rujukan</h3><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:var(--text)">'+l.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
   }
   return '';
 }
@@ -1934,11 +1999,11 @@ function renderSilabus(kode){
   if(!c && !s){ $("sil-body").innerHTML = '<div class="card"><div class="empty">Training '+esc(kode)+' tidak ada di katalog.</div></div>'; return; }
   const judul = c ? c.judul : s.Judul;
   $("sil-sub").textContent = kode;
-  const blok = (lbl, isi)=> isi && !/^(belum tercantum|lihat katalog|belum ada|tidak ada)\.?$/i.test(String(isi).trim()) ? '<div class="sil-blok"><h3>'+lbl+'</h3><div style="font-size:13.5px">'+isi+'</div></div>' : '';
+  const blok = (lbl, isi)=> isi && !/^(belum tercantum|lihat katalog|belum ada|tidak ada)\.?$/i.test(String(isi).trim()) ? '<div class="sil-blok"><h3>'+lbl+'</h3><div style="font-size:14px">'+isi+'</div></div>' : '';
   const outline = s && s.Outline ? '<ol>'+String(s.Outline).split(/\n+/).filter(Boolean).map(l=>'<li>'+esc(l)+'</li>').join("")+'</ol>' : '';
   const ada = s && s.Status!=="BELUM_ADA_SILABUS";
   $("sil-body").innerHTML =
-    '<div class="card" style="padding:16px 18px"><div style="font-size:17px;font-weight:800;color:var(--ink)">'+esc(judul)+'</div>'+
+    '<div class="card" style="padding:16px 18px"><div style="font-size:18px;font-weight:800;color:var(--ink)">'+esc(judul)+'</div>'+
     '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+(c?'<span class="badge badge-grey">'+esc(labelKat(c.kategori))+'</span>':'<span class="badge badge-grey">Program internal BBLC</span>')+'</div>'+
     blok("Kompetensi yang dikembangkan", esc((s&&s.Kompetensi) || (c&&c.kompetensi) || ""))+
     blok("Sasaran peserta", esc(s?s.Sasaran:""))+
@@ -2007,10 +2072,10 @@ async function muatBerandaTNA(){
     const wk = w==="DIBUKA" ? ["green","var(--green-soft)","var(--green-line)",'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>'] : ((w==="BELUM_DIBUKA"||w==="BELUM_DIJADWALKAN") ? ["amber","var(--amber-soft)","var(--accent-line)",'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'] : ["red","var(--red-soft)","var(--red-line)",'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>']);
     $("tna-window-card").style.setProperty("--tint", wk[1]); $("tna-window-card").style.setProperty("--tint-line", wk[2]);
     $("tna-window-card").innerHTML = '<div class="win"><span class="win-ic ic-'+(wk[0]==="red"?"amber":wk[0])+'" style="'+(wk[0]==="red"?'background:var(--red-soft);color:var(--red);border-color:var(--red-line)':'')+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+wk[3]+'</svg></span><div class="win-txt">'+(w==="DIBUKA"
-      ? '<span class="badge badge-green">Window dibuka</span><div style="margin-top:6px">Berlaku sampai <b>'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban bisa direvisi selama window masih dibuka.</div>'
-      : (w==="BELUM_DIJADWALKAN" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Jadwal window asesmen akan diumumkan L&amp;D. Sementara ini form hanya dapat dilihat.</div>'
-      : w==="BELUM_DIBUKA" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Window asesmen dibuka <b>'+esc(fmtTgl(r.windowBuka))+'</b>.</div>'
-        : '<span class="badge badge-red">Window ditutup</span><div style="margin-top:6px">Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.</div>'))+'</div>'+cd+'</div>';
+      ? '<span class="badge badge-green">Periode penilaian dibuka</span><div style="margin-top:6px">Berlaku sampai <b class="nw">'+esc(fmtTgl(r.windowTutup))+'</b>. Jawaban masih bisa diubah sampai periode ditutup.</div>'
+      : (w==="BELUM_DIJADWALKAN" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Jadwal periode penilaian akan diumumkan tim L&amp;D. Sementara ini form hanya dapat dilihat.</div>'
+      : w==="BELUM_DIBUKA" ? '<span class="badge badge-amber">Belum dibuka</span><div style="margin-top:6px">Periode penilaian dibuka <b class="nw">'+esc(fmtTgl(r.windowBuka))+'</b>.</div>'
+        : '<span class="badge badge-red">Periode penilaian ditutup</span><div style="margin-top:6px">Hasil (Gap &amp; ITP) dapat dilihat setelah L&amp;D menerbitkan output.</div>'))+'</div>'+cd+'</div>';
     // Studio lama hanya untuk admin selama TNA berjalan; atasan bisa memakainya lagi setelah window ditutup.
     $("btn-tna-studio").style.display = "none";
     // Kartu To-do
@@ -2019,7 +2084,7 @@ async function muatBerandaTNA(){
     const total = (td.nilai||0) + nVal + (td.approval||0) + (td.delegasi||0) + (r.selfStatus==="BELUM"?1:0);
     const chip = (n, label, warna)=> n ? '<div class="chip-k"><div class="n" style="color:'+warna+'">'+n+'</div><div class="l">'+label+'</div></div>' : '';
     $("tna-todo-card").innerHTML = (w==="DIBUKA" || nVal) ? '<div class="card" style="padding:14px 18px">'+
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><b style="font-size:15px">'+(total?'Tugas Anda: '+total:'Semua tugas selesai')+'</b>'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><b style="font-size:15px">'+(total?'Tugas Anda: '+total:'Semua tugas selesai')+'</b>'+(!total && w==="DIBUKA" ? '<span class="hint" style="margin:0;flex-basis:100%">Jawaban masih bisa diubah sampai periode ditutup. Hasil dan ITP terbit setelah itu.</span>' : '')+
       (w==="DIBUKA" && sisaHari<=2 ? '<span class="badge badge-red">'+(sisaHari>0?'sisa '+sisaHari+' hari':'hari terakhir')+'</span>' : '')+'</div>'+
       (total ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
         chip((td.nilai||0)-(td.revisi||0), 'penilaian tim', 'var(--ink)')+chip(td.revisi, 'perlu revisi', 'var(--red)')+chip(nVal, 'validasi', 'var(--amber)')+
@@ -2029,34 +2094,34 @@ async function muatBerandaTNA(){
     const val = r.validasi || [];
     const menunggu = val.filter(v=>v.status==="MENUNGGU_VALIDASI");
     const bersih = menunggu.filter(v=> v.ringkasan && !v.ringkasan.flag && !v.ringkasan.major);
-    $("tna-validasi-wrap").innerHTML = val.length ? '<h2 class="sect">Validasi Hasil Tim ('+menunggu.length+' menunggu)</h2>'+
-      '<div class="hint" style="margin:-6px 0 10px">Tinjau gap &amp; rekomendasi hasil penilaian, lalu setujui, edit, atau kembalikan ke penilai.</div>'+
+    $("tna-validasi-wrap").innerHTML = val.length ? '<h2 class="sect">Validasi hasil tim ('+menunggu.length+' menunggu)</h2>'+
+      '<div class="hint" style="margin:-6px 0 10px">Tinjau gap dan rekomendasi hasil penilaian, lalu setujui, ubah, atau kembalikan ke penilai.</div>'+
       (bersih.length ? '<button class="btn btn-ghost" id="btn-val-massal" style="margin-bottom:10px">Setujui '+bersih.length+' hasil yang siap disetujui</button><div class="hint" style="margin:-4px 0 10px">Hasil dengan gap Major atau yang perlu ditinjau khusus tidak ikut; tinjau satu per satu.</div>' : '')+
       '<div class="card">'+val.map(v=>{
         const rg = v.ringkasan||{};
         const info = (rg.major?'Major '+rg.major+' · ':'')+(rg.moderate?'Moderate '+rg.moderate+' · ':'')+(tna.internal && rg.flag?'<b style="color:var(--red)">Catatan: '+esc((rg.jenis||[]).map(flagLabel).join(", ")||rg.flag)+'</b> · ':'')+'Penilai: '+esc(v.penilai||"-");
-        return '<div class="team-item" data-val="'+esc(v.kunci)+'"><div class="team-avatar">'+esc((v.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(v.nama)+'</div><div class="team-jabatan">'+esc(v.jabatan||"")+' · '+esc(v.cabang||"")+'<br>'+info+'</div></div>'+badgeValidasi(v.status)+'</div>';
+        return '<div class="team-item" data-val="'+esc(v.kunci)+'"><div class="team-avatar">'+esc((v.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(v.nama)+'</div><div class="team-jabatan">'+esc(jab(v.jabatan||""))+' · '+esc(v.cabang||"")+'<br>'+info+'</div></div>'+badgeValidasi(v.status)+'</div>';
       }).join("")+'</div>' : "";
     // Approval delegasi
-    $("tna-approval-wrap").innerHTML = r.menungguApproval.length ? '<h2 class="sect">Perlu Persetujuan Anda</h2><div class="card">'+
+    $("tna-approval-wrap").innerHTML = r.menungguApproval.length ? '<h2 class="sect">Perlu persetujuan Anda</h2><div class="card">'+
       r.menungguApproval.map(m=>'<div class="team-item" style="cursor:default"><div class="team-avatar">'+esc(m.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(m.nama)+'</div><div class="team-jabatan">Diisi oleh '+esc(m.olehNama)+'</div></div>'+
         '<button class="btn btn-ghost" style="width:auto;padding:8px 12px" data-lihat="'+esc(m.nik)+'">Tinjau</button></div>').join("")+'</div>' : "";
     // Self
     $("tna-self-wrap").innerHTML = r.selfStatus==="DIKECUALIKAN" ? '<div class="card"><div class="empty">Jabatan Anda tidak termasuk asesmen TNA 2027 (pengembangan diatur khusus). Silakan selesaikan penilaian tim Anda di bawah.</div></div>'
-      : r.selfStatus==="TIDAK_PERLU" ? (r.terdaftar ? '' : '<div class="card"><div class="empty">Akun Anda belum terdaftar di TNA 2027. Hubungi L&amp;D.</div></div>')
-      : '<h2 class="sect">Penilaian Diri (Self-Assessment)</h2><div class="team-item" id="btn-self"><div class="team-avatar">'+esc(state.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">Nilai diri saya</div><div class="team-jabatan">'+esc(r.jabatan)+'</div></div>'+badgeStatus(r.selfStatus)+'</div>';
+      : r.selfStatus==="TIDAK_PERLU" ? ((r.terdaftar || tna.isAdmin) ? '' : '<div class="card"><div class="empty">Akun Anda belum terdaftar sebagai peserta TNA 2027. Hubungi tim L&amp;D bila ini keliru.</div></div>')
+      : '<h2 class="sect">Penilaian diri</h2><div class="team-item" id="btn-self"><div class="team-avatar">'+esc(state.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">Nilai diri saya</div><div class="team-jabatan">'+esc(jab(r.jabatan))+'</div></div>'+badgeStatus(r.selfStatus)+'</div>';
     // Tim
     const tim = r.tugas;
     const sel = tim.filter(t=>t.status==="FINAL").length;
-    $("tna-tim-wrap").innerHTML = tim.length ? '<h2 class="sect">Tim yang Anda Nilai ('+sel+'/'+tim.length+' selesai)</h2>'+
+    $("tna-tim-wrap").innerHTML = tim.length ? '<h2 class="sect">Tim yang Anda nilai ('+sel+'/'+tim.length+' selesai)</h2>'+
       '<input type="text" id="inp-cari-tim" placeholder="Cari nama di tim" aria-label="Cari nama di tim" style="margin-bottom:10px">'+
       '<div id="tna-tim-list">'+tim.map(t=>itemOrang(t)).join("")+'</div>' : "";
     const kel = r.kelompok;
-    $("tna-kelompok-wrap").innerHTML = kel.length ? '<h2 class="sect">Penilaian per Kelompok Level</h2>'+
-      kel.map(g=>'<div class="team-item" data-kel="'+esc(g.kelompokId)+'"><div class="team-avatar">'+g.anggota+'</div><div class="team-info"><div class="team-name">'+esc(g.jabatan)+'</div><div class="team-jabatan">'+esc(g.cabang)+' · '+g.anggota+' orang'+(g.catatanValidasi?'<br><b style="color:var(--red)">Catatan validator:</b> '+esc(g.catatanValidasi):'')+'</div></div>'+badgeStatus(g.status, g.validasi)+
+    $("tna-kelompok-wrap").innerHTML = kel.length ? '<h2 class="sect">Penilaian per kelompok level</h2>'+
+      kel.map(g=>'<div class="team-item" data-kel="'+esc(g.kelompokId)+'"><div class="team-avatar">'+g.anggota+'</div><div class="team-info"><div class="team-name">'+esc(jab(g.jabatan))+'</div><div class="team-jabatan">'+esc(g.cabang)+' · '+g.anggota+' orang'+(g.catatanValidasi?'<br><b style="color:var(--red)">Catatan validator:</b> '+esc(g.catatanValidasi):'')+'</div></div>'+badgeStatus(g.status, g.validasi)+
         (g.status==="FINAL"||g.validasi ? '<button class="btn btn-ghost" style="width:auto;padding:6px 10px;margin-left:6px" data-hasil-kel="'+esc(g.kelompokId)+'">Hasil</button>' : '')+'</div>').join("") : "";
     const del = r.delegasi;
-    $("tna-delegasi-wrap").innerHTML = del.length ? '<h2 class="sect">Bantu Nilai (Delegasi)</h2><div class="hint" style="margin:-6px 0 10px">Hasil isian Anda baru berlaku setelah disetujui penilai utama.</div>'+del.map(t=>itemOrang(t)).join("") : "";
+    $("tna-delegasi-wrap").innerHTML = del.length ? '<h2 class="sect">Bantu nilai (delegasi)</h2><div class="hint" style="margin:-6px 0 10px">Hasil isian Anda baru berlaku setelah disetujui penilai utama.</div>'+del.map(t=>itemOrang(t)).join("") : "";
     if(!tim.length && !kel.length && !del.length && r.selfStatus==="TIDAK_PERLU" && !r.menungguApproval.length && r.terdaftar){
       $("tna-tim-wrap").innerHTML = '<div class="card"><div class="empty">Tidak ada penilaian yang perlu Anda isi.</div></div>';
     }
@@ -2092,7 +2157,7 @@ async function muatBerandaTNA(){
 }
 function itemOrang(t){
   const adaHasil = (t.peran==="ATASAN"||t.peran==="ATASAN2") && (t.status==="FINAL" || t.validasi);
-  return '<div class="team-item" data-nik="'+esc(t.nik)+'"><div class="team-avatar">'+esc((t.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(t.jabatan)+' · '+esc(t.cabang)+(t.peran==="ATASAN2"?' · penilai kedua':'')+
+  return '<div class="team-item" data-nik="'+esc(t.nik)+'"><div class="team-avatar">'+esc((t.nama||"?").charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(t.nama)+'</div><div class="team-jabatan">'+esc(jab(t.jabatan))+' · '+esc(t.cabang)+(t.peran==="ATASAN2"?' · penilai kedua':'')+
     (t.catatanValidasi?'<br><b style="color:var(--red)">Catatan validator:</b> '+esc(t.catatanValidasi):'')+'</div></div>'+badgeStatus(t.status, t.peran==="DELEGASI"?"":t.validasi)+
     (adaHasil ? '<button class="btn btn-ghost" style="width:auto;padding:6px 10px;margin-left:6px" data-hasil="'+esc(t.nik)+'">Hasil</button>' : '')+'</div>';
 }
@@ -2115,7 +2180,7 @@ async function bukaFormTNA(sasaran, mode){
     if(r.draft && r.draft.jawaban && tnaFormMode==="isi"){ Object.assign(tna.jawaban, r.draft.jawaban); tna.draftWaktu = r.draft.waktu; }
     const d = bacaDraft(); if(d && tnaFormMode==="isi") Object.assign(tna.jawaban, d);
     const self = r.peran==="SELF";
-    $("tna-form-judul").textContent = self ? "PENILAIAN DIRI" : (sasaran.kelompokId ? "PENILAIAN KELOMPOK" : "PENILAIAN ATASAN");
+    $("tna-form-judul").textContent = self ? "Penilaian diri" : (sasaran.kelompokId ? "Penilaian kelompok" : "Penilaian atasan");
     $("tna-form-sub").textContent = r.judul;
     $("tna-form-petunjuk").innerHTML = (sasaran.kelompokId ? '<b>Nilai kemampuan umum kelompok ini</b> (rata-rata anggota: '+esc((r.target.anggota||[]).slice(0,6).join(", "))+((r.target.anggota||[]).length>6?", dst":"")+'). ' : '')+
       'Centang perilaku yang <b>benar-benar '+(self?'Anda lakukan':'teramati')+' secara konsisten dalam 3 sampai 6 bulan terakhir</b>, mulai dari Level 2 ke atas. Level dihitung otomatis. Level 4 dan 5 perlu satu kalimat bukti. Jika tidak bisa dinilai, pilih N/A dan isi alasannya.';
@@ -2127,11 +2192,11 @@ async function bukaFormTNA(sasaran, mode){
     renderFormTNA();
     if(tnaFormMode==="tinjau"){
       document.querySelectorAll("#tna-form-list input").forEach(el=> el.disabled = true);
-      $("tna-form-judul").textContent = "TINJAU ISIAN DELEGASI";
+      $("tna-form-judul").textContent = "Tinjau isian delegasi";
     }
     $("tna-tinjau-aksi").style.display = tnaFormMode==="tinjau" ? "grid" : "none";
     $("btn-tna-submit").style.display = (r.window==="DIBUKA" && tnaFormMode==="isi") ? "" : "none";
-    if(r.window!=="DIBUKA") showErr("err-tna-form","Window asesmen sedang tidak dibuka, form hanya bisa dilihat.");
+    if(r.window!=="DIBUKA") showErr("err-tna-form","Periode penilaian sedang tidak dibuka, form hanya bisa dilihat.");
   }catch(e){
     $("btn-tna-submit").style.display="none";
     if(e.kode === "MATRIKS_BELUM"){
@@ -2151,9 +2216,10 @@ function skorGuttman(checks){
   return { lv, inkon };
 }
 // Level 1 tidak dicentang: menjadi titik awal bila tidak ada perilaku Level 2-5 yang teramati.
-function lv1Info(k){
+function lv1Info(k, ringkas){
   const d = (k.levels||[])[0] || LV_NAMA[1];
-  return '<div style="display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin:8px 0;color:var(--muted)"><span style="width:20px;flex-shrink:0;text-align:center">&bull;</span>'+
+  if(ringkas) return '<div style="margin:5px 0;color:var(--muted)"><b>L1</b> · '+esc(d)+' (titik awal, otomatis bila Level 2 sampai 5 tidak ditekan)</div>';
+  return '<div style="display:flex;gap:10px;align-items:flex-start;font-size:14px;margin:8px 0;color:var(--muted)"><span style="width:20px;flex-shrink:0;text-align:center">&bull;</span>'+
     '<span><b>Level 1</b> · '+esc(d)+' <i>(titik awal; otomatis bila tidak ada Level 2-5 yang dicentang)</i></span></div>';
 }
 function renderFormTNA(){
@@ -2162,7 +2228,7 @@ function renderFormTNA(){
   $("tna-form-list").innerHTML = r.kompetensi.map((k,i)=>{
     const j = tna.jawaban[k.kode] || { checks:"NNNN", na:false, alasan:"" };
     const ch = (j.checks||"NNNN");
-    const items = k.checklist.map((it,ci)=>'<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:13.5px;margin:8px 0;color:var(--text)">'+
+    const items = k.checklist.map((it,ci)=>'<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:14px;margin:8px 0;color:var(--text)">'+
       '<input type="checkbox" class="tna-chk" data-k="'+i+'" data-c="'+ci+'" '+(ch.charAt(ci)==="Y"?"checked":"")+(j.na?" disabled":"")+' style="margin-top:3px;width:20px;height:20px;flex-shrink:0">'+
       '<span><b>Level '+(ci+2)+'</b> · '+esc(it)+'</span></label>').join("");
     return '<div class="card tna-komp" data-k="'+i+'" style="padding:16px">'+
@@ -2171,9 +2237,9 @@ function renderFormTNA(){
       (k.definisi ? '<details style="margin-top:6px"><summary style="font-size:12px;color:var(--link);cursor:pointer">Definisi &amp; deskripsi level</summary><div class="hint" style="color:var(--text)">'+esc(k.definisi)+'<br>'+k.levels.map((l,li)=>l?'<b>L'+(li+1)+'</b> '+esc(l):'').filter(Boolean).join("<br>")+'</div></details>' : '')+
       lv1Info(k)+items+
       '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap"><span class="badge" id="tna-lv-'+i+'"></span>'+
-      '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:12.5px"><input type="checkbox" class="tna-na" data-k="'+i+'" '+(j.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
+      '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:13px"><input type="checkbox" class="tna-na" data-k="'+i+'" '+(j.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
       '<input type="text" class="tna-alasan" data-k="'+i+'" placeholder="Alasan N/A, contoh: baru mutasi 1 bulan" value="'+esc(j.alasan||"")+'" style="margin-top:8px;display:'+(j.na?"block":"none")+'">'+
-      '<div class="tna-bukti-wrap" data-k="'+i+'" style="margin-top:8px;display:none"><label style="font-size:12.5px;margin:0 0 4px;font-weight:600">Bukti untuk level ini <span class="hint" style="font-weight:400">(wajib untuk Level 4 dan 5)</span></label>'+
+      '<div class="tna-bukti-wrap" data-k="'+i+'" style="margin-top:8px;display:none"><label style="font-size:13px;margin:0 0 4px;font-weight:600">Bukti untuk level ini <span class="hint" style="font-weight:400">(wajib untuk Level 4 dan 5)</span></label>'+
       '<input type="text" class="tna-bukti" data-k="'+i+'" maxlength="300" placeholder="'+esc(BUKTI_PETUNJUK)+'" value="'+esc(j.bukti||"")+'"><div class="hint" style="margin:4px 0 0">'+esc(BUKTI_CONTOH)+'</div></div>'+
       '</div>';
   }).join("");
@@ -2296,9 +2362,9 @@ async function muatProgres(lingkup){
         '<span class="prog-val-i">'+badgeValidasi(x[0])+'<b>'+x[1]+'</b></span>').join("")+'</div>' : '';
     $("tna-progres-body").innerHTML = sw+
       '<div class="card"><div style="font-size:32px;font-weight:800;color:var(--ink)">'+r.persen+'%</div><div class="hint">'+r.selesai+' dari '+r.total+' karyawan ('+esc(LINGKUP_LABEL[r.lingkup.pilih].toLowerCase())+') sudah punya penilaian atasan final</div>'+val+'</div>'+
-      '<h2 class="sect">Per Cabang / Unit</h2><div class="card" style="overflow-x:auto"><table><tr><th>Unit</th><th>Selesai</th><th>%</th><th>Self-rating</th></tr>'+
+      '<h2 class="sect">Per cabang atau unit</h2><div class="card" style="overflow-x:auto"><table><tr><th>Unit</th><th>Selesai</th><th>%</th><th>Nilai diri</th></tr>'+
       r.units.map(u=>'<tr><td>'+esc(u.unit)+'</td><td>'+u.selesai+'/'+u.total+'</td><td><span class="badge '+(u.persen>=90?"badge-green":(u.persen>=50?"badge-amber":"badge-red"))+'">'+u.persen+'%</span></td><td>'+u.self+'/'+u.perluSelf+'</td></tr>').join("")+'</table></div>'+
-      (pp.length ? '<h2 class="sect">Penilai yang Belum Selesai</h2><div class="card" style="overflow-x:auto"><table><tr><th>Penilai</th><th>Sisa</th></tr>'+pp.map(x=>'<tr><td>'+esc(x[0]||"(belum ada penilai)")+'</td><td>'+x[1]+'</td></tr>').join("")+'</table></div>' : '');
+      (pp.length ? '<h2 class="sect">Penilai yang belum selesai</h2><div class="card" style="overflow-x:auto"><table><tr><th>Penilai</th><th>Sisa</th></tr>'+pp.map(x=>'<tr><td>'+esc(x[0]||"(belum ada penilai)")+'</td><td>'+x[1]+'</td></tr>').join("")+'</table></div>' : '');
   }catch(e){ $("tna-progres-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
 $("btn-tna-progres").onclick = ()=>{ show("scr-tna-progres"); muatProgres(); };
@@ -2325,27 +2391,27 @@ function ftSiapKirim(o){ const ft = tna.ft; return ftLengkap(o) && (o.status!=="
 function ftLengkap(o){ const ft = tna.ft, a = ft.jaw[o.nik]||{}; return ft.kompetensi.every(k=>{ const j = a[k.kode]; return j && (j.disentuh || o.jawaban[k.kode]) && (!j.na || String(j.alasan||"").trim()) && (j.na || skorGuttman(j.checks||"NNNN").lv < BUKTI_MIN_LEVEL || buktiCukup(j.bukti)); }); }
 function renderFormTim(){
   const ft = tna.ft, k = ft.kompetensi[ft.idx];
-  $("ft-sub").textContent = (ft.jobTitle||"") + " · " + ft.orang.length + " orang";
+  $("ft-sub").textContent = jab(ft.jobTitle||"") + " · " + ft.orang.length + " orang";
   if(!k){ $("ft-body").innerHTML = '<div class="card"><div class="empty">Tidak ada anggota tim yang bisa dinilai dengan mode ini.</div></div>'; return; }
-  const pilihJab = ft.daftar.length > 1 ? '<div class="card" style="padding:12px 16px"><label>Jabatan</label><select id="ft-jab">'+ft.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===ft.kodeJabatan?' selected':'')+'>'+esc(d.jobTitle)+' ('+d.jumlah+' orang)</option>').join("")+'</select></div>' : '';
+  const pilihJab = ft.daftar.length > 1 ? '<div class="card" style="padding:12px 16px"><label>Jabatan</label><select id="ft-jab">'+ft.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===ft.kodeJabatan?' selected':'')+'>'+esc(jab(d.jobTitle))+' ('+d.jumlah+' orang)</option>').join("")+'</select></div>' : '';
   const nLengkap = ft.orang.filter(ftSiapKirim).length, nSudah = ft.orang.filter(o=>o.status==="FINAL" && !ft.ubah[o.nik] && o.validasi!=="DIKEMBALIKAN").length;
   const head = '<div class="card" style="padding:14px 18px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Kompetensi '+(ft.idx+1)+' dari '+ft.kompetensi.length+'</b><span class="hint" style="margin:0">'+nLengkap+' siap dikirim'+(nSudah?' · '+nSudah+' sudah terkirim':'')+'</span></div>'+
     '<div class="track" style="margin-top:8px;overflow:hidden"><div style="height:100%;width:'+Math.round((ft.idx+1)/ft.kompetensi.length*100)+'%;background:var(--green)"></div></div></div>';
   const kartu = '<div class="card" style="padding:16px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="kompetensi-name" style="flex:1">'+esc(k.nama)+'</span><span class="badge badge-grey">'+esc(k.kategori)+'</span></div>'+
     '<div class="kompetensi-target">Level dipersyaratkan: <b>'+k.required+' ('+LV_NAMA[k.required]+')</b></div>'+
-    '<div style="margin:10px 0 4px;font-size:13px">'+lv1Info(k)+k.checklist.map((c,ci)=>'<div style="margin:5px 0"><b>L'+(ci+2)+'</b> · '+esc(c)+'</div>').join("")+'</div>'+
+    '<div style="margin:10px 0 4px;font-size:13px">'+lv1Info(k,true)+k.checklist.map((c,ci)=>'<div style="margin:5px 0"><b>L'+(ci+2)+'</b> · '+esc(c)+'</div>').join("")+'</div>'+
     '<div class="hint">Tekan angka level yang perilakunya <b>benar-benar teramati konsisten 3 sampai 6 bulan terakhir</b>. Menekan L4 otomatis mencentang L2 sampai L4. Tekan lagi untuk membatalkan.</div>'+
     '<div style="margin-top:6px">'+ft.orang.map(o=>{
       const j = (ft.jaw[o.nik]||{})[k.kode] || { checks:"NNNN" }, sg = skorGuttman(j.checks||"NNNN"), terkunci = o.status==="FINAL" && !ft.ubah[o.nik] && o.validasi!=="DIKEMBALIKAN";
-      return '<div class="ft-row" data-ft="'+esc(o.nik)+'"><div class="ft-nama">'+esc(o.nama)+' <a href="#" class="lnk" data-rekam="'+esc(o.nik)+'" data-nama="'+esc(o.nama)+'">riwayat training</a><div class="hint" style="margin:0">'+esc(o.cabang)+(j.bukti && !j.na && sg.lv>=BUKTI_MIN_LEVEL ? ' · <a href="#" class="lnk" data-bukti="'+esc(o.nik)+'" title="'+esc(j.bukti)+'">bukti</a>' : '')+(terkunci?' · sudah dikirim (ubah = kirim ulang &amp; validasi ulang)':(o.validasi==="DIKEMBALIKAN"?' · <b style="color:var(--red)">perlu revisi</b>':''))+'</div></div>'+
-        [0,1,2,3].map(ci=>'<button class="ft-btn'+((j.checks||"").charAt(ci)==="Y"&&!j.na?' on':'')+'" data-ci="'+ci+'"'+(j.na?' disabled':'')+'>'+(ci+2)+'</button>').join("")+
-        '<button class="ft-btn na'+(j.na?' on':'')+'" data-na="1" title="Tidak dapat dinilai">N/A</button>'+
-        '<span class="badge '+(j.na?'badge-grey':(sg.lv>=k.required?'badge-green':(k.required-sg.lv>=2?'badge-red':'badge-amber')))+'" style="min-width:64px;text-align:center">'+(j.na?'N/A':'L'+sg.lv)+'</span></div>';
+      return '<div class="ft-row" data-ft="'+esc(o.nik)+'"><div class="ft-head"><div class="ft-nama">'+esc(o.nama)+'<div class="ft-meta">'+esc(o.cabang)+' · <a href="#" class="lnk" data-rekam="'+esc(o.nik)+'" data-nama="'+esc(o.nama)+'">Riwayat training</a>'+(j.bukti && !j.na && sg.lv>=BUKTI_MIN_LEVEL ? ' · <a href="#" class="lnk" data-bukti="'+esc(o.nik)+'" title="'+esc(j.bukti)+'">Bukti</a>' : '')+(terkunci?'<br>Sudah dikirim. Mengubah berarti mengirim ulang dan divalidasi ulang.':(o.validasi==="DIKEMBALIKAN"?' · <b style="color:var(--red)">Perlu revisi</b>':''))+'</div></div>'+
+        '<span class="ft-hasil badge '+(j.na?'badge-grey':(sg.lv>=k.required?'badge-green':(k.required-sg.lv>=2?'badge-red':'badge-amber')))+'" title="Level hasil">'+(j.na?'N/A':'Level '+sg.lv)+'</span></div>'+
+        '<div class="ft-lv" role="group" aria-label="Level '+esc(o.nama)+'">'+[0,1,2,3].map(ci=>'<button class="ft-btn'+((j.checks||"").charAt(ci)==="Y"&&!j.na?' on':'')+'" data-ci="'+ci+'"'+(j.na?' disabled':'')+' aria-pressed="'+((j.checks||"").charAt(ci)==="Y"&&!j.na)+'">'+(ci+2)+'</button>').join("")+
+        '<button class="ft-btn na'+(j.na?' on':'')+'" data-na="1" title="Tidak dapat dinilai" aria-pressed="'+!!j.na+'">N/A</button></div></div>';
     }).join("")+'</div></div>';
   const nav = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
     '<button class="btn btn-ghost" id="ft-prev"'+(ft.idx===0?' disabled':'')+'>&larr; Sebelumnya</button>'+
-    (ft.idx<ft.kompetensi.length-1 ? '<button class="btn btn-primary" id="ft-next">Berikutnya &rarr;</button>' : '<button class="btn btn-primary" id="ft-next" disabled>Kompetensi terakhir</button>')+'</div>'+
-    '<div class="err" id="err-ft"></div><button class="btn btn-red" id="ft-kirim" style="margin:12px 0 30px"'+(nLengkap?'':' disabled')+'>Kirim penilaian yang sudah lengkap ('+nLengkap+' orang)</button>';
+    (ft.idx<ft.kompetensi.length-1 ? '<button class="btn btn-ghost" id="ft-next">Berikutnya &rarr;</button>' : '<button class="btn btn-ghost" id="ft-next" disabled>Kompetensi terakhir</button>')+'</div>'+
+    '<div class="err" id="err-ft"></div><button class="btn btn-primary" id="ft-kirim" style="margin:12px 0 30px"'+(nLengkap?'':' disabled')+'>'+(nLengkap?'Kirim penilaian '+nLengkap+' orang':'Belum ada penilaian yang lengkap')+'</button>';
   $("ft-body").innerHTML = pilihJab + head + kartu + nav;
   if($("ft-jab")) $("ft-jab").onchange = ()=>{ ftFlush(); bukaFormTim($("ft-jab").value); };
   $("ft-prev").onclick = ()=>{ ft.idx = Math.max(0, ft.idx-1); renderFormTim(); window.scrollTo(0,0); };
@@ -2433,20 +2499,20 @@ function pascaItemHtml(it, i){
   const st = it.selesai ? '<span class="badge badge-green">Sudah diisi</span>' : (it.terlambat ? '<span class="badge badge-red">Terlambat</span>' : '<span class="badge badge-amber">Jatuh tempo</span>');
   const komp = it.kompetensi.map((k,j)=>{
     const a = pasca.jaw[i].komp[k.kode];
-    const items = k.checklist.map((c,ci)=>'<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:13.5px;margin:8px 0;color:var(--text)"><input type="checkbox" class="pc-chk" data-i="'+i+'" data-j="'+j+'" data-c="'+ci+'" '+(a.checks.charAt(ci)==="Y"?"checked":"")+(a.na?" disabled":"")+' style="margin-top:3px;width:20px;height:20px;flex-shrink:0"><span><b>Level '+(ci+2)+'</b> · '+esc(c)+'</span></label>').join("");
+    const items = k.checklist.map((c,ci)=>'<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:14px;margin:8px 0;color:var(--text)"><input type="checkbox" class="pc-chk" data-i="'+i+'" data-j="'+j+'" data-c="'+ci+'" '+(a.checks.charAt(ci)==="Y"?"checked":"")+(a.na?" disabled":"")+' style="margin-top:3px;width:20px;height:20px;flex-shrink:0"><span><b>Level '+(ci+2)+'</b> · '+esc(c)+'</span></label>').join("");
     return '<div style="border-top:1px solid var(--line);margin-top:12px;padding-top:10px">'+
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="kompetensi-name" style="flex:1">'+esc(k.nama)+'</span><span class="badge '+(PASCA_KAT[k.kategori]||"badge-grey")+'">'+esc(k.kategori)+'</span></div>'+
       '<div class="hint" style="margin:2px 0 0">'+(k.levelSebelum!==null ? 'Penilaian atasan pada asesmen TNA: <b>Level '+esc(k.levelSebelum)+'</b>' : 'Belum ada penilaian atasan sebagai pembanding')+' · Level dipersyaratkan: <b>'+k.required+'</b></div>'+
       '<div class="hint" style="margin:6px 0 0">Centang perilaku yang <b>teramati konsisten sekarang</b>, setelah training.</div>'+items+
       '<div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap"><span class="badge pc-lv" id="pc-lv-'+i+'-'+j+'"></span>'+
-      '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:12.5px"><input type="checkbox" class="pc-na" data-i="'+i+'" data-j="'+j+'" '+(a.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
+      '<label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:600;font-size:13px"><input type="checkbox" class="pc-na" data-i="'+i+'" data-j="'+j+'" '+(a.na?"checked":"")+'> N/A (tidak dapat dinilai)</label></div>'+
       '<input type="text" class="pc-alasan" data-i="'+i+'" data-j="'+j+'" placeholder="Alasan N/A" value="'+esc(a.alasan)+'" style="margin-top:8px;display:'+(a.na?"block":"none")+'">'+
-      '<div class="pc-bukti-wrap" id="pc-bw-'+i+'-'+j+'" style="margin-top:8px;display:none"><label style="font-size:12.5px;margin:0 0 4px;font-weight:600">Bukti untuk level ini <span class="hint" style="font-weight:400">(wajib untuk Level 4 dan 5)</span></label>'+
+      '<div class="pc-bukti-wrap" id="pc-bw-'+i+'-'+j+'" style="margin-top:8px;display:none"><label style="font-size:13px;margin:0 0 4px;font-weight:600">Bukti untuk level ini <span class="hint" style="font-weight:400">(wajib untuk Level 4 dan 5)</span></label>'+
       '<input type="text" class="pc-bukti" data-i="'+i+'" data-j="'+j+'" maxlength="300" placeholder="'+esc(BUKTI_PETUNJUK)+'" value="'+esc(a.bukti)+'"><div class="hint" style="margin:4px 0 0">'+esc(BUKTI_CONTOH)+'</div></div></div>';
   }).join("");
-  return '<div class="card" data-pi="'+i+'" style="padding:16px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap"><div><b>'+esc(it.nama)+'</b><div class="hint" style="margin:0">'+esc(it.cabang)+' · '+esc(it.jabatan)+'</div></div>'+st+'</div>'+
-    '<div style="margin-top:8px;font-size:13.5px">Training: <b>'+esc(it.judul)+'</b><div class="hint" style="margin:0">Diikuti '+esc(pcTgl(it.tanggal))+' · jatuh tempo '+esc(pcTgl(it.jatuhTempo))+'</div></div>'+komp+
-    '<div style="margin-top:12px"><label style="font-size:12.5px;margin:0 0 4px;font-weight:600">Dampak ke pekerjaan <span class="hint" style="font-weight:400">(opsional)</span></label>'+
+  return '<div class="card" data-pi="'+i+'" style="padding:16px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap"><div><b>'+esc(it.nama)+'</b><div class="hint" style="margin:0">'+esc(it.cabang)+' · '+esc(jab(it.jabatan))+'</div></div>'+st+'</div>'+
+    '<div style="margin-top:8px;font-size:14px">Training: <b>'+esc(it.judul)+'</b><div class="hint" style="margin:0">Diikuti '+esc(pcTgl(it.tanggal))+' · jatuh tempo '+esc(pcTgl(it.jatuhTempo))+'</div></div>'+komp+
+    '<div style="margin-top:12px"><label style="font-size:13px;margin:0 0 4px;font-weight:600">Dampak ke pekerjaan <span class="hint" style="font-weight:400">(opsional)</span></label>'+
     '<input type="text" class="pc-dampak" data-i="'+i+'" maxlength="300" placeholder="Hasil kerja atau KPI yang berubah setelah training" value="'+esc(pasca.jaw[i].dampak)+'"></div>'+
     '<div class="err" id="err-pc-'+i+'"></div><button type="button" class="btn btn-primary pc-kirim" data-i="'+i+'" style="margin-top:10px">'+(it.selesai?"Simpan perubahan":"Kirim tindak lanjut")+'</button></div>';
 }
@@ -2553,18 +2619,18 @@ function renderDashKompetensi(r){
   const rg = r.ringkasan;
   $("dt-sub").textContent = judulLingkup(r.lingkup) || (rg.orang + " orang");
   const kartu = (n, l, c)=>'<div style="flex:1;min-width:110px;background:var(--bg);border-radius:12px;padding:12px"><div style="font-size:24px;font-weight:800;color:'+c+'">'+n+'</div><div style="font-size:12px;color:var(--muted)">'+l+'</div></div>';
-  const ringkas = '<div class="card" style="padding:14px 18px"><div style="display:flex;gap:8px;flex-wrap:wrap">'+kartu(rg.dinilai+'/'+rg.orang,'sudah dinilai','var(--ink)')+kartu(rg.persenKompeten+'%','kompetensi memenuhi syarat','var(--green)')+kartu(r.prioritas.length,'orang prioritas','var(--red)')+'</div>'+
+  const ringkas = '<div class="card" style="padding:14px 18px"><div style="display:flex;gap:8px;flex-wrap:wrap">'+kartu(rg.dinilai+'/'+rg.orang,'sudah dinilai','var(--ink)')+kartu(rg.dinilai?rg.persenKompeten+'%':'–',rg.dinilai?'kompetensi memenuhi syarat':'belum ada yang dinilai','var(--ink)')+kartu(r.prioritas.length,'orang prioritas',r.prioritas.length?'var(--red)':'var(--ink)')+'</div>'+
     (rg.dinilai < rg.orang ? '<div class="hint">Angka bertambah seiring penilaian masuk. Yang belum dinilai tidak dihitung sebagai nol.</div>' : '')+'</div>';
-  const top = r.topGap.length ? '<h2 class="sect">Gap Terbesar Tim</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Orang bergap</th><th>Rata-rata gap</th></tr>'+
+  const top = r.topGap.length ? '<h2 class="sect">Gap terbesar tim</h2><div class="card" style="overflow-x:auto"><table><tr><th>Kompetensi</th><th>Orang bergap</th><th>Rata-rata gap</th></tr>'+
     r.topGap.map(t=>'<tr><td>'+esc(t.nama)+'<div class="hint" style="margin:0">'+esc(t.kategori)+'</div></td><td><b>'+t.bergap+'</b> / '+t.dinilai+' <span class="hint">('+t.persen+'%)</span></td><td>'+t.rataGap+'</td></tr>').join("")+'</table>'+
     '<div class="hint">Kompetensi yang gap-nya dialami banyak orang cocok ditangani sebagai program tim (IHT cabang, coaching kelompok).</div></div>' : '';
-  const prio = r.prioritas.length ? '<h2 class="sect">Prioritas Pengembangan</h2><div class="card">'+r.prioritas.map(o=>'<div class="team-item" data-dt="'+esc(o.nik)+'"><div class="team-avatar">'+esc(o.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(o.nama)+'</div><div class="team-jabatan">'+esc(o.jobTitle)+' · '+esc(o.cabang)+(o.major?' · <b style="color:var(--red)">'+o.major+' gap Major</b>':'')+'</div></div><span class="badge badge-amber">skor '+o.prioritas+'</span></div>').join("")+
+  const prio = r.prioritas.length ? '<h2 class="sect">Prioritas pengembangan</h2><div class="card">'+r.prioritas.map(o=>'<div class="team-item" data-dt="'+esc(o.nik)+'"><div class="team-avatar">'+esc(o.nama.charAt(0))+'</div><div class="team-info"><div class="team-name">'+esc(o.nama)+'</div><div class="team-jabatan">'+esc(jab(o.jobTitle))+' · '+esc(o.cabang)+(o.major?' · <b style="color:var(--red)">'+o.major+' gap Major</b>':'')+'</div></div><span class="badge badge-amber">skor '+o.prioritas+'</span></div>').join("")+
     '<div class="hint">Skor = jumlah (gap × bobot kompetensi). Ketuk nama untuk melihat detail &amp; rekomendasi.</div></div>' : '';
-  const pilihJab = '<div class="card" style="padding:12px 16px"><label for="dt-jab">Heatmap jabatan</label><select id="dt-jab">'+r.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===r.kodeJabatan?' selected':'')+'>'+esc(d.jobTitle)+' ('+d.jumlah+')</option>').join("")+'</select></div>';
+  const pilihJab = '<div class="card" style="padding:12px 16px"><label for="dt-jab">Jabatan</label><select id="dt-jab">'+r.daftar.map(d=>'<option value="'+esc(d.kode)+'"'+(d.kode===r.kodeJabatan?' selected':'')+'>'+esc(jab(d.jobTitle))+' ('+d.jumlah+')</option>').join("")+'</select></div>';
   const hm = '<div class="card" style="overflow-x:auto;padding:12px"><table class="hm"><tr><th style="text-align:left">Nama</th>'+r.kompetensi.map(c=>'<th title="'+esc(c.nama)+'">'+esc(c.nama.length>22?c.nama.slice(0,20)+"…":c.nama)+'<div style="font-weight:400">syarat '+c.required+'</div></th>').join("")+'</tr>'+
     r.baris.map(b=>'<tr><td class="nm" data-dt="'+esc(b.nik)+'" title="'+esc(b.nama+" · "+b.cabang)+'">'+esc(b.nama)+'</td>'+b.sel.map(c=>{ const k = c.k==="BELUM DINILAI" ? "BELUM" : c.k; return '<td><span class="c c-'+k+'" title="'+esc(c.k+(c.f&&tna.internal?" · "+flagLabel(c.f):""))+'">'+(c.a===""?"·":c.a)+'</span></td>'; }).join("")+'</tr>').join("")+'</table>'+
     '<div class="hint" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><span><span class="badge badge-green">Kompeten</span></span><span><span class="badge badge-grey">Minor · kurang 1 level</span></span><span><span class="badge badge-amber">Moderate · kurang 2</span></span><span><span class="badge badge-red">Major · kurang 3+</span></span><span>angka = nilai aktual</span></div></div>';
-  $("dt-body").innerHTML = filterCabang(r.cabangList, r.lingkup) + ringkas + top + prio + '<h2 class="sect">Heatmap Orang × Kompetensi</h2>' + pilihJab + hm;
+  $("dt-body").innerHTML = filterCabang(r.cabangList, r.lingkup) + ringkas + top + prio + '<h2 class="sect">Peta gap per orang dan kompetensi</h2>' + pilihJab + hm;
   pasangFilterCabang();
   $("dt-jab").onchange = ()=>{ dtFilter.kodeJabatan = $("dt-jab").value; muatDashboardTim(); };
   document.querySelectorAll("[data-dt]").forEach(el=>{ el.style.cursor = "pointer"; el.onclick = ()=> bukaHasil({ target: el.dataset.dt }); });
@@ -2583,7 +2649,7 @@ function renderDashTraining(r){
     return '<h2 class="sect">'+b+' 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+nPes+' peserta · '+jamBln+' jam</span></h2><div class="card">'+
       gs.map(g=>'<div class="idp-line" style="margin:8px 0"><b>'+trn(g.kode, g.judul)+'</b> <span class="badge '+(KAT_CLS[g.kategori]||"badge-grey")+'">'+esc(labelKat(g.kategori))+'</span>'+
         badgeUsulan(g.usulan?"USULAN_PENGADAAN":"")+'<div class="hint" style="margin:2px 0">'+(g.tanggal?'mulai '+esc(new Date(g.tanggal).toLocaleDateString("id-ID",{day:"numeric",month:"short"}))+' · ':(g.iht?'Sabtu (tanggal per orang di ITP) · ':''))+esc(g.lokasi==="ONLINE"?"Online":(g.lokasi==="TERPUSAT"?"Kelas terpusat":g.lokasi))+' · '+g.jam+' jam · <b>'+g.jumlah+' orang</b></div>'+
-        (g.nama.length ? '<div style="font-size:12.5px">'+g.nama.map(esc).join(", ")+'</div>' : '')+'</div>').join("")+'</div>';
+        (g.nama.length ? '<div style="font-size:13px">'+g.nama.map(esc).join(", ")+'</div>' : '')+'</div>').join("")+'</div>';
   }).join("");
   const ringkas = '<div class="card" style="padding:14px 18px"><b>Jam training per orang (tanpa Pengayaan)</b>'+
     (r.terbanyak.length ? '<div class="hint" style="margin-top:6px">Terbanyak: '+r.terbanyak.map(t=>esc(t.nama)+' '+t.jam+' jam').join(" · ")+'</div>' : '')+
@@ -2622,7 +2688,7 @@ function vizRingkas(gap, opt){
   const wj = opt && opt.wajib ? opt.wajib : null;
   const tiles = '<div class="stat-tiles">'+
     tile("Perlu dikembangkan", cnt.Minor+cnt.Moderate+cnt.Major, cnt.Major ? cnt.Major+" berstatus Major" : "tidak ada yang Major")+
-    tile("Persepsi berbeda", beda, beda ? "selisih self vs atasan ≥ 1 level" : "self &amp; atasan selaras")+
+    tile("Persepsi berbeda", beda, beda ? "nilai diri dan atasan berbeda 1 level atau lebih" : "nilai diri dan atasan selaras")+
     (wj ? tile("Training wajib 2027", wj.n, wj.jam+" jam") : tile("Kompetensi dinilai", n, "dari "+gap.length))+'</div>';
   const daftar = (arr, f) => arr.length ? '<ol>'+arr.map(f).join("")+'</ol>' : '<div class="meta">Belum ada.</div>';
   return '<div class="card" id="rpt-ringkas"><div class="rpt-hero"><div>'+
@@ -2663,10 +2729,10 @@ function vizProfil(gap){
     const ok = grup[k].filter(g=>g.KategoriGap==="Kompeten").length;
     return '<div class="prof-grp"><div class="prof-grp-h">'+nama[k]+' <em>'+ok+' dari '+grup[k].length+' memenuhi</em></div>'+grup[k].map(baris).join("")+'</div>';
   }).join("");
-  const tabel = '<details style="margin-top:12px"><summary class="hint" style="cursor:pointer">Lihat dalam bentuk tabel</summary><div style="overflow-x:auto;margin-top:8px"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Atasan</th><th>Self</th><th>Aktual</th><th>Status</th></tr>'+
+  const tabel = '<details style="margin-top:12px"><summary class="hint" style="cursor:pointer">Lihat dalam bentuk tabel</summary><div style="overflow-x:auto;margin-top:8px"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Atasan</th><th>Nilai diri</th><th>Aktual</th><th>Status</th></tr>'+
     gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.SkorAtasan===""?"-":vFmt(vNum(g.SkorAtasan)))+'</td><td>'+esc(g.SkorSelf===""?"-":g.SkorSelf)+'</td><td><b>'+esc(g.Actual===""?"-":vFmt(vNum(g.Actual)))+'</b></td><td>'+esc(g.KategoriGap)+'</td></tr>').join("")+'</table></div></details>';
-  return '<h2 class="sect" id="rpt-profil">Profil Kompetensi</h2><div class="card">'+
-    '<div class="prof-legend"><span><i class="lg-req"></i>Syarat jabatan</span><span><i class="lg-act"></i>Aktual (70% atasan + 30% self)</span><span><i class="lg-sup"></i>Atasan</span><span><i class="lg-self"></i>Self</span>'+
+  return '<h2 class="sect" id="rpt-profil">Profil kompetensi</h2><div class="card">'+
+    '<div class="prof-legend"><span><i class="lg-req"></i>Syarat jabatan</span><span><i class="lg-act"></i>Aktual (70% atasan + 30% nilai diri)</span><span><i class="lg-sup"></i>Atasan</span><span><i class="lg-self"></i>Nilai diri</span>'+
     '<span><i class="key-dot" style="background:var(--line-strong);width:8px;height:6px;margin-right:2px"></i><i class="key-dot" style="background:var(--amber);width:8px;height:6px;margin-right:2px"></i><i class="key-dot" style="background:var(--red);width:8px;height:6px"></i>Gap ke syarat (warna = Minor, Moderate, Major)</span></div>'+isi+tabel+'</div>';
 }
 
@@ -2738,13 +2804,13 @@ function vizPersepsi(gap){
   const blind = p.filter(x=>x.d >= 1).length, hid = p.filter(x=>x.d <= -1).length;
   const baris = x => {
     const a = Number(x.SkorAtasan), sf = Number(x.SkorSelf), lo = Math.min(a,sf), hi = Math.max(a,sf);
-    const tag = x.d >= 1 ? '<span class="tag blind">Self lebih tinggi '+vFmt(x.d)+'</span>' : (x.d <= -1 ? '<span class="tag hidden">Atasan lebih tinggi '+vFmt(-x.d)+'</span>' : '<span class="tag">Selaras</span>');
+    const tag = x.d >= 1 ? '<span class="tag blind">Nilai diri lebih tinggi '+vFmt(x.d)+'</span>' : (x.d <= -1 ? '<span class="tag hidden">Atasan lebih tinggi '+vFmt(-x.d)+'</span>' : '<span class="tag">Selaras</span>');
     return '<div class="dumb-row"><div class="prof-name">'+esc(x.Kompetensi)+'</div><div class="dumb-track" title="'+esc("Self "+vFmt(sf)+" · Atasan "+vFmt(a))+'"><i class="ax"></i>'+
       '<i class="bar" style="left:'+vPos(lo)+'%;width:'+(vPos(hi)-vPos(lo))+'%"></i><i class="p s" style="left:'+vPos(sf)+'%"></i><i class="p a" style="left:'+vPos(a)+'%"></i></div><div class="prof-st">'+tag+'</div></div>';
   };
   const utama = p.filter(x=>Math.abs(x.d) >= 1), lain = p.filter(x=>Math.abs(x.d) < 1);
-  return '<h2 class="sect" id="rpt-persepsi">Persepsi Diri vs Atasan</h2><div class="card">'+
-    '<div class="prof-legend"><span><i class="lg-self"></i>Self</span><span><i class="lg-act"></i>Atasan</span></div>'+
+  return '<h2 class="sect" id="rpt-persepsi">Persepsi diri dan atasan</h2><div class="card">'+
+    '<div class="prof-legend"><span><i class="lg-self"></i>Nilai diri</span><span><i class="lg-act"></i>Atasan</span></div>'+
     '<p class="rpt-lead" style="margin:0 0 8px">'+(blind||hid ? (blind ? '<b>'+blind+'</b> kompetensi dinilai diri lebih tinggi dari atasan (bahan diskusi umpan balik)'+(hid?'; ':'.') : '')+(hid ? '<b>'+hid+'</b> kompetensi dinilai atasan lebih tinggi dari diri sendiri (kekuatan yang belum disadari).' : '') : 'Penilaian diri dan atasan selaras pada semua kompetensi (selisih di bawah 1 level).')+'</p>'+
     (utama.length ? utama.map(baris).join("") : '')+
     (lain.length ? '<details'+(utama.length?'':' open')+'><summary class="hint" style="cursor:pointer;margin:8px 0">'+lain.length+' kompetensi selaras</summary>'+lain.map(baris).join("")+'</details>' : '')+'</div>';
@@ -2799,7 +2865,7 @@ function vizPetaBelajar(r, bulanAktif){
     return '<div class="mon"><div class="mon-h">'+VBLN_P[VBLN.indexOf(b)]+' 2027 <span>'+jamBln[VBLN.indexOf(b)]+' jam</span></div>'+list.map(ev).join("")+
       (iht.length ? '<div class="ev"><div class="ev-d"><b>'+iht.length+'×</b><span>Sabtu</span></div><div><div class="ev-t">IHT Sabtu di cabang</div><div class="ev-m">'+[...new Set(iht.map(t=>t.Judul))].map(esc).join(" · ")+'</div></div><div class="ev-j">'+jamIhtB+' jam</div></div>' : '')+'</div>';
   }).join("");
-  return hero + strip + '<h2 class="sect">Agenda Belajar</h2><div class="card">'+agenda+'<div class="hint" style="margin-top:12px">Ketuk nama training untuk melihat tujuan, materi, dan cara evaluasinya. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>';
+  return hero + strip + '<h2 class="sect">Agenda belajar</h2><div class="card">'+agenda+'<div class="hint" style="margin-top:12px">Ketuk nama training untuk melihat tujuan, materi, dan cara evaluasinya. Jadwal pasti diumumkan L&amp;D sebelum pelaksanaan.</div></div>';
 }
 
 
@@ -3105,8 +3171,8 @@ function mxKompHasil(org, cols, set, mode){
   const kuat = tampil.map(x=>[x, Object.values(g[x]).filter(y=>y[0]!==null && y[0]>=y[1]).length, Object.values(g[x]).filter(y=>y[0]!==null).length]).filter(a=>a[2]).sort((a,b)=>b[1]/b[2]-a[1]/a[2])[0];
   if(kuat) ins.push(["Paling kuat", mxNama(kuat[0])+" · "+mxPct(kuat[1],kuat[2])+"% memenuhi syarat"]);
   if(N - nDinilai) ins.push(["Belum dinilai", (N - nDinilai)+" dari "+N+" orang"]);
-  const leg = '<div class="klg" style="margin-top:10px">'+[["K","Kompeten","aktual memenuhi atau melampaui syarat"],["Mi","Minor","kurang 1 level"],["Mo","Moderate","kurang 2 level"],["Ma","Major","kurang 3 level atau lebih"]].map(([c,t,d])=>'<div><span class="cl st-'+c+'" style="width:30px;height:22px;font-size:11px;flex:0 0 auto">'+(c==="K"?"3":(c==="Mi"?"2":(c==="Mo"?"1":"0")))+'</span><span><b>'+t+'</b><br>'+d+'</span></div>').join("")+'</div>';
-  const aside = mxAside(leg, ["Angka = level aktual (pembulatan 70% atasan + 30% self)","\"2/3\" = aktual 2, syarat 3","Titik = belum dinilai","Kolom di kanan = sebaran status per kompetensi"], ins);
+  const leg = '<div class="klg" style="margin-top:10px">'+[["K","Kompeten","aktual memenuhi atau melampaui syarat"],["Mi","Minor","kurang 1 level"],["Mo","Moderate","kurang 2 level"],["Ma","Major","kurang 3 level atau lebih"]].map(([c,t,d])=>'<div><span class="cl st-'+c+'" style="width:30px;height:22px;font-size:12px;flex:0 0 auto">'+(c==="K"?"3":(c==="Mi"?"2":(c==="Mo"?"1":"0")))+'</span><span><b>'+t+'</b><br>'+d+'</span></div>').join("")+'</div>';
+  const aside = mxAside(leg, ["Angka = level aktual (pembulatan 70% atasan + 30% nilai diri)","\"2/3\" = aktual 2, syarat 3","Titik = belum dinilai","Kolom di kanan = sebaran status per kompetensi"], ins);
   return { stats, tabel: mxTabel(cols, mode, rows, tot, "Sebaran status", "Kompetensi"), aside };
 }
 function mxTrainHasil(org, cols, set, mode){
@@ -3149,9 +3215,9 @@ async function mxBukaJabatan(kode){
     const j = r.jabatan, jm = mx.data.jabatan.find(x=>x.kode===kode) || {};
     const ks = r.kompetensi.slice().sort((a,b)=> MX_KAT.indexOf(mxKat(a.kategori)) - MX_KAT.indexOf(mxKat(b.kategori)) || b.bobot - a.bobot);
     const tugas = [...new Set(r.task.map(t=>t.TugasUtama).filter(Boolean))].slice(0,8);
-    let h = '<button type="button" class="btn btn-ghost btn-kecil x" id="mx-tutup">Tutup</button><div class="rpt-eyebrow">Profil jabatan</div><h3>'+esc(j.JobTitle)+'</h3><div class="mx-meta">'+esc(j.Dept+" · Divisi "+(jm.div||"")+" · "+j.JmlIncumbent+" karyawan"+(tna.internal && j.StatusJD ? " · JD: "+j.StatusJD : ""))+'</div>';
+    let h = '<button type="button" class="btn btn-ghost btn-kecil x" id="mx-tutup">Tutup</button><div class="rpt-eyebrow">Profil jabatan</div><h3>'+esc(jab(j.JobTitle))+'</h3><div class="mx-meta">'+esc(j.Dept+" · Divisi "+(jm.div||"")+" · "+j.JmlIncumbent+" karyawan"+(tna.internal && j.StatusJD ? " · JD: "+j.StatusJD : ""))+'</div>';
     h += '<div style="margin:12px 0 0"><button type="button" class="btn btn-primary btn-kecil" id="mx-unduh">Unduh dokumen lengkap (Excel)</button><div class="hint" id="mx-unduh-st" role="status" style="margin-top:6px">Tugas dan KSA, kompetensi, level, 70-20-10, dan jalur training dalam satu file.</div></div>';
-    if(tugas.length) h += '<div class="mx-gh">Tugas utama <em>'+tugas.length+'</em></div><ul style="margin:8px 0 0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--text)">'+tugas.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
+    if(tugas.length) h += '<div class="mx-gh">Tugas utama <em>'+tugas.length+'</em></div><ul style="margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.6;color:var(--text)">'+tugas.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
     MX_KAT.forEach(k=>{ const l = ks.filter(x=>mxKat(x.kategori)===k); if(!l.length) return;
       h += '<div class="mx-gh">'+k+' <em>'+l.length+' kompetensi</em></div>'+l.map(x=>'<div class="dr-k"><div class="h"><b>'+esc(x.nama)+'</b><span class="bobot'+(x.bobot>=3?' b3':'')+'">'+(MX_BOBOT[x.bobot]||x.bobot)+' · L'+x.required+'</span></div>'+
         '<div class="pips" style="margin-top:6px">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=x.required?'on lv'+x.required:'')+'"></i>').join("")+'</div>'+
@@ -3243,7 +3309,7 @@ async function bukaHasil(sasaran, baruSubmit){
 }
 function renderHasil(baruSubmit){
   const r = tna.hasil, v = r.validasi || {}, bisa = r.bisaValidasi;
-  $("tna-hasil-judul").textContent = bisa ? "VALIDASI HASIL" : "HASIL & REKOMENDASI";
+  $("tna-hasil-judul").textContent = bisa ? "Validasi hasil" : "Hasil dan rekomendasi";
   $("tna-hasil-sub").textContent = r.nama + (r.kelompok ? "" : " · " + r.jabatan);
   const gapCls = { Major:"badge-red", Moderate:"badge-amber", Minor:"badge-grey", Kompeten:"badge-green" };
   const statusTxt = v.status==="DISETUJUI" ? 'Sudah divalidasi oleh <b>'+esc(v.oleh)+'</b>.' :
@@ -3255,8 +3321,8 @@ function renderHasil(baruSubmit){
   if(!r.dinilai){ $("tna-hasil-body").innerHTML = banner + '<div class="card"><div class="empty">Belum ada penilaian atasan yang final untuk dihitung.</div></div>'; return; }
   const jamW = r.wajib.reduce((a,w)=>a+Number(w.jam||0),0);
   const viz = vizRingkas(r.gap, { wajib:{ n:r.wajib.length, jam:jamW } }) + vizProfil(r.gap) +
-    ((vizRadar(r.gap) || vizKuadran(r.gap)) ? '<h2 class="sect">Bentuk Profil &amp; Prioritas</h2><div class="viz-2">'+vizRadar(r.gap)+vizKuadran(r.gap)+'</div>' : '') + vizPersepsi(r.gap);
-  const nav = vizNav([["rpt-ringkas","Ringkasan"],["rpt-profil","Profil"],(vizRadar(r.gap)?["rpt-radar","Behavioral"]:null),(vizKuadran(r.gap)?["rpt-prioritas","Prioritas"]:null),
+    (vizKuadran(r.gap) ? '<div style="margin-top:var(--s5)">'+vizKuadran(r.gap)+'</div>' : '')+(vizRadar(r.gap) ? '<details class="ld-panel"><summary>Lihat bentuk profil (radar)</summary>'+vizRadar(r.gap)+'</details>' : '') + vizPersepsi(r.gap);
+  const nav = vizNav([["rpt-ringkas","Ringkasan"],["rpt-profil","Profil"],(vizKuadran(r.gap)?["rpt-prioritas","Prioritas"]:null),
     (vizPersepsi(r.gap)?["rpt-persepsi","Persepsi"]:null),(r.wajib.length?["rpt-wajib","Training wajib"]:null),(r.rekomendasi.length?["rpt-rencana","Rencana 70/20/10"]:null)]);
   const bk = r.bukti || {};
   const bukti = (bisa && Object.keys(bk).length) ? '<details class="card" id="rpt-bukti" style="padding:14px 18px"><summary style="cursor:pointer;font-weight:700;color:var(--ink)">Lihat perilaku yang dicentang penilai</summary>'+
@@ -3264,20 +3330,20 @@ function renderHasil(baruSubmit){
       const b = bk[g.KodeKompetensi]; if(!b) return '';
       return '<div style="margin-top:12px"><b>'+esc(g.Kompetensi)+'</b>'+b.penilai.map(pn=>'<div class="hint" style="margin:4px 0 2px;color:var(--text)">'+esc(pn.rater)+' ('+esc(pn.peran==="SELF"?"self":(pn.peran==="ATASAN2"?"penilai kedua":"atasan"))+'): '+
         (pn.na ? '<b>N/A</b> · '+esc(pn.alasan) : '<b>Level '+esc(pn.level)+'</b>')+'</div>'+
-        (!pn.na && pn.bukti ? '<div style="font-size:12.5px;margin:0 0 2px 8px;color:var(--text)"><b>Bukti:</b> '+esc(pn.bukti)+'</div>' : '')+
-        (pn.na ? '' : b.checklist.map((c,ci)=>'<div style="font-size:12.5px;margin-left:8px;color:'+(pn.checks.charAt(ci)==="Y"?'var(--green)':'var(--muted)')+'">'+(pn.checks.charAt(ci)==="Y"?'✓':'○')+' L'+(ci+2)+' '+esc(c)+'</div>').join(""))).join("")+'</div>';
+        (!pn.na && pn.bukti ? '<div style="font-size:13px;margin:0 0 2px 8px;color:var(--text)"><b>Bukti:</b> '+esc(pn.bukti)+'</div>' : '')+
+        (pn.na ? '' : b.checklist.map((c,ci)=>'<div style="font-size:13px;margin-left:8px;color:'+(pn.checks.charAt(ci)==="Y"?'var(--green)':'var(--muted)')+'">'+(pn.checks.charAt(ci)==="Y"?'✓':'○')+' L'+(ci+2)+' '+esc(c)+'</div>').join(""))).join("")+'</div>';
     }).join("")+'</details>' : '';
   // Semua training penutup gap = wajib (tanpa batas, tidak ditunda) + program wajib jabatan/korporat
   const wGap = r.wajib.filter(w=>w.jenis==="GAP"), wProg = r.wajib.filter(w=>w.jenis!=="GAP");
   const tanpaModul = []; // modul yang belum ada diurus L&D di panel admin, bukan di halaman hasil pengguna
   const barisW = w=>'<div class="idp-line">• '+trn(w.kode, w.judul)+' <span class="hint">('+esc(w.jam||"-")+' jam · '+esc(w.dasar)+')</span></div>';
-  const wajib = (r.wajib.length || tanpaModul.length) ? '<h2 class="sect" id="rpt-wajib">Training Wajib 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+r.wajib.length+' training</span></h2><div class="card">'+
+  const wajib = (r.wajib.length || tanpaModul.length) ? '<h2 class="sect" id="rpt-wajib">Training wajib 2027 <span class="hint" style="font-weight:400;text-transform:none;letter-spacing:0">'+r.wajib.length+' training</span></h2><div class="card">'+
     (wGap.length ? '<div class="sub-h">Menutup gap kompetensi ('+wGap.length+')</div>'+wGap.map(barisW).join("") : '')+
     (tanpaModul.length ? '<div class="hint" style="color:var(--amber)">Catatan L&amp;D: '+tanpaModul.length+' kompetensi gap belum punya modul di katalog ('+tanpaModul.map(x=>esc(x.Kompetensi)).join(", ")+').</div>' : '')+
     (wProg.length ? '<div class="sub-h">Program wajib jabatan &amp; korporat ('+wProg.length+')</div>'+wProg.map(barisW).join("") : '')+'</div>' : '';
   const rek = !r.rekomendasi.length ? '<div class="card"><div class="empty">Tidak ada gap. Semua kompetensi sudah memenuhi syarat.</div></div>' :
-    !bisa ? '<h2 class="sect" id="rpt-rencana">Rencana Pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' :
-    '<h2 class="sect" id="rpt-rencana">Rencana Pengembangan 70/20/10 (bisa Anda edit)</h2>'+r.rekomendasi.map((x,i)=>{
+    !bisa ? '<h2 class="sect" id="rpt-rencana">Rencana pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' :
+    '<h2 class="sect" id="rpt-rencana">Rencana pengembangan 70/20/10 (bisa Anda ubah)</h2>'+r.rekomendasi.map((x,i)=>{
     const e = (r.edit||{})[x.KodeKompetensi] || {}, ops = r.opsiTraining[x.KodeKompetensi] || [];
     return '<div class="idp-card" data-rek="'+i+'"><div class="idp-comp">'+esc(x.Kompetensi)+' <span class="badge badge-amber">gap '+esc(x.Gap)+'</span></div>'+
       '<label>70 Penugasan</label><textarea class="rek-70" rows="2">'+esc(e.r70||x.R70_Penugasan)+'</textarea>'+
@@ -3288,8 +3354,8 @@ function renderHasil(baruSubmit){
       (ops.length ? '<div class="hint">Lihat silabus: '+ops.map(o=>trn(o.kode, o.kode)).join(" · ")+'</div>' : '')+'</div>';
   }).join("");
   const aksiVal = bisa ? '<div class="card"><label>Catatan validasi (wajib bila dikembalikan)</label><textarea id="inp-val-catatan" rows="2" placeholder="Contoh: rating Product Knowledge terlalu tinggi, mohon cek ulang"></textarea>'+
-    '<div class="err" id="err-tna-val"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">'+
-    '<button class="btn btn-primary" id="btn-val-setujui">Setujui</button><button class="btn btn-ghost" id="btn-val-kembali">Kembalikan ke Penilai</button></div></div>' : '';
+    '<div class="err" id="err-tna-val"></div></div>' : '';
+  const barVal = bisa ? '<div class="aksi-bar"><button class="btn btn-ghost" id="btn-val-kembali">Kembalikan</button><button class="btn btn-primary" id="btn-val-setujui">Setujui</button></div>' : '';
   const revisi = (!bisa && r.window==="DIBUKA" && v.status!=="DISETUJUI") ? '<button class="btn btn-ghost" id="btn-hasil-revisi" style="margin:6px 0 10px">Revisi penilaian</button>' : '';
   // Lanjut ke orang/kelompok berikutnya yang belum dinilai (urut daftar tim)
   const kt = tna.konteks || {}, kini = r.sasaran.kelompokId ? "K:"+r.sasaran.kelompokId : r.sasaran.target;
@@ -3299,7 +3365,7 @@ function renderHasil(baruSubmit){
   tna.berikut = (!bisa && baruSubmit && antre.length) ? antre[0] : null;
   const lanjut = tna.berikut ? '<button class="btn btn-primary" id="btn-hasil-lanjut" style="margin:6px 0 30px">Nilai berikutnya: '+esc(tna.berikut.nama)+' ('+antre.length+' tersisa)</button>' : '';
   const kaki = '<div class="kaki-ref">Rujukan (opsional): <button type="button" class="link-ref" data-landasan="1">dasar ilmiah perhitungan gap &amp; rekomendasi</button></div>';
-  $("tna-hasil-body").innerHTML = banner + kotakKualitas(r.gap) + nav + viz + bukti + wajib + rek + aksiVal + revisi + lanjut + kaki;
+  $("tna-hasil-body").innerHTML = banner + kotakKualitas(r.gap) + nav + viz + bukti + wajib + rek + aksiVal + revisi + lanjut + kaki + barVal;
   if($("btn-hasil-lanjut")) $("btn-hasil-lanjut").onclick = ()=> bukaFormTNA(tna.berikut.s);
   if($("btn-hasil-revisi")) $("btn-hasil-revisi").onclick = ()=> bukaFormTNA(r.sasaran);
   if(bisa){
@@ -3310,7 +3376,7 @@ function renderHasil(baruSubmit){
 async function kirimValidasi(aksi){
   clearErr("err-tna-val");
   const r = tna.hasil, catatan = $("inp-val-catatan").value.trim();
-  if(aksi==="KEMBALIKAN" && !catatan){ showErr("err-tna-val","Tulis catatan untuk penilai: bagian mana yang perlu direvisi."); return; }
+  if(aksi==="KEMBALIKAN" && !catatan){ showErr("err-tna-val","Tulis catatan untuk penilai: bagian mana yang perlu direvisi."); const c = $("inp-val-catatan"); c.scrollIntoView({ block:"center" }); c.focus({ preventScroll:true }); return; }
   const edit = {};
   document.querySelectorAll("[data-rek]").forEach(el=>{
     const x = r.rekomendasi[+el.dataset.rek], o = {};
@@ -3347,7 +3413,7 @@ function renderITP(bulan){
   const r = itpData; if(!r) return;
   const peta = r.itp.length ? vizPetaBelajar(r, bulan) : '';
   const profil = r.gap.length ? vizProfil(r.gap) : '';
-  const rencana = r.rekomendasi.length ? '<h2 class="sect">Rencana Pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' : '';
+  const rencana = r.rekomendasi.length ? '<h2 class="sect">Rencana pengembangan 70/20/10</h2><div class="card">'+vizRencana(r.rekomendasi, r.gap)+'</div>' : '';
   $("tna-itp-body").innerHTML = peta + profil + rencana + '<div style="height:24px"></div>';
   document.querySelectorAll("#tna-itp-body [data-bulan]").forEach(el=> el.onclick = ev=>{
     ev.preventDefault(); const b = el.dataset.bulan; renderITP(b && b !== bulan ? b : "");
@@ -3691,7 +3757,7 @@ async function rzResetPin(b){
 }
 function rzTabel(){ const rows = rzSaring(); rzRekap(rows); rzDaftar(rows); }
 function rzRender(){
-  const d = rz.data, W = { DIBUKA:"Window dibuka", DITUTUP:"Window ditutup", BELUM_DIBUKA:"Window belum dibuka", BELUM_DIJADWALKAN:"Jadwal window belum diisi" }[d.window] || "";
+  const d = rz.data, W = { DIBUKA:"Periode dibuka", DITUTUP:"Periode ditutup", BELUM_DIBUKA:"Periode belum dibuka", BELUM_DIJADWALKAN:"Jadwal periode belum diisi" }[d.window] || "";
   $("rz-info").textContent = "Diperbarui "+new Date().toLocaleTimeString("id-ID",{ timeZone:"Asia/Makassar", hour:"2-digit", minute:"2-digit" })+" WITA · "+W+" · otomatis tiap 60 detik";
   $("rz-sub").textContent = d.ringkas.total+" orang · "+d.ringkas.selesai+" selesai ("+(d.ringkas.total ? Math.round(d.ringkas.selesai/d.ringkas.total*100) : 0)+"%)";
   rzKpi(); rzHari(); rzIsiPilihan(); rzTabel();
@@ -3786,10 +3852,10 @@ async function muatPantauTNA(){
       (tr.indexOf("tnaPengingatTerjadwal")>=0 ? '<span class="badge badge-green">pengingat harian aktif</span>' : '<span class="badge badge-amber">pengingat harian belum aktif</span>');
     const pn = r.penilai.filter(x=>x.sisa>0), vd = r.validator;
     $("tna-adm-pantau").innerHTML = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'+jadwal+' '+(r.waAktif?'<span class="badge badge-green">WhatsApp aktif</span>':'<span class="badge badge-red">WhatsApp belum aktif</span>')+'</div>'+
-      '<b>Validator</b><div style="max-height:260px;overflow:auto;margin:6px 0 14px"><table><tr><th>Validator</th><th>Menunggu</th><th>Disetujui</th><th>Dikembalikan</th><th>HP</th></tr>'+
-      (vd.length ? vd.map(x=>'<tr><td>'+esc(x.nama)+'<div class="hint" style="margin:0">'+esc(x.jabatan)+'</div></td><td><b style="color:'+(x.menunggu?'var(--amber)':'inherit')+'">'+x.menunggu+'</b></td><td>'+x.disetujui+'</td><td>'+x.dikembalikan+'</td><td>'+(x.adaHP?'✓':'<span style="color:var(--red)">kosong</span>')+'</td></tr>').join("") : '<tr><td colspan="5" class="hint">Belum ada hasil yang masuk validasi.</td></tr>')+'</table></div>'+
-      '<b>Penilai yang belum selesai ('+pn.length+')</b><div style="max-height:260px;overflow:auto;margin-top:6px"><table><tr><th>Penilai</th><th>Sisa</th><th>Cabang</th><th>HP</th></tr>'+
-      (pn.length ? pn.map(x=>'<tr><td>'+esc(x.nama)+'<div class="hint" style="margin:0">'+esc(x.jabatan)+'</div></td><td><b>'+x.sisa+'</b>/'+x.total+'</td><td>'+esc(x.cabang)+'</td><td>'+(x.adaHP?'✓':'<span style="color:var(--red)">kosong</span>')+'</td></tr>').join("") : '<tr><td colspan="4" class="hint">Semua penilai sudah selesai.</td></tr>')+'</table></div>';
+      '<b>Validator</b><div class="scrollbox" style="margin:6px 0 14px"><table><tr><th>Validator</th><th>Menunggu</th><th>Disetujui</th><th>Dikembalikan</th><th>HP</th></tr>'+
+      (vd.length ? vd.map(x=>'<tr><td>'+esc(x.nama)+'<div class="hint" style="margin:0">'+esc(jab(x.jabatan))+'</div></td><td><b style="color:'+(x.menunggu?'var(--amber)':'inherit')+'">'+x.menunggu+'</b></td><td>'+x.disetujui+'</td><td>'+x.dikembalikan+'</td><td>'+(x.adaHP?'✓':'<span style="color:var(--red)">kosong</span>')+'</td></tr>').join("") : '<tr><td colspan="5" class="hint">Belum ada hasil yang masuk validasi.</td></tr>')+'</table></div>'+
+      '<b>Penilai yang belum selesai ('+pn.length+')</b><div class="scrollbox" style="margin-top:6px"><table><tr><th>Penilai</th><th>Sisa</th><th>Cabang</th><th>HP</th></tr>'+
+      (pn.length ? pn.map(x=>'<tr><td>'+esc(x.nama)+'<div class="hint" style="margin:0">'+esc(jab(x.jabatan))+'</div></td><td><b>'+x.sisa+'</b>/'+x.total+'</td><td>'+esc(x.cabang)+'</td><td>'+(x.adaHP?'✓':'<span style="color:var(--red)">kosong</span>')+'</td></tr>').join("") : '<tr><td colspan="4" class="hint">Semua penilai sudah selesai.</td></tr>')+'</table></div>';
   }catch(e){ showErr("err-tna-pantau", e.message); }
 }
 $("btn-tna-pengingat").onclick = async ()=>{
@@ -3798,7 +3864,7 @@ $("btn-tna-pengingat").onclick = async ()=>{
     const r = await tnaApi("tnaPengingat");
     $("tna-adm-pengingat").innerHTML = '<div class="card" style="margin-top:12px;background:var(--bg)"><b>'+r.jumlah+' penerima</b> (penilai yang belum selesai + validator yang punya antrean)'+
       (r.tanpaHP.length ? '<div class="hint" style="color:var(--red)">'+r.tanpaHP.length+' tanpa nomor HP di tab Users: '+esc(r.tanpaHP.slice(0,8).join(", "))+(r.tanpaHP.length>8?", dst":"")+'</div>' : '')+
-      (r.contoh ? '<div class="hint" style="margin-top:8px">Contoh pesan:</div><pre style="white-space:pre-wrap;font-family:inherit;font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px">'+esc(r.contoh)+'</pre>' : '')+
+      (r.contoh ? '<div class="hint" style="margin-top:8px">Contoh pesan:</div><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px">'+esc(r.contoh)+'</pre>' : '')+
       ((r.jumlah - r.tanpaHP.length) > 0 ? '<button class="btn btn-red" id="btn-tna-kirim-wa" style="margin-top:8px">Kirim sekarang ke '+(r.jumlah-r.tanpaHP.length)+' nomor</button>' :
         (r.jumlah ? '<div class="hint" style="color:var(--red);margin-top:8px">Tidak ada nomor HP yang bisa dikirimi. Lengkapi kolom NoHP (H) di tab Users.</div>' : ''))+'</div>';
     if($("btn-tna-kirim-wa")) $("btn-tna-kirim-wa").onclick = async ()=>{
@@ -3817,13 +3883,13 @@ async function muatAdminTNA(){
     const [o, m] = await Promise.all([tnaApi("tnaGetOutput"), tnaApi("tnaMatriksJabatan")]);
     PARAM_ADM.forEach(k=>{ const v = o.parameter[k]; $("adm-"+k).value = (k==="WindowBuka"||k==="WindowTutup") ? keLokalWITA(v) : ((v instanceof Object) ? "" : String(v==null?"":v)); });
     muatPantauTNA(); rilisTampil(o);
-    $("tna-adm-matriks").innerHTML = '<label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="chk-jab-semua"> Pilih semua yang belum APPROVED</label>'+
-      '<div style="max-height:360px;overflow:auto"><table><tr><th></th><th>Kode</th><th>Jabatan</th><th>Orang</th><th>JD</th><th>Status</th></tr>'+
-      m.jabatan.map(j=>'<tr><td><input type="checkbox" class="chk-jab" aria-label="Pilih '+esc(j.jobTitle)+'" value="'+esc(j.kode)+'" '+(j.status==="APPROVED"||j.status==="DIKECUALIKAN"?"disabled":"")+'></td><td>'+esc(j.kode)+'</td><td>'+esc(j.jobTitle)+'</td><td>'+esc(j.jml)+'</td><td>'+esc(j.statusJD)+'</td><td><span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(j.status)+'</span></td></tr>').join("")+'</table></div>'+
-      '<div class="hint">'+m.jabatan.filter(j=>j.status==="APPROVED").length+' dari '+m.jabatan.length+' jabatan sudah APPROVED.</div>';
+    $("tna-adm-matriks").innerHTML = '<label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="chk-jab-semua"> Pilih semua yang belum disetujui</label>'+
+      '<div class="scrollbox" style="max-height:360px"><table><tr><th></th><th>Kode</th><th>Jabatan</th><th>Orang</th><th>JD</th><th>Status</th></tr>'+
+      m.jabatan.map(j=>'<tr><td><input type="checkbox" class="chk-jab" aria-label="Pilih '+esc(jab(j.jobTitle))+'" value="'+esc(j.kode)+'" '+(j.status==="APPROVED"||j.status==="DIKECUALIKAN"?"disabled":"")+'></td><td>'+esc(j.kode)+'</td><td>'+esc(jab(j.jobTitle))+'</td><td>'+esc(j.jml)+'</td><td>'+esc(j.statusJD)+'</td><td><span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(STATUS_JAB[j.status]||j.status)+'</span></td></tr>').join("")+'</table></div>'+
+      '<div class="hint">'+m.jabatan.filter(j=>j.status==="APPROVED").length+' dari '+m.jabatan.length+' jabatan sudah disetujui.</div>';
     $("chk-jab-semua").onchange = ()=> document.querySelectorAll(".chk-jab:not(:disabled)").forEach(c=> c.checked = $("chk-jab-semua").checked);
     const L = o.links||{}, nama = { gap:"Gap Competency", matrix:"Training Matrix", plan:"Training Plan", calendar:"Training Calendar", itp:"Individual Training Plan" };
-    $("tna-adm-output").innerHTML = o.terakhir ? '<div class="hint" style="color:var(--text)">Terakhir generate: <b>'+esc(fmtTgl(o.terakhir))+'</b> · Rekonsiliasi jam ITP '+esc(o.rekon.jamITP)+(o.rekon.jamProyeksiBST?' + proyeksi calon BST '+esc(o.rekon.jamProyeksiBST):'')+' = Kalender '+esc(o.rekon.jamCalendar)+' (selisih '+esc(o.rekon.selisih)+')</div>'+
+    $("tna-adm-output").innerHTML = o.terakhir ? '<div class="hint" style="color:var(--text)">Terakhir dibuat: <b>'+esc(fmtTgl(o.terakhir))+'</b> · Rekonsiliasi jam ITP '+esc(o.rekon.jamITP)+(o.rekon.jamProyeksiBST?' + proyeksi calon BST '+esc(o.rekon.jamProyeksiBST):'')+' = Kalender '+esc(o.rekon.jamCalendar)+' (selisih '+esc(o.rekon.selisih)+')</div>'+
       (o.rekon.jamIHT!==undefined ? '<div class="hint" style="color:var(--text)">Porsi IHT <b>'+esc(o.rekon.persenIHT)+'%</b> (batas '+esc(o.rekon.maksPersenIHT)+'%): IHT '+esc(o.rekon.jamIHT)+' jam vs non-IHT terencana '+esc(o.rekon.jamNonIHT)+' jam'+(o.rekon.jamOpsional?' (+ Pengayaan opsional '+esc(o.rekon.jamOpsional)+' jam)':'')+
         ' (porsi dihitung dari jam karyawan; kursi calon BST tidak menambah jatah IHT). Sesi IHT terjadwal '+esc(o.rekon.sesiIHTDijadwalkan)+' dari '+esc(o.rekon.sesiIHTDiminta)+' sesi kebutuhan pola 2026 · slot BST '+esc(o.rekon.slotBST)+' · slot IHT Sabtu '+esc(o.rekon.slotIHT)+'</div>' : '')+
       Object.keys(nama).map(k=> L[k] ? '<div style="margin-top:6px"><a href="'+esc(L[k])+'" target="_blank" rel="noopener">'+nama[k]+'</a></div>' : '').join("") : '<div class="empty">Belum pernah generate.</div>';
@@ -3836,7 +3902,7 @@ $("btn-tna-simpan-param").onclick = async ()=>{
   const jadwalKosong = !p.WindowBuka && !p.WindowTutup;
   if(!jadwalKosong && (!p.WindowBuka || !p.WindowTutup)){ showErr("err-tna-param","Isi waktu buka dan waktu tutup sekaligus, atau kosongkan keduanya bila jadwal belum diumumkan."); return; }
   if(!jadwalKosong && new Date(p.WindowTutup) <= new Date(p.WindowBuka)){ showErr("err-tna-param","Waktu tutup harus setelah waktu buka."); return; }
-  if(Math.abs(Number(p.BobotAtasan)+Number(p.BobotSelf)-1) > 0.001){ showErr("err-tna-param","Bobot atasan + self harus = 1."); return; }
+  if(Math.abs(Number(p.BobotAtasan)+Number(p.BobotSelf)-1) > 0.001){ showErr("err-tna-param","Bobot atasan + bobot nilai diri harus = 1."); return; }
   if(!jadwalKosong && (isNaN(new Date(p.WindowBuka)) || isNaN(new Date(p.WindowTutup)))){ showErr("err-tna-param","Format tanggal window tidak valid."); return; }
   try{ await tnaApi("tnaSetParameter", { parameter: p }); alert("Parameter tersimpan."); }catch(e){ showErr("err-tna-param", e.message); }
 };
@@ -3847,7 +3913,7 @@ $("btn-tna-approve-sel").onclick = async ()=>{
   if(!confirm("Setujui "+kode.length+" matriks jabatan? Setelah disetujui, form asesmen jabatan tersebut terbuka.")) return;
   try{ await tnaApi("tnaApproveMatriks", { kodeList: kode }); muatAdminTNA(); }catch(e){ showErr("err-tna-approve", e.message); }
 };
-function rilisTampil(o){ const on = String((o.parameter||{}).ITPRilis||"")==="1"; $("tna-adm-rilis").innerHTML = on ? '<span class="badge badge-green">Sudah dirilis</span> ITP terlihat oleh karyawan dan atasan.' : '<span class="badge badge-amber">Belum dirilis</span> Karyawan dan atasan melihat "belum dirilis".'; $("btn-tna-rilis").textContent = on ? "Tarik kembali (sembunyikan ITP)" : "Rilis ITP ke karyawan"; $("btn-tna-rilis").dataset.on = on ? "1" : ""; }
+function rilisTampil(o){ const on = String((o.parameter||{}).ITPRilis||"")==="1"; $("tna-adm-rilis").innerHTML = on ? '<span class="badge badge-green">Sudah dirilis</span> ITP terlihat oleh karyawan dan atasan.' : '<span class="badge badge-amber">Belum dirilis</span> Karyawan dan atasan melihat "belum dirilis".'; $("btn-tna-rilis").textContent = on ? "Tarik kembali ITP dari karyawan" : "Rilis ITP ke karyawan"; $("btn-tna-rilis").dataset.on = on ? "1" : ""; $("btn-tna-rilis").className = "btn " + (on ? "btn-warn" : "btn-primary"); }
 $("btn-tna-rilis").onclick = async ()=>{
   clearErr("err-tna-rilis"); const on = $("btn-tna-rilis").dataset.on === "1";
   if(!confirm(on ? "Sembunyikan ITP dari karyawan dan atasan?" : "Rilis ITP sekarang? Seluruh karyawan dan atasan langsung dapat melihat ITP dan kalender training masing-masing.\nPastikan hasil sudah divalidasi dan disetujui manajemen.")) return;
