@@ -1,3 +1,4 @@
+/* BBLC TNA Engine v4.0, 3 Nov 2026. Perubahan: kualitas data penilaian (tnaKualitasPenilai: reliabilitas penilai, kesepakatan dua penilai, nilai diri vs atasan, kelengkapan bukti; tnaAuditBukti: AI membaca bukti Level 4-5 terhadap definisi level, berstatus AUDIT_AI, lanjut otomatis per gelombang 4,5 menit; tnaTinjauAudit: tinjauan tim L&D; tab AuditBukti; Script Property GEMINI_API_KEY dan AI_MODEL). */
 /* BBLC TNA Engine v3.9, 2 Nov 2026. Perubahan: tindak lanjut pasca training (tab Pasca; tnaPascaDaftar, tnaPascaSimpan, tnaPascaRekap; parameter PascaMulai, PascaHari, PascaToleransiHari): atasan menilai ulang kompetensi yang dilatih 90 hari setelah training dan L&D melihat rekap perubahan perilaku. Sebelumnya v3.8, 2 Nov 2026: kolom Asesmen.Bukti dan aturan bukti singkat wajib untuk Level 4 dan 5 (tnaSubmit menolak dengan kode BUKTI_KURANG; bukti tampil bagi validator lewat tnaBuktiPenilai); tnaSheet melengkapi header tab lama yang skemanya bertambah kolom di ujung. Sebelumnya v3.7, 31 Okt 2026: tnaMatriksJabatan dan tnaMatrixOutput tidak mengirim status JD, sumber, flag, dan catatan proses ke pengguna non-L&D (tampilan bersih; admin dan tim L&D tetap menerima). Sebelumnya v3.6, 31 Okt 2026: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
  * parameter KodeJabatanLD) supaya catatan internal (status draf silabus, materi belum siap, flag kualitas penilai, status matriks/JD)
@@ -62,7 +63,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "3.9";
+var TNA_VERSION = "4.0";
 
 /* ============================================================
  * SKEMA TAB
@@ -98,6 +99,7 @@ var TNA_TAB = {
   Proyeksi: ["NIK", "Nama", "Cabang", "Dept", "KodeJabatan", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
     "TotalJam", "TargetJam", "PersenTarget", "StatusJam", "ReadinessSaatIni", "ReadinessProyeksi"],
   Draft: ["Periode", "RaterNIK", "Target", "Jawaban", "Timestamp"],
+  AuditBukti: ["IDAudit", "Periode", "NIK", "KelompokID", "KodeKompetensi", "RaterNIK", "Level", "Bukti", "Putusan", "Alasan", "LevelTersirat", "Model", "Status", "KeputusanLD", "CatatanLD", "ReviewNIK", "Timestamp", "ReviewTimestamp"],
   Pasca: ["IDPasca", "NIK", "KodeTraining", "Judul", "TanggalTraining", "JatuhTempo", "KodeKompetensi", "PenilaiNIK", "Checks", "LevelSesudah", "LevelSebelum", "NA", "Alasan", "Bukti", "Dampak", "Status", "Timestamp"],
   Log: ["Timestamp", "NIK", "Aksi", "Detail"]
 };
@@ -194,6 +196,9 @@ function handleTNA(req) {
     case "tnaPascaDaftar": return tnaPascaDaftar(ss, req);
     case "tnaPascaSimpan": return tnaPascaSimpan(ss, req);
     case "tnaPascaRekap": return tnaPascaRekap(ss, req);
+    case "tnaKualitasPenilai": return tnaKualitasPenilai(ss, req);
+    case "tnaAuditBukti": return tnaAuditBukti(ss, req);
+    case "tnaTinjauAudit": return tnaTinjauAudit(ss, req);
     default: return { ok: false, error: "Aksi TNA tidak dikenal." };
   }
 }
@@ -2553,4 +2558,298 @@ function tnaOutputTerjadwal() {
   tnaSetParamInternal(ss, "OutputTerakhir", new Date());
   tnaSetParamInternal(ss, "OutputLinks", JSON.stringify(links));
   tnaLog(ss, "SYSTEM", "outputTerjadwal", JSON.stringify(hasil));
+}
+
+/* ============================================================
+ * KUALITAS DATA PENILAIAN (v4.0): reliabilitas penilai + audit bukti oleh AI
+ * Indikator statistik dihitung dari tab Asesmen (tanpa AI). Audit AI membaca teks bukti Level 4-5
+ * terhadap definisi level dan key behavior; hasilnya berstatus AUDIT_AI sampai ditinjau tim L&D.
+ * Rujukan: Saal, Downey & Lahey (1980) kesalahan penilai (leniency, severity, halo); Cohen (1968) weighted kappa;
+ * Landis & Koch (1977) tafsir kappa. Indikator menandai pola yang perlu dicek, bukan bukti penilai salah.
+ * ============================================================ */
+var TNA_AI_BATAS_MS = 270000;   // 4,5 menit per eksekusi (batas Apps Script 6 menit)
+var TNA_AI_PARALEL = 8;         // permintaan AI per gelombang (UrlFetchApp.fetchAll)
+var TNA_KUALITAS_MIN_N = 10;    // minimal jumlah nilai sebelum pola sebaran penilai ditandai
+
+function tnaDes(x) { return String(tnaR2(x)).replace(".", ","); }
+function tnaNormTeks(t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
+function tnaChecksLompat(c) { c = String(c || ""); var n = c.indexOf("N"); return n !== -1 && c.indexOf("Y", n) !== -1; }
+function tnaKunciAudit(a) { return [a.Periode, a.NIK, a.KelompokID || "", a.KodeKompetensi, a.RaterNIK].join("|"); }
+
+// Kappa berbobot kuadrat (Cohen 1968) untuk pasangan nilai pada skala 1-5.
+function tnaKappaKuadrat(pairs) {
+  var K = 5, n = pairs.length; if (n < 2) return null;
+  var O = [], ra = [0, 0, 0, 0, 0], rb = [0, 0, 0, 0, 0];
+  for (var i = 0; i < K; i++) O.push([0, 0, 0, 0, 0]);
+  pairs.forEach(function (p) { var a = p[0] - 1, b = p[1] - 1; O[a][b]++; ra[a]++; rb[b]++; });
+  var num = 0, den = 0;
+  for (var x = 0; x < K; x++) for (var y = 0; y < K; y++) {
+    var w = (x - y) * (x - y) / ((K - 1) * (K - 1));
+    num += w * O[x][y] / n; den += w * (ra[x] / n) * (rb[y] / n);
+  }
+  return den === 0 ? null : tnaR2(1 - num / den);
+}
+function tnaTafsirKappa(k) {
+  if (k === null) return "";
+  return k < 0.2 ? "sangat lemah" : (k < 0.4 ? "lemah" : (k < 0.6 ? "sedang" : (k < 0.8 ? "kuat" : "sangat kuat")));
+}
+
+// Hasil audit AI terbaru per penilaian (kunci). Audit lama untuk bukti yang sudah diubah diabaikan.
+function tnaAuditTerbaru(ss) {
+  var out = {};
+  tnaBaca(ss, "AuditBukti").forEach(function (r) {
+    var k = [r.Periode, r.NIK, r.KelompokID || "", r.KodeKompetensi, r.RaterNIK].join("|");
+    var t = new Date(r.Timestamp).getTime() || 0;
+    if (!out[k] || t >= out[k]._t) { r._t = t; out[k] = r; }
+  });
+  return out;
+}
+// Audit dihitung "bermasalah" bila AI menilai kurang/tidak sesuai dan L&D belum menolak penilaian AI itu.
+function tnaAuditBermasalah(r) {
+  if (!r) return false;
+  if (r.Putusan !== "KURANG_SPESIFIK" && r.Putusan !== "TIDAK_SESUAI") return false;
+  return !(r.Status === "DITINJAU_LD" && r.KeputusanLD === "TOLAK_AI");
+}
+
+function tnaKualitasHitung(ss, p) {
+  var km = tnaPetaKaryawan(ss, true), auditMap = tnaAuditTerbaru(ss);
+  var ases = tnaBaca(ss, "Asesmen").filter(function (a) {
+    return a.Periode === p.Periode && a.Status === "FINAL" && !(a.NA === true || String(a.NA).toUpperCase() === "TRUE") && Number(a.Level) > 0;
+  });
+  var rater = {}, self = {}, atasBy = {}, atas2By = {};
+  ases.forEach(function (a) {
+    var lv = Number(a.Level), key = String(a.NIK) + "|" + (a.KelompokID || "") + "|" + a.KodeKompetensi;
+    if (a.Rater === "SELF") { self[key] = lv; return; }
+    if (a.Rater === "ATASAN2") atas2By[key] = lv; else if (a.Rater === "ATASAN") atasBy[key] = lv;
+    var rk = String(a.RaterNIK);
+    var r = rater[rk] = rater[rk] || { nik: rk, lv: [], orang: {}, lompat: 0, perluBukti: 0, buktiKurang: 0, teks: {}, aiMasalah: 0, aiDiaudit: 0, aiBelum: 0, per: {} };
+    r.lv.push(lv); r.orang[a.KelompokID ? "K:" + a.KelompokID : String(a.NIK)] = true;
+    var pk = a.KelompokID ? "K:" + a.KelompokID : String(a.NIK);
+    var pr = r.per[pk] = r.per[pk] || { lompat: 0, bukti: 0 };
+    if (tnaChecksLompat(a.Checks)) { r.lompat++; pr.lompat++; }
+    if (lv >= TNA_BUKTI_MIN_LEVEL) {
+      r.perluBukti++;
+      if (!tnaBuktiCukup(a.Bukti)) { r.buktiKurang++; pr.bukti++; }
+      else {
+        var nt = tnaNormTeks(a.Bukti); (r.teks[nt] = r.teks[nt] || []).push(pk);
+        var au = auditMap[tnaKunciAudit(a)];
+        if (au && String(au.Bukti) === String(a.Bukti)) { r.aiDiaudit++; if (tnaAuditBermasalah(au)) { r.aiMasalah++; pr.bukti++; } }
+        else r.aiBelum++;
+      }
+    }
+  });
+  var ids = Object.keys(rater), rerata = [];
+  ids.forEach(function (rk) { var r = rater[rk]; r.mean = r.lv.reduce(function (s, x) { return s + x; }, 0) / r.lv.length; if (r.lv.length >= TNA_KUALITAS_MIN_N) rerata.push(r.mean); });
+  var mu = rerata.length ? rerata.reduce(function (s, x) { return s + x; }, 0) / rerata.length : null;
+  var sd = rerata.length > 2 ? Math.sqrt(rerata.reduce(function (s, x) { return s + (x - mu) * (x - mu); }, 0) / rerata.length) : null;
+  var semuaLv = ases.filter(function (a) { return a.Rater !== "SELF"; }).map(function (a) { return Number(a.Level); });
+  var muSemua = semuaLv.length ? semuaLv.reduce(function (s, x) { return s + x; }, 0) / semuaLv.length : null;
+  var baris = [], lolos = 0, total = 0;
+  ids.forEach(function (rk) {
+    var r = rater[rk], n = r.lv.length, t = [];
+    if (n >= TNA_KUALITAS_MIN_N) {
+      var fq = {}; r.lv.forEach(function (x) { fq[x] = (fq[x] || 0) + 1; });
+      var maks = Math.max.apply(null, Object.keys(fq).map(function (k) { return fq[k]; }));
+      if (maks / n >= 0.9) t.push({ kode: "SERAGAM", label: "Nilai hampir seragam", detail: Math.round(maks / n * 100) + "% nilai berada di satu level" });
+      if (sd !== null && sd > 0 && r.mean > mu + sd) t.push({ kode: "MURAH", label: "Cenderung tinggi", detail: "rata-rata " + tnaDes(r.mean) + ", penilai lain " + tnaDes(mu) });
+      if (sd !== null && sd > 0 && r.mean < mu - sd) t.push({ kode: "PELIT", label: "Cenderung rendah", detail: "rata-rata " + tnaDes(r.mean) + ", penilai lain " + tnaDes(mu) });
+      if (r.lompat / n >= 0.2) t.push({ kode: "LOMPAT", label: "Centang melompat", detail: r.lompat + " dari " + n + " nilai mencentang level atas tanpa level di bawahnya" });
+    }
+    var seragam = 0; Object.keys(r.teks).forEach(function (k) { if (k.length >= 12 && r.teks[k].length >= 3) seragam += r.teks[k].length; });
+    if (seragam) t.push({ kode: "BUKTI_SAMA", label: "Bukti disalin", detail: seragam + " bukti Level 4-5 memakai kalimat yang sama" });
+    if (r.buktiKurang) t.push({ kode: "BUKTI_KURANG", label: "Bukti belum lengkap", detail: r.buktiKurang + " nilai Level 4-5 tanpa bukti yang cukup" });
+    if (r.aiMasalah) t.push({ kode: "BUKTI_AI", label: "Bukti lemah (AI)", detail: r.aiMasalah + " bukti dinilai AI kurang spesifik atau tidak sesuai level; belum final sebelum ditinjau L&D" });
+    var distribusi = t.some(function (x) { return x.kode === "SERAGAM" || x.kode === "MURAH" || x.kode === "PELIT"; });
+    var bagi = {}; Object.keys(r.teks).forEach(function (k) { if (k.length >= 12 && r.teks[k].length >= 3) r.teks[k].forEach(function (pk) { bagi[pk] = true; }); });
+    Object.keys(r.per).forEach(function (pk) { total++; var pr = r.per[pk]; if (!distribusi && !pr.lompat && !pr.bukti && !bagi[pk]) lolos++; });
+    var k = km[rk] || {};
+    baris.push({ nik: rk, nama: k.Nama || rk, jabatan: k.JobTitle || "", cabang: k.Cabang || "", nilai: n, orang: Object.keys(r.orang).length,
+      rataRata: tnaR2(r.mean), persenTinggi: Math.round(r.lv.filter(function (x) { return x >= 4; }).length / n * 100),
+      perluBukti: r.perluBukti, buktiKurang: r.buktiKurang, aiDiaudit: r.aiDiaudit, aiMasalah: r.aiMasalah, aiBelum: r.aiBelum, temuan: t, cukupData: n >= TNA_KUALITAS_MIN_N });
+  });
+  baris.sort(function (a, b) { return b.temuan.length - a.temuan.length || b.nilai - a.nilai; });
+  // Kesepakatan dua penilai (atasan langsung dan penilai kedua) pada orang dan kompetensi yang sama
+  var pasang = []; Object.keys(atas2By).forEach(function (k) { if (atasBy[k]) pasang.push([atasBy[k], atas2By[k]]); });
+  var sama = pasang.filter(function (x) { return x[0] === x[1]; }).length, dekat = pasang.filter(function (x) { return Math.abs(x[0] - x[1]) <= 1; }).length;
+  var kappa = pasang.length >= TNA_KUALITAS_MIN_N ? tnaKappaKuadrat(pasang) : null;
+  // Nilai diri dibanding atasan langsung
+  var ps = []; Object.keys(self).forEach(function (k) { if (atasBy[k]) ps.push(self[k] - atasBy[k]); });
+  var bukti = { perlu: 0, kurang: 0, diaudit: 0, mendukung: 0, kurangSpesifik: 0, tidakSesuai: 0, belum: 0, ditinjau: 0 };
+  baris.forEach(function (b) { bukti.perlu += b.perluBukti; bukti.kurang += b.buktiKurang; bukti.diaudit += b.aiDiaudit; bukti.belum += b.aiBelum; });
+  ases.forEach(function (a) {
+    if (a.Rater === "SELF" || Number(a.Level) < TNA_BUKTI_MIN_LEVEL || !tnaBuktiCukup(a.Bukti)) return;
+    var au = auditMap[tnaKunciAudit(a)]; if (!au || String(au.Bukti) !== String(a.Bukti)) return;
+    if (au.Putusan === "MENDUKUNG") bukti.mendukung++; else if (au.Putusan === "KURANG_SPESIFIK") bukti.kurangSpesifik++; else if (au.Putusan === "TIDAK_SESUAI") bukti.tidakSesuai++;
+    if (au.Status === "DITINJAU_LD") bukti.ditinjau++;
+  });
+  return {
+    periode: p.Periode, penilai: baris, minN: TNA_KUALITAS_MIN_N,
+    ringkas: { penilaian: total, lolos: lolos, persenLolos: total ? Math.round(lolos / total * 100) : null, penilai: ids.length,
+      penilaiTemuan: baris.filter(function (b) { return b.temuan.length; }).length, rataOrganisasi: muSemua === null ? null : tnaR2(muSemua) },
+    duaPenilai: { pasangan: pasang.length, persenSama: pasang.length ? Math.round(sama / pasang.length * 100) : null,
+      persenDekat: pasang.length ? Math.round(dekat / pasang.length * 100) : null, kappa: kappa, tafsir: tnaTafsirKappa(kappa) },
+    diriAtasan: { pasangan: ps.length, rataSelisih: ps.length ? tnaR2(ps.reduce(function (s, x) { return s + Math.abs(x); }, 0) / ps.length) : null,
+      rataArah: ps.length ? tnaR2(ps.reduce(function (s, x) { return s + x; }, 0) / ps.length) : null,
+      persenJauh: ps.length ? Math.round(ps.filter(function (x) { return Math.abs(x) >= 2; }).length / ps.length * 100) : null },
+    bukti: bukti
+  };
+}
+
+function tnaAIKonfig() {
+  var pr = PropertiesService.getScriptProperties();
+  return { kunci: pr.getProperty("GEMINI_API_KEY") || "", model: pr.getProperty("AI_MODEL") || "gemini-2.5-flash" };
+}
+
+function tnaKualitasPenilai(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  var p = tnaParam(ss);
+  if (!tnaInternalLD(ss, auth, p)) return { ok: false, error: "Kualitas penilaian hanya untuk admin dan tim L&D." };
+  var r = tnaKualitasHitung(ss, p), ai = tnaAIKonfig(), km = tnaPetaKaryawan(ss, true), kamus = {};
+  tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = k.Nama; });
+  // Daftar bukti yang dinilai AI bermasalah dan belum ditinjau, untuk ditinjau tim L&D
+  var ases = {}; tnaBaca(ss, "Asesmen").forEach(function (a) { if (a.Periode === p.Periode && a.Status === "FINAL") ases[tnaKunciAudit(a)] = a; });
+  var antre = [], audit = tnaAuditTerbaru(ss);
+  Object.keys(audit).forEach(function (k) {
+    var au = audit[k], a = ases[k];
+    if (!a || String(a.Bukti) !== String(au.Bukti)) return;
+    if (au.Putusan !== "KURANG_SPESIFIK" && au.Putusan !== "TIDAK_SESUAI") return;
+    var o = km[String(au.NIK)] || {}, pn = km[String(au.RaterNIK)] || {};
+    antre.push({ id: au.IDAudit, nama: au.KelompokID ? "Kelompok " + au.KelompokID : (o.Nama || au.NIK), jabatan: o.JobTitle || "", penilai: pn.Nama || au.RaterNIK,
+      kompetensi: kamus[au.KodeKompetensi] || au.KodeKompetensi, level: Number(au.Level), bukti: au.Bukti, putusan: au.Putusan, alasan: au.Alasan,
+      levelTersirat: au.LevelTersirat === "" ? null : Number(au.LevelTersirat), status: au.Status, keputusanLD: au.KeputusanLD || "", catatanLD: au.CatatanLD || "" });
+  });
+  antre.sort(function (a, b) { return (a.status === "DITINJAU_LD") - (b.status === "DITINJAU_LD") || (a.putusan === "TIDAK_SESUAI" ? -1 : 1); });
+  r.audit = { aktif: !!ai.kunci, model: ai.model, antrean: antre, bolehJalan: auth.role === "admin" };
+  r.ok = true;
+  return r;
+}
+
+function tnaAuditPrompt(komp, lv, defLevel, kb, bukti) {
+  return "Kompetensi: " + komp.nama + "\nDefinisi kompetensi: " + (komp.def || "-") +
+    "\nLevel yang diberikan penilai: " + lv + "\nDefinisi Level " + lv + ": " + (defLevel || "-") +
+    "\nPerilaku kunci Level " + lv + ":\n- " + (kb.length ? kb.join("\n- ") : "-") +
+    "\n\nBukti yang ditulis penilai:\n\"\"\"" + String(bukti).slice(0, 600) + "\"\"\"";
+}
+var TNA_AUDIT_SISTEM = "Anda auditor asesmen kompetensi berbasis perilaku. Tugas Anda menilai apakah teks bukti dari penilai mendukung level yang diberikan, " +
+  "hanya berdasarkan isi teks bukti, definisi level, dan perilaku kunci yang diberikan. Jangan menebak fakta di luar teks. " +
+  "Putusan: MENDUKUNG bila bukti menyebut perilaku atau hasil kerja nyata yang sesuai dengan perilaku kunci level tersebut; " +
+  "KURANG_SPESIFIK bila bukti terlalu umum (tidak menyebut kejadian, hasil, objek, atau situasi nyata) sehingga tidak bisa diverifikasi; " +
+  "TIDAK_SESUAI bila bukti konkret tetapi menggambarkan perilaku level yang lebih rendah atau kompetensi lain. " +
+  "Alasan ditulis dalam Bahasa Indonesia formal, satu kalimat, paling banyak 25 kata, tanpa menyebut nama orang. " +
+  "levelTersirat diisi level 1 sampai 5 yang paling sesuai dengan bukti bila putusan TIDAK_SESUAI, selain itu 0.";
+
+function tnaAIPermintaan(cfg, teks) {
+  return {
+    url: "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(cfg.model) + ":generateContent",
+    method: "post", contentType: "application/json", muteHttpExceptions: true, headers: { "x-goog-api-key": cfg.kunci },
+    payload: JSON.stringify({
+      systemInstruction: { parts: [{ text: TNA_AUDIT_SISTEM }] },
+      contents: [{ role: "user", parts: [{ text: teks }] }],
+      generationConfig: { temperature: 0, responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: {
+        putusan: { type: "STRING", enum: ["MENDUKUNG", "KURANG_SPESIFIK", "TIDAK_SESUAI"] }, alasan: { type: "STRING" }, levelTersirat: { type: "INTEGER" } },
+        required: ["putusan", "alasan", "levelTersirat"] } }
+    })
+  };
+}
+function tnaAIBaca(res) {
+  if (res.getResponseCode() !== 200) { var e = new Error("HTTP " + res.getResponseCode()); e.kode = res.getResponseCode(); throw e; }
+  var j = JSON.parse(res.getContentText()), t = (((((j.candidates || [])[0] || {}).content || {}).parts || [])[0] || {}).text;
+  var o = JSON.parse(t);
+  if (["MENDUKUNG", "KURANG_SPESIFIK", "TIDAK_SESUAI"].indexOf(o.putusan) === -1) throw new Error("putusan tidak dikenal");
+  return { putusan: o.putusan, alasan: String(o.alasan || "").slice(0, 300), levelTersirat: Number(o.levelTersirat) >= 1 && Number(o.levelTersirat) <= 5 ? Number(o.levelTersirat) : "" };
+}
+
+// Bukti Level 4-5 dari penilai (bukan nilai diri) yang belum diaudit atau buktinya berubah sejak audit terakhir.
+function tnaAuditKandidat(ss, p) {
+  var audit = tnaAuditTerbaru(ss);
+  return tnaBaca(ss, "Asesmen").filter(function (a) {
+    if (a.Periode !== p.Periode || a.Status !== "FINAL" || a.Rater === "SELF") return false;
+    if (a.NA === true || String(a.NA).toUpperCase() === "TRUE" || Number(a.Level) < TNA_BUKTI_MIN_LEVEL || !tnaBuktiCukup(a.Bukti)) return false;
+    var au = audit[tnaKunciAudit(a)];
+    return !au || String(au.Bukti) !== String(a.Bukti);
+  });
+}
+
+function tnaAuditJalan(ss, oleh) {
+  var t0 = new Date().getTime(), p = tnaParam(ss), cfg = tnaAIKonfig();
+  if (!cfg.kunci) return { ok: false, error: "Audit AI belum aktif. Isi Script Property GEMINI_API_KEY di project Apps Script TNA, lalu coba lagi." };
+  var kand = tnaAuditKandidat(ss, p), total = kand.length;
+  var kamus = {}; tnaBaca(ss, "Kamus").forEach(function (k) { kamus[k.KodeKompetensi] = { nama: k.Nama, def: k.Definisi }; });
+  var ind = {}; tnaBaca(ss, "Indikator").forEach(function (r) {
+    var k = r.KodeKompetensi + "|" + Number(r.Level), o = ind[k] = ind[k] || { def: r.DefinisiLevel || "", kb: [] };
+    if (!o.def && r.DefinisiLevel) o.def = r.DefinisiLevel; if (r.Indikator) o.kb.push(String(r.Indikator));
+  });
+  var diproses = 0, galat = 0, i = 0, kodeGalat = 0;
+  while (i < kand.length && new Date().getTime() - t0 < TNA_AI_BATAS_MS) {
+    var gel = kand.slice(i, i + TNA_AI_PARALEL); i += gel.length;
+    var reqs = gel.map(function (a) {
+      var kp = kamus[a.KodeKompetensi] || { nama: a.KodeKompetensi, def: "" }, lv = Number(a.Level), d = ind[a.KodeKompetensi + "|" + lv] || { def: "", kb: [] };
+      return tnaAIPermintaan(cfg, tnaAuditPrompt(kp, lv, d.def, d.kb.slice(0, 6), a.Bukti));
+    });
+    var hasil; try { hasil = UrlFetchApp.fetchAll(reqs); } catch (e) { galat += gel.length; kodeGalat = kodeGalat || -1; break; }
+    var baris = [];
+    gel.forEach(function (a, j) {
+      try {
+        var o = tnaAIBaca(hasil[j]);
+        baris.push({ IDAudit: Utilities.getUuid ? Utilities.getUuid() : String(t0) + "-" + i + "-" + j, Periode: a.Periode, NIK: a.NIK, KelompokID: a.KelompokID || "",
+          KodeKompetensi: a.KodeKompetensi, RaterNIK: a.RaterNIK, Level: Number(a.Level), Bukti: a.Bukti, Putusan: o.putusan, Alasan: o.alasan,
+          LevelTersirat: o.levelTersirat, Model: cfg.model, Status: "AUDIT_AI", Timestamp: new Date() });
+      } catch (e) { galat++; kodeGalat = e.kode || kodeGalat || -2; }
+    });
+    if (baris.length) { tnaTambah(ss, "AuditBukti", baris); diproses += baris.length; }
+    if (!baris.length && kodeGalat && kodeGalat !== 429) break; // kunci ditolak atau layanan bermasalah: hentikan, jangan menghabiskan waktu
+  }
+  var sisa = Math.max(0, total - diproses); // yang gagal tetap menjadi kandidat putaran berikutnya
+  var pesan = !galat ? "" : (kodeGalat === 400 || kodeGalat === 401 || kodeGalat === 403 ? "Kunci AI ditolak. Periksa Script Property GEMINI_API_KEY."
+    : (kodeGalat === 429 ? "Batas kuota layanan AI tercapai. Sisa bukti dicoba lagi otomatis." : "Sebagian bukti belum berhasil diaudit. Coba lagi beberapa saat lagi."));
+  tnaLog(ss, oleh, "auditBukti", JSON.stringify({ diproses: diproses, galat: galat, kodeGalat: kodeGalat, sisa: sisa }));
+  return { ok: true, diproses: diproses, galat: galat, sisa: sisa, total: total, pesan: pesan, kuota: kodeGalat === 429 };
+}
+
+// Endpoint admin: jalankan satu gelombang (maks 4,5 menit). Bila masih ada sisa, dilanjutkan trigger 1 menit kemudian.
+function tnaAuditBukti(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (auth.role !== "admin") return { ok: false, error: "Audit AI hanya dapat dijalankan admin." };
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return { ok: false, error: "Audit AI sedang berjalan. Tunggu sebentar lalu muat ulang." };
+  var r;
+  try { r = tnaAuditJalan(ss, auth.nik); } finally { lock.releaseLock(); }
+  if (r.ok) r.lanjutOtomatis = r.sisa > 0 && (r.diproses > 0 || r.kuota) && tnaAuditJadwalLanjut();
+  return r;
+}
+function tnaAuditJadwalLanjut() {
+  try {
+    ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === "tnaAuditBuktiLanjut") ScriptApp.deleteTrigger(t); });
+    ScriptApp.newTrigger("tnaAuditBuktiLanjut").timeBased().after(60 * 1000).create();
+    return true;
+  } catch (e) { return false; }
+}
+function tnaAuditBuktiLanjut() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) { tnaAuditJadwalLanjut(); return; }
+  var r; try { r = tnaAuditJalan(ss, "SYSTEM"); } finally { lock.releaseLock(); }
+  if (r.ok && r.sisa > 0 && (r.diproses > 0 || r.kuota)) tnaAuditJadwalLanjut();
+}
+
+// Tinjauan tim L&D atas satu hasil audit AI: SETUJU_AI (bukti memang lemah) atau TOLAK_AI (bukti sudah cukup).
+function tnaTinjauAudit(ss, req) {
+  var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
+  if (!tnaInternalLD(ss, auth)) return { ok: false, error: "Tinjauan audit hanya untuk admin dan tim L&D." };
+  // Satu keputusan bisa berlaku untuk beberapa hasil sekaligus (bukti sama dari penilai yang sama), paling banyak 100.
+  var ids = (Array.isArray(req.ids) ? req.ids : [req.id]).map(String).filter(String).slice(0, 100), kp = String(req.keputusan || "");
+  if (!ids.length) return { ok: false, error: "Hasil audit tidak ditemukan. Muat ulang halaman." };
+  if (["SETUJU_AI", "TOLAK_AI"].indexOf(kp) === -1) return { ok: false, error: "Pilih keputusan tinjauan." };
+  var lock = LockService.getScriptLock(), n = 0; waitLockDenganRetry(lock, 15000, 3);
+  try {
+    var sh = tnaSheet(ss, "AuditBukti"), v = sh.getDataRange().getValues(), h = v[0], kini = new Date(), cat = String(req.catatan || "").trim().slice(0, 300);
+    var ci = function (x) { return h.indexOf(x); };
+    for (var i = 1; i < v.length; i++) {
+      if (ids.indexOf(String(v[i][ci("IDAudit")])) === -1) continue;
+      v[i][ci("Status")] = "DITINJAU_LD"; v[i][ci("KeputusanLD")] = kp; v[i][ci("CatatanLD")] = cat; v[i][ci("ReviewNIK")] = auth.nik; v[i][ci("ReviewTimestamp")] = kini; n++;
+    }
+    if (n) { sh.getRange(1, 1, v.length, h.length).setValues(v); tnaCacheBatal("AuditBukti"); }
+  } finally { lock.releaseLock(); }
+  if (!n) return { ok: false, error: "Hasil audit tidak ditemukan. Muat ulang halaman." };
+  tnaLog(ss, auth.nik, "tinjauAudit", n + " hasil " + kp);
+  return { ok: true, jumlah: n };
 }

@@ -35,7 +35,7 @@ const created = [];
 const ACTIVE = makeSS('Learning Simulator DB');
 const ctx = {
   SpreadsheetApp: { getActiveSpreadsheet: () => ACTIVE, create: (n) => { const s = makeSS(n); created.push(s); return s; }, openById: (id) => global.__IMPORT },
-  LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
+  LockService: { getScriptLock: () => ({ waitLock() {}, tryLock() { return true; }, releaseLock() {} }) },
   Utilities: { formatDate: (d) => d.toISOString().slice(0, 16), sleep() {} },
   Session: { getScriptTimeZone: () => 'Asia/Makassar' },
   Logger: { log: (x) => console.log('[Logger]', x) },
