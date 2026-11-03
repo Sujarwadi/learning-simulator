@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.40, 3 Nov 2026. Perubahan: label bobot skor aktual mengikuti Parameter (bukan 70/30 tetap), judul menu huruf biasa, kotak centang tabel admin 22 px (mesin TNA v4.1). -->
 <!-- BBLC Studio v3.39, 3 Nov 2026. Perubahan: layar Kualitas Penilaian (admin dan tim L&D): penilaian yang lolos pemeriksaan, pola penilai (nilai seragam, cenderung tinggi atau rendah, centang melompat, bukti disalin), kesepakatan dua penilai (kappa), nilai diri dan atasan, audit bukti Level 4-5 oleh AI berstatus usulan yang ditinjau L&D, unduh Excel (mesin TNA v4.0). -->
 <!-- BBLC Studio v3.38, 3 Nov 2026. Perubahan: perbaikan UI/UX menyeluruh hasil audit: kartu tim dan tombol level tidak patah di HP, kontras tombol dan kotak isian lolos WCAG AA, satu warna aksi utama, skala font (minimal 12 px), pemenggalan baris tanpa kata yatim, huruf kapital dikurangi, istilah Indonesia (periode penilaian), satu nama aplikasi, menu beranda dikelompokkan, bilah aksi validasi menempel di bawah, panel admin rapi, dekorasi dibuang. -->
 <!-- BBLC Studio v3.37, 2 Nov 2026. Perubahan: Tindak Lanjut Training (tile baru untuk atasan): 3 bulan setelah karyawan mengikuti training, atasan menilai ulang hanya kompetensi yang dilatih; tab Rekap efektivitas untuk admin dan tim L&D (perubahan perilaku, terlambat, unduh Excel) (mesin TNA v3.9). -->
@@ -300,6 +301,7 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .body-wrap:has(.aksi-bar){padding-bottom:0}
 .kq-temuan{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--text)}.kq-temuan li{margin:2px 0}
 .kq-audit{padding:14px 0;border-bottom:1px solid var(--line)}.kq-audit:first-child{padding-top:0}.kq-audit:last-child{border-bottom:0;padding-bottom:0}
+.scrollbox td input[type=checkbox],#chk-jab-semua{width:22px;height:22px}
 .kq-aksi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;max-width:360px}
 .kq-kutip{margin:8px 0;padding:8px 12px;border-left:3px solid var(--line-strong);background:var(--inset);border-radius:0 8px 8px 0;font-size:14px;color:var(--ink)}
 #inp-val-catatan{min-height:88px}
@@ -778,7 +780,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <div class="card">
         <label>Pilih Jabatan</label>
         <select id="sel-export-jabatan"><option value="">Memuat daftar jabatan&hellip;</option></select>
-        <div class="hint">Daftar ini terisi otomatis dari Matriks Kompetensi yang sudah tersimpan, tanpa pengetikan manual. Jabatan yang baru saja Anda simpan langsung terpilih sendiri. Menghasilkan file .xlsx berisi Kamus Kompetensi (5 level, merge asli), Competency Matrix, dan Katalog Training, dengan format warna dan font sesuai standar BBM.</div>
+        <div class="hint">Daftar ini terisi otomatis dari Matriks Kompetensi yang sudah tersimpan, tanpa pengetikan manual. Jabatan yang baru saja Anda simpan langsung terpilih sendiri. Menghasilkan file .xlsx berisi Kamus Kompetensi (5 level, merge asli), Competency Matrix, dan Katalog training, dengan format warna dan font sesuai standar BBM.</div>
         <div class="err" id="err-export"></div>
         <div style="margin-top:14px"><button class="btn btn-ghost" id="btn-export-kompetensi">Unduh Master Kompetensi (.xlsx)</button></div>
       </div>
@@ -913,27 +915,27 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div id="tna-delegasi-wrap"></div>
         <div class="menu-grp"><h2 class="sect">Untuk Anda</h2>
         <div class="tiles">
-          <button class="tile" id="btn-tna-itp"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg></span><span class="bd"><span class="tile-g">Saya</span><span class="tile-t">ITP &amp; Kalender Training Saya</span><span class="tile-d">Training, coaching, dan penugasan Anda selama 2027</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-itp"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg></span><span class="bd"><span class="tile-g">Saya</span><span class="tile-t">ITP dan kalender training saya</span><span class="tile-d">Training, coaching, dan penugasan Anda selama 2027</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div></div>
         <div class="menu-grp"><h2 class="sect">Tim</h2>
         <div class="tiles">
-          <button class="tile" id="btn-tna-tim" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Dashboard Tim &amp; Training Tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres Asesmen Tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-pasca" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-8M22 19H2"/><path d="m4 6 6-3 6 4 5-3"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Tindak Lanjut Training</span><span class="tile-d" id="pasca-tile-d">Menilai ulang perilaku 3 bulan setelah training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-tim" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Dashboard tim</span><span class="tile-d">Peta gap tim, prioritas, dan jadwal training tim</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-progres" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Progres asesmen tim</span><span class="tile-d">Siapa yang sudah dan belum dinilai</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-pasca" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-8M22 19H2"/><path d="m4 6 6-3 6 4 5-3"/></svg></span><span class="bd"><span class="tile-g">Tim</span><span class="tile-t">Tindak lanjut training</span><span class="tile-d" id="pasca-tile-d">Menilai ulang perilaku 3 bulan setelah training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div></div>
         <div class="menu-grp"><h2 class="sect">Admin dan L&amp;D</h2>
         <div class="tiles">
-          <button class="tile tile-admin" id="btn-tna-admin" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Panel Admin TNA</span><span class="tile-d">Pantau progres, matriks, dan buat output</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Matriks kompetensi dan training per jabatan, dept, dan divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile tile-admin" id="btn-tna-realisasi" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Monitor Realisasi</span><span class="tile-d">Siapa yang sudah dan belum mengisi, per divisi, dept, dan orang; diperbarui otomatis</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile tile-admin" id="btn-tna-kualitas" style="display:none"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Kualitas Penilaian</span><span class="tile-d">Konsistensi penilai dan audit bukti Level 4 dan 5</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-studio" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Studio Kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-admin" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Panel admin TNA</span><span class="tile-d">Pantau progres, matriks, dan buat output</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix</span><span class="tile-d">Matriks kompetensi dan training per jabatan, dept, dan divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-realisasi" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Monitor realisasi</span><span class="tile-d">Siapa yang sudah dan belum mengisi, per divisi, dept, dan orang; diperbarui otomatis</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-kualitas" style="display:none"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Kualitas penilaian</span><span class="tile-d">Konsistensi penilai dan audit bukti Level 4 dan 5</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-studio" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Studio kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div></div>
         <div class="menu-grp"><h2 class="sect">Referensi</h2>
         <div class="tiles">
-          <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan Pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-katalog"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Katalog Training &amp; Silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          <button class="tile" id="btn-tna-landasan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Landasan Metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-panduan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M8 7h7M8 11h5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Panduan pengisian</span><span class="tile-d">Cara menilai, cara level dihitung, jadwal</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-katalog"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h6"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Katalog training dan silabus</span><span class="tile-d">Tujuan, materi, dan evaluasi tiap training</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile" id="btn-tna-landasan"><span class="ic ic-sky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10.5V16c2 2 10 2 12 0v-5.5"/></svg></span><span class="bd"><span class="tile-g">Referensi</span><span class="tile-t">Landasan metodologi TNA</span><span class="tile-d">Dasar ilmiah cara penilaian dan rekomendasi</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div></div>
       </div>
     </div>
@@ -1326,7 +1328,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <p class="ref">Spencer, L. M., &amp; Spencer, S. M. (1993). <i>Competence at Work.</i> Wiley.</p>
         <p class="ref">Viswesvaran, C., Ones, D. S., &amp; Schmidt, F. L. (1996). Comparative analysis of the reliability of job performance ratings. <i>Journal of Applied Psychology, 81</i>(5), 557–574.</p>
         <p class="ref">Woehr, D. J., &amp; Huffcutt, A. I. (1994). Rater training for performance appraisal: A quantitative review. <i>Journal of Occupational and Organizational Psychology, 67</i>(3), 189–205.</p>
-        <p class="hint">Uraian lengkap ada di PRD TNA Engine 2027, bab Landasan Metodologi &amp; Rencana Validasi.</p>
+        <p class="hint">Uraian lengkap ada di PRD TNA Engine 2027, bab Landasan metodologi &amp; Rencana Validasi.</p>
       </div>
     </div>
   </section>
@@ -2217,7 +2219,7 @@ async function bukaFormTNA(sasaran, mode){
   }catch(e){
     $("btn-tna-submit").style.display="none";
     if(e.kode === "MATRIKS_BELUM"){
-      $("tna-form-list").innerHTML = '<div class="card"><div class="empty"><b>Penilaian belum dibuka untuk jabatan ini.</b><br>'+esc(e.message)+'</div>'+(e.bisaSetuju?'<div class="btn-row" style="margin-top:12px;text-align:center"><button type="button" class="btn btn-ghost" id="btn-ke-admin-setuju">Buka Panel Admin TNA</button></div>':'')+'</div>';
+      $("tna-form-list").innerHTML = '<div class="card"><div class="empty"><b>Penilaian belum dibuka untuk jabatan ini.</b><br>'+esc(e.message)+'</div>'+(e.bisaSetuju?'<div class="btn-row" style="margin-top:12px;text-align:center"><button type="button" class="btn btn-ghost" id="btn-ke-admin-setuju">Buka Panel admin TNA</button></div>':'')+'</div>';
       if(e.bisaSetuju && $("btn-ke-admin-setuju")) $("btn-ke-admin-setuju").onclick = ()=>{ show("scr-tna-admin"); muatAdminTNA(); };
     } else $("tna-form-list").innerHTML = '<div class="err show">'+esc(e.message)+'</div>';
   }
@@ -2602,7 +2604,7 @@ async function pascaUnduh(){
   const r = pasca.rekap, b = $("btn-pasca-xls"); b.disabled = true; clearErr("err-pasca-xls");
   try{
     const H = t=>({ v:t, s:{ b:1, sz:10, c:"FFFFFF", f:"1F4E79", h:"center", v:"center", w:1, bd:1 } }), C = (v,h)=>({ v:v, s:{ sz:10, bd:1, v:"center", h:h||"left", w:1 } }), R = r.ringkas;
-    const ringkas = [[{ v:"Tindak Lanjut Training: Efektivitas Perilaku", s:{ b:1, sz:14, c:"1F4E79" } }],["Per tanggal", r.hariIni],["Training sejak", r.mulai],[],[H("Ukuran"),H("Nilai")],
+    const ringkas = [[{ v:"Tindak lanjut training: Efektivitas Perilaku", s:{ b:1, sz:14, c:"1F4E79" } }],["Per tanggal", r.hariIni],["Training sejak", r.mulai],[],[H("Ukuran"),H("Nilai")],
       [C("Jatuh tempo"),C(R.jatuhTempo,"right")],[C("Sudah diisi"),C(R.selesai,"right")],[C("Terlambat"),C(R.terlambat,"right")],[C("Persen terisi"),C(R.persen/100,"right")],
       [C("Penilaian dengan pembanding"),C(R.denganBaseline,"right")],[C("Perilaku naik"),C(R.naik,"right")],[C("Tidak berubah"),C(R.tetap,"right")],[C("Turun"),C(R.turun,"right")],[C("Rata-rata selisih level"),C(R.rataSelisih===null?"-":R.rataSelisih,"right")]];
     const tr = [[H("Training"),H("Diisi"),H("Rata-rata selisih"),H("Naik"),H("Tetap"),H("Turun")]].concat(r.perTraining.map(t=>[C(t.judul),C(t.n,"right"),C(t.rata===null?"-":t.rata,"right"),C(t.naik,"right"),C(t.tetap,"right"),C(t.turun,"right")]));
@@ -2627,6 +2629,8 @@ async function kqMuat(){
     kq.data = r; kqRender();
   }catch(e){ if(g === kq.gen) $("kq-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
 }
+// Bobot skor aktual dari Parameter (bukan angka tetap), dikirim tnaKonteks
+function bobotTeks(){ const b = (tna.konteks||{}).bobot || {}, a = Number(b.atasan), d = Number(b.diri); return (isFinite(a)&&isFinite(d)&&a+d>0 ? Math.round(a*100)+"% atasan + "+Math.round(d*100)+"% nilai diri" : "70% atasan + 30% nilai diri"); }
 function kqPersen(v){ return v===null || v===undefined ? "–" : v+"%"; }
 function kqDes(v){ return v===null || v===undefined ? "–" : String(v).replace(".", ","); }
 function kqRender(){
@@ -2864,7 +2868,7 @@ function vizProfil(gap){
   const tabel = '<details style="margin-top:12px"><summary class="hint" style="cursor:pointer">Lihat dalam bentuk tabel</summary><div style="overflow-x:auto;margin-top:8px"><table><tr><th>Kompetensi</th><th>Syarat</th><th>Atasan</th><th>Nilai diri</th><th>Aktual</th><th>Status</th></tr>'+
     gap.map(g=>'<tr><td>'+esc(g.Kompetensi)+'</td><td>'+esc(g.Required)+'</td><td>'+esc(g.SkorAtasan===""?"-":vFmt(vNum(g.SkorAtasan)))+'</td><td>'+esc(g.SkorSelf===""?"-":g.SkorSelf)+'</td><td><b>'+esc(g.Actual===""?"-":vFmt(vNum(g.Actual)))+'</b></td><td>'+esc(g.KategoriGap)+'</td></tr>').join("")+'</table></div></details>';
   return '<h2 class="sect" id="rpt-profil">Profil kompetensi</h2><div class="card">'+
-    '<div class="prof-legend"><span><i class="lg-req"></i>Syarat jabatan</span><span><i class="lg-act"></i>Aktual (70% atasan + 30% nilai diri)</span><span><i class="lg-sup"></i>Atasan</span><span><i class="lg-self"></i>Nilai diri</span>'+
+    '<div class="prof-legend"><span><i class="lg-req"></i>Syarat jabatan</span><span><i class="lg-act"></i>Aktual ('+bobotTeks()+')</span><span><i class="lg-sup"></i>Atasan</span><span><i class="lg-self"></i>Nilai diri</span>'+
     '<span><i class="key-dot" style="background:var(--line-strong);width:8px;height:6px;margin-right:2px"></i><i class="key-dot" style="background:var(--amber);width:8px;height:6px;margin-right:2px"></i><i class="key-dot" style="background:var(--red);width:8px;height:6px"></i>Gap ke syarat (warna = Minor, Moderate, Major)</span></div>'+isi+tabel+'</div>';
 }
 
@@ -3025,7 +3029,7 @@ $("btn-pd-selesai").onclick = ()=>{
 };
 function renderNudgePanduan(){
   const el = $("tna-panduan-card"); if(!el) return;
-  el.innerHTML = pdSudah() ? "" : '<div class="pd-nudge"><div><b>Langkah pertama: baca Panduan Pengisian</b><div class="hint">3 menit. Menjelaskan cara menilai dan cara level dihitung, supaya hasilnya adil dan akurat.</div></div><button class="btn btn-red" style="width:auto" id="btn-nudge-panduan">Baca panduan</button></div>';
+  el.innerHTML = pdSudah() ? "" : '<div class="pd-nudge"><div><b>Langkah pertama: baca Panduan pengisian</b><div class="hint">3 menit. Menjelaskan cara menilai dan cara level dihitung, supaya hasilnya adil dan akurat.</div></div><button class="btn btn-red" style="width:auto" id="btn-nudge-panduan">Baca panduan</button></div>';
   if($("btn-nudge-panduan")) $("btn-nudge-panduan").onclick = ()=> bukaPanduan(null);
 }
 $("btn-tna-pusat").onclick = ()=> bukaPusatMatrix();
@@ -3270,7 +3274,7 @@ function renderMatrixHasil(){
   const meta = (mx.lingkup==="tim" ? "seluruh anggota di bawah Anda menurut rantai penilai · " : (mx.lingkup==="langsung" ? "orang yang Anda nilai langsung · " : ""))+total+" orang"+(potong?" (ditampilkan "+MX_MAKS+" pertama; persempit lingkup untuk melihat semua)":"")+" · disusun "+mxTgl();
   let out;
   if(mx.jenis === "komp") out = mxKompHasil(org, cols, set, mode);
-  else { if(!H.itp.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Training matrix hasil asesmen tersedia setelah output TNA digenerate (Panel Admin TNA, tombol Generate). Sementara itu, gunakan sumber <b>Standar jabatan</b>.</div></div>'; return; }
+  else { if(!H.itp.length){ $("mx-body").innerHTML = '<div class="card"><div class="empty">Training matrix hasil asesmen tersedia setelah output TNA digenerate (Panel admin TNA, tombol Generate). Sementara itu, gunakan sumber <b>Standar jabatan</b>.</div></div>'; return; }
     out = mxTrainHasil(org, cols, set, mode); }
   $("mx-body").innerHTML = mxLaporan((mx.jenis==="komp"?"Competency Matrix":"Training Matrix")+" · hasil asesmen 2027", judul, meta, out.stats, out.tabel, out.aside, "Sumber: BBLC TNA Engine 2027, hasil asesmen"+(H.outputTerakhir?" dan ITP dari output "+new Date(H.outputTerakhir).toLocaleString("id-ID"):"")+".");
 }
@@ -3304,7 +3308,7 @@ function mxKompHasil(org, cols, set, mode){
   if(kuat) ins.push(["Paling kuat", mxNama(kuat[0])+" · "+mxPct(kuat[1],kuat[2])+"% memenuhi syarat"]);
   if(N - nDinilai) ins.push(["Belum dinilai", (N - nDinilai)+" dari "+N+" orang"]);
   const leg = '<div class="klg" style="margin-top:10px">'+[["K","Kompeten","aktual memenuhi atau melampaui syarat"],["Mi","Minor","kurang 1 level"],["Mo","Moderate","kurang 2 level"],["Ma","Major","kurang 3 level atau lebih"]].map(([c,t,d])=>'<div><span class="cl st-'+c+'" style="width:30px;height:22px;font-size:12px;flex:0 0 auto">'+(c==="K"?"3":(c==="Mi"?"2":(c==="Mo"?"1":"0")))+'</span><span><b>'+t+'</b><br>'+d+'</span></div>').join("")+'</div>';
-  const aside = mxAside(leg, ["Angka = level aktual (pembulatan 70% atasan + 30% nilai diri)","\"2/3\" = aktual 2, syarat 3","Titik = belum dinilai","Kolom di kanan = sebaran status per kompetensi"], ins);
+  const aside = mxAside(leg, ["Angka = level aktual (pembulatan "+bobotTeks()+")","\"2/3\" = aktual 2, syarat 3","Titik = belum dinilai","Kolom di kanan = sebaran status per kompetensi"], ins);
   return { stats, tabel: mxTabel(cols, mode, rows, tot, "Sebaran status", "Kompetensi"), aside };
 }
 function mxTrainHasil(org, cols, set, mode){

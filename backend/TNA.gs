@@ -1,3 +1,4 @@
+/* BBLC TNA Engine v4.1, 3 Nov 2026. Perubahan: tnaKonteks mengirim bobot skor aktual dari Parameter (label "x% atasan + y% nilai diri" tidak lagi angka tetap); pesan merujuk nama menu yang baru. */
 /* BBLC TNA Engine v4.0, 3 Nov 2026. Perubahan: kualitas data penilaian (tnaKualitasPenilai: reliabilitas penilai, kesepakatan dua penilai, nilai diri vs atasan, kelengkapan bukti; tnaAuditBukti: AI membaca bukti Level 4-5 terhadap definisi level, berstatus AUDIT_AI, lanjut otomatis per gelombang 4,5 menit; tnaTinjauAudit: tinjauan tim L&D; tab AuditBukti; Script Property GEMINI_API_KEY dan AI_MODEL). */
 /* BBLC TNA Engine v3.9, 2 Nov 2026. Perubahan: tindak lanjut pasca training (tab Pasca; tnaPascaDaftar, tnaPascaSimpan, tnaPascaRekap; parameter PascaMulai, PascaHari, PascaToleransiHari): atasan menilai ulang kompetensi yang dilatih 90 hari setelah training dan L&D melihat rekap perubahan perilaku. Sebelumnya v3.8, 2 Nov 2026: kolom Asesmen.Bukti dan aturan bukti singkat wajib untuk Level 4 dan 5 (tnaSubmit menolak dengan kode BUKTI_KURANG; bukti tampil bagi validator lewat tnaBuktiPenilai); tnaSheet melengkapi header tab lama yang skemanya bertambah kolom di ujung. Sebelumnya v3.7, 31 Okt 2026: tnaMatriksJabatan dan tnaMatrixOutput tidak mengirim status JD, sumber, flag, dan catatan proses ke pengguna non-L&D (tampilan bersih; admin dan tim L&D tetap menerima). Sebelumnya v3.6, 31 Okt 2026: Standar Kompetensi BBM v1.0, kolom baru Task.Sumber, Task.BuktiPenilaian, dan Indikator.Sumber (opsional saat import, paket lama tetap bisa diimport); dosier jabatan mengirim bukti penilaian; kolom Sumber hanya tinggal di Sheet (dokumen tetap sama untuk semua peran). Sebelumnya v3.5, 31 Okt 2026: dokumen jabatan: indikator Level 1 untuk semua kompetensi; pesan matriks belum disetujui membawa kode untuk layar admin. Sebelumnya v3.4, 30 Okt 2026: gerbang rilis ITP (parameter ITPRilis; ITP dan rencana 70/20/10 tampil ke karyawan dan atasan hanya setelah dirilis admin, tim L&D selalu melihat), target jam bawaan 5 per bulan, tnaDaftarPin (admin) untuk membagikan PIN awal per departemen, persetujuan massal tidak lagi menyentuh jabatan DIKECUALIKAN. Sebelumnya v3.3 (hasil audit): batas percobaan PIN (5 salah = kunci 15 menit), tnaResetPin untuk admin dan tim L&D, katalog dan silabus tidak lagi mengirim status internal, sumber file, dan tautan Drive ke non-L&D. Sebelumnya v3.2: tnaRealisasi (Monitor Realisasi khusus admin dan tim L&D: status penilaian diri, atasan, validasi per orang dan tren harian). Sebelumnya v3.1: PIN berawalan nol (mis. 0805) tidak lagi ditolak karena Sheets menyimpannya sebagai angka (tnaPinNorm). Sebelumnya v3.0: tanggal window asesmen kosong bawaan (jadwal diumumkan di luar aplikasi; status BELUM_DIJADWALKAN, form hanya dapat dilihat, pengingat dan jadwal output menolak sampai tanggal diisi). Sebelumnya v2.9: jendela bulan default P-SETARA (Seminar oleh SETARA, Oktober). Sebelumnya v2.8: Pusat Matrix (tnaMatrixOutput) terbuka untuk level Dept Head ke atas (tnaBolehMatrix, parameter baru KodeJabatanMatrix) dengan jabatan, orang, gap, dan ITP dibatasi pada timnya; tnaKonteks mengirim flag matrix. Sebelumnya v2.7: tnaDosierJabatan (dosier satu jabatan tanpa asesmen, bentuk master L&D: breakdown tugas + KSA, kompetensi 5 level + indikator, matriks departemen, 70/20 turunan data, training wajib, jalur bila gap); tab baru TNA_Indikator; kolom baru Kamus.Kelompok dan Task (SubProses, SubSubProses, Pengetahuan, StandarKinerja, SubStandar, KSA, LevelAktivitas).
  * BBLC TNA Engine v2.6, 28 Okt 2026. Perubahan (koreksi user 28 Okt): tnaKonteks mengirim `internal` (admin atau jabatan tim L&D,
@@ -63,7 +64,7 @@
  * lama (MatriksKompetensi, AssessmentTool, IDP, dst) tidak tersentuh sama sekali.
  * Router: Kode.gs doPost meneruskan setiap action berawalan "tna" ke handleTNA(req).
  * Tidak ada secret di file ini. */
-var TNA_VERSION = "4.0";
+var TNA_VERSION = "4.1";
 
 /* ============================================================
  * SKEMA TAB
@@ -472,6 +473,7 @@ function tnaKonteks(ss, req) {
   return {
     ok: true, nama: auth.nama, role: auth.role, internal: tnaInternalLD(ss, auth, p), matrix: tnaBolehMatrix(ss, auth, p), window: win.status,
     windowBuka: win.buka, windowTutup: win.tutup, periode: p.Periode,
+    bobot: { atasan: Number(p.BobotAtasan), diri: Number(p.BobotSelf) },
     terdaftar: !!saya, jabatan: saya ? saya.Jabatan : "", selfStatus: selfStatus,
     todo: {
       nilai: tugas.filter(function (t) { return t.status !== "FINAL" || t.validasi === "DIKEMBALIKAN"; }).length +
@@ -516,7 +518,7 @@ function tnaMatriksBelum(ss, auth, mj) {
   var nama = mj ? String(mj.JobTitle || "") : "";
   var dalam = tnaInternalLD(ss, auth, tnaParam(ss));
   return { ok: false, kode: "MATRIKS_BELUM", jabatan: nama, bisaSetuju: auth.role === "admin",
-    error: dalam ? "Matriks jabatan " + (nama || "ini") + " belum disetujui, jadi penilaian belum bisa dibuka. Setujui dulu di Panel Admin TNA (centang jabatan, lalu Setujui Jabatan Terpilih)."
+    error: dalam ? "Matriks jabatan " + (nama || "ini") + " belum disetujui, jadi penilaian belum bisa dibuka. Setujui dulu di Panel admin TNA (centang jabatan, lalu tekan Setujui jabatan terpilih)."
       : "Penilaian untuk jabatan ini belum dibuka. Silakan hubungi Learning & Development." };
 }
 

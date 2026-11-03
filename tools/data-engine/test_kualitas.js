@@ -200,4 +200,8 @@ r = T({ action: 'tnaAuditBukti', ...auth('A1') }); assert.ok(/GEMINI_API_KEY/.te
 ctx.UrlFetchApp = { fetchAll: (reqs) => reqs.map(() => ({ getResponseCode: () => 429, getContentText: () => 'quota' })) };
 r = T({ action: 'tnaAuditBukti', ...auth('A1') }); assert.ok(r.kuota && /kuota/.test(r.pesan), 'kuota habis dijelaskan');
 assert.strictEqual(ACTIVE.getSheetByName('TNA_AuditBukti').data.length - 1, 16, 'galat tidak menulis baris audit');
+// ---- 9. Bobot skor aktual dikirim dari Parameter (label di layar tidak lagi angka tetap)
+assert.strictEqual(JSON.stringify(T({ action: 'tnaKonteks', ...auth('ASH1') }).bobot), JSON.stringify({ atasan: 0.7, diri: 0.3 }));
+ctx.tnaSetParamInternal(ACTIVE, 'BobotAtasan', 0.6); ctx.tnaSetParamInternal(ACTIVE, 'BobotSelf', 0.4);
+assert.strictEqual(JSON.stringify(T({ action: 'tnaKonteks', ...auth('ASH1') }).bobot), JSON.stringify({ atasan: 0.6, diri: 0.4 }));
 console.log('UJI KUALITAS LULUS');
