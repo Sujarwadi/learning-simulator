@@ -147,5 +147,5 @@ assert.strictEqual(T({ action: 'tnaSetParameter', ...auth('ASH1'), parameter: { 
 assert.ok(T({ action: 'tnaSetParameter', ...auth('A1'), parameter: { PascaHari: 30, PascaMulai: HR(300) } }).ok);
 r = T({ action: 'tnaPascaDaftar', ...auth('ASH1') });
 assert.ok(r.menunggu.some(x => x.nik === 'M2' && x.kodeTraining === 'T02'), 'PascaHari 30: M2 (60 hari lalu) kini jatuh tempo');
-assert.strictEqual(T({ action: 'tnaPing' }).versi, '3.9');
+assert.ok(Number(T({ action: 'tnaPing' }).versi) >= 3.9, 'versi mesin minimal 3.9');
 console.log('UJI PASCA LULUS');

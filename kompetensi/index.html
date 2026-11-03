@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.39, 3 Nov 2026. Perubahan: layar Kualitas Penilaian (admin dan tim L&D): penilaian yang lolos pemeriksaan, pola penilai (nilai seragam, cenderung tinggi atau rendah, centang melompat, bukti disalin), kesepakatan dua penilai (kappa), nilai diri dan atasan, audit bukti Level 4-5 oleh AI berstatus usulan yang ditinjau L&D, unduh Excel (mesin TNA v4.0). -->
 <!-- BBLC Studio v3.38, 3 Nov 2026. Perubahan: perbaikan UI/UX menyeluruh hasil audit: kartu tim dan tombol level tidak patah di HP, kontras tombol dan kotak isian lolos WCAG AA, satu warna aksi utama, skala font (minimal 12 px), pemenggalan baris tanpa kata yatim, huruf kapital dikurangi, istilah Indonesia (periode penilaian), satu nama aplikasi, menu beranda dikelompokkan, bilah aksi validasi menempel di bawah, panel admin rapi, dekorasi dibuang. -->
 <!-- BBLC Studio v3.37, 2 Nov 2026. Perubahan: Tindak Lanjut Training (tile baru untuk atasan): 3 bulan setelah karyawan mengikuti training, atasan menilai ulang hanya kompetensi yang dilatih; tab Rekap efektivitas untuk admin dan tim L&D (perubahan perilaku, terlambat, unduh Excel) (mesin TNA v3.9). -->
 <!-- BBLC Studio v3.36, 2 Nov 2026. Perubahan: bukti singkat wajib untuk penilaian Level 4 dan 5 (form penilaian, mode nilai per kompetensi; tampil bagi validator) supaya level tinggi tidak dicentang tanpa dasar (mesin TNA v3.8). -->
@@ -297,6 +298,10 @@ a.trn{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;c
 .rpt-nav{flex-wrap:nowrap}
 .idp-card textarea{min-height:76px}
 .body-wrap:has(.aksi-bar){padding-bottom:0}
+.kq-temuan{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--text)}.kq-temuan li{margin:2px 0}
+.kq-audit{padding:14px 0;border-bottom:1px solid var(--line)}.kq-audit:first-child{padding-top:0}.kq-audit:last-child{border-bottom:0;padding-bottom:0}
+.kq-aksi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;max-width:360px}
+.kq-kutip{margin:8px 0;padding:8px 12px;border-left:3px solid var(--line-strong);background:var(--inset);border-radius:0 8px 8px 0;font-size:14px;color:var(--ink)}
 #inp-val-catatan{min-height:88px}
 .btn-warn{background:transparent;color:var(--red);border-color:var(--red-line)}
 .btn-warn:hover{background:var(--red-soft)}
@@ -921,6 +926,7 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
           <button class="tile tile-admin" id="btn-tna-admin" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Panel Admin TNA</span><span class="tile-d">Pantau progres, matriks, dan buat output</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-pusat" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Pusat Matrix L&amp;D</span><span class="tile-d">Matriks kompetensi dan training per jabatan, dept, dan divisi; ekspor PDF</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile tile-admin" id="btn-tna-realisasi" style="display:none"><span class="ic ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Monitor Realisasi</span><span class="tile-d">Siapa yang sudah dan belum mengisi, per divisi, dept, dan orang; diperbarui otomatis</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="tile tile-admin" id="btn-tna-kualitas" style="display:none"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="bd"><span class="tile-g">Admin &amp; L&amp;D</span><span class="tile-t">Kualitas Penilaian</span><span class="tile-d">Konsistensi penilai dan audit bukti Level 4 dan 5</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="tile" id="btn-tna-studio" style="display:none"><span class="ic ic-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span><span class="bd"><span class="tile-g">Admin</span><span class="tile-t">Studio Kompetensi</span><span class="tile-d">Fitur lama: kamus, matriks, dan form asesmen</span></span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div></div>
         <div class="menu-grp"><h2 class="sect">Referensi</h2>
@@ -970,6 +976,17 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
       <div class="seg" id="pasca-tab" role="group" aria-label="Tampilan" style="display:none;margin:0 0 12px">
         <button type="button" data-v="tugas" aria-pressed="true">Tugas saya</button><button type="button" data-v="rekap" aria-pressed="false">Rekap efektivitas (L&amp;D)</button></div>
       <div id="pasca-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-tna-kualitas">
+    <header class="app">
+      <div class="logo-mark">BBLC</div>
+      <div style="min-width:0"><div class="app-title">Kualitas penilaian</div><div class="app-sub" id="kq-sub">Konsistensi penilai dan bukti</div></div>
+      <div class="header-right"><button class="btn-logout" data-back="scr-tna-home">Kembali</button></div>
+    </header>
+    <div class="body-wrap" style="max-width:960px">
+      <div id="kq-body"><div class="loading"><div class="spinner"></div>Memuat&hellip;</div></div>
     </div>
   </section>
 
@@ -2052,7 +2069,7 @@ async function masukTNA(loginResp){
   $("btn-tna-admin").style.display = tna.isAdmin ? "" : "none";
   $("btn-tna-studio").style.display = "none"; // fitur lama dipensiunkan dari menu
   $("btn-tna-pusat").style.display = tna.isAdmin ? "" : "none";
-  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-realisasi").style.display = tna.internal ? "" : "none"; // dipastikan ulang dari konteks (tim L&D juga internal)
+  tna.internal = tna.isAdmin; document.body.classList.toggle("internal", tna.internal); $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-realisasi").style.display = tna.internal ? "" : "none"; $("btn-tna-kualitas").style.display = tna.internal ? "" : "none"; // dipastikan ulang dari konteks (tim L&D juga internal)
   pdPindahkanTanda();
   show("scr-tna-home");
   await muatBerandaTNA();
@@ -2064,7 +2081,7 @@ async function muatBerandaTNA(){
   try{
     const r = await tnaApi("tnaKonteks");
     tna.konteks = r; tna.internal = !!r.internal; document.body.classList.toggle("internal", tna.internal);
-    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-realisasi").style.display = tna.internal ? "" : "none"; tna.matrix = tna.isAdmin || !!r.matrix; $("btn-tna-pusat").style.display = tna.matrix ? "" : "none";
+    $("btn-tna-landasan").style.display = tna.internal ? "" : "none"; $("btn-tna-realisasi").style.display = tna.internal ? "" : "none"; $("btn-tna-kualitas").style.display = tna.internal ? "" : "none"; tna.matrix = tna.isAdmin || !!r.matrix; $("btn-tna-pusat").style.display = tna.matrix ? "" : "none";
     { const t = $("btn-tna-pusat"); t.querySelector(".tile-g").textContent = tna.isAdmin ? "Admin" : "Tim saya"; t.querySelector(".tile-t").textContent = "Pusat Matrix"; t.querySelector(".tile-d").textContent = tna.isAdmin ? "Competency & training matrix per jabatan, dept, divisi; ekspor PDF" : "Competency & training matrix tim Anda untuk memetakan pengembangan; ekspor PDF"; }
     const w = r.window;
     const sisaMs = (w==="BELUM_DIJADWALKAN") ? 0 : new Date(w==="BELUM_DIBUKA" ? r.windowBuka : r.windowTutup) - new Date(), sisaH = Math.max(0, Math.floor(sisaMs/86400000)), sisaJ = Math.max(0, Math.floor(sisaMs/3600000)%24);
@@ -2594,6 +2611,121 @@ async function pascaUnduh(){
     $("err-pasca-xls").classList.remove("show");
     if(h.cara!=="batal") alert(h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama);
   }catch(e){ showErr("err-pasca-xls","Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."); }
+  b.disabled = false;
+}
+
+/* ---------- Kualitas penilaian (admin dan tim L&D): reliabilitas penilai + audit bukti AI ---------- */
+const kq = { data:null, gen:0, jalan:false };
+const KQ_PUTUSAN = { MENDUKUNG:["Mendukung level","badge-green"], KURANG_SPESIFIK:["Kurang spesifik","badge-amber"], TIDAK_SESUAI:["Tidak sesuai level","badge-red"] };
+$("btn-tna-kualitas").onclick = ()=>{ show("scr-tna-kualitas"); window.scrollTo(0,0); kqMuat(); };
+async function kqMuat(){
+  const g = ++kq.gen;
+  $("kq-body").innerHTML = '<div class="loading"><div class="spinner"></div>Menghitung kualitas penilaian&hellip;</div>';
+  try{
+    const r = await tnaApi("tnaKualitasPenilai", {});
+    if(g !== kq.gen) return;
+    kq.data = r; kqRender();
+  }catch(e){ if(g === kq.gen) $("kq-body").innerHTML = '<div class="err show">'+esc(e.message)+'</div>'; }
+}
+function kqPersen(v){ return v===null || v===undefined ? "–" : v+"%"; }
+function kqDes(v){ return v===null || v===undefined ? "–" : String(v).replace(".", ","); }
+function kqRender(){
+  const r = kq.data, R = r.ringkas, D = r.duaPenilai, S = r.diriAtasan, B = r.bukti, A = r.audit;
+  const kpi = (n,l)=>'<div class="chip-k"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';
+  $("kq-sub").textContent = R.penilaian ? R.penilaian+" penilaian · "+R.penilai+" penilai" : "Belum ada penilaian final";
+  if(!R.penilaian){ $("kq-body").innerHTML = '<div class="card"><div class="empty">Belum ada penilaian atasan yang final pada periode ini. Indikator muncul setelah penilaian masuk.</div></div>'; return; }
+  const buktiLengkap = B.perlu ? Math.round((B.perlu - B.kurang) / B.perlu * 100) : null;
+  const kap = D.kappa!==null ? kqDes(D.kappa)+' <small style="font-size:13px;font-weight:600;color:var(--muted)">'+esc(D.tafsir)+'</small>' : (D.pasangan ? kqPersen(D.persenDekat) : "–");
+  const kapL = D.kappa!==null ? "kesepakatan dua penilai (kappa, "+D.pasangan+" pasangan)" : (D.pasangan ? "dua penilai selisih paling banyak 1 level ("+D.pasangan+" pasangan; kappa perlu minimal "+r.minN+")" : "belum ada orang yang dinilai dua penilai");
+  const hero = '<div class="card"><div class="rpt-eyebrow">Penilaian yang lolos pemeriksaan kualitas</div>'+
+    '<div class="rpt-big">'+kqPersen(R.persenLolos)+'<small>'+R.lolos+' dari '+R.penilaian+'</small></div>'+
+    '<div class="rpt-lead">Satu penilaian = satu penilai menilai satu orang. Lolos bila penilainya tidak menunjukkan pola nilai yang janggal, centangnya runtut, dan bukti Level 4 dan 5 lengkap, tidak disalin, dan tidak dinilai lemah oleh AI.</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+kpi(R.penilaiTemuan+" / "+R.penilai,"penilai perlu dicek")+kpi(kap,kapL)+
+    kpi(S.pasangan ? kqDes(S.rataSelisih) : "–", S.pasangan ? "level, rata-rata selisih nilai diri dan atasan ("+kqPersen(S.persenJauh)+" berbeda 2 level atau lebih)" : "belum ada pasangan nilai diri dan atasan")+
+    kpi(kqPersen(buktiLengkap), "nilai Level 4 dan 5 yang punya bukti ("+B.perlu+" nilai)")+'</div></div>';
+  const perlu = r.penilai.filter(p=>p.temuan.length);
+  const kartuPenilai = p=>'<div class="team-item" style="cursor:default;align-items:flex-start"><div class="team-avatar">'+esc((p.nama||"?").charAt(0))+'</div><div class="team-info">'+
+    '<div class="team-name">'+esc(p.nama)+'</div><div class="team-jabatan">'+esc(jab(p.jabatan))+(p.cabang?' · '+esc(p.cabang):'')+'</div>'+
+    '<div class="team-jabatan" style="margin-top:2px">'+p.nilai+' nilai untuk '+p.orang+' orang · rata-rata level '+kqDes(p.rataRata)+(R.rataOrganisasi!==null?' (seluruh penilai '+kqDes(R.rataOrganisasi)+')':'')+' · Level 4 dan 5: '+p.persenTinggi+'%</div>'+
+    '<ul class="kq-temuan">'+p.temuan.map(t=>'<li><b>'+esc(t.label)+'</b>: '+esc(t.detail)+'</li>').join("")+'</ul></div></div>';
+  const daftar = '<h2 class="sect">Penilai yang perlu dicek ('+perlu.length+')</h2>'+(perlu.length ? '<div class="card">'+perlu.map(kartuPenilai).join("")+'</div>'
+    : '<div class="card"><div class="empty">Tidak ada pola janggal pada penilai mana pun.</div></div>')+
+    '<details class="ld-panel"><summary>Lihat semua penilai ('+r.penilai.length+')</summary><div class="scrollbox" style="max-height:420px;margin-top:8px"><table><tr><th>Penilai</th><th>Nilai</th><th>Rata-rata</th><th>Level 4-5</th><th>Bukti kurang</th><th>Temuan</th></tr>'+
+    r.penilai.map(p=>'<tr><td>'+esc(p.nama)+'<div class="hint" style="margin:0">'+esc(jab(p.jabatan))+'</div></td><td>'+p.nilai+(p.cukupData?'':'<div class="hint" style="margin:0">data belum cukup</div>')+'</td><td>'+kqDes(p.rataRata)+'</td><td>'+p.persenTinggi+'%</td><td>'+p.buktiKurang+'</td><td>'+(p.temuan.length?p.temuan.map(t=>esc(t.label)).join(", "):'–')+'</td></tr>').join("")+'</table></div></details>';
+  const sisaAudit = B.belum;
+  const statusAI = !A.aktif ? '<div class="hint" style="margin:0">Audit AI belum aktif. '+(A.bolehJalan ? 'Admin mengisi Script Property <b>GEMINI_API_KEY</b> di project Apps Script TNA, lalu buka ulang halaman ini.' : 'Hubungi admin untuk mengaktifkan.')+'</div>'
+    : '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px">'+kpi(B.diaudit,"bukti sudah diaudit")+kpi(B.mendukung,"mendukung level")+kpi(B.kurangSpesifik,"kurang spesifik")+kpi(B.tidakSesuai,"tidak sesuai level")+kpi(sisaAudit,"belum diaudit")+'</div>'+
+      (A.bolehJalan && sisaAudit ? '<div class="err" id="err-kq-ai"></div><button type="button" class="btn btn-primary" id="btn-kq-ai" style="margin-top:8px">Audit '+sisaAudit+' bukti yang belum diaudit</button><div class="hint" id="kq-ai-prog">Bukti dikirim tanpa nama dan NIK. Setiap putaran berjalan paling lama 4,5 menit; sisanya dilanjutkan otomatis.</div>' : '');
+  const antre = A.antrean, grup = [], gk = {};
+  antre.forEach(x=>{ const k = [x.penilai, x.nama, x.putusan, x.status, x.keputusanLD, String(x.bukti).trim().toLowerCase()].join("|");
+    if(!gk[k]){ gk[k] = Object.assign({}, x, { ids:[], komp:[], lv:{} }); grup.push(gk[k]); }
+    gk[k].ids.push(x.id); gk[k].komp.push(x.kompetensi); gk[k].lv[x.level] = 1; });
+  const kartuAudit = x=>{ const pt = KQ_PUTUSAN[x.putusan] || [x.putusan,"badge-grey"], ditinjau = x.status==="DITINJAU_LD", banyak = x.ids.length > 1;
+    const judul = banyak ? '<b>'+x.ids.length+' kompetensi</b> · Level '+Object.keys(x.lv).join(" dan ")+'<div class="hint" style="margin:0 0 2px;color:var(--text)">'+x.komp.map(esc).join(", ")+'</div>' : '<b>'+esc(x.kompetensi)+'</b> · Level '+x.level;
+    return '<div class="kq-audit" data-kq="'+esc(x.ids.join(","))+'"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div>'+judul+
+      '<div class="hint" style="margin:0">'+esc(x.nama)+(x.jabatan?' · '+esc(jab(x.jabatan)):'')+' · dinilai '+esc(x.penilai)+'</div></div><span class="badge '+pt[1]+'">'+pt[0]+'</span></div>'+
+      '<blockquote class="kq-kutip">'+esc(x.bukti)+'</blockquote>'+(banyak ? '<div class="hint" style="margin:0 0 4px">Kalimat bukti yang sama dipakai untuk '+x.ids.length+' kompetensi.</div>' : '')+
+      '<div class="hint" style="margin:0"><b>Catatan AI</b> (belum final): '+esc(x.alasan)+(x.levelTersirat?' Bukti lebih sesuai dengan Level '+x.levelTersirat+'.':'')+'</div>'+
+      (ditinjau ? '<div class="hint" style="margin:8px 0 0;color:var(--text)"><b>Ditinjau L&amp;D:</b> '+(x.keputusanLD==="TOLAK_AI"?'bukti sudah cukup':'bukti memang lemah')+(x.catatanLD?' · '+esc(x.catatanLD):'')+'</div>'
+        : '<input type="text" class="kq-cat" placeholder="Catatan tinjauan (opsional)" aria-label="Catatan tinjauan" style="margin-top:10px"><div class="err kq-err"></div><div class="kq-aksi"><button type="button" class="btn btn-ghost btn-kecil" data-kp="TOLAK_AI">Bukti cukup</button><button type="button" class="btn btn-ghost btn-kecil" data-kp="SETUJU_AI">Bukti lemah</button></div>')+'</div>'; };
+  const belumTinjau = grup.filter(x=>x.status!=="DITINJAU_LD").length;
+  const audit = '<h2 class="sect">Audit bukti oleh AI</h2><div class="card"><div class="rpt-lead" style="margin:0">AI membaca bukti Level 4 dan 5 dari penilai, lalu membandingkannya dengan definisi level dan perilaku kunci. Hasilnya <b>usulan, bukan keputusan</b>: hanya tim L&amp;D yang melihatnya, dan setiap catatan perlu ditinjau.</div>'+statusAI+'</div>'+
+    (grup.length ? '<h2 class="sect">Perlu ditinjau L&amp;D ('+belumTinjau+' dari '+grup.length+')</h2><div class="card">'+grup.map(kartuAudit).join("")+'</div>' : '');
+  const cara = '<details class="ld-panel"><summary>Cara membaca dan batasannya</summary><div class="ld-isi">'+
+    '<div><b>Nilai hampir seragam</b>: 90% atau lebih nilai seorang penilai berada di satu level. Biasanya tanda penilai tidak membedakan kompetensi (kesalahan halo).</div>'+
+    '<div><b>Cenderung tinggi atau rendah</b>: rata-rata nilai penilai lebih dari satu simpangan baku di atas atau di bawah rata-rata penilai lain (leniency dan severity).</div>'+
+    '<div><b>Centang melompat</b>: 20% atau lebih nilai mencentang perilaku level atas tanpa level di bawahnya. Skala TNA bertingkat, jadi ini tanda checklist tidak dibaca utuh.</div>'+
+    '<div><b>Bukti disalin</b>: kalimat bukti yang sama dipakai untuk 3 nilai atau lebih.</div>'+
+    '<div><b>Kesepakatan dua penilai</b>: kappa berbobot kuadrat pada orang dan kompetensi yang dinilai atasan langsung dan penilai kedua. Tafsir: di bawah 0,2 sangat lemah; 0,2 sampai 0,4 lemah; 0,4 sampai 0,6 sedang; 0,6 sampai 0,8 kuat; di atas 0,8 sangat kuat.</div>'+
+    '<div><b>Batasan</b>: pola sebaran baru dihitung bila penilai memberi minimal '+r.minN+' nilai. Indikator ini menandai pola yang perlu dicek, bukan bukti penilai salah; tim yang memang kuat bisa wajar bernilai tinggi. AI hanya membaca teks bukti dan bisa keliru.</div>'+
+    '<div class="ref">Rujukan: Saal, Downey, dan Lahey (1980), Rating the ratings, Psychological Bulletin 88(2); Cohen (1968), Weighted kappa, Psychological Bulletin 70(4); Landis dan Koch (1977), Biometrics 33(1).</div></div></details>';
+  $("kq-body").innerHTML = hero + daftar + audit + cara + '<div class="err" id="err-kq-xls"></div><button type="button" class="btn btn-ghost" id="btn-kq-xls" style="margin:16px 0 30px">Unduh laporan kualitas (Excel)</button>';
+  if($("btn-kq-ai")) $("btn-kq-ai").onclick = kqJalankanAI;
+  $("btn-kq-xls").onclick = kqUnduh;
+}
+document.addEventListener("click", async e=>{
+  const b = e.target.closest && e.target.closest(".kq-audit [data-kp]"); if(!b) return;
+  const kartu = b.closest(".kq-audit"), err = kartu.querySelector(".kq-err"); err.classList.remove("show");
+  kartu.querySelectorAll("[data-kp]").forEach(x=> x.disabled = true);
+  try{
+    await tnaApi("tnaTinjauAudit", { ids: kartu.dataset.kq.split(","), keputusan: b.dataset.kp, catatan: kartu.querySelector(".kq-cat").value });
+    kqMuat();
+  }catch(x){ err.textContent = x.message; err.classList.add("show"); kartu.querySelectorAll("[data-kp]").forEach(y=> y.disabled = false); }
+});
+async function kqJalankanAI(){
+  if(kq.jalan) return; kq.jalan = true;
+  const g = kq.gen, b = $("btn-kq-ai"), prog = $("kq-ai-prog"), awal = kq.data.bukti.belum; let selesai = 0, galat = 0;
+  b.disabled = true; clearErr("err-kq-ai");
+  try{
+    for(let putaran = 0; putaran < 20; putaran++){
+      prog.textContent = "Mengaudit bukti: "+selesai+" dari "+awal+" selesai. Halaman boleh ditinggal; proses berlanjut di server.";
+      const r = await tnaApi("tnaAuditBukti", {});
+      selesai += r.diproses; galat += r.galat;
+      if(g !== kq.gen) return;
+      if(!r.sisa || !r.diproses){ if(r.pesan) galat = r.pesan; break; }
+    }
+    prog.textContent = selesai+" bukti diaudit."+(typeof galat==="string" ? " "+galat : (galat ? " "+galat+" belum berhasil dan bisa dicoba lagi." : ""));
+    if(typeof galat==="string" && !selesai){ showErr("err-kq-ai", galat); b.disabled = false; kq.jalan = false; return; }
+    kq.jalan = false; kqMuat();
+  }catch(e){ showErr("err-kq-ai", e.message); b.disabled = false; }
+  kq.jalan = false;
+}
+async function kqUnduh(){
+  const r = kq.data, b = $("btn-kq-xls"); b.disabled = true; clearErr("err-kq-xls");
+  try{
+    const H = t=>({ v:t, s:{ b:1, sz:10, c:"FFFFFF", f:"1F4E79", h:"center", v:"center", w:1, bd:1 } }), C = (v,h)=>({ v:v===null||v===undefined?"-":v, s:{ sz:10, bd:1, v:"top", h:h||"left", w:1 } }), R = r.ringkas, D = r.duaPenilai, S = r.diriAtasan, B = r.bukti;
+    const ring = [[{ v:"Kualitas Data Penilaian TNA", s:{ b:1, sz:14, c:"1F4E79" } }],["Periode", r.periode],[],[H("Ukuran"),H("Nilai")],
+      [C("Penilaian (penilai x orang)"),C(R.penilaian,"right")],[C("Lolos pemeriksaan"),C(R.lolos,"right")],[C("Persen lolos"),C(R.persenLolos===null?null:R.persenLolos/100,"right")],
+      [C("Penilai"),C(R.penilai,"right")],[C("Penilai perlu dicek"),C(R.penilaiTemuan,"right")],
+      [C("Pasangan dua penilai"),C(D.pasangan,"right")],[C("Kappa berbobot kuadrat"),C(D.kappa,"right")],[C("Tafsir kappa"),C(D.tafsir||null)],[C("Dua penilai sama persis (%)"),C(D.persenSama,"right")],[C("Dua penilai selisih paling banyak 1 level (%)"),C(D.persenDekat,"right")],
+      [C("Pasangan nilai diri dan atasan"),C(S.pasangan,"right")],[C("Rata-rata selisih nilai diri dan atasan (level)"),C(S.rataSelisih,"right")],[C("Berbeda 2 level atau lebih (%)"),C(S.persenJauh,"right")],
+      [C("Nilai Level 4-5 dari penilai"),C(B.perlu,"right")],[C("Tanpa bukti cukup"),C(B.kurang,"right")],[C("Diaudit AI"),C(B.diaudit,"right")],[C("AI: mendukung"),C(B.mendukung,"right")],[C("AI: kurang spesifik"),C(B.kurangSpesifik,"right")],[C("AI: tidak sesuai level"),C(B.tidakSesuai,"right")],[C("Belum diaudit"),C(B.belum,"right")],
+      [],[C("Catatan: indikator menandai pola yang perlu dicek, bukan bukti penilai salah. Hasil AI berstatus usulan sampai ditinjau tim L&D.")]];
+    const pn = [["Penilai","Jabatan","Cabang","Nilai","Orang","Rata-rata","Level 4-5 (%)","Bukti kurang","AI lemah","Temuan"].map(H)].concat(r.penilai.map(p=>[C(p.nama),C(jab(p.jabatan)),C(p.cabang),C(p.nilai,"right"),C(p.orang,"right"),C(p.rataRata,"right"),C(p.persenTinggi,"right"),C(p.buktiKurang,"right"),C(p.aiMasalah,"right"),C(p.temuan.map(t=>t.label+": "+t.detail).join("; ")||"-")]));
+    const au = [["Karyawan","Jabatan","Penilai","Kompetensi","Level","Bukti","Putusan AI","Catatan AI","Status","Keputusan L&D","Catatan L&D"].map(H)].concat(r.audit.antrean.map(x=>[C(x.nama),C(jab(x.jabatan)),C(x.penilai),C(x.kompetensi),C(x.level,"right"),C(x.bukti),C((KQ_PUTUSAN[x.putusan]||[x.putusan])[0]),C(x.alasan),C(x.status==="DITINJAU_LD"?"Ditinjau L&D":"Usulan AI, belum ditinjau"),C(x.keputusanLD==="TOLAK_AI"?"Bukti sudah cukup":(x.keputusanLD==="SETUJU_AI"?"Bukti memang lemah":"-")),C(x.catatanLD||"-")]));
+    const h = await unduhBlob(XL.build([{ nama:"Ringkasan", lebar:[46,16], baris:ring },{ nama:"Penilai", lebar:[26,28,18,8,8,10,12,12,10,60], baris:pn, beku:"A2" },{ nama:"Audit Bukti", lebar:[24,24,22,26,7,50,18,44,22,18,30], baris:au, beku:"A2" }]), "Kualitas_Penilaian_"+r.periode+".xlsx");
+    if(h.cara!=="batal") alert(h.cara==="viewer" ? "Dokumen disimpan: "+h.nama : "Dokumen dibuat: "+h.nama);
+  }catch(e){ showErr("err-kq-xls","Dokumen belum bisa dibuat. Muat ulang halaman lalu coba lagi."); }
   b.disabled = false;
 }
 
