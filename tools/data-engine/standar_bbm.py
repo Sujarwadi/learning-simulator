@@ -259,12 +259,30 @@ def terapkan(kamus, cek, indikator, matriks, task_rows, interv, katalog, master_
     # keputusan L&D 31 Okt: tiap sel tanpa tugas ditautkan ke aktivitas JD yang menuntutnya, atau dihapus bila JD tidak mendukung
     KP = _muat("keputusan")
     mat_by = {(m["KodeJabatan"], kam[m["KodeKompetensi"]]["Nama"]): m for m in matriks if m["KodeKompetensi"] in kam}
-    hapus, n_taut = set(), 0
+    hapus, n_taut, n_kembali = set(), 0, 0
+    KEMBALI, TAMBAH = getattr(KP, "KEMBALI", {}), getattr(KP, "TAMBAH_SEL", {})
+    def _tugas_usulan(j, kd, lv, teks, alasan):
+        # tugas usulan L&D: bidang pengetahuan, standar, KSA, dan bukti mengikuti baris tugas lain yang memakai kompetensi yang sama
+        contoh = next((t for t in task_rows if t["KodeKompetensi"] == kd and t.get("StandarKinerja")), {})
+        judul = "Tugas Pendukung Kebutuhan Bisnis 2027"  # judul netral untuk pengguna; catatan proses ada di kolom Sumber (khusus L&D)
+        no = max([int(t["NoTugas"] or 0) for t in tugas_by_j[j]] or [0]) + (0 if any(t["TugasUtama"] == judul for t in tugas_by_j[j]) else 1)
+        nt = {"KodeJabatan": j, "NoTugas": no, "TugasUtama": judul, "Task": teks, "KodeKompetensi": kd, "SubProses": "", "SubSubProses": "",
+              "Pengetahuan": contoh.get("Pengetahuan", ""), "StandarKinerja": contoh.get("StandarKinerja", ""), "SubStandar": contoh.get("SubStandar", ""),
+              "KSA": contoh.get("KSA", ""), "LevelAktivitas": str(lv),
+              "BuktiPenilaian": contoh.get("BuktiPenilaian") or "Observasi langsung atasan dan catatan hasil kerja",
+              "Sumber": alasan}
+        task_rows.append(nt); tugas_by_j[j].append(nt)
     for (j, nm), akt in KP.SEL.items():
         m = mat_by.get((j, nm))
         if not m: continue  # sudah tidak ada di matriks (mis. data berubah)
         kd = m["KodeKompetensi"]
         if any(t["KodeKompetensi"] == kd for t in tugas_by_j[j]): continue
+        if akt is None and (j, nm) in KEMBALI:
+            # koreksi 4 Nov 2026: kompetensi master dipertahankan berdasarkan kebutuhan bisnis, bukan hanya teks JD
+            _tugas_usulan(j, kd, m["RequiredLevel"], KEMBALI[(j, nm)], "Tugas usulan L&D 4 Nov 2026 berdasarkan kebutuhan bisnis dan proyeksi skill 2027; kompetensi ini ada di master. JD perlu direvisi agar memuat tugas ini")
+            n_kembali += 1
+            temuan.append(("Perubahan: kompetensi master dipertahankan (kebutuhan bisnis)", j, nm, "Level %s. Ditambah tugas usulan L&D: %s. JD perlu direvisi." % (m["RequiredLevel"], KEMBALI[(j, nm)]), "", "DITERAPKAN"))
+            continue
         if akt is None:
             hapus.add((j, kd)); temuan.append(("Perubahan: kompetensi dihapus dari matriks", j, nm, "Level %s. Tidak ada tugas di JD yang menuntut kompetensi ini." % m["RequiredLevel"], "", "DITERAPKAN")); continue
         t0 = next((t for t in tugas_by_j[j] if akt.lower() in str(t["Task"]).lower()), None)
@@ -274,6 +292,20 @@ def terapkan(kamus, cek, indikator, matriks, task_rows, interv, katalog, master_
         task_rows.append(nt); tugas_by_j[j].append(nt); n_taut += 1
         temuan.append(("Perubahan: kompetensi ditautkan ke aktivitas JD", j, nm, "Aktivitas: " + str(t0["Task"]), "", "DITERAPKAN"))
     matriks[:] = [m for m in matriks if (m["KodeJabatan"], m["KodeKompetensi"]) not in hapus]
+    for (j, kd), (lv, bobot, teks) in TAMBAH.items():
+        if any(m["KodeJabatan"] == j and m["KodeKompetensi"] == kd for m in matriks): continue
+        assert kd in kam, "kompetensi tidak ada di kamus: " + kd
+        matriks.append({"KodeJabatan": j, "KodeKompetensi": kd, "RequiredLevel": lv, "Bobot": bobot, "Sumber": "Usulan L&D 4 Nov 2026 (arah bisnis, disetujui user)", "Flag": ""})
+        _tugas_usulan(j, kd, lv, teks, "Tugas usulan L&D 4 Nov 2026 (arah bisnis 2027, disetujui user); belum ada di master maupun JD")
+        temuan.append(("Perubahan: kompetensi baru ditambahkan ke matriks (arah bisnis)", j, kam[kd]["Nama"], "Level %s. %s" % (lv, teks), "", "DITERAPKAN"))
+    lap["Sel matriks master dipertahankan karena kebutuhan bisnis (koreksi 4 Nov)"] = n_kembali
+    lap["Sel matriks baru karena arah bisnis (4 Nov)"] = len(TAMBAH)
+    ada_kode = {c["KodeTraining"] for c in katalog}
+    for c in getattr(KP, "MODUL_BARU", []):
+        if c["KodeTraining"] not in ada_kode: katalog.append(dict(c))
+    for c in katalog:
+        if c["KodeTraining"] in getattr(KP, "SUMBER_BARU", {}): c["SumberFile"] = KP.SUMBER_BARU[c["KodeTraining"]]
+    lap["Modul baru internal (4 Nov)"] = len(getattr(KP, "MODUL_BARU", []))
     lap["Sel matriks ditautkan ke aktivitas JD (keputusan L&D)"] = n_taut
     lap["Sel matriks dihapus karena tidak didukung JD (keputusan L&D)"] = len(hapus)
     n_lin = 0

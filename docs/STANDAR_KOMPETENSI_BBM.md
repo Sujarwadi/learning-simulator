@@ -64,6 +64,7 @@ Catatan rujukan: SFIA punya 7 tingkat dan Dreyfus 5 tahap; padanan di atas adala
 1. **Setiap sel matriks teknis didukung minimal satu aktivitas di uraian tugas** (Campion dkk., 2011; Schippmann dkk., 2000: model kompetensi berangkat dari analisis jabatan). Sel yang belum didukung ditandai `TIDAK DIDUKUNG TASK` dan tampil di aplikasi sebagai "Belum didukung tugas JD".
 2. **Level syarat = level aktivitas tertinggi** yang menuntut kompetensi itu di jabatan tersebut.
 3. Level Tools & Technology ditentukan oleh tugas, sama seperti kompetensi lain. Tidak ada level minimum per jenjang yang ditetapkan rujukan; usulan penyesuaian level Tools dicatat sebagai butir review, bukan diubah sepihak. **[Keputusan BBM]**
+4. **Kompetensi tidak dihapus hanya karena JD tidak menyebutnya.** JD sering tertinggal dari situasi bisnis. Sebelum menghapus sel matriks, nilai terhadap (a) situasi bisnis dealer saat ini, (b) proyeksi skill 2-3 tahun ke depan (contoh: penjualan lewat kanal digital), dan (c) benchmark jabatan sejenis. Bila kompetensi tetap dibutuhkan, sel dipertahankan dan diberi **tugas usulan L&D** sehingga keterlacakan terpenuhi, lalu JD dicatat untuk direvisi. Penghapusan hanya bila ketiga pertimbangan itu menyatakan tidak relevan. **[Keputusan BBM, 4 Nov 2026]** (Dasar: Campion dkk., 2011 menekankan model kompetensi yang berorientasi masa depan dan selaras strategi organisasi, bukan hanya deskripsi tugas saat ini.)
 
 ## 6. Tata kelola dan status
 

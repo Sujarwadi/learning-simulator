@@ -19,6 +19,8 @@ Berkas di kolom kanan sudah masuk `.gitignore`. Sebelum commit, jalankan:
    - JD jabatan berubah atau ada jabatan baru: `jd_extract.py` (satu blok `X["Jxxx"]`) atau `jd_disusun_ld.py`.
    - Kamus atau key behavior kompetensi teknis: `std/kb_a.py`, `kb_b.py`, `kb_c.py` (7 kalimat per kompetensi: definisi L1, KB L1 x2, KB2 L2-L5).
    - Keputusan pemetaan sel matriks tanpa tugas: `std/keputusan.py` (`SEL`), penulisan ulang key behavior (`REWRITE`).
+   - Sel master yang dipertahankan karena kebutuhan bisnis walau JD belum menyebut: `std/keputusan.py` (`KEMBALI`: teks tugas usulan); sel baru karena arah bisnis: `TAMBAH_SEL`; modul baru: `MODUL_BARU`; penyelenggara yang diputuskan: `SUMBER_BARU`. Aturan: kompetensi tidak dihapus hanya karena JD diam (Standar Kompetensi BBM, komponen 4 butir 4).
+   - Silabus modul baru: tambah blok di `sil_*.py` (paket), jalankan `python3 gen_silabus.py` di folder kerja setelah satu kali `jalankan.sh`, lalu `jalankan.sh` lagi.
    - Karyawan baru atau pindah: ganti `Master_Karyawan_TNA_2027_CLEAN.xlsx` (hasil `clean_karyawan.py` dari data HRIS).
    - Master kompetensi fungsi (Finance, L&D): letakkan xlsx baru di `master/`, lalu `python3 parse_master.py` (menghasilkan `master/finance.json` dan `lnd.json`).
 3. Jalankan: `bash tools/data-engine/jalankan.sh ~/kerja-tna` (tambahkan `--dokumen` untuk 101 dokumen jabatan; butuh node dan Playwright).
@@ -28,3 +30,4 @@ Berkas di kolom kanan sudah masuk `.gitignore`. Sebelum commit, jalankan:
 
 ## Pembuktian reproduksi
 Dibangun dari folder kosong memakai kode ini dan paket masukan: 25.476 baris pada 14 tab, 0 selisih terhadap paket yang berjalan (31 Okt 2026).
+Paket masukan v2 (4 Nov 2026: 41 sel master dipertahankan, 1 sel baru, 3 modul baru beserta silabus): 25.566 baris pada 14 tab, 0 selisih saat dibangun ulang dari folder kosong.

@@ -84,7 +84,7 @@ def bangun(modul_nama, berkas):
 if __name__ == "__main__":
     sys.path.insert(0, ".")
     todo = [("sil_a", "b13_program_perilaku.json"), ("sil_b", "b14_pimpinan_pengayaan.json"),
-            ("sil_c", "b15_teknis_1.json"), ("sil_d", "b16_teknis_2.json"), ("sil_e", "b17_teknis_3.json"), ("sil_f", "b18_teknis_4.json")]
+            ("sil_c", "b15_teknis_1.json"), ("sil_d", "b16_teknis_2.json"), ("sil_e", "b17_teknis_3.json"), ("sil_f", "b18_teknis_4.json"), ("sil_g", "b19_modul_baru_2027.json")]
     semua = []
     for m, b in todo:
         if os.path.exists(m + ".py"): semua += bangun(m, b)
