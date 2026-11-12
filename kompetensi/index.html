@@ -1,3 +1,4 @@
+<!-- BBLC Studio v3.41, 12 Nov 2026. Perubahan: Panel Admin > Impor Training Plan (unggah paket Plan 2027 dari L&D menjadi ITP dan kalender, termasuk program baru Katalog dan koreksi sel matriks; status Plan, lepas Plan); agenda ITP menampilkan alasan program dan "jam menyusul" bagi program eksternal tanpa durasi pasti (mesin TNA v4.2). -->
 <!-- BBLC Studio v3.40, 3 Nov 2026. Perubahan: label bobot skor aktual mengikuti Parameter (bukan 70/30 tetap), judul menu huruf biasa, kotak centang tabel admin 22 px (mesin TNA v4.1). -->
 <!-- BBLC Studio v3.39, 3 Nov 2026. Perubahan: layar Kualitas Penilaian (admin dan tim L&D): penilaian yang lolos pemeriksaan, pola penilai (nilai seragam, cenderung tinggi atau rendah, centang melompat, bukti disalin), kesepakatan dua penilai (kappa), nilai diri dan atasan, audit bukti Level 4-5 oleh AI berstatus usulan yang ditinjau L&D, unduh Excel (mesin TNA v4.0). -->
 <!-- BBLC Studio v3.38, 3 Nov 2026. Perubahan: perbaikan UI/UX menyeluruh hasil audit: kartu tim dan tombol level tidak patah di HP, kontras tombol dan kotak isian lolos WCAG AA, satu warna aksi utama, skala font (minimal 12 px), pemenggalan baris tanpa kata yatim, huruf kapital dikurangi, istilah Indonesia (periode penilaian), satu nama aplikasi, menu beranda dikelompokkan, bilah aksi validasi menempel di bawah, panel admin rapi, dekorasi dibuang. -->
@@ -1381,6 +1382,15 @@ tr.mx-tot th.mx-rh{background:var(--inset)}
         <div class="hint">ITP dan rencana 70/20/10 hanya tampil ke karyawan dan atasan setelah dirilis. Admin dan tim L&amp;D selalu bisa melihat (untuk pratinjau). Rilis setelah hasil divalidasi dan disetujui manajemen.</div>
         <div class="err" id="err-tna-rilis"></div>
         <div style="margin-top:12px"><button class="btn btn-ghost" id="btn-tna-rilis">Rilis ITP</button></div>
+      </div>
+      <h2 class="sect">Impor Training Plan 2027</h2>
+      <div class="card">
+        <div id="tna-adm-plan" class="hint" style="color:var(--text)"></div>
+        <div class="hint">Unggah paket Plan (berkas .json hasil olahan L&amp;D). Isinya program, kelas, tanggal, dan peserta; program baru masuk Katalog, dan koreksi sel matriks ikut diterapkan. Setelah diunggah, jalankan "Buat output sekarang" supaya ITP, IHT Sabtu, dan kalender tersusun. Paket berisi data karyawan: simpan di tempat terbatas.</div>
+        <div style="margin-top:8px"><input type="file" id="plan-file" accept=".json,application/json" aria-label="Pilih berkas paket Plan"></div>
+        <div id="plan-ringkas" class="hint" style="color:var(--text)"></div>
+        <div class="err" id="err-tna-plan"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" id="btn-plan-unggah" disabled>Unggah dan pakai Plan</button><button class="btn btn-ghost" id="btn-plan-lepas" style="display:none">Lepas Plan (kembali ke susunan mesin)</button></div>
       </div>
       <h2 class="sect">Output 5 dokumen</h2>
       <div class="card">
@@ -2992,7 +3002,8 @@ function vizPetaBelajar(r, bulanAktif){
   const lokasi = t => t.Lokasi==="ONLINE" ? "Online" : (t.Lokasi==="TERPUSAT" ? "Kelas terpusat" : (t.Lokasi||""));
   const ev = t => { const d = t.TanggalMulai ? new Date(t.TanggalMulai) : null;
     return '<div class="ev"><div class="ev-d">'+(d?'<b>'+d.getDate()+'</b><span>'+VBLN[d.getMonth()]+'</span>':'<b>·</b><span>'+esc(t.Bulan)+'</span>')+'</div><div><div class="ev-t">'+trn(t.KodeTraining, t.Judul)+'</div>'+
-      '<div class="ev-m"><span class="badge '+(KAT_CLS[t.Kategori]||"badge-grey")+'">'+esc(labelKat(t.Kategori))+'</span>'+badgeUsulan(t.StatusKatalog)+(lokasi(t)?'<span>'+esc(lokasi(t))+'</span>':'')+(t.Kompetensi?'<span>Mengembangkan: <b style="color:var(--text)">'+esc(t.Kompetensi)+'</b></span>':'')+'</div></div><div class="ev-j">'+esc(t.Jam)+' jam</div></div>'; };
+      '<div class="ev-m"><span class="badge '+(KAT_CLS[t.Kategori]||"badge-grey")+'">'+esc(labelKat(t.Kategori))+'</span>'+badgeUsulan(t.StatusKatalog)+(lokasi(t)?'<span>'+esc(lokasi(t))+'</span>':'')+(t.Kompetensi?'<span>Mengembangkan: <b style="color:var(--text)">'+esc(t.Kompetensi)+'</b></span>':'')+'</div>'+
+      (t.Alasan && t.Kategori!=="WajibGap" ? '<div class="ev-m"><span>'+esc(t.Alasan)+'</span></div>' : '')+'</div><div class="ev-j">'+(Number(t.Jam)>0 ? esc(t.Jam)+' jam' : 'jam menyusul')+'</div></div>'; };
   const bulanTampil = bulanAktif ? [bulanAktif] : VBLN;
   const agenda = bulanTampil.map(b=>{
     const list = r.itp.filter(t=>t.Bulan===b && t.Kategori!=="IHT"), iht = r.itp.filter(t=>t.Bulan===b && t.Kategori==="IHT");
@@ -4018,7 +4029,7 @@ async function muatAdminTNA(){
   try{
     const [o, m] = await Promise.all([tnaApi("tnaGetOutput"), tnaApi("tnaMatriksJabatan")]);
     PARAM_ADM.forEach(k=>{ const v = o.parameter[k]; $("adm-"+k).value = (k==="WindowBuka"||k==="WindowTutup") ? keLokalWITA(v) : ((v instanceof Object) ? "" : String(v==null?"":v)); });
-    muatPantauTNA(); rilisTampil(o);
+    muatPantauTNA(); rilisTampil(o); planTampil(o);
     $("tna-adm-matriks").innerHTML = '<label style="display:flex;gap:8px;align-items:center;margin:0 0 8px"><input type="checkbox" id="chk-jab-semua"> Pilih semua yang belum disetujui</label>'+
       '<div class="scrollbox" style="max-height:360px"><table><tr><th></th><th>Kode</th><th>Jabatan</th><th>Orang</th><th>JD</th><th>Status</th></tr>'+
       m.jabatan.map(j=>'<tr><td><input type="checkbox" class="chk-jab" aria-label="Pilih '+esc(jab(j.jobTitle))+'" value="'+esc(j.kode)+'" '+(j.status==="APPROVED"||j.status==="DIKECUALIKAN"?"disabled":"")+'></td><td>'+esc(j.kode)+'</td><td>'+esc(jab(j.jobTitle))+'</td><td>'+esc(j.jml)+'</td><td>'+esc(j.statusJD)+'</td><td><span class="badge '+(j.status==="APPROVED"?"badge-green":"badge-amber")+'">'+esc(STATUS_JAB[j.status]||j.status)+'</span></td></tr>').join("")+'</table></div>'+
@@ -4054,6 +4065,55 @@ $("btn-tna-rilis").onclick = async ()=>{
   clearErr("err-tna-rilis"); const on = $("btn-tna-rilis").dataset.on === "1";
   if(!confirm(on ? "Sembunyikan ITP dari karyawan dan atasan?" : "Rilis ITP sekarang? Seluruh karyawan dan atasan langsung dapat melihat ITP dan kalender training masing-masing.\nPastikan hasil sudah divalidasi dan disetujui manajemen.")) return;
   try{ const r = await tnaApi("tnaSetParameter", { parameter:{ ITPRilis: on ? "" : "1" } }); rilisTampil({ parameter:r.parameter }); }catch(e){ showErr("err-tna-rilis", e.message); }
+};
+/* ---------- Impor Training Plan 2027 (TNA v4.2) ---------- */
+let planPaket = null;
+function planTampil(o){
+  const p = (o && o.parameter) || {}, on = String(p.SumberITP||"") === "PLAN"; let r = {}; try{ r = JSON.parse(p.PlanRingkas||"{}"); }catch(e){ r = {}; }
+  $("tna-adm-plan").innerHTML = on
+    ? '<span class="badge badge-green">Plan dipakai</span> '+esc(r.versi||"")+' · '+esc(r.itp)+' baris peserta, '+esc(r.batch)+' kelas, '+esc(r.jam)+' jam'+(p.PlanDiimporPada?' · diunggah '+esc(fmtTgl(p.PlanDiimporPada)):'')
+    : '<span class="badge badge-grey">Belum ada Plan</span> ITP disusun otomatis oleh mesin dari hasil asesmen.' + (p.PlanStatus==="DITOLAK" ? ' <span class="badge badge-red">Unggahan terakhir ditolak</span>' : '');
+  $("btn-plan-lepas").style.display = on ? "" : "none";
+}
+$("plan-file").onchange = async ev=>{
+  clearErr("err-tna-plan"); planPaket = null; $("btn-plan-unggah").disabled = true; $("plan-ringkas").innerHTML = "";
+  const f = ev.target.files[0]; if(!f) return;
+  try{
+    const j = JSON.parse(await f.text());
+    if(!j.PlanITP || !j.PlanBatch || !j.Katalog || !j.Matriks || !j.ringkas) throw new Error("x");
+    if(j.PlanITP.rows.length !== j.ringkas.itp || j.PlanBatch.rows.length !== j.ringkas.batch) throw new Error("x");
+    planPaket = j; const L = j.laporan || {};
+    $("plan-ringkas").innerHTML = '<b>'+esc(j.versi)+'</b> · '+esc(j.ringkas.itp)+' baris peserta, '+esc(j.ringkas.batch)+' kelas, '+esc(j.ringkas.jam)+' jam<br>'+
+      esc(j.Katalog.rows.length)+' program baru masuk Katalog (status usulan pengadaan) · '+esc(j.Matriks.rows.length)+' sel matriks dikoreksi'+
+      (L.kursiPlaceholder ? ' · '+esc(L.kursiPlaceholder)+' kursi tanpa nama tidak diimpor' : '')+(L.programDitunda ? ' · '+esc(L.programDitunda)+' program ditunda di Plan tidak ikut' : '');
+    $("btn-plan-unggah").disabled = false;
+  }catch(e){ showErr("err-tna-plan", "Berkas ini bukan paket Plan yang utuh. Minta L&D membuat ulang paketnya."); }
+};
+$("btn-plan-unggah").onclick = async ()=>{
+  clearErr("err-tna-plan"); if(!planPaket) return;
+  if(!confirm("Unggah dan pakai Plan ini?\nProgram, bulan, dan kelas non-IHT di ITP akan mengikuti Plan. Matriks dan Katalog diperbarui sesuai paket.")) return;
+  const btn = $("btn-plan-unggah"); btn.disabled = true; $("plan-file").disabled = true; const P = planPaket, UK = 1500;
+  const pesan = t=>{ $("plan-ringkas").innerHTML = '<div class="loading"><div class="spinner"></div>'+esc(t)+'</div>'; };
+  try{
+    await tnaApi("tnaImporPlan", { fase:"mulai", versi:P.versi });
+    for(const tab of ["Katalog","Matriks","PlanBatch","PlanITP"]){
+      const rows = P[tab].rows; if(!rows.length) continue;
+      for(let i=0; i<rows.length; i+=UK){
+        pesan("Mengunggah "+({Katalog:"program baru",Matriks:"koreksi matriks",PlanBatch:"kelas",PlanITP:"peserta"})[tab]+" "+Math.min(i+UK, rows.length)+" dari "+rows.length+"…");
+        await tnaApi("tnaImporPlan", { fase:"tambah", tab:tab, kolom:P[tab].kolom, rows:rows.slice(i, i+UK) });
+      }
+    }
+    pesan("Memeriksa Plan…");
+    const r = await tnaApi("tnaImporPlan", { fase:"selesai", ringkas:{ itp:P.ringkas.itp, batch:P.ringkas.batch }, versi:P.versi });
+    $("plan-ringkas").innerHTML = '<span class="badge badge-green">Plan diterima</span> '+esc(r.ringkas.itp)+' peserta, '+esc(r.ringkas.batch)+' kelas, '+esc(r.ringkas.jam)+' jam'+(r.ringkas.dilewati?' · '+esc(r.ringkas.dilewati)+' baris dilewati (NIK tidak ada di master)':'')+'. Lanjutkan dengan "Buat output sekarang".';
+    planPaket = null; $("plan-file").value = ""; muatAdminTNA();
+  }catch(e){ $("plan-ringkas").innerHTML = ""; showErr("err-tna-plan", e.message + " Unggahan diulang dari awal; Plan lama belum dipakai."); btn.disabled = !planPaket; }
+  $("plan-file").disabled = false;
+};
+$("btn-plan-lepas").onclick = async ()=>{
+  clearErr("err-tna-plan");
+  if(!confirm("Lepas Plan? ITP berikutnya disusun mesin dari hasil asesmen, bukan dari Plan.")) return;
+  try{ await tnaApi("tnaImporPlan", { fase:"lepas" }); muatAdminTNA(); }catch(e){ showErr("err-tna-plan", e.message); }
 };
 $("btn-tna-generate").onclick = async ()=>{
   clearErr("err-tna-output");

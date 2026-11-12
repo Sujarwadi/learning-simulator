@@ -31,3 +31,8 @@ Berkas di kolom kanan sudah masuk `.gitignore`. Sebelum commit, jalankan:
 ## Pembuktian reproduksi
 Dibangun dari folder kosong memakai kode ini dan paket masukan: 25.476 baris pada 14 tab, 0 selisih terhadap paket yang berjalan (31 Okt 2026).
 Paket masukan v2 (4 Nov 2026: 41 sel master dipertahankan, 1 sel baru, 3 modul baru beserta silabus): 25.566 baris pada 14 tab, 0 selisih saat dibangun ulang dari folder kosong.
+
+## Impor Training Plan 2027 ke aplikasi (TNA v4.2)
+Plan disusun di luar aplikasi; paket untuk aplikasi dibuat dengan:
+`python3 plan_ke_app.py --kelas kelas.json --baris baris_final.json --paket TNA2027_Import.xlsx --judul-xlsx Training_Plan_*.xlsx --matriks-koreksi koreksi.json --versi "Training Plan 2027 vNN" --out Plan2027_Paket.json`
+Hasilnya (berisi data karyawan, simpan di Drive terbatas) diunggah admin di Panel Admin > Impor Training Plan, lalu "Buat output sekarang". Uji: `python3 test_plan_ke_app.py`, `node test_plan.js ../../backend/TNA.gs`, `node test_plan_ui.js`.
