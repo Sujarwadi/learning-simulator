@@ -7,6 +7,7 @@ MASUKAN (semua di luar repo; berisi data karyawan, jangan di-commit):
   --baris   baris per orang x program (NIK, Kode, Judul, Asal, Kompetensi, ...), dipakai untuk judul, kategori, kompetensi, alasan
   --paket   TNA2027_Import.xlsx (hasil build_import.py): Karyawan, Katalog, Kamus, Matriks
   --judul-xlsx (opsional) Training_Plan_Kalender_Budget_*.xlsx: sumber judul program yang tidak ada di --baris (mis. modul ATPM mekanik), dari sheet "Peserta per Kelas"
+  --hapus-kompetensi (opsional) kode kompetensi yang dibuang dari data aktif (mis. TK-029)
   --matriks-koreksi (opsional) JSON [{KodeJabatan,KodeKompetensi,RequiredLevel,Bobot?}] koreksi sel matriks oleh L&D
 KELUARAN: satu JSON (PlanITP, PlanBatch, Katalog, Matriks, ringkas, laporan). Rekonsiliasi jam dicek di sini dan di backend.
 
@@ -59,7 +60,7 @@ def judul_dari_plan(xlsx):
     return out
 
 
-def bangun(kelas_json, baris, paket_xlsx, koreksi=None, versi="Plan", judul_plan=None):
+def bangun(kelas_json, baris, paket_xlsx, koreksi=None, versi="Plan", judul_plan=None, hapus=None):
     wb = openpyxl.load_workbook(paket_xlsx, read_only=True, data_only=True)
     karyawan = {str(r["NIK"]) for r in baca(wb["Karyawan"])}
     katalog = {str(r["KodeTraining"]): r for r in baca(wb["Katalog"])}
@@ -112,6 +113,12 @@ def bangun(kelas_json, baris, paket_xlsx, koreksi=None, versi="Plan", judul_plan
         b0 = next(b for b in batch if b["KodeTraining"] == kode)
         baru.append(dict(KodeTraining=kode, Judul=b0["Judul"], Kategori=kat, KodeKompetensi=komp, LevelTarget="", Metode=b0["Metode"], DurasiJam=b0["DurasiJam"],
                          SumberFile="Training Plan 2027", Link="", Status="USULAN_PENGADAAN", SasaranJabatan=""))
+    # Kompetensi yang dibuang (mis. D'Net): tidak boleh dirujuk Plan maupun koreksi matriks
+    hapus = [str(k) for k in (hapus or [])]
+    for k in hapus:
+        assert not any(r["KodeKompetensi"] == k or r["KodeTraining"] == "U-" + k for r in itp), "Plan masih merujuk kompetensi yang dibuang: " + k
+        assert not any(str(c["KodeKompetensi"]) == k for c in (koreksi or [])), "Koreksi matriks merujuk kompetensi yang dibuang: " + k
+    sel_dibuang = sum(1 for (j, kk) in matriks if kk in hapus)
     # Matriks: koreksi sel oleh L&D
     mat, lapor_mat = [], []
     for c in koreksi or []:
@@ -131,9 +138,9 @@ def bangun(kelas_json, baris, paket_xlsx, koreksi=None, versi="Plan", judul_plan
     def tabel(kolom, rows): return {"kolom": kolom, "rows": [[r[k] for k in kolom] for r in rows]}
     return {
         "versi": versi, "dibuat": datetime.date.today().isoformat(),
-        "PlanITP": tabel(KOLOM_ITP, itp), "PlanBatch": tabel(KOLOM_BATCH, batch), "Katalog": tabel(KOLOM_KATALOG, baru), "Matriks": tabel(KOLOM_MATRIKS, mat),
+        "PlanITP": tabel(KOLOM_ITP, itp), "PlanBatch": tabel(KOLOM_BATCH, batch), "Katalog": tabel(KOLOM_KATALOG, baru), "Matriks": tabel(KOLOM_MATRIKS, mat), "Hapus": {"kolom": ["KodeKompetensi"], "rows": [[k] for k in hapus]},
         "ringkas": {"itp": len(itp), "batch": len(batch), "jam": round(jam_total, 2)},
-        "laporan": {"kursiPlaceholder": placeholder, "nikTidakDiMaster": tidak_di_master, "programBaruKatalog": len(baru), "koreksiMatriks": lapor_mat,
+        "laporan": {"kursiPlaceholder": placeholder, "nikTidakDiMaster": tidak_di_master, "programBaruKatalog": len(baru), "koreksiMatriks": lapor_mat, "kompetensiDibuang": hapus, "selMatriksDibuang": sel_dibuang,
                     "jamPerBulan": {b: round(per_bulan[b], 1) for b in BULAN}, "programDitunda": len(kelas_json.get("tunda", [])), "tanpaJudul": sorted({b["KodeTraining"] for b in batch if b["Judul"] == b["KodeTraining"]})},
     }
 
@@ -141,14 +148,15 @@ def bangun(kelas_json, baris, paket_xlsx, koreksi=None, versi="Plan", judul_plan
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--kelas", required=True); ap.add_argument("--baris", required=True); ap.add_argument("--paket", required=True)
-    ap.add_argument("--matriks-koreksi"); ap.add_argument("--judul-xlsx"); ap.add_argument("--versi", default="Training Plan 2027"); ap.add_argument("--out", required=True)
+    ap.add_argument("--matriks-koreksi"); ap.add_argument("--judul-xlsx"); ap.add_argument("--hapus-kompetensi", nargs="*", default=[]); ap.add_argument("--versi", default="Training Plan 2027"); ap.add_argument("--out", required=True)
     a = ap.parse_args()
     hasil = bangun(json.load(open(a.kelas, encoding="utf-8")), json.load(open(a.baris, encoding="utf-8")), a.paket,
                    json.load(open(a.matriks_koreksi, encoding="utf-8")) if a.matriks_koreksi else None, a.versi,
-                   judul_dari_plan(a.judul_xlsx) if a.judul_xlsx else None)
+                   judul_dari_plan(a.judul_xlsx) if a.judul_xlsx else None, a.hapus_kompetensi)
     json.dump(hasil, open(a.out, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     L = hasil["laporan"]
     print("Program tanpa judul (judul = kode): %s" % (", ".join(L["tanpaJudul"]) or "tidak ada"))
+    print("Kompetensi dibuang: %s (%d sel matriks)" % (", ".join(L["kompetensiDibuang"]) or "tidak ada", L["selMatriksDibuang"]))
     print("ITP %d baris, batch %d, jam %.1f; program baru Katalog %d; koreksi matriks %d; kursi placeholder %d; NIK di luar master %d; program ditunda (tidak diimpor) %d"
           % (hasil["ringkas"]["itp"], hasil["ringkas"]["batch"], hasil["ringkas"]["jam"], L["programBaruKatalog"], len(L["koreksiMatriks"]), L["kursiPlaceholder"], L["nikTidakDiMaster"], L["programDitunda"]))
 

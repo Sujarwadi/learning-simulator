@@ -4085,21 +4085,21 @@ $("plan-file").onchange = async ev=>{
     planPaket = j; const L = j.laporan || {};
     $("plan-ringkas").innerHTML = '<b>'+esc(j.versi)+'</b> · '+esc(j.ringkas.itp)+' baris peserta, '+esc(j.ringkas.batch)+' kelas, '+esc(j.ringkas.jam)+' jam<br>'+
       esc(j.Katalog.rows.length)+' program baru masuk Katalog (status usulan pengadaan) · '+esc(j.Matriks.rows.length)+' sel matriks dikoreksi'+
-      (L.kursiPlaceholder ? ' · '+esc(L.kursiPlaceholder)+' kursi tanpa nama tidak diimpor' : '')+(L.programDitunda ? ' · '+esc(L.programDitunda)+' program ditunda di Plan tidak ikut' : '');
+      ((j.Hapus && j.Hapus.rows.length) ? ' · '+esc(j.Hapus.rows.length)+' kompetensi dibuang ('+esc(j.Hapus.rows.map(x=>x[0]).join(", "))+')' : '')+(L.kursiPlaceholder ? ' · '+esc(L.kursiPlaceholder)+' kursi tanpa nama tidak diimpor' : '')+(L.programDitunda ? ' · '+esc(L.programDitunda)+' program ditunda di Plan tidak ikut' : '');
     $("btn-plan-unggah").disabled = false;
   }catch(e){ showErr("err-tna-plan", "Berkas ini bukan paket Plan yang utuh. Minta L&D membuat ulang paketnya."); }
 };
 $("btn-plan-unggah").onclick = async ()=>{
   clearErr("err-tna-plan"); if(!planPaket) return;
-  if(!confirm("Unggah dan pakai Plan ini?\nProgram, bulan, dan kelas non-IHT di ITP akan mengikuti Plan. Matriks dan Katalog diperbarui sesuai paket.")) return;
+  if(!confirm("Unggah dan pakai Plan ini?\nProgram, bulan, dan kelas non-IHT di ITP akan mengikuti Plan. Matriks dan Katalog diperbarui sesuai paket, dan kompetensi yang dibuang hilang dari form asesmen.")) return;
   const btn = $("btn-plan-unggah"); btn.disabled = true; $("plan-file").disabled = true; const P = planPaket, UK = 1500;
   const pesan = t=>{ $("plan-ringkas").innerHTML = '<div class="loading"><div class="spinner"></div>'+esc(t)+'</div>'; };
   try{
     await tnaApi("tnaImporPlan", { fase:"mulai", versi:P.versi });
-    for(const tab of ["Katalog","Matriks","PlanBatch","PlanITP"]){
-      const rows = P[tab].rows; if(!rows.length) continue;
+    for(const tab of ["Katalog","Matriks","Hapus","PlanBatch","PlanITP"]){
+      if(!P[tab]) continue; const rows = P[tab].rows; if(!rows.length) continue;
       for(let i=0; i<rows.length; i+=UK){
-        pesan("Mengunggah "+({Katalog:"program baru",Matriks:"koreksi matriks",PlanBatch:"kelas",PlanITP:"peserta"})[tab]+" "+Math.min(i+UK, rows.length)+" dari "+rows.length+"…");
+        pesan("Mengunggah "+({Katalog:"program baru",Matriks:"koreksi matriks",Hapus:"penghapusan kompetensi",PlanBatch:"kelas",PlanITP:"peserta"})[tab]+" "+Math.min(i+UK, rows.length)+" dari "+rows.length+"…");
         await tnaApi("tnaImporPlan", { fase:"tambah", tab:tab, kolom:P[tab].kolom, rows:rows.slice(i, i+UK) });
       }
     }

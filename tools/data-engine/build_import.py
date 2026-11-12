@@ -71,7 +71,7 @@ HINT = {
     "Electrical System": ["kelistrikan", "electrical"], "Part Catalogue": ["nomor part", "katalog", "part number"],
     "Spare Part Management": ["spare part", "suku cadang", "part "], "Market & Data Analysis": ["analisa data", "mengolah data", "data penjualan", "menganalisa"],
     "Financial Accounting": ["jurnal", "akuntansi", "laporan keuangan", "psak"], "Taxation Regulation": ["pajak", "pph", "spt", "ppn"],
-    "E-Faktur & DJP Online": ["faktur pajak", "e-faktur", "djp"], "D'Net Operation": ["d'net", "dnet", "d-net"],
+    "E-Faktur & DJP Online": ["faktur pajak", "e-faktur", "djp"],
     "Receivable Control": ["piutang", "tagih", "penagihan"], "Cash Management": ["kas ", "kas,", "dana", "opname kas"],
     "Human Capital Management": ["karyawan", "sdm", "manpower"], "Training Management": ["pelatihan", "training", "learning process"],
     "Training Design & Delivery": ["materi", "menyampaikan materi", "memberikan materi"], "Training Need Analysis": ["tna", "kebutuhan pelatihan", "analisa kebutuhan"],
@@ -526,7 +526,7 @@ TAB = {
  "Riwayat": (["NIK", "KodeTraining", "Tanggal", "Sumber"], RIWAYAT),
 }
 from silabus_rekam import silabus_rows, rekam_rows, SILABUS_H, REKAM_H
-SILABUS = silabus_rows(kamus)
+SILABUS = [s for s in silabus_rows(kamus) if s["KodeTraining"] not in ("U-TK-022", "U-TK-029")]   # modul kompetensi yang dibuang ikut keluar dari silabus
 KODE_VALID = kat_kode | set(s["KodeTraining"] for s in SILABUS)
 REKAM = rekam_rows(karyawan, KODE_VALID)
 TAB["Silabus"] = (SILABUS_H, SILABUS)

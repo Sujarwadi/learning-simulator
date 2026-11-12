@@ -8,7 +8,7 @@ ATPM_REKAM = {  # nilai terbanyak di RekamTraining (jam)
 }
 ATPM_TANPA_REKAM = {"W-EST1", "W-EST2", "W-EST3", "W-INSTR"}  # ATPM tetapi belum ada record: dibiarkan kosong (keputusan user: skip dulu)
 IKUT_PENYELENGGARA = {"W-BREVET", "W-GADA", "W-SERTGA"}  # durasi mengikuti aturan lembaga penyelenggara: dibiarkan kosong
-TIGA_JAM = {"U-TK-072", "U-TK-029", "U-TK-094", "U-TK-077", "W-TFT", "D-STS"}   # 4 jam sebelumnya, ditambah ToT dan Sales Talk (keputusan user 28 Okt)
+TIGA_JAM = {"U-TK-072", "U-TK-094", "U-TK-077", "W-TFT", "D-STS"}   # 4 jam sebelumnya, ditambah ToT dan Sales Talk (keputusan user 28 Okt)
 def terapkan(katalog):
     ubah = {}
     for c in katalog:

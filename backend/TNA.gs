@@ -2129,6 +2129,21 @@ function tnaUpsert(ss, nama, rows, kunci) {
   return { baru: baru, ubah: ubah, catatan: catatan };
 }
 
+// Membuang satu kompetensi dari data aktif tanpa import ulang (jabatan, asesmen, dan pengguna tidak tersentuh): sel Matriks, Kamus, Indikator,
+// Checklist, Intervensi, serta modul "U-<kode>" di Katalog, Silabus, dan Mandatory; kode kompetensi pada Task dikosongkan (uraian tugas JD tidak diubah).
+// Baris Asesmen lama untuk kompetensi itu tidak dihapus (arsip) dan tidak dipakai lagi karena Gap dibentuk dari Matriks.
+function tnaHapusKompetensi(ss, kode) {
+  var n = { kode: kode };
+  if (!/^[A-Za-z0-9-]{2,20}$/.test(kode)) throw new Error("Kode kompetensi tidak valid: " + kode);
+  function saring(nama, simpan) { var a = tnaBacaSheet(ss, nama), b = a.filter(simpan); n[nama] = a.length - b.length; if (n[nama]) tnaTulisUlang(ss, nama, b); }
+  ["Matriks", "Kamus", "Indikator", "Checklist", "Intervensi"].forEach(function (t) { saring(t, function (r) { return String(r.KodeKompetensi) !== kode; }); });
+  ["Katalog", "Silabus", "Mandatory"].forEach(function (t) { saring(t, function (r) { return String(r.KodeTraining) !== "U-" + kode; }); });
+  var tk = tnaBacaSheet(ss, "Task"), ub = 0;
+  tk.forEach(function (r) { if (String(r.KodeKompetensi) === kode) { r.KodeKompetensi = ""; ub++; } });
+  n.Task = ub; if (ub) tnaTulisUlang(ss, "Task", tk);
+  return n;
+}
+
 function tnaImporPlan(ss, req) {
   var auth = tnaAuth(ss, req); if (!auth.ok) return auth;
   if (auth.role !== "admin") return { ok: false, error: "Hanya admin L&D yang dapat mengimpor Plan." };
@@ -2141,9 +2156,15 @@ function tnaImporPlan(ss, req) {
   }
   if (fase === "tambah") {
     var tab = String(req.tab || ""), kolom = req.kolom || [], baris = req.rows || [];
-    if (["PlanITP", "PlanBatch", "Katalog", "Matriks"].indexOf(tab) === -1) return { ok: false, error: "Tab paket tidak dikenal." };
+    if (["PlanITP", "PlanBatch", "Katalog", "Matriks", "Hapus"].indexOf(tab) === -1) return { ok: false, error: "Tab paket tidak dikenal." };
     if (String(tnaParam(ss).PlanStatus || "") !== "MENGUNGGAH") return { ok: false, error: "Mulai unggahan dari awal (fase mulai belum dijalankan)." };
     if (!kolom.length || baris.length > 5000) return { ok: false, error: "Paket tidak valid (kolom kosong atau terlalu banyak baris per kiriman)." };
+    if (tab === "Hapus") {
+      if (kolom.length !== 1 || kolom[0] !== "KodeKompetensi") return { ok: false, error: "Paket penghapusan kompetensi tidak valid." };
+      var lapH = baris.map(function (a) { return tnaHapusKompetensi(ss, String(a[0])); });
+      tnaLog(ss, auth.nik, "imporPlanHapus", JSON.stringify(lapH));
+      return { ok: true, tab: tab, hapus: lapH };
+    }
     for (var i = 0; i < kolom.length; i++) if (TNA_TAB[tab].indexOf(kolom[i]) === -1) return { ok: false, error: "Kolom " + kolom[i] + " tidak dikenal di " + tab + "." };
     var objs = baris.map(function (a) { var o = {}; kolom.forEach(function (k, c) { o[k] = a[c]; }); return o; });
     if (tab === "PlanBatch") objs.forEach(function (o) { o.TanggalMulai = tnaTanggalPlan(o.TanggalMulai); o.TanggalSelesai = tnaTanggalPlan(o.TanggalSelesai); });

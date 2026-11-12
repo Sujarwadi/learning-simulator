@@ -51,17 +51,21 @@ def _bersih(s): return re.sub(r"\s*;\s*", ", ", str(s or "").strip())
 def _kelompok(kat):
     return "Tools" if "tool" in kat.lower() else "Core"
 
+KOMPETENSI_DIBUANG = ("TK-022", "TK-029")
+
+
 def terapkan(kamus, cek, matriks, task_rows, interv, katalog, master_jab, dir_master="master"):
     lap = {}
-    # ---- 1. buang TK-022
-    lap["TK-022 dibuang dari matriks"] = sum(1 for m in matriks if m["KodeKompetensi"] == "TK-022")
-    matriks[:] = [m for m in matriks if m["KodeKompetensi"] != "TK-022"]
-    for t in task_rows:
-        if t["KodeKompetensi"] == "TK-022": t["KodeKompetensi"] = ""
-    kamus[:] = [k for k in kamus if k["KodeKompetensi"] != "TK-022"]
-    cek[:] = [c for c in cek if c["KodeKompetensi"] != "TK-022"]
-    interv[:] = [i for i in interv if i["KodeKompetensi"] != "TK-022"]
-    katalog[:] = [c for c in katalog if c["KodeTraining"] != "U-TK-022"]
+    # ---- 1. buang kompetensi yang tidak dipakai: TK-022 (duplikat CB02) dan TK-029 D'Net Operation (sistem D'Net tidak dipakai BBM; keputusan user 12 Nov 2026)
+    for kd in KOMPETENSI_DIBUANG:
+        lap[kd + " dibuang dari matriks"] = sum(1 for m in matriks if m["KodeKompetensi"] == kd)
+        matriks[:] = [m for m in matriks if m["KodeKompetensi"] != kd]
+        for t in task_rows:
+            if t["KodeKompetensi"] == kd: t["KodeKompetensi"] = ""
+        kamus[:] = [k for k in kamus if k["KodeKompetensi"] != kd]
+        cek[:] = [c for c in cek if c["KodeKompetensi"] != kd]
+        interv[:] = [i for i in interv if i["KodeKompetensi"] != kd]
+        katalog[:] = [c for c in katalog if c["KodeTraining"] != "U-" + kd]
     # ---- 2. template coaching seragam
     n20 = len(interv); interv[:] = [i for i in interv if not (str(i["Tipe"]) == "20" and TEMPLATE_20.match(str(i["Deskripsi"])))]
     lap["Intervensi 20 seragam dibuang"] = n20 - len(interv)

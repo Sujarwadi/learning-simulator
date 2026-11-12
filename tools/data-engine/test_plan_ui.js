@@ -73,6 +73,7 @@ const P = {
       ['M1', 'PLN-V', 'Vendor Y', 'Wajib', '', 'Jun', 'K27-002', 0, 'PLANNED', 'Program wajib untuk jabatan Anda']] },
   Katalog: { kolom: ctx.TNA_TAB.Katalog, rows: [['PLN-X', 'Program X', 'Dianjurkan', 'T-ENG', '', 'ONLINE', 6, 'Training Plan 2027', '', 'USULAN_PENGADAAN', ''], ['PLN-V', 'Vendor Y', 'Wajib', '', '', 'KLASIKAL', 0, 'Training Plan 2027', '', 'USULAN_PENGADAAN', '']] },
   Matriks: { kolom: ['KodeJabatan', 'KodeKompetensi', 'RequiredLevel', 'Bobot', 'Sumber', 'Flag'], rows: [['J81', 'B-CUS', 3, 2, 'KOREKSI_LD_12NOV2026', 'KOREKSI_LD']] },
+  Hapus: { kolom: ['KodeKompetensi'], rows: [['L-LEAD']] },
   ringkas: { itp: 3, batch: 2, jam: 12 }, laporan: { kursiPlaceholder: 1, programDitunda: 2 },
 };
 (async () => {
@@ -100,7 +101,7 @@ const P = {
     const e = await p.textContent('#err-tna-plan'); if (!/bukan paket Plan yang utuh/.test(e) || /undefined|JSON|\{/.test(e)) throw new Error('pesan berkas rusak salah: ' + e);
     if (!(await p.$eval('#btn-plan-unggah', b => b.disabled))) throw new Error('tombol unggah harus nonaktif untuk berkas rusak');
     await p.setInputFiles('#plan-file', file); await p.waitForFunction(() => !document.getElementById('btn-plan-unggah').disabled);
-    const rg = await p.textContent('#plan-ringkas'); if (!/3 baris peserta, 2 kelas, 12 jam/.test(rg) || !/2 program baru/.test(rg) || !/1 sel matriks dikoreksi/.test(rg) || !/1 kursi tanpa nama/.test(rg)) throw new Error('ringkasan paket salah: ' + rg);
+    const rg = await p.textContent('#plan-ringkas'); if (!/3 baris peserta, 2 kelas, 12 jam/.test(rg) || !/2 program baru/.test(rg) || !/1 sel matriks dikoreksi/.test(rg) || !/1 kompetensi dibuang \(L-LEAD\)/.test(rg) || !/1 kursi tanpa nama/.test(rg)) throw new Error('ringkasan paket salah: ' + rg);
     await shot(p, 'plan_pilih');
     await p.click('#btn-plan-unggah'); await p.waitForFunction(() => /Plan dipakai/.test(document.getElementById('tna-adm-plan').textContent), null, { timeout: 15000 });
     const st = await p.textContent('#tna-adm-plan'); if (!/Plan uji/.test(st) || !/3 baris peserta, 2 kelas/.test(st)) throw new Error('status Plan salah: ' + st);

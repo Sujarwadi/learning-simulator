@@ -36,4 +36,9 @@ mat = {(r[0], r[1]): r for r in h["Matriks"]["rows"]}
 assert mat[("J1", "CB02")][2] == 3 and mat[("J1", "CB02")][3] == 3, "bobot lama dipertahankan"
 assert mat[("J1", "TK-9")][3] == 2 and ("J1", "TK-1") not in mat, "koreksi yang sama dengan nilai lama dilewati"
 assert len(h["laporan"]["koreksiMatriks"]) == 2
+h2 = bangun(kelas, baris, p, None, hapus=["TK-1"])
+assert h2["Hapus"]["rows"] == [["TK-1"]] and h2["laporan"]["selMatriksDibuang"] == 1 and h2["laporan"]["kompetensiDibuang"] == ["TK-1"]
+for salah in (dict(koreksi=[{"KodeJabatan": "J1", "KodeKompetensi": "TK-1", "RequiredLevel": 4}], hapus=["TK-1"]), dict(koreksi=None, hapus=["CB02"])):
+    try: bangun(kelas, baris, p, **salah); raise SystemExit("seharusnya ditolak: " + str(salah))
+    except AssertionError: pass
 print("UJI PLAN_KE_APP LULUS")

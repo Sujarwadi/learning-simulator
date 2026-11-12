@@ -66,6 +66,7 @@ assert.strictEqual(r.ok, false, 'tambah sebelum mulai ditolak');
 assert.ok(T({ action: 'tnaImporPlan', ...adm, fase: 'mulai', versi: 'uji' }).ok);
 r = T({ action: 'tnaImporPlan', ...adm, fase: 'tambah', tab: 'Katalog', kolom: katKol, rows: katBaru }); assert.ok(r.ok && r.baru === 2, JSON.stringify(r));
 r = T({ action: 'tnaImporPlan', ...adm, fase: 'tambah', tab: 'Matriks', kolom: matKol, rows: matBaru }); assert.ok(r.ok && r.baru === 1 && r.ubah === 1, JSON.stringify(r)); // B-CUS diubah 2->3, T-ELC baru
+r = T({ action: 'tnaImporPlan', ...adm, fase: 'tambah', tab: 'Hapus', kolom: ['KodeKompetensi'], rows: [['T-ELC']] }); assert.ok(r.ok && r.hapus[0].Matriks === 1 && r.hapus[0].Kamus === 1 && r.hapus[0].Checklist === 1, JSON.stringify(r));
 r = T({ action: 'tnaImporPlan', ...adm, fase: 'tambah', tab: 'PlanBatch', kolom: batchKol, rows: batches }); assert.ok(r.ok);
 r = T({ action: 'tnaImporPlan', ...adm, fase: 'tambah', tab: 'PlanITP', kolom: itpKol.concat(['Bukan']), rows: itpRows });
 assert.strictEqual(r.ok, false, 'kolom asing ditolak');
@@ -87,13 +88,16 @@ assert.strictEqual(ctx.tnaParam(ACTIVE).SumberITP, 'PLAN');
 // ---- 3. Matriks dan Katalog ter-upsert
 const mx = ctx.tnaBacaSheet(ACTIVE, 'Matriks');
 assert.strictEqual(Number(mx.find(x => x.KodeJabatan === 'J81' && x.KodeKompetensi === 'B-CUS').RequiredLevel), 3);
-assert.ok(mx.find(x => x.KodeJabatan === 'J81' && x.KodeKompetensi === 'T-ELC'));
+assert.ok(!mx.some(x => x.KodeKompetensi === 'T-ELC'), 'kompetensi yang dibuang hilang dari Matriks');
+assert.ok(!ctx.tnaBacaSheet(ACTIVE, 'Kamus').some(x => x.KodeKompetensi === 'T-ELC'), 'dan dari Kamus');
+assert.ok(ctx.tnaBacaSheet(ACTIVE, 'Kamus').some(x => x.KodeKompetensi === 'T-ENG'), 'kompetensi lain utuh');
 assert.ok(ctx.tnaBacaSheet(ACTIVE, 'Katalog').find(x => x.KodeTraining === 'PLN-CB02' && x.Status === 'USULAN_PENGADAAN'));
 
 // ---- 4. Bangun output memakai Plan
 const hasil = ctx.tnaBangunOutput(ACTIVE);
 console.log('rekon', JSON.stringify(hasil.rekon));
 assert.strictEqual(hasil.rekon.sumberITP, 'PLAN');
+assert.ok(!ctx.tnaBacaSheet(ACTIVE, 'Gap').some(g => g.KodeKompetensi === 'T-ELC'), 'Gap tidak lagi memuat kompetensi yang dibuang');
 assert.strictEqual(hasil.rekon.selisih, 0, 'Plan = ITP = Calendar');
 assert.strictEqual(hasil.rekon.planDilewati, 1, 'XX9 dilewati');
 const itp = ctx.tnaBacaSheet(ACTIVE, 'ITP'), bat = ctx.tnaBacaSheet(ACTIVE, 'Batch');
