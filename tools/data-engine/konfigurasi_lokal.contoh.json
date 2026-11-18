@@ -1,0 +1,7 @@
+{
+  "_catatan": "Salin menjadi konfigurasi_lokal.json di folder kerja (BUKAN di repo) dan isi dengan data asli. Jangan commit.",
+  "ADMIN_NIK": "NIK_ADMIN_L&D",
+  "NOH_NIK": ["NIK_NOH_1", "NIK_NOH_2"],
+  "JABATAN_DEMO": ["J001", "J002", "J063"],
+  "PETA_DEMO": {"NAMA KARYAWAN L&D 1": "LD1", "NAMA KARYAWAN L&D 2": "LDS"}
+}

@@ -8,6 +8,7 @@ TNA berdiri sendiri: Google Sheet baru "TNA 2027 DB", project Apps Script baru, 
 4. Import: ikuti langkah "Import paket data" di bawah (`tnaImportPaket`).
 5. **Terapkan → Deployment baru → Aplikasi web**, jalankan sebagai: Saya, akses: Siapa saja. Salin alamat `/exec` ke `window.BACKEND_URL` di `kompetensi/index.html`.
 6. WhatsApp (opsional): Script Properties `WA_TOKEN` dan `WA_AKTIF=1`.
+7. Audit bukti AI (opsional, v4.0): Script Property `GEMINI_API_KEY` (kunci Gemini, sebaiknya tier berbayar), opsional `AI_MODEL` (bawaan `gemini-2.5-flash`). Tanpa kunci, layar Kualitas penilaian tetap jalan tanpa audit AI. Tab `TNA_AuditBukti` dibuat otomatis.
 Perubahan berikutnya: tempel ulang file, lalu **Deploy → Kelola deployment → ✏️ → Versi baru**.
 
 ---

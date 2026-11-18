@@ -47,6 +47,9 @@ Deadline keras: pilot Sen 26 Okt 2026, window asesmen 27 Okt sampai 3 Nov 23:59 
 ## Standar kompetensi
 Setiap perubahan kamus, uraian tugas, atau matriks kompetensi WAJIB mengikuti `docs/STANDAR_KOMPETENSI_BBM.md` (5 level, definisi level + minimal 2 key behavior observable, keterlacakan matriks ke tugas, QA Q1-Q10). Isi master milik fungsi dan kamus FINAL tidak diubah sepihak; temuan dicatat sebagai usulan koreksi.
 
+## Mesin data TNA
+Kode pembangun paket data ada di `tools/data-engine/` (baca `README.md` di sana: cara memperbarui data). Repo ini publik: isi perusahaan (JD, konten kamus) dan data karyawan ada di paket masukan terpisah di Drive, tidak pernah di repo. WAJIB jalankan `python3 tools/data-engine/cek_data_pribadi.py <master karyawan>` sebelum commit yang menyentuh `tools/`.
+
 ## Dokumen & presentasi
 Setiap PPT, proposal, atau dokumen untuk user WAJIB mengikuti `docs/STANDAR_DOKUMEN.md` (judul slide headline 2-6 kata, bukan kalimat; alur ringkasan-situasi-masalah-solusi-keputusan; satu halaman per komponen; tanpa nama perusahaan pembanding; render & periksa sebelum kirim; file diberi akhiran versi).
 
